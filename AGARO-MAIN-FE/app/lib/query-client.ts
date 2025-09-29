@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import { postsQueryKeys } from "./query-client/query-keys/posts";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -25,9 +26,11 @@ export const queryClient = new QueryClient({
   },
 });
 
+const mergedQueryKeys = <T extends Record<string, any>>(...keys: T[]) => {
+  return keys.reduce((acc, key) => {
+    return { ...acc, ...key };
+  }, {} as T);
+};
+
 // Query keys factory for better organization
-export const queryKeys = {
-  // Example: users: ['users'] as const,
-  // Example: user: (id: string) => ['users', id] as const,
-  // Example: userPosts: (userId: string) => ['users', userId, 'posts'] as const,
-} as const;
+export const queryKeys = mergedQueryKeys(postsQueryKeys);

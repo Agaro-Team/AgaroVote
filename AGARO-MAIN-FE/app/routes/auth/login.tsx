@@ -1,4 +1,4 @@
-import type { Route } from "../../+types/root";
+import type { Route } from "./+types/login";
 
 export function meta({}: Route.MetaArgs) {
   return [
