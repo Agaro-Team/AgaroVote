@@ -1,15 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { Form, Link, useLoaderData, useSubmit } from "react-router";
+import { ArrowLeftIcon } from "lucide-react";
+import { Form, Link, useSubmit } from "react-router";
 import { useDebounce } from "rooks";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Input } from "~/components/ui/input";
 import { Skeleton } from "~/components/ui/skeleton";
 import { Spinner } from "~/components/ui/spinner";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { queryClient } from "~/lib/query-client";
 import { postsQueryOptions } from "~/lib/query-client/query-options/posts";
 import type { Route } from "./+types/index";
-import { Button } from "~/components/ui/button";
-import { ArrowLeftIcon } from "lucide-react";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -19,16 +19,22 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export async function loader(args: Route.LoaderArgs) {
-  const url = new URL(args.request.url);
-  const q = url.searchParams.get("q") ?? undefined;
-  await queryClient.ensureQueryData(postsQueryOptions(q));
-  return {
-    q,
-  };
+  try {
+    const url = new URL(args.request.url);
+    const q = url.searchParams.get("q") ?? undefined;
+    await queryClient.ensureQueryData(postsQueryOptions(q));
+    return {
+      q,
+    };
+  } catch (error) {
+    return {
+      q: undefined,
+    };
+  }
 }
 
-export default function PostsPage() {
-  const { q } = useLoaderData<typeof loader>();
+export default function PostsPage({ loaderData }: Route.ComponentProps) {
+  const { q } = loaderData;
 
   // Example React Query usage - fetching data from JSONPlaceholder API
   const { isLoading, error, data: posts } = useQuery(postsQueryOptions(q));

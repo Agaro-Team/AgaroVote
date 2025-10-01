@@ -14,8 +14,10 @@ export async function loader({ params }: Route.LoaderArgs) {
     id: params.id,
   };
 }
-const ShowPostPage = () => {
-  const { id } = useLoaderData<typeof loader>();
+
+const ShowPostPage = ({ loaderData }: Route.ComponentProps) => {
+  const { id } = loaderData;
+
   const {
     data: post,
     isLoading,
