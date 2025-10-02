@@ -20,9 +20,14 @@ const authRoutes = prefix("auth", [
   ]),
 ]);
 
+const dashboardRoutes = prefix("dashboard", [
+  layout("routes/dashboard/layout.tsx", [index("routes/dashboard/index.tsx")]),
+]);
+
 export default [
   index("routes/home.tsx"),
 
   ...postsRoutes,
   ...authRoutes,
+  ...dashboardRoutes,
 ] satisfies RouteConfig;

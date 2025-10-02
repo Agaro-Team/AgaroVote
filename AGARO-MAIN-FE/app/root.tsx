@@ -10,6 +10,8 @@ import {
 import type { Route } from "./+types/root";
 import "./app.css";
 import { QueryClientProvider } from "./components/query-client-provider";
+import { ThemeProvider } from "./lib/theme-provider";
+import { getTheme } from "./lib/theme.server";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -20,18 +22,36 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap",
   },
 ];
 
+export async function loader({ request }: Route.LoaderArgs) {
+  const theme = await getTheme(request);
+  return { theme };
+}
+
 export function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
         <Links />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const theme = document.cookie.match(/theme=([^;]+)/)?.[1] || 'system';
+                const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                if (isDark) {
+                  document.documentElement.classList.add('dark');
+                }
+              })();
+            `,
+          }}
+        />
       </head>
       <body>
         <div className="min-h-dvh">{children}</div>
@@ -42,11 +62,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
-export default function AppWithProviders() {
+export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
   return (
-    <QueryClientProvider>
-      <Outlet />
-    </QueryClientProvider>
+    <ThemeProvider initialTheme={loaderData?.theme || "system"}>
+      <QueryClientProvider>
+        <Outlet />
+      </QueryClientProvider>
+    </ThemeProvider>
   );
 }
 
