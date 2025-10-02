@@ -24,10 +24,15 @@ const dashboardRoutes = prefix("dashboard", [
   layout("routes/dashboard/layout.tsx", [index("routes/dashboard/index.tsx")]),
 ]);
 
+const walletRoutes = prefix("wallet", [
+  layout("routes/wallet/layout.tsx", [index("routes/wallet/index.tsx")]),
+]);
+
 export default [
   index("routes/home.tsx"),
 
   ...postsRoutes,
   ...authRoutes,
   ...dashboardRoutes,
+  ...walletRoutes,
 ] satisfies RouteConfig;

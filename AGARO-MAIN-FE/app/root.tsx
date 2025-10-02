@@ -9,9 +9,10 @@ import {
 
 import type { Route } from "./+types/root";
 import "./app.css";
-import { QueryClientProvider } from "./components/query-client-provider";
+import { QueryClientProvider } from "./lib/query-client/provider";
 import { ThemeProvider } from "./lib/theme-provider";
 import { getTheme } from "./lib/theme.server";
+import { Web3Provider } from "./lib/web3/provider";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -65,9 +66,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
   return (
     <ThemeProvider initialTheme={loaderData?.theme || "system"}>
-      <QueryClientProvider>
-        <Outlet />
-      </QueryClientProvider>
+      <Web3Provider>
+        <QueryClientProvider>
+          <Outlet />
+        </QueryClientProvider>
+      </Web3Provider>
     </ThemeProvider>
   );
 }

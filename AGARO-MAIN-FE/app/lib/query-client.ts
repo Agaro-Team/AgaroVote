@@ -1,4 +1,5 @@
 import { QueryClient } from "@tanstack/react-query";
+import { hashFn } from "@wagmi/core/query";
 import { postsQueryKeys } from "./query-client/query-keys/posts";
 import { mergeRecords } from "./utils";
 
@@ -6,7 +7,8 @@ export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 10, // 10 minutes (formerly cacheTime)
+      gcTime: 1000 * 60 * 60 * 24, // 24 hours (required for persistence)
+      queryKeyHashFn: hashFn, // For proper serialization in devtools
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors
         if (
