@@ -1,26 +1,31 @@
 # Dark Mode Implementation
 
 ## Overview
+
 AgaroVote now supports a complete dark mode system with three theme options: Light, Dark, and System (follows OS preference).
 
 ## Features
 
 ✅ **Three Theme Modes**
+
 - **Light** - Bright theme for daytime use
 - **Dark** - Dark theme for low-light environments
 - **System** - Automatically matches your operating system preference
 
 ✅ **Persistent Theme**
+
 - Theme preference is saved in cookies (1 year expiration)
 - Survives page refreshes and browser restarts
 - Server-side rendering friendly (no flash of incorrect theme)
 
 ✅ **Zero Flash on Load**
+
 - Inline script prevents flash of unstyled content (FOUC)
 - Theme is applied before React hydration
 - Smooth theme transitions
 
 ✅ **React Router 7 Compatible**
+
 - Uses React Router's cookie utilities
 - Loader function reads theme from cookies
 - SSR-friendly implementation
@@ -63,19 +68,19 @@ AgaroVote now supports a complete dark mode system with three theme options: Lig
 ### Accessing Theme in Components
 
 ```tsx
-import { useTheme } from "~/lib/theme-provider";
+import { useTheme } from '~/lib/theme-provider';
 
 export function MyComponent() {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  
+
   // theme: "light" | "dark" | "system"
   // resolvedTheme: "light" | "dark" (computed from system if theme is "system")
-  
+
   return (
     <div>
       <p>Current theme: {theme}</p>
       <p>Resolved theme: {resolvedTheme}</p>
-      <button onClick={() => setTheme("dark")}>Switch to Dark</button>
+      <button onClick={() => setTheme('dark')}>Switch to Dark</button>
     </div>
   );
 }
@@ -94,7 +99,7 @@ The theme toggle is already integrated in the user navigation dropdown:
 You can also use the standalone theme toggle button:
 
 ```tsx
-import { ThemeToggle } from "~/components/theme-toggle";
+import { ThemeToggle } from '~/components/theme-toggle';
 
 export function MyComponent() {
   return <ThemeToggle />;
@@ -148,6 +153,7 @@ An inline script applies the theme **before** React hydration to prevent flash.
 ```
 
 The ThemeProvider:
+
 - Manages theme state
 - Listens to system preference changes
 - Updates cookies when theme changes
@@ -179,8 +185,8 @@ When the `dark` class is added to `<html>`, all CSS variables switch to dark mod
 When theme is set to "system":
 
 ```typescript
-const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-mediaQuery.addEventListener("change", updateResolvedTheme);
+const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+mediaQuery.addEventListener('change', updateResolvedTheme);
 ```
 
 The app listens to OS theme changes and automatically switches between light/dark.
@@ -188,12 +194,14 @@ The app listens to OS theme changes and automatically switches between light/dar
 ## Best Practices
 
 ### ✅ Do:
+
 - Use Tailwind's dark mode utilities: `dark:bg-gray-900`
 - Access theme via `useTheme()` hook
 - Test both light and dark modes during development
 - Use semantic colors from the design system
 
 ### ❌ Don't:
+
 - Manually manipulate `document.documentElement.classList`
 - Hardcode colors instead of using CSS variables
 - Forget to test theme switching
@@ -204,12 +212,14 @@ The app listens to OS theme changes and automatically switches between light/dar
 All colors are defined using OKLCH color space for better perceptual uniformity:
 
 ### Light Mode
+
 - Background: `oklch(0.994 0 0)` - Near white
 - Foreground: `oklch(0 0 0)` - Black
 - Primary: `oklch(0.5393 0.2713 286.7462)` - Purple
 - Sidebar: `oklch(0.9777 0.0051 247.8763)` - Light gray
 
 ### Dark Mode
+
 - Background: `oklch(0.2223 0.006 271.1393)` - Dark blue-gray
 - Foreground: `oklch(0.9551 0 0)` - Near white
 - Primary: `oklch(0.6132 0.2294 291.7437)` - Bright purple
@@ -218,16 +228,19 @@ All colors are defined using OKLCH color space for better perceptual uniformity:
 ## Troubleshooting
 
 ### Theme not persisting
+
 - Check browser cookies are enabled
 - Verify cookie path is set to "/"
 - Check cookie max-age is sufficient
 
 ### Flash of wrong theme
+
 - Ensure inline script is in `<head>`
 - Verify script runs before React hydration
 - Check cookie is being read correctly
 
 ### System theme not updating
+
 - Verify media query listener is attached
 - Check browser supports `prefers-color-scheme`
 - Test by changing OS theme while app is open
@@ -264,4 +277,3 @@ All colors are defined using OKLCH color space for better perceptual uniformity:
 **Implementation Date**: October 2025  
 **Framework**: React Router 7  
 **Styling**: Tailwind CSS v4 + CSS Variables
-

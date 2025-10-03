@@ -1,4 +1,3 @@
-
 ---
 
 # **AgaroVote – Landing Page Overview & Content Draft**
@@ -18,11 +17,11 @@ By leveraging blockchain technology:
 
 ## 2. Goals & Core Values
 
-* **Transparency**: All votes are stored on-chain and can be publicly verified.
-* **Integrity**: Once recorded, votes cannot be altered or deleted.
-* **Flexibility**: Multiple voting models supported.
-* **Incentives**: Participants earn rewards for contributing their voices.
-* **Universality**: Suitable for the general public, organizations, enterprises, etc.
+- **Transparency**: All votes are stored on-chain and can be publicly verified.
+- **Integrity**: Once recorded, votes cannot be altered or deleted.
+- **Flexibility**: Multiple voting models supported.
+- **Incentives**: Participants earn rewards for contributing their voices.
+- **Universality**: Suitable for the general public, organizations, enterprises, etc.
 
 ---
 
@@ -32,14 +31,14 @@ By leveraging blockchain technology:
 
 **Tagline Options**
 
-* “Decentralized Voting for Everyone, From Communities to Nations.”
-* “Your Voice. Verified. Rewarded.”
-* “Shaping Decisions with Web3 Transparency.”
+- “Decentralized Voting for Everyone, From Communities to Nations.”
+- “Your Voice. Verified. Rewarded.”
+- “Shaping Decisions with Web3 Transparency.”
 
 **CTA Button Examples**
 
-* “Explore Dashboard”
-* “Start Voting Now”
+- “Explore Dashboard”
+- “Start Voting Now”
 
 ---
 
@@ -63,7 +62,7 @@ By leveraging blockchain technology:
 4. **Earn Rewards** – Receive incentives via synthetic staking.
 
 **Supporting tagline:**
-*“Simple. Transparent. Rewarding.”*
+_“Simple. Transparent. Rewarding.”_
 
 ---
 
@@ -71,19 +70,19 @@ By leveraging blockchain technology:
 
 **Style 1 (Direct & Simple)**
 
-* **Decentralized & Trustless** – Powered by blockchain, eliminating third-party verification.
-* **Rewarding Participation** – Every vote matters and is incentivized through synthetic staking.
-* **Flexible Voting Models** – One-person-one-vote, token-weighted, quadratic, or custom rules.
-* **Cross-Chain Ready** – Starting on Ethereum, with future integration to multiple blockchains.
-* **Open for All** – From grassroots communities to enterprises and governments.
+- **Decentralized & Trustless** – Powered by blockchain, eliminating third-party verification.
+- **Rewarding Participation** – Every vote matters and is incentivized through synthetic staking.
+- **Flexible Voting Models** – One-person-one-vote, token-weighted, quadratic, or custom rules.
+- **Cross-Chain Ready** – Starting on Ethereum, with future integration to multiple blockchains.
+- **Open for All** – From grassroots communities to enterprises and governments.
 
 **Style 2 (Storytelling/Benefit-Oriented)**
 
-* **“Security You Can Trust”** – Every vote is cryptographically secured on-chain.
-* **“Incentives that Empower”** – Your voice comes with rewards, encouraging higher participation.
-* **“Flexibility at Scale”** – From 10 voters in a company to 10 million in a country.
-* **“Global & Borderless”** – No geographical limits, just connect your wallet and vote.
-* **“Transparent Yet Flexible”** – Choose between anonymous or transparent voting.
+- **“Security You Can Trust”** – Every vote is cryptographically secured on-chain.
+- **“Incentives that Empower”** – Your voice comes with rewards, encouraging higher participation.
+- **“Flexibility at Scale”** – From 10 voters in a company to 10 million in a country.
+- **“Global & Borderless”** – No geographical limits, just connect your wallet and vote.
+- **“Transparent Yet Flexible”** – Choose between anonymous or transparent voting.
 
 ---
 
@@ -91,13 +90,13 @@ By leveraging blockchain technology:
 
 **Examples:**
 
-* “Join AgaroVote Today and Redefine Voting.”
-* “Start Your Journey Toward Transparent Decisions.”
+- “Join AgaroVote Today and Redefine Voting.”
+- “Start Your Journey Toward Transparent Decisions.”
 
 **Buttons:**
 
-* [Join AgaroVote]
-* [View Whitepaper]
+- [Join AgaroVote]
+- [View Whitepaper]
 
 ---
 
@@ -105,10 +104,10 @@ By leveraging blockchain technology:
 
 #### **Roadmap (Example)**
 
-* **Q1 2025**: MVP launch on Ethereum
-* **Q2 2025**: Cross-chain integration
-* **Q3 2025**: Advanced voting models (quadratic voting, token governance)
-* **Q4 2025**: Global expansion & community governance
+- **Q1 2025**: MVP launch on Ethereum
+- **Q2 2025**: Cross-chain integration
+- **Q3 2025**: Advanced voting models (quadratic voting, token governance)
+- **Q4 2025**: Global expansion & community governance
 
 #### **Team & Partners (Optional)**
 
@@ -120,56 +119,56 @@ Showcase core contributors, advisors, and partner organizations.
 
 #### **General**
 
-* **What is AgaroVote?**
+- **What is AgaroVote?**
   AgaroVote is a Web3-based voting system designed to ensure transparency, fairness, and incentives for every vote.
 
-* **Who can use AgaroVote?**
+- **Who can use AgaroVote?**
   Anyone — individuals, communities, organizations, or governments. The platform is universal and adaptable.
 
 #### **Voting Process**
 
-* **Do I need a crypto wallet to vote?**
+- **Do I need a crypto wallet to vote?**
   Yes, voting requires wallet connection to ensure security and enable rewards.
 
-* **What voting models are available?**
+- **What voting models are available?**
   One-person-one-vote, token-weighted, quadratic, or custom configurations.
 
-* **Can I vote anonymously?**
+- **Can I vote anonymously?**
   Yes, depending on setup — both anonymous and transparent voting are supported.
 
-* **Is there a voting deadline?**
+- **Is there a voting deadline?**
   Each voting pool can define its own timeframe or remain open-ended.
 
 #### **Rewards & Fees**
 
-* **How do rewards work?**
+- **How do rewards work?**
   AgaroVote uses a synthetic staking reward mechanism. Every vote includes a small fee, and participants earn rewards as incentives.
 
-* **Is voting free?**
+- **Is voting free?**
   A minimal gas fee applies, but users are compensated through rewards.
 
-* **What type of rewards do I get?**
+- **What type of rewards do I get?**
   Rewards are distributed as on-chain tokens claimable via your wallet.
 
 #### **Technology & Security**
 
-* **Which blockchain does AgaroVote run on?**
+- **Which blockchain does AgaroVote run on?**
   Initially Ethereum, with plans for Polygon, Solana, and others.
 
-* **Is my data secure?**
+- **Is my data secure?**
   Yes — votes are immutable, tamper-proof, and stored on-chain.
 
-* **Can organizations create their own voting pools?**
+- **Can organizations create their own voting pools?**
   Absolutely. Any verified user or organization can set up custom voting pools with specific rules.
 
 ---
 
 ## 4. Style & Branding
 
-* **Design**: –
-* **Colors**: –
-* **Visuals**: –
-* **Tone**: Professional yet approachable, ensuring both Web3 enthusiasts and newcomers can understand.
+- **Design**: –
+- **Colors**: –
+- **Visuals**: –
+- **Tone**: Professional yet approachable, ensuring both Web3 enthusiasts and newcomers can understand.
 
 ---
 
@@ -179,8 +178,8 @@ The **AgaroVote landing page** will act as the main entry point for the public t
 
 Beyond introducing the platform, it will:
 
-* Inspire **trust and excitement**
-* Encourage users to **explore the dashboard**
-* Drive participation in **on-chain voting**
+- Inspire **trust and excitement**
+- Encourage users to **explore the dashboard**
+- Drive participation in **on-chain voting**
 
 ---

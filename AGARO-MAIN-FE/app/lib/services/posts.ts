@@ -1,9 +1,10 @@
-import type { Post } from "~/interfaces/post";
-import { api } from "../api";
+import type { Post } from '~/interfaces/post';
+
+import { api } from '../api';
 
 const getPosts = async (q?: string) => {
   return api
-    .get<Post[]>("/posts", {
+    .get<Post[]>('/posts', {
       params: {
         q,
       },

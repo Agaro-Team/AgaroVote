@@ -4,24 +4,14 @@
  * Displays comprehensive wallet information including address, balance, and network.
  * Useful for dashboard or profile pages.
  */
+import { CheckCircle2, Copy, ExternalLink } from 'lucide-react';
+import { useWalletBalance, useWalletDisplay, useWeb3Chain, useWeb3Wallet } from '~/hooks/use-web3';
 
-import {
-  useWeb3Wallet,
-  useWalletBalance,
-  useWeb3Chain,
-  useWalletDisplay,
-} from "~/hooks/use-web3";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "./ui/card";
-import { Button } from "./ui/button";
-import { Skeleton } from "./ui/skeleton";
-import { Copy, ExternalLink, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { useState } from 'react';
+
+import { Button } from './ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
+import { Skeleton } from './ui/skeleton';
 
 /**
  * WalletInfoCard Component
@@ -33,11 +23,7 @@ import { useState } from "react";
  */
 export function WalletInfoCard() {
   const { address, isConnected } = useWeb3Wallet();
-  const {
-    formattedBalance,
-    symbol,
-    isLoading: isLoadingBalance,
-  } = useWalletBalance();
+  const { formattedBalance, symbol, isLoading: isLoadingBalance } = useWalletBalance();
   const { chainName, chainId } = useWeb3Chain();
   const { shortenAddress } = useWalletDisplay();
   const [copied, setCopied] = useState(false);
@@ -56,15 +42,15 @@ export function WalletInfoCard() {
     if (!address) return;
 
     const explorerUrls: Record<number, string> = {
-      1: "https://etherscan.io/address",
-      5: "https://goerli.etherscan.io/address",
-      11155111: "https://sepolia.etherscan.io/address",
-      137: "https://polygonscan.com/address",
-      80002: "https://amoy.polygonscan.com/address",
+      1: 'https://etherscan.io/address',
+      5: 'https://goerli.etherscan.io/address',
+      11155111: 'https://sepolia.etherscan.io/address',
+      137: 'https://polygonscan.com/address',
+      80002: 'https://amoy.polygonscan.com/address',
     };
 
-    const baseUrl = explorerUrls[chainId] || "https://etherscan.io/address";
-    window.open(`${baseUrl}/${address}`, "_blank");
+    const baseUrl = explorerUrls[chainId] || 'https://etherscan.io/address';
+    window.open(`${baseUrl}/${address}`, '_blank');
   };
 
   if (!isConnected) {
@@ -72,9 +58,7 @@ export function WalletInfoCard() {
       <Card>
         <CardHeader>
           <CardTitle>Wallet Not Connected</CardTitle>
-          <CardDescription>
-            Connect your wallet to view your account information
-          </CardDescription>
+          <CardDescription>Connect your wallet to view your account information</CardDescription>
         </CardHeader>
       </Card>
     );
@@ -94,24 +78,14 @@ export function WalletInfoCard() {
             <code className="text-sm bg-muted px-3 py-1.5 rounded flex-1">
               {shortenAddress(address, 6)}
             </code>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={handleCopyAddress}
-              title="Copy address"
-            >
+            <Button variant="outline" size="icon" onClick={handleCopyAddress} title="Copy address">
               {copied ? (
                 <CheckCircle2 className="h-4 w-4 text-green-500" />
               ) : (
                 <Copy className="h-4 w-4" />
               )}
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={openExplorer}
-              title="View on explorer"
-            >
+            <Button variant="outline" size="icon" onClick={openExplorer} title="View on explorer">
               <ExternalLink className="h-4 w-4" />
             </Button>
           </div>

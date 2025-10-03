@@ -13,6 +13,7 @@ npm install @tanstack/query-async-storage-persister @tanstack/react-query-persis
 ```
 
 **Packages:**
+
 - `@tanstack/query-async-storage-persister` - Async storage adapter (replaces deprecated sync version)
 - `@tanstack/react-query-persist-client` - React Query persistence client
 
@@ -25,12 +26,13 @@ npm install @tanstack/query-async-storage-persister @tanstack/react-query-persis
 **File:** `app/lib/query-client.ts`
 
 **Changes:**
+
 - ✅ Added `hashFn` from `@wagmi/core/query` for BigInt serialization
 - ✅ Updated `gcTime` from 10 minutes to 24 hours (required for persistence)
 - ✅ Added `queryKeyHashFn` for proper devtools display
 
 ```typescript
-import { hashFn } from "@wagmi/core/query";
+import { hashFn } from '@wagmi/core/query';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,6 +49,7 @@ export const queryClient = new QueryClient({
 **File:** `app/lib/query-client/provider.tsx`
 
 **Changes:**
+
 - ✅ Imported `createAsyncStoragePersister` (not deprecated)
 - ✅ Imported `PersistQueryClientProvider`
 - ✅ Imported `serialize` and `deserialize` from wagmi
@@ -126,6 +129,7 @@ export const QueryClientProvider = ({ children }) => (
 ### Test 1: Basic Persistence
 
 1. Start the dev server:
+
    ```bash
    npm run dev
    ```
@@ -141,8 +145,9 @@ export const QueryClientProvider = ({ children }) => (
 1. Open DevTools Console
 
 2. Check stored data:
+
    ```javascript
-   JSON.parse(localStorage.getItem('REACT_QUERY_OFFLINE_CACHE'))
+   JSON.parse(localStorage.getItem('REACT_QUERY_OFFLINE_CACHE'));
    ```
 
 3. You should see serialized query data
@@ -182,12 +187,12 @@ Time: ~100ms (instant)
 
 ### Metrics
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Initial render | 2-3s | ~100ms | **95% faster** |
-| RPC calls/refresh | 5-10 | 0-2 | **80% reduction** |
-| Loading state | Always shown | Only on first load | **Better UX** |
-| Data availability | Network required | Works offline | **Offline support** |
+| Metric            | Before           | After              | Improvement         |
+| ----------------- | ---------------- | ------------------ | ------------------- |
+| Initial render    | 2-3s             | ~100ms             | **95% faster**      |
+| RPC calls/refresh | 5-10             | 0-2                | **80% reduction**   |
+| Loading state     | Always shown     | Only on first load | **Better UX**       |
+| Data availability | Network required | Works offline      | **Offline support** |
 
 ---
 
@@ -196,12 +201,14 @@ Time: ~100ms (instant)
 ### What's Stored
 
 ✅ **Public blockchain data only**
+
 - Wallet addresses (public)
 - Balances (public)
 - Network information (public)
 - Block numbers (public)
 
 ❌ **Never stored:**
+
 - Private keys
 - Seed phrases
 - Transaction signatures
@@ -210,11 +217,13 @@ Time: ~100ms (instant)
 ### Storage Location
 
 Data is stored in **localStorage** under the key:
+
 ```
 REACT_QUERY_OFFLINE_CACHE
 ```
 
 Users can clear it anytime via browser settings or:
+
 ```typescript
 localStorage.removeItem('REACT_QUERY_OFFLINE_CACHE');
 ```
@@ -240,15 +249,15 @@ Edit `app/lib/query-client/provider.tsx`:
 ```typescript
 const asyncSessionStorage = {
   getItem: async (key: string) => {
-    if (typeof window === "undefined") return null;
+    if (typeof window === 'undefined') return null;
     return window.sessionStorage.getItem(key);
   },
   setItem: async (key: string, value: string) => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     window.sessionStorage.setItem(key, value);
   },
   removeItem: async (key: string) => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     window.sessionStorage.removeItem(key);
   },
 };
@@ -314,10 +323,12 @@ docs/
 ## 🎓 Learn More
 
 **Documentation:**
+
 - [PERSISTENCE_SETUP.md](./docs/PERSISTENCE_SETUP.md) - Complete guide with troubleshooting
 - [WEB3_SETUP.md](./docs/WEB3_SETUP.md) - Overall Web3 infrastructure docs
 
 **External References:**
+
 - [wagmi Persistence Guide](https://wagmi.sh/react/guides/tanstack-query#persistence-via-external-stores)
 - [TanStack Query Persistence](https://tanstack.com/query/latest/docs/framework/react/plugins/persistQueryClient)
 
@@ -351,6 +362,7 @@ Now that persistence is set up, you can:
 **Persistence is now fully operational!**
 
 All Web3 query data will automatically:
+
 - ✅ Persist to localStorage
 - ✅ Restore on page refresh
 - ✅ Work offline
@@ -358,4 +370,3 @@ All Web3 query data will automatically:
 - ✅ Provide instant user experience
 
 **No additional code needed in your components - it just works! 🚀**
-

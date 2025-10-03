@@ -3,8 +3,7 @@
  *
  * Layout wrapper for wallet-related pages
  */
-
-import { Outlet } from "react-router";
+import { Outlet } from 'react-router';
 
 export default function WalletLayout() {
   return (

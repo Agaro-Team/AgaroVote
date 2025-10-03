@@ -4,10 +4,11 @@
  * Wraps the application with Web3/Wagmi context providers.
  * This enables wallet connection and blockchain interactions throughout the app.
  */
+import { WagmiProvider } from 'wagmi';
 
-import { type ReactNode } from "react";
-import { WagmiProvider } from "wagmi";
-import { config } from "./config";
+import { type ReactNode } from 'react';
+
+import { config } from './config';
 
 interface Web3ProviderProps {
   children: ReactNode;

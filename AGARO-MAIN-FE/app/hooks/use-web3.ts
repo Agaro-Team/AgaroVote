@@ -4,16 +4,15 @@
  * Simplified hooks that wrap wagmi hooks for easier usage across the application.
  * These hooks provide wallet connection status, account info, and blockchain interactions.
  */
-
+import { formatEther } from 'viem';
 import {
   useAccount,
-  useConnect,
-  useDisconnect,
   useBalance,
   useChainId,
+  useConnect,
+  useDisconnect,
   useSwitchChain,
-} from "wagmi";
-import { formatEther } from "viem";
+} from 'wagmi';
 
 /**
  * useWeb3Wallet Hook
@@ -31,8 +30,7 @@ import { formatEther } from "viem";
  * ```
  */
 export function useWeb3Wallet() {
-  const { address, isConnected, isConnecting, isDisconnected, chain } =
-    useAccount();
+  const { address, isConnected, isConnecting, isDisconnected, chain } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
 
@@ -46,9 +44,7 @@ export function useWeb3Wallet() {
 
     // Actions
     connect: (connectorId?: string) => {
-      const connector = connectorId
-        ? connectors.find((c) => c.id === connectorId)
-        : connectors[0];
+      const connector = connectorId ? connectors.find((c) => c.id === connectorId) : connectors[0];
       if (connector) {
         connect({ connector });
       }
@@ -82,8 +78,8 @@ export function useWalletBalance() {
 
   return {
     balance: data?.value,
-    formattedBalance: data ? formatEther(data.value) : "0.0",
-    symbol: data?.symbol || "ETH",
+    formattedBalance: data ? formatEther(data.value) : '0.0',
+    symbol: data?.symbol || 'ETH',
     decimals: data?.decimals || 18,
     isLoading,
     isError,
@@ -112,7 +108,7 @@ export function useWeb3Chain() {
 
   return {
     chainId,
-    chainName: currentChain?.name || "Unknown",
+    chainName: currentChain?.name || 'Unknown',
     chain: currentChain,
     chains,
     switchChain,
@@ -140,7 +136,7 @@ export function useWalletDisplay() {
    * @param chars - Number of characters to show on each side (default: 4)
    */
   const shortenAddress = (address?: string, chars = 4): string => {
-    if (!address) return "";
+    if (!address) return '';
     return `${address.substring(0, chars + 2)}...${address.substring(address.length - chars)}`;
   };
 
@@ -150,11 +146,11 @@ export function useWalletDisplay() {
    */
   const getChainDisplayName = (chainId: number): string => {
     const chainNames: Record<number, string> = {
-      1: "Ethereum",
-      5: "Goerli",
-      11155111: "Sepolia",
-      137: "Polygon",
-      80002: "Polygon Amoy",
+      1: 'Ethereum',
+      5: 'Goerli',
+      11155111: 'Sepolia',
+      137: 'Polygon',
+      80002: 'Polygon Amoy',
     };
     return chainNames[chainId] || `Chain ${chainId}`;
   };

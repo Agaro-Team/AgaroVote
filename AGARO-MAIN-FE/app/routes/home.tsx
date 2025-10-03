@@ -3,20 +3,19 @@
  *
  * Main landing page with Web3 wallet connection interface
  */
+import { ChainSwitcher } from '~/components/chain-switcher';
+import { WalletConnectButton } from '~/components/wallet-connect-button';
+import { WalletInfoCard } from '~/components/wallet-info-card';
+import { useWeb3Wallet } from '~/hooks/use-web3';
 
-import type { Route } from "./+types/home";
-import { WalletConnectButton } from "~/components/wallet-connect-button";
-import { WalletInfoCard } from "~/components/wallet-info-card";
-import { ChainSwitcher } from "~/components/chain-switcher";
-import { useWeb3Wallet } from "~/hooks/use-web3";
+import type { Route } from './+types/home';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "AgaroVote - Decentralized Voting Platform" },
+    { title: 'AgaroVote - Decentralized Voting Platform' },
     {
-      name: "description",
-      content:
-        "Connect your wallet to participate in transparent, blockchain-based voting",
+      name: 'description',
+      content: 'Connect your wallet to participate in transparent, blockchain-based voting',
     },
   ];
 }
@@ -75,9 +74,7 @@ export default function Home() {
 
             <div className="border rounded-lg p-6 bg-muted/50">
               <h3 className="text-lg font-semibold mb-2">Next Steps</h3>
-              <p className="text-sm text-muted-foreground">
-                Once connected, you'll be able to:
-              </p>
+              <p className="text-sm text-muted-foreground">Once connected, you'll be able to:</p>
               <ul className="mt-2 space-y-1 text-sm text-muted-foreground">
                 <li>• Participate in voting proposals</li>
                 <li>• Create new voting pools</li>
@@ -100,8 +97,7 @@ export default function Home() {
               </div>
               <h3 className="font-semibold mb-2">Install a Wallet</h3>
               <p className="text-sm text-muted-foreground">
-                Download MetaMask, Coinbase Wallet, or any Web3 wallet extension
-                for your browser
+                Download MetaMask, Coinbase Wallet, or any Web3 wallet extension for your browser
               </p>
             </div>
             <div>
@@ -110,8 +106,7 @@ export default function Home() {
               </div>
               <h3 className="font-semibold mb-2">Connect Your Wallet</h3>
               <p className="text-sm text-muted-foreground">
-                Click the "Connect Wallet" button above and select your
-                preferred wallet
+                Click the "Connect Wallet" button above and select your preferred wallet
               </p>
             </div>
             <div>
@@ -120,8 +115,7 @@ export default function Home() {
               </div>
               <h3 className="font-semibold mb-2">Start Voting</h3>
               <p className="text-sm text-muted-foreground">
-                Browse active proposals and cast your vote securely on the
-                blockchain
+                Browse active proposals and cast your vote securely on the blockchain
               </p>
             </div>
           </div>

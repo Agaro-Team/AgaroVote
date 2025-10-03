@@ -1,29 +1,29 @@
 import {
-  isRouteErrorResponse,
   Links,
   Meta,
   Outlet,
   Scripts,
   ScrollRestoration,
-} from "react-router";
+  isRouteErrorResponse,
+} from 'react-router';
 
-import type { Route } from "./+types/root";
-import "./app.css";
-import { QueryClientProvider } from "./lib/query-client/provider";
-import { ThemeProvider } from "./lib/theme-provider";
-import { getTheme } from "./lib/theme.server";
-import { Web3Provider } from "./lib/web3/provider";
+import type { Route } from './+types/root';
+import './app.css';
+import { QueryClientProvider } from './lib/query-client/provider';
+import { ThemeProvider } from './lib/theme-provider';
+import { getTheme } from './lib/theme.server';
+import { Web3Provider } from './lib/web3/provider';
 
 export const links: Route.LinksFunction = () => [
-  { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
   {
-    rel: "preconnect",
-    href: "https://fonts.gstatic.com",
-    crossOrigin: "anonymous",
+    rel: 'preconnect',
+    href: 'https://fonts.gstatic.com',
+    crossOrigin: 'anonymous',
   },
   {
-    rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap",
+    rel: 'stylesheet',
+    href: 'https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap',
   },
 ];
 
@@ -65,7 +65,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
   return (
-    <ThemeProvider initialTheme={loaderData?.theme || "system"}>
+    <ThemeProvider initialTheme={loaderData?.theme || 'system'}>
       <Web3Provider>
         <QueryClientProvider>
           <Outlet />
@@ -76,16 +76,14 @@ export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
-  let message = "Oops!";
-  let details = "An unexpected error occurred.";
+  let message = 'Oops!';
+  let details = 'An unexpected error occurred.';
   let stack: string | undefined;
 
   if (isRouteErrorResponse(error)) {
-    message = error.status === 404 ? "404" : "Error";
+    message = error.status === 404 ? '404' : 'Error';
     details =
-      error.status === 404
-        ? "The requested page could not be found."
-        : error.statusText || details;
+      error.status === 404 ? 'The requested page could not be found.' : error.statusText || details;
   } else if (import.meta.env.DEV && error && error instanceof Error) {
     details = error.message;
     stack = error.stack;

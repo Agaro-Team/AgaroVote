@@ -4,16 +4,15 @@
  * This file contains the Web3/Ethereum configuration for the AgaroVote application.
  * It sets up the supported chains and wallet connectors using wagmi and viem.
  */
-
-import { http, createConfig } from "wagmi";
-import { mainnet, sepolia, polygon, polygonAmoy } from "wagmi/chains";
-import { injected, walletConnect, coinbaseWallet } from "wagmi/connectors";
+import { createConfig, http } from 'wagmi';
+import { mainnet, polygon, polygonAmoy, sepolia } from 'wagmi/chains';
+import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors';
 
 /**
  * WalletConnect Project ID
  * Get your project ID at https://cloud.walletconnect.com
  */
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "";
+const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '';
 
 /**
  * Supported blockchain networks
@@ -42,25 +41,18 @@ export const config = createConfig({
     walletConnect({
       projectId,
       metadata: {
-        name: "AgaroVote",
-        description: "Decentralized Voting for Everyone",
-        url: typeof window !== "undefined" ? window.location.origin : "",
-        icons: [
-          typeof window !== "undefined"
-            ? `${window.location.origin}/favicon.ico`
-            : "",
-        ],
+        name: 'AgaroVote',
+        description: 'Decentralized Voting for Everyone',
+        url: typeof window !== 'undefined' ? window.location.origin : '',
+        icons: [typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : ''],
       },
       showQrModal: true,
     }),
 
     // Coinbase Wallet
     coinbaseWallet({
-      appName: "AgaroVote",
-      appLogoUrl:
-        typeof window !== "undefined"
-          ? `${window.location.origin}/favicon.ico`
-          : "",
+      appName: 'AgaroVote',
+      appLogoUrl: typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : '',
     }),
   ],
 
@@ -79,7 +71,7 @@ export const config = createConfig({
 /**
  * TypeScript type declarations for the config
  */
-declare module "wagmi" {
+declare module 'wagmi' {
   interface Register {
     config: typeof config;
   }

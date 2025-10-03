@@ -87,6 +87,7 @@ Blockchain Network
 ## 🎯 Layer Responsibilities
 
 ### 1. Configuration Layer (`lib/web3/config.ts`)
+
 **Responsibility:** Define supported chains, wallets, and network settings
 
 ```typescript
@@ -98,6 +99,7 @@ export const config = createConfig({
 ```
 
 ### 2. Provider Layer (`lib/web3/provider.tsx`)
+
 **Responsibility:** Provide Web3 context to the entire application
 
 ```typescript
@@ -107,6 +109,7 @@ export const config = createConfig({
 ```
 
 ### 3. Hook Layer (`hooks/use-web3.ts`)
+
 **Responsibility:** Simplify wagmi hooks for application use
 
 ```typescript
@@ -119,6 +122,7 @@ export function useWeb3Wallet() {
 ```
 
 ### 4. Component Layer (`components/wallet-*.tsx`)
+
 **Responsibility:** Provide reusable UI components
 
 ```typescript
@@ -129,6 +133,7 @@ export function WalletConnectButton() {
 ```
 
 ### 5. Application Layer (Your pages/routes)
+
 **Responsibility:** Use components and hooks to build features
 
 ```typescript
@@ -208,18 +213,22 @@ WagmiProvider
 ## 🔐 Security Architecture
 
 ### 1. Client-Side Only
+
 - Wallet private keys never leave the user's wallet
 - No sensitive data stored in application
 
 ### 2. User Approval Required
+
 - All transactions require explicit user approval
 - Connection requests shown in wallet UI
 
 ### 3. Network Verification
+
 - Always verify correct network before transactions
 - Prompt users to switch if on wrong network
 
 ### 4. Address Validation
+
 - Validate all addresses before use
 - Use checksummed addresses
 
@@ -289,7 +298,7 @@ useWalletDisplay
 
 ```typescript
 // lib/web3/config.ts
-import { arbitrum } from "wagmi/chains";
+import { arbitrum } from 'wagmi/chains';
 
 export const supportedChains = [
   mainnet,
@@ -304,14 +313,14 @@ export const supportedChains = [
 
 ```typescript
 // lib/web3/config.ts
-import { safe } from "wagmi/connectors";
+import { safe } from 'wagmi/connectors';
 
 connectors: [
   injected(),
   walletConnect(),
   coinbaseWallet(),
   safe(), // Add new connector
-]
+];
 ```
 
 ### 3. Add Custom Hooks
@@ -338,16 +347,19 @@ export function TransactionButton() {
 ## 📊 Performance Considerations
 
 ### Caching Strategy
+
 - **Balance queries:** 2 minutes stale time
 - **Chain data:** Cached indefinitely
 - **Connection state:** Real-time updates
 
 ### Bundle Size
+
 - **wagmi:** ~30KB gzipped
 - **viem:** ~20KB gzipped
 - **Total Web3 overhead:** ~50KB
 
 ### Optimization Tips
+
 1. Use React.lazy() for wallet components on auth-only pages
 2. Disable unnecessary refetching
 3. Use wagmi's built-in multicall for batch requests
@@ -357,16 +369,19 @@ export function TransactionButton() {
 ## 🧪 Testing Strategy
 
 ### Unit Tests
+
 - Test hooks in isolation
 - Mock wagmi hooks
 - Test utility functions
 
 ### Integration Tests
+
 - Test component interactions
 - Test wallet connection flow
 - Test network switching
 
 ### E2E Tests
+
 - Test with real wallet extensions
 - Test transaction signing
 - Test error scenarios
@@ -374,4 +389,3 @@ export function TransactionButton() {
 ---
 
 This architecture provides a solid foundation for building Web3 features while remaining maintainable and extensible.
-

@@ -12,211 +12,211 @@ import {
   Settings2,
   Shield,
   Vote,
-} from "lucide-react";
-import * as React from "react";
-
-import { NavMain } from "~/components/nav-main";
-import { NavProjects } from "~/components/nav-projects";
-import { NavUser } from "~/components/nav-user";
-import { TeamSwitcher } from "~/components/team-switcher";
+} from 'lucide-react';
+import { NavMain } from '~/components/nav-main';
+import { NavProjects } from '~/components/nav-projects';
+import { NavUser } from '~/components/nav-user';
+import { TeamSwitcher } from '~/components/team-switcher';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
-} from "~/components/ui/sidebar";
+} from '~/components/ui/sidebar';
+
+import * as React from 'react';
 
 // This is sample data.
 const data = {
   user: {
-    name: "AgaroVote User",
-    email: "user@agarovote.com",
-    avatar: "/avatars/user.jpg",
+    name: 'AgaroVote User',
+    email: 'user@agarovote.com',
+    avatar: '/avatars/user.jpg',
   },
   teams: [
     {
-      name: "AgaroVote",
+      name: 'AgaroVote',
       logo: GalleryVerticalEnd,
-      plan: "Enterprise",
+      plan: 'Enterprise',
     },
     {
-      name: "Agaro Corp.",
+      name: 'Agaro Corp.',
       logo: AudioWaveform,
-      plan: "Startup",
+      plan: 'Startup',
     },
     {
-      name: "Demo Team",
+      name: 'Demo Team',
       logo: Command,
-      plan: "Free",
+      plan: 'Free',
     },
   ],
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
+      title: 'Dashboard',
+      url: '/dashboard',
       icon: LayoutDashboard,
       isActive: true,
       items: [
         {
-          title: "Overview",
-          url: "/dashboard",
+          title: 'Overview',
+          url: '/dashboard',
         },
         {
-          title: "My Activity",
-          url: "/dashboard/activity",
+          title: 'My Activity',
+          url: '/dashboard/activity',
         },
         {
-          title: "Analytics",
-          url: "/dashboard/analytics",
+          title: 'Analytics',
+          url: '/dashboard/analytics',
         },
       ],
     },
     {
-      title: "Voting Pools",
-      url: "/voting-pools",
+      title: 'Voting Pools',
+      url: '/voting-pools',
       icon: Vote,
       items: [
         {
-          title: "Browse All",
-          url: "/voting-pools",
+          title: 'Browse All',
+          url: '/voting-pools',
         },
         {
-          title: "Active Polls",
-          url: "/voting-pools/active",
+          title: 'Active Polls',
+          url: '/voting-pools/active',
         },
         {
-          title: "Completed",
-          url: "/voting-pools/completed",
+          title: 'Completed',
+          url: '/voting-pools/completed',
         },
         {
-          title: "Create New",
-          url: "/voting-pools/create",
+          title: 'Create New',
+          url: '/voting-pools/create',
         },
       ],
     },
     {
-      title: "My Votes",
-      url: "/my-votes",
+      title: 'My Votes',
+      url: '/my-votes',
       icon: History,
       items: [
         {
-          title: "Vote History",
-          url: "/my-votes",
+          title: 'Vote History',
+          url: '/my-votes',
         },
         {
-          title: "Pending Votes",
-          url: "/my-votes/pending",
+          title: 'Pending Votes',
+          url: '/my-votes/pending',
         },
         {
-          title: "Participated",
-          url: "/my-votes/participated",
+          title: 'Participated',
+          url: '/my-votes/participated',
         },
       ],
     },
     {
-      title: "Rewards & Staking",
-      url: "/rewards",
+      title: 'Rewards & Staking',
+      url: '/rewards',
       icon: Coins,
       items: [
         {
-          title: "My Rewards",
-          url: "/rewards",
+          title: 'My Rewards',
+          url: '/rewards',
         },
         {
-          title: "Claim Rewards",
-          url: "/rewards/claim",
+          title: 'Claim Rewards',
+          url: '/rewards/claim',
         },
         {
-          title: "Staking Pool",
-          url: "/rewards/staking",
+          title: 'Staking Pool',
+          url: '/rewards/staking',
         },
         {
-          title: "Reward History",
-          url: "/rewards/history",
+          title: 'Reward History',
+          url: '/rewards/history',
         },
       ],
     },
     {
-      title: "Verification",
-      url: "/verification",
+      title: 'Verification',
+      url: '/verification',
       icon: Shield,
       items: [
         {
-          title: "Blockchain Explorer",
-          url: "/verification/explorer",
+          title: 'Blockchain Explorer',
+          url: '/verification/explorer',
         },
         {
-          title: "Vote Verification",
-          url: "/verification/votes",
+          title: 'Vote Verification',
+          url: '/verification/votes',
         },
         {
-          title: "Transaction History",
-          url: "/verification/transactions",
+          title: 'Transaction History',
+          url: '/verification/transactions',
         },
       ],
     },
     {
-      title: "Documentation",
-      url: "/docs",
+      title: 'Documentation',
+      url: '/docs',
       icon: BookOpen,
       items: [
         {
-          title: "Getting Started",
-          url: "/docs",
+          title: 'Getting Started',
+          url: '/docs',
         },
         {
-          title: "How to Vote",
-          url: "/docs/voting",
+          title: 'How to Vote',
+          url: '/docs/voting',
         },
         {
-          title: "Voting Models",
-          url: "/docs/models",
+          title: 'Voting Models',
+          url: '/docs/models',
         },
         {
-          title: "FAQ",
-          url: "/docs/faq",
+          title: 'FAQ',
+          url: '/docs/faq',
         },
       ],
     },
     {
-      title: "Settings",
-      url: "/settings",
+      title: 'Settings',
+      url: '/settings',
       icon: Settings2,
       items: [
         {
-          title: "Profile",
-          url: "/settings",
+          title: 'Profile',
+          url: '/settings',
         },
         {
-          title: "Wallet",
-          url: "/settings/wallet",
+          title: 'Wallet',
+          url: '/settings/wallet',
         },
         {
-          title: "Notifications",
-          url: "/settings/notifications",
+          title: 'Notifications',
+          url: '/settings/notifications',
         },
         {
-          title: "Security",
-          url: "/settings/security",
+          title: 'Security',
+          url: '/settings/security',
         },
       ],
     },
   ],
   projects: [
     {
-      name: "National Election 2025",
-      url: "/organizations/election-2025",
+      name: 'National Election 2025',
+      url: '/organizations/election-2025',
       icon: Award,
     },
     {
-      name: "DAO Governance",
-      url: "/organizations/dao",
+      name: 'DAO Governance',
+      url: '/organizations/dao',
       icon: Building2,
     },
     {
-      name: "Community Votes",
-      url: "/organizations/community",
+      name: 'Community Votes',
+      url: '/organizations/community',
       icon: BadgeCheck,
     },
   ],

@@ -11,11 +11,13 @@ Updated from deprecated `createSyncStoragePersister` to `createAsyncStoragePersi
 ### 1. Package Update
 
 **Removed (deprecated):**
+
 ```bash
 @tanstack/query-sync-storage-persister
 ```
 
 **Added (recommended):**
+
 ```bash
 npm install @tanstack/query-async-storage-persister
 ```
@@ -25,32 +27,34 @@ npm install @tanstack/query-async-storage-persister
 **File:** `app/lib/query-client/provider.tsx`
 
 #### Before (Deprecated)
+
 ```typescript
-import { createSyncStoragePersister } from "@tanstack/query-sync-storage-persister";
+import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 
 const persister = createSyncStoragePersister({
   serialize,
-  storage: typeof window !== "undefined" ? window.localStorage : undefined,
+  storage: typeof window !== 'undefined' ? window.localStorage : undefined,
   deserialize,
 });
 ```
 
 #### After (Current)
+
 ```typescript
-import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persister";
+import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
 
 // Async wrapper for localStorage
 const asyncLocalStorage = {
   getItem: async (key: string) => {
-    if (typeof window === "undefined") return null;
+    if (typeof window === 'undefined') return null;
     return window.localStorage.getItem(key);
   },
   setItem: async (key: string, value: string) => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     window.localStorage.setItem(key, value);
   },
   removeItem: async (key: string) => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     window.localStorage.removeItem(key);
   },
 };
@@ -67,16 +71,19 @@ const persister = createAsyncStoragePersister({
 ## Why This Change?
 
 ### Deprecation
+
 - `createSyncStoragePersister` is deprecated
 - TanStack Query recommends using async persister for all storage types
 
 ### Benefits
+
 - ✅ **Future-proof** - No deprecation warnings
 - ✅ **More flexible** - Works with both sync and async storage
 - ✅ **Better pattern** - Consistent API across storage types
 - ✅ **Same performance** - No performance impact for localStorage
 
 ### No Functionality Loss
+
 - ✅ Persistence still works exactly the same
 - ✅ localStorage still used
 - ✅ All data persists across refreshes
@@ -100,6 +107,7 @@ const asyncLocalStorage = {
 ```
 
 **Reasons:**
+
 1. **Consistent API** - Same interface for all storage types
 2. **Future compatibility** - Easy to switch to IndexedDB if needed
 3. **No performance impact** - Promises resolve immediately for sync operations
@@ -114,7 +122,7 @@ const asyncLocalStorage = {
 If you want to use IndexedDB in the future, it's a simple swap:
 
 ```typescript
-import { get, set, del } from 'idb-keyval';
+import { del, get, set } from 'idb-keyval';
 
 const asyncIDBStorage = {
   getItem: get,
@@ -159,6 +167,7 @@ const persister = createAsyncStoragePersister({
 To verify persistence still works:
 
 1. **Start dev server:**
+
    ```bash
    npm run dev
    ```
@@ -166,9 +175,10 @@ To verify persistence still works:
 2. **Connect wallet at** `/wallet`
 
 3. **Check localStorage:**
+
    ```javascript
    // DevTools Console
-   JSON.parse(localStorage.getItem('REACT_QUERY_OFFLINE_CACHE'))
+   JSON.parse(localStorage.getItem('REACT_QUERY_OFFLINE_CACHE'));
    ```
 
 4. **Refresh page** - data should appear instantly
@@ -197,4 +207,3 @@ Migration from sync to async storage persister is complete:
 - ✅ All documentation updated
 
 **Everything is working perfectly! 🎉**
-

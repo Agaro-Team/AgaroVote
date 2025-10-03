@@ -4,9 +4,12 @@
  * A button that shows wallet connection status and allows users to connect/disconnect.
  * Displays address when connected, shows connect button when disconnected.
  */
+import { CheckCircle2, Copy, LogOut, Wallet } from 'lucide-react';
+import { useWalletDisplay, useWeb3Wallet } from '~/hooks/use-web3';
 
-import { useWeb3Wallet, useWalletDisplay } from "~/hooks/use-web3";
-import { Button } from "./ui/button";
+import { useState } from 'react';
+
+import { Button } from './ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,13 +17,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import { Wallet, LogOut, Copy, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+} from './ui/dropdown-menu';
 
 interface WalletConnectButtonProps {
-  variant?: "default" | "outline" | "ghost";
-  size?: "default" | "sm" | "lg" | "icon";
+  variant?: 'default' | 'outline' | 'ghost';
+  size?: 'default' | 'sm' | 'lg' | 'icon';
 }
 
 /**
@@ -33,11 +34,10 @@ interface WalletConnectButtonProps {
  * ```
  */
 export function WalletConnectButton({
-  variant = "default",
-  size = "default",
+  variant = 'default',
+  size = 'default',
 }: WalletConnectButtonProps) {
-  const { address, isConnected, connect, disconnect, connectors, isPending } =
-    useWeb3Wallet();
+  const { address, isConnected, connect, disconnect, connectors, isPending } = useWeb3Wallet();
   const { shortenAddress } = useWalletDisplay();
   const [copied, setCopied] = useState(false);
 
@@ -57,7 +57,7 @@ export function WalletConnectButton({
         <DropdownMenuTrigger asChild>
           <Button variant={variant} size={size} disabled={isPending}>
             <Wallet className="h-4 w-4 mr-2" />
-            {isPending ? "Connecting..." : "Connect Wallet"}
+            {isPending ? 'Connecting...' : 'Connect Wallet'}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
@@ -90,10 +90,7 @@ export function WalletConnectButton({
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={handleCopyAddress}
-          className="cursor-pointer"
-        >
+        <DropdownMenuItem onClick={handleCopyAddress} className="cursor-pointer">
           {copied ? (
             <>
               <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
@@ -107,10 +104,7 @@ export function WalletConnectButton({
           )}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => disconnect()}
-          className="cursor-pointer text-red-600"
-        >
+        <DropdownMenuItem onClick={() => disconnect()} className="cursor-pointer text-red-600">
           <LogOut className="h-4 w-4 mr-2" />
           Disconnect
         </DropdownMenuItem>

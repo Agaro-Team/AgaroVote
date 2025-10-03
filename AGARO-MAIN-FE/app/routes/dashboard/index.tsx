@@ -1,3 +1,4 @@
+import { ArrowUpRight, CheckCircle2, Coins, Shield, TrendingUp, Vote } from 'lucide-react';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -5,18 +6,10 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from "~/components/ui/breadcrumb";
-import { Separator } from "~/components/ui/separator";
-import { SidebarTrigger } from "~/components/ui/sidebar";
-import { Card } from "~/components/ui/card";
-import {
-  ArrowUpRight,
-  CheckCircle2,
-  Coins,
-  Shield,
-  TrendingUp,
-  Vote,
-} from "lucide-react";
+} from '~/components/ui/breadcrumb';
+import { Card } from '~/components/ui/card';
+import { Separator } from '~/components/ui/separator';
+import { SidebarTrigger } from '~/components/ui/sidebar';
 
 export default function DashboardPage() {
   return (
@@ -24,10 +17,7 @@ export default function DashboardPage() {
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
         <div className="flex items-center gap-2 px-4">
           <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
-          />
+          <Separator orientation="vertical" className="mr-2 data-[orientation=vertical]:h-4" />
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem className="hidden md:block">
@@ -61,9 +51,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <div className="text-2xl font-bold">24</div>
-              <p className="text-xs text-muted-foreground">
-                +3 new pools today
-              </p>
+              <p className="text-xs text-muted-foreground">+3 new pools today</p>
             </div>
           </Card>
           <Card className="p-6">
@@ -73,9 +61,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <div className="text-2xl font-bold">1,284 AGR</div>
-              <p className="text-xs text-muted-foreground">
-                +156 AGR this week
-              </p>
+              <p className="text-xs text-muted-foreground">+156 AGR this week</p>
             </div>
           </Card>
           <Card className="p-6">
@@ -85,9 +71,7 @@ export default function DashboardPage() {
             </div>
             <div>
               <div className="text-2xl font-bold">100%</div>
-              <p className="text-xs text-muted-foreground">
-                All votes immutable
-              </p>
+              <p className="text-xs text-muted-foreground">All votes immutable</p>
             </div>
           </Card>
         </div>
@@ -113,33 +97,31 @@ export default function DashboardPage() {
             <div className="space-y-4">
               {[
                 {
-                  title: "National Budget Allocation 2025",
+                  title: 'National Budget Allocation 2025',
                   votes: 45231,
                   percentage: 78,
-                  status: "Voting",
-                  ends: "2 days left",
+                  status: 'Voting',
+                  ends: '2 days left',
                 },
                 {
-                  title: "DAO Treasury Management Proposal",
+                  title: 'DAO Treasury Management Proposal',
                   votes: 12847,
                   percentage: 65,
-                  status: "Voting",
-                  ends: "5 days left",
+                  status: 'Voting',
+                  ends: '5 days left',
                 },
                 {
-                  title: "Community Feature Roadmap Q2",
+                  title: 'Community Feature Roadmap Q2',
                   votes: 8567,
                   percentage: 45,
-                  status: "Voting",
-                  ends: "1 week left",
+                  status: 'Voting',
+                  ends: '1 week left',
                 },
               ].map((poll, index) => (
                 <div key={index} className="flex items-center gap-4">
                   <div className="flex-1 space-y-1">
                     <div className="flex items-center gap-2">
-                      <p className="text-sm font-medium leading-none">
-                        {poll.title}
-                      </p>
+                      <p className="text-sm font-medium leading-none">{poll.title}</p>
                       <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-1 text-xs font-medium text-primary ring-1 ring-inset ring-primary/20">
                         {poll.status}
                       </span>
@@ -150,14 +132,9 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary"
-                        style={{ width: `${poll.percentage}%` }}
-                      />
+                      <div className="h-full bg-primary" style={{ width: `${poll.percentage}%` }} />
                     </div>
-                    <span className="text-sm font-medium w-12 text-right">
-                      {poll.percentage}%
-                    </span>
+                    <span className="text-sm font-medium w-12 text-right">{poll.percentage}%</span>
                   </div>
                 </div>
               ))}
@@ -166,9 +143,7 @@ export default function DashboardPage() {
           <Card className="col-span-3 p-6">
             <div className="mb-4">
               <h3 className="text-lg font-semibold">My Voting Activity</h3>
-              <p className="text-sm text-muted-foreground">
-                Your participation overview
-              </p>
+              <p className="text-sm text-muted-foreground">Your participation overview</p>
             </div>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
@@ -222,8 +197,7 @@ export default function DashboardPage() {
             <div>
               <h3 className="text-lg font-semibold">Voting Analytics</h3>
               <p className="text-sm text-muted-foreground">
-                Track your participation trends and blockchain verification
-                status
+                Track your participation trends and blockchain verification status
               </p>
             </div>
             <a
@@ -241,9 +215,7 @@ export default function DashboardPage() {
                 <h4 className="font-medium">Participation Rate</h4>
               </div>
               <p className="text-2xl font-bold">87.5%</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Above average by 12%
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">Above average by 12%</p>
             </div>
             <div className="rounded-lg border bg-card p-4">
               <div className="flex items-center gap-2 mb-2">
@@ -259,9 +231,7 @@ export default function DashboardPage() {
                 <h4 className="font-medium">Chain Verification</h4>
               </div>
               <p className="text-2xl font-bold">100%</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                All votes secured
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">All votes secured</p>
             </div>
           </div>
         </div>

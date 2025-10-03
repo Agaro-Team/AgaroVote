@@ -7,6 +7,7 @@ This document explains how the Web3 wallet connection infrastructure works in Ag
 ## 📚 Overview
 
 The Web3 infrastructure is built using:
+
 - **[wagmi](https://wagmi.sh/)** v2.17+ - React Hooks for Ethereum
 - **[viem](https://viem.sh/)** v2.37+ - TypeScript Interface for Ethereum
 - **@tanstack/react-query** - For caching and state management
@@ -72,7 +73,7 @@ Available wallet connectors:
 ### Basic Wallet Connection
 
 ```tsx
-import { WalletConnectButton } from "~/components/wallet-connect-button";
+import { WalletConnectButton } from '~/components/wallet-connect-button';
 
 export default function MyPage() {
   return (
@@ -88,7 +89,7 @@ export default function MyPage() {
 #### Check Wallet Connection Status
 
 ```tsx
-import { useWeb3Wallet } from "~/hooks/use-web3";
+import { useWeb3Wallet } from '~/hooks/use-web3';
 
 export default function MyComponent() {
   const { address, isConnected, chain } = useWeb3Wallet();
@@ -109,21 +110,25 @@ export default function MyComponent() {
 #### Display Wallet Balance
 
 ```tsx
-import { useWalletBalance } from "~/hooks/use-web3";
+import { useWalletBalance } from '~/hooks/use-web3';
 
 export default function BalanceDisplay() {
   const { formattedBalance, symbol, isLoading } = useWalletBalance();
 
   if (isLoading) return <p>Loading balance...</p>;
 
-  return <p>Balance: {formattedBalance} {symbol}</p>;
+  return (
+    <p>
+      Balance: {formattedBalance} {symbol}
+    </p>
+  );
 }
 ```
 
 #### Switch Networks
 
 ```tsx
-import { useWeb3Chain } from "~/hooks/use-web3";
+import { useWeb3Chain } from '~/hooks/use-web3';
 
 export default function NetworkSwitcher() {
   const { chainName, chains, switchChain } = useWeb3Chain();
@@ -146,7 +151,7 @@ export default function NetworkSwitcher() {
 #### Format Addresses for Display
 
 ```tsx
-import { useWalletDisplay } from "~/hooks/use-web3";
+import { useWalletDisplay } from '~/hooks/use-web3';
 
 export default function AddressDisplay({ address }: { address: string }) {
   const { shortenAddress } = useWalletDisplay();
@@ -169,6 +174,7 @@ A complete wallet connection button with dropdown menu.
 ```
 
 **Features:**
+
 - Shows "Connect Wallet" when disconnected
 - Displays shortened address when connected
 - Dropdown menu with copy address and disconnect options
@@ -183,6 +189,7 @@ Displays comprehensive wallet information.
 ```
 
 **Features:**
+
 - Shows wallet address with copy button
 - Displays current balance
 - Shows connected network
@@ -198,6 +205,7 @@ Network switching dropdown.
 ```
 
 **Features:**
+
 - Shows current network
 - Lists all available networks
 - Indicates active network with checkmark
@@ -253,7 +261,7 @@ localStorage.removeItem('REACT_QUERY_OFFLINE_CACHE');
 ### Custom Wallet Connection Flow
 
 ```tsx
-import { useWeb3Wallet } from "~/hooks/use-web3";
+import { useWeb3Wallet } from '~/hooks/use-web3';
 
 export default function CustomConnect() {
   const { connectors, connect, isPending } = useWeb3Wallet();
@@ -261,11 +269,7 @@ export default function CustomConnect() {
   return (
     <div className="grid grid-cols-2 gap-4">
       {connectors.map((connector) => (
-        <button
-          key={connector.id}
-          onClick={() => connect(connector.id)}
-          disabled={isPending}
-        >
+        <button key={connector.id} onClick={() => connect(connector.id)} disabled={isPending}>
           Connect with {connector.name}
         </button>
       ))}
@@ -277,8 +281,8 @@ export default function CustomConnect() {
 ### Protecting Routes (Require Wallet Connection)
 
 ```tsx
-import { useWeb3Wallet } from "~/hooks/use-web3";
-import { Navigate } from "react-router";
+import { Navigate } from 'react-router';
+import { useWeb3Wallet } from '~/hooks/use-web3';
 
 export default function ProtectedPage() {
   const { isConnected } = useWeb3Wallet();
@@ -294,14 +298,15 @@ export default function ProtectedPage() {
 ### Using with React Query
 
 ```tsx
-import { useQuery } from "@tanstack/react-query";
-import { useWeb3Wallet } from "~/hooks/use-web3";
+import { useWeb3Wallet } from '~/hooks/use-web3';
+
+import { useQuery } from '@tanstack/react-query';
 
 export default function MyVotes() {
   const { address, isConnected } = useWeb3Wallet();
 
   const { data: votes } = useQuery({
-    queryKey: ["votes", address],
+    queryKey: ['votes', address],
     queryFn: () => fetchUserVotes(address!),
     enabled: isConnected && !!address,
   });
@@ -362,4 +367,3 @@ if (chainId !== REQUIRED_CHAIN_ID) {
 ---
 
 For more information, see the official documentation or reach out to the development team.
-

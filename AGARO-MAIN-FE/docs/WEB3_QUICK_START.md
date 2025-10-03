@@ -33,15 +33,15 @@ Navigate to: http://localhost:5173/wallet
 ### Connect Button
 
 ```tsx
-import { WalletConnectButton } from "~/components/wallet-connect-button";
+import { WalletConnectButton } from '~/components/wallet-connect-button';
 
-<WalletConnectButton />
+<WalletConnectButton />;
 ```
 
 ### Check if Connected
 
 ```tsx
-import { useWeb3Wallet } from "~/hooks/use-web3";
+import { useWeb3Wallet } from '~/hooks/use-web3';
 
 const { address, isConnected } = useWeb3Wallet();
 ```
@@ -58,9 +58,9 @@ return <p>{formattedBalance} {symbol}</p>;
 ### Network Switcher
 
 ```tsx
-import { ChainSwitcher } from "~/components/chain-switcher";
+import { ChainSwitcher } from '~/components/chain-switcher';
 
-<ChainSwitcher />
+<ChainSwitcher />;
 ```
 
 ---
@@ -140,4 +140,3 @@ Visit `/wallet` route to see all features in action!
 ## 📚 Full Documentation
 
 For detailed information, see [WEB3_SETUP.md](./WEB3_SETUP.md)
-

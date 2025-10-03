@@ -9,21 +9,25 @@ Dark mode is now fully functional in AgaroVote with React Router 7 support!
 ## 🎯 Features Implemented
 
 ### 1. **Three Theme Modes**
+
 - ☀️ **Light Mode** - Clean, bright interface for daytime
-- 🌙 **Dark Mode** - Easy on the eyes for low-light environments  
+- 🌙 **Dark Mode** - Easy on the eyes for low-light environments
 - 🖥️ **System Mode** - Automatically matches your OS preference
 
 ### 2. **Persistent Storage**
+
 - ✅ Saves preference in cookies (lasts 1 year)
 - ✅ Remembers choice across browser sessions
 - ✅ Works with SSR (server-side rendering)
 
 ### 3. **Zero Flash on Load**
+
 - ✅ No white flash when loading dark mode
 - ✅ Theme applied before React hydration
 - ✅ Smooth, professional user experience
 
 ### 4. **Smart System Detection**
+
 - ✅ Automatically detects OS dark mode preference
 - ✅ Listens for OS theme changes in real-time
 - ✅ Updates instantly when user changes OS settings
@@ -33,26 +37,32 @@ Dark mode is now fully functional in AgaroVote with React Router 7 support!
 ## 📁 Files Created
 
 ### Server-Side Theme Management
+
 ```
 app/lib/theme.server.ts
 ```
+
 - Cookie utilities for React Router
 - Theme type definitions
 - Server-side theme reading
 
 ### Client-Side Theme Context
+
 ```
 app/lib/theme-provider.tsx
 ```
+
 - React Context for theme state
 - `useTheme()` hook for components
 - System preference detection
 - Automatic cookie updates
 
 ### Theme Toggle Component
+
 ```
 app/components/theme-toggle.tsx
 ```
+
 - Standalone theme switcher
 - Dropdown with all three options
 - Visual indicators (Sun/Moon/Monitor icons)
@@ -62,13 +72,16 @@ app/components/theme-toggle.tsx
 ## 🔧 Files Modified
 
 ### 1. `app/root.tsx`
+
 **Changes:**
+
 - ✅ Added theme loader function
 - ✅ Wrapped app with ThemeProvider
 - ✅ Added inline script to prevent flash
 - ✅ Added `suppressHydrationWarning` to html tag
 
 **Key Code:**
+
 ```tsx
 export async function loader({ request }: Route.LoaderArgs) {
   const theme = await getTheme(request);
@@ -77,7 +90,7 @@ export async function loader({ request }: Route.LoaderArgs) {
 
 export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
   return (
-    <ThemeProvider initialTheme={loaderData?.theme || "system"}>
+    <ThemeProvider initialTheme={loaderData?.theme || 'system'}>
       <QueryClientProvider>
         <Outlet />
       </QueryClientProvider>
@@ -87,7 +100,9 @@ export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
 ```
 
 ### 2. `app/components/nav-user.tsx`
+
 **Changes:**
+
 - ✅ Added theme submenu to user dropdown
 - ✅ Theme icons (Sun/Moon/Monitor)
 - ✅ Active theme checkmarks
@@ -109,16 +124,16 @@ export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
 ### For Developers
 
 ```tsx
-import { useTheme } from "~/lib/theme-provider";
+import { useTheme } from '~/lib/theme-provider';
 
 export function MyComponent() {
   const { theme, setTheme, resolvedTheme } = useTheme();
-  
+
   return (
     <div>
       <p>Current setting: {theme}</p>
       <p>Actual theme: {resolvedTheme}</p>
-      <button onClick={() => setTheme("dark")}>Go Dark</button>
+      <button onClick={() => setTheme('dark')}>Go Dark</button>
     </div>
   );
 }
@@ -162,21 +177,20 @@ export function MyComponent() {
 All colors use **OKLCH** color space for better perceptual uniformity:
 
 ### Light Mode Palette
+
 ```css
---background: oklch(0.994 0 0)      /* Near white */
---foreground: oklch(0 0 0)          /* Black */
---primary: oklch(0.5393 0.2713 286.7462)  /* Purple */
---card: oklch(0.994 0 0)            /* White cards */
---sidebar: oklch(0.9777 0.0051 247.8763)  /* Light gray */
+--background: oklch(0.994 0 0) /* Near white */ --foreground: oklch(0 0 0) /* Black */
+  --primary: oklch(0.5393 0.2713 286.7462) /* Purple */ --card: oklch(0.994 0 0) /* White cards */
+  --sidebar: oklch(0.9777 0.0051 247.8763) /* Light gray */;
 ```
 
 ### Dark Mode Palette
+
 ```css
---background: oklch(0.2223 0.006 271.1393)  /* Dark blue-gray */
---foreground: oklch(0.9551 0 0)      /* Near white */
---primary: oklch(0.6132 0.2294 291.7437)    /* Bright purple */
---card: oklch(0.2568 0.0076 274.6528)       /* Dark cards */
---sidebar: oklch(0.2011 0.0039 286.0396)    /* Darker sidebar */
+--background: oklch(0.2223 0.006 271.1393) /* Dark blue-gray */ --foreground: oklch(0.9551 0 0)
+  /* Near white */ --primary: oklch(0.6132 0.2294 291.7437) /* Bright purple */
+  --card: oklch(0.2568 0.0076 274.6528) /* Dark cards */ --sidebar: oklch(0.2011 0.0039 286.0396)
+  /* Darker sidebar */;
 ```
 
 ---
@@ -238,6 +252,7 @@ App updates automatically
 ## 📚 Documentation
 
 Complete documentation available in:
+
 - `docs/DARK_MODE.md` - Detailed technical guide
 - `DARK_MODE_IMPLEMENTATION.md` - This file (quickstart guide)
 
@@ -248,6 +263,7 @@ Complete documentation available in:
 The dark mode system is complete and production-ready!
 
 **Optional Enhancements:**
+
 1. Add smooth color transitions (CSS transitions)
 2. Create custom color schemes per organization
 3. Add high contrast mode for accessibility
@@ -259,16 +275,19 @@ The dark mode system is complete and production-ready!
 ## 🐛 Troubleshooting
 
 ### Theme not saving?
+
 - Check browser allows cookies
 - Look in DevTools → Application → Cookies
 - Should see `theme` cookie with value
 
 ### Seeing flash of wrong theme?
+
 - Verify inline script is in `<head>`
 - Check browser JavaScript is enabled
 - Clear cache and hard refresh
 
 ### System theme not working?
+
 - Check browser supports `prefers-color-scheme`
 - Verify OS has dark mode setting
 - Test by toggling OS theme while app is open
@@ -291,4 +310,3 @@ The dark mode system is complete and production-ready!
 **Color Space:** OKLCH
 
 Enjoy your beautiful dark mode! 🌙✨
-

@@ -1,20 +1,15 @@
-import {
-  type RouteConfig,
-  index,
-  layout,
-  prefix,
-} from "@react-router/dev/routes";
+import { type RouteConfig, index, layout, prefix } from '@react-router/dev/routes';
 
-const dashboardRoutes = prefix("dashboard", [
-  layout("routes/dashboard/layout.tsx", [index("routes/dashboard/index.tsx")]),
+const dashboardRoutes = prefix('dashboard', [
+  layout('routes/dashboard/layout.tsx', [index('routes/dashboard/index.tsx')]),
 ]);
 
-const walletRoutes = prefix("wallet", [
-  layout("routes/wallet/layout.tsx", [index("routes/wallet/index.tsx")]),
+const walletRoutes = prefix('wallet', [
+  layout('routes/wallet/layout.tsx', [index('routes/wallet/index.tsx')]),
 ]);
 
 export default [
-  index("routes/home.tsx"),
+  index('routes/home.tsx'),
   ...dashboardRoutes,
   ...walletRoutes,
 ] satisfies RouteConfig;

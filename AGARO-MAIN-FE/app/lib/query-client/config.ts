@@ -1,6 +1,8 @@
-import { QueryClient } from "@tanstack/react-query";
-import { hashFn } from "@wagmi/core/query";
-import { mergeRecords } from "../utils";
+import { QueryClient } from '@tanstack/react-query';
+
+import { hashFn } from '@wagmi/core/query';
+
+import { mergeRecords } from '../utils';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -10,11 +12,7 @@ export const queryClient = new QueryClient({
       queryKeyHashFn: hashFn, // For proper serialization in devtools
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors
-        if (
-          error instanceof Error &&
-          "status" in error &&
-          typeof error.status === "number"
-        ) {
+        if (error instanceof Error && 'status' in error && typeof error.status === 'number') {
           if (error.status >= 400 && error.status < 500) {
             return false;
           }

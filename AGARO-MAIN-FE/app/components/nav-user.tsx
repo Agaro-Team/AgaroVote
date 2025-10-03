@@ -8,9 +8,8 @@ import {
   Moon,
   Sparkles,
   Sun,
-} from "lucide-react";
-
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+} from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,14 +21,14 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "~/components/ui/dropdown-menu";
+} from '~/components/ui/dropdown-menu';
 import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
-} from "~/components/ui/sidebar";
-import { useTheme } from "~/lib/theme-provider";
+} from '~/components/ui/sidebar';
+import { useTheme } from '~/lib/theme-provider';
 
 export function NavUser({
   user,
@@ -65,7 +64,7 @@ export function NavUser({
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
-            side={isMobile ? "bottom" : "right"}
+            side={isMobile ? 'bottom' : 'right'}
             align="end"
             sideOffset={4}
           >
@@ -106,9 +105,9 @@ export function NavUser({
             <DropdownMenuSeparator />
             <DropdownMenuSub>
               <DropdownMenuSubTrigger className="gap-2">
-                {theme === "light" ? (
+                {theme === 'light' ? (
                   <Sun className="h-4 w-4" />
-                ) : theme === "dark" ? (
+                ) : theme === 'dark' ? (
                   <Moon className="h-4 w-4" />
                 ) : (
                   <Monitor className="h-4 w-4" />
@@ -116,20 +115,20 @@ export function NavUser({
                 <span>Theme</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuSubContent>
-                <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuItem onClick={() => setTheme('light')}>
                   <Sun className="h-4 w-4" />
                   <span>Light</span>
-                  {theme === "light" && <span className="ml-auto">✓</span>}
+                  {theme === 'light' && <span className="ml-auto">✓</span>}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <DropdownMenuItem onClick={() => setTheme('dark')}>
                   <Moon className="h-4 w-4" />
                   <span>Dark</span>
-                  {theme === "dark" && <span className="ml-auto">✓</span>}
+                  {theme === 'dark' && <span className="ml-auto">✓</span>}
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DropdownMenuItem onClick={() => setTheme('system')}>
                   <Monitor className="h-4 w-4" />
                   <span>System</span>
-                  {theme === "system" && <span className="ml-auto">✓</span>}
+                  {theme === 'system' && <span className="ml-auto">✓</span>}
                 </DropdownMenuItem>
               </DropdownMenuSubContent>
             </DropdownMenuSub>

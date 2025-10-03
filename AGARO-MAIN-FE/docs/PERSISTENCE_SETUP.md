@@ -26,8 +26,9 @@ Reference: [wagmi TanStack Query Persistence Guide](https://wagmi.sh/react/guide
 #### 1. Query Client Setup (`app/lib/query-client.ts`)
 
 ```typescript
-import { QueryClient } from "@tanstack/react-query";
-import { hashFn } from "@wagmi/core/query";
+import { QueryClient } from '@tanstack/react-query';
+
+import { hashFn } from '@wagmi/core/query';
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -40,6 +41,7 @@ export const queryClient = new QueryClient({
 ```
 
 **Key Points:**
+
 - `gcTime` (garbage collection time) set to 24 hours for persistence
 - `hashFn` from wagmi ensures BigInt values are properly serialized
 
@@ -85,6 +87,7 @@ export const QueryClientProvider = ({ children }) => (
 ```
 
 **Key Points:**
+
 - Uses `createAsyncStoragePersister` (not deprecated)
 - Wraps localStorage with async interface
 - Uses `wagmi`'s `serialize`/`deserialize` for proper BigInt handling
@@ -166,15 +169,15 @@ Use sessionStorage instead of localStorage:
 ```typescript
 const asyncSessionStorage = {
   getItem: async (key: string) => {
-    if (typeof window === "undefined") return null;
+    if (typeof window === 'undefined') return null;
     return window.sessionStorage.getItem(key);
   },
   setItem: async (key: string, value: string) => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     window.sessionStorage.setItem(key, value);
   },
   removeItem: async (key: string) => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
     window.sessionStorage.removeItem(key);
   },
 };
@@ -216,15 +219,17 @@ useBalance({
 ### Verify It's Working
 
 1. **Connect wallet and view balance**
+
    ```bash
    # Visit http://localhost:5173/wallet
    # Connect your wallet
    ```
 
 2. **Check localStorage**
+
    ```javascript
    // Open DevTools Console
-   JSON.parse(localStorage.getItem('REACT_QUERY_OFFLINE_CACHE'))
+   JSON.parse(localStorage.getItem('REACT_QUERY_OFFLINE_CACHE'));
    ```
 
 3. **Refresh page**
@@ -242,6 +247,7 @@ useBalance({
 ### Issue: Data not persisting
 
 **Solutions:**
+
 - Check localStorage is enabled in browser
 - Verify `gcTime` is set correctly
 - Check browser console for errors
@@ -250,6 +256,7 @@ useBalance({
 ### Issue: Stale data showing
 
 **Solutions:**
+
 - Reduce `staleTime` in query client
 - Manually invalidate queries
 - Clear localStorage cache
@@ -257,6 +264,7 @@ useBalance({
 ### Issue: localStorage quota exceeded
 
 **Solutions:**
+
 - Reduce `gcTime` (shorter cache duration)
 - Implement selective persistence
 - Clear old cached data
@@ -279,14 +287,17 @@ localStorage.removeItem('REACT_QUERY_OFFLINE_CACHE');
 ## 📊 Performance Benefits
 
 ### Before Persistence
+
 - Page refresh → Loading spinner → RPC call → Display data
 - **Time: ~2-3 seconds**
 
 ### With Persistence
+
 - Page refresh → Display cached data → Background refetch
 - **Time: ~100ms (instant)**
 
 ### Benefits
+
 - ⚡ **95% faster** initial render
 - 🎯 **Better UX** - no loading flicker
 - 💰 **Fewer RPC calls** - lower costs
@@ -335,4 +346,3 @@ Persistence is now fully configured and working:
 - ✅ Tested and verified
 
 **All Web3 query data now persists across page refreshes! 🎉**
-
