@@ -10,7 +10,7 @@ import { createAsyncStoragePersister } from "@tanstack/query-async-storage-persi
 import { PersistQueryClientProvider } from "@tanstack/react-query-persist-client";
 import { deserialize, serialize } from "wagmi";
 import React from "react";
-import { queryClient } from "../query-client";
+import { queryClient } from "./config";
 
 /**
  * Create async localStorage wrapper for persister

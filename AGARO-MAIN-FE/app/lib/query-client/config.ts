@@ -1,7 +1,6 @@
 import { QueryClient } from "@tanstack/react-query";
 import { hashFn } from "@wagmi/core/query";
-import { postsQueryKeys } from "./query-client/query-keys/posts";
-import { mergeRecords } from "./utils";
+import { mergeRecords } from "../utils";
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,4 +29,4 @@ export const queryClient = new QueryClient({
 });
 
 // Query keys factory for better organization
-export const queryKeys = mergeRecords(postsQueryKeys);
+export const queryKeys = mergeRecords({});
