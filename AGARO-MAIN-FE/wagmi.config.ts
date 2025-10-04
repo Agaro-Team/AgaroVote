@@ -7,8 +7,7 @@ export default defineConfig({
   plugins: [
     react(),
     hardhat({
-      project: '../../',
-      artifacts: 'app/lib/web3/artifacts',
+      project: '../AGARO-CONTRACT',
     }),
   ],
 });

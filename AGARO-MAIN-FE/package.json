@@ -53,6 +53,7 @@
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@wagmi/cli": "^2.6.0",
+    "hardhat": "^3.0.6",
     "prettier": "^3.6.2",
     "shadcn": "^3.3.1",
     "tailwindcss": "^4.1.13",
