@@ -14,6 +14,7 @@
 
 ### Smart Contract Integration
 
+- **[Hardhat Wagmi Integration](./HARDHAT_WAGMI_INTEGRATION.md)** ⭐ Type-safe contracts with Hardhat + Wagmi
 - **[Smart Contract Integration Guide](./SMART_CONTRACT_INTEGRATION.md)** - Complete guide to connecting custom smart contracts
 - **[Smart Contract Quick Reference](./SMART_CONTRACT_QUICK_REFERENCE.md)** - Quick copy-paste patterns and examples
 

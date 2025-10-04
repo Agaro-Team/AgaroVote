@@ -1,18 +1,19 @@
 # Smart Contract Integration - Getting Started
 
-**Quick guide to integrate your custom smart contracts with AgaroVote using wagmi v2**
+**Quick guide to integrate your custom smart contracts with AgaroVote using Hardhat + Wagmi CLI for type-safe interactions**
 
 ---
 
 ## 📖 What's Included
 
-This guide provides everything you need to connect and interact with your smart contracts:
+This guide provides everything you need to connect and interact with your smart contracts with **full type safety**:
 
 ### Documentation
 
 1. **[Complete Integration Guide](./docs/SMART_CONTRACT_INTEGRATION.md)**
    - Detailed explanations
-   - Step-by-step setup
+   - Step-by-step setup with Hardhat
+   - Type-safe contract interactions
    - Best practices
    - Common patterns
    - Complete examples
@@ -29,6 +30,12 @@ This guide provides everything you need to connect and interact with your smart 
    - Project structure
    - Contributing guidelines
    - All documentation index
+
+4. **[Hardhat Wagmi Integration](./docs/HARDHAT_WAGMI_INTEGRATION.md)** ⭐ NEW
+   - Hardhat setup and configuration
+   - Type-safe contract generation
+   - Automated hook creation
+   - Development workflow
 
 ### Example Files (Ready to Use)
 
@@ -50,67 +57,74 @@ Located in your project:
 
 ---
 
-## 🚀 Quick Start (5 Steps)
+## 🚀 Quick Start with Hardhat (4 Steps)
 
-### Step 1: Add Your Contract ABI and Addresses
+### Step 1: Configure Wagmi CLI with Hardhat
 
-Edit or create a new file in `app/lib/contracts/`:
+Your `wagmi.config.ts` is already set up:
 
 ```typescript
-// app/lib/contracts/your-contract.ts
-export const YOUR_CONTRACT_ABI = [
-  // Paste your contract ABI here (from Hardhat/Foundry/Remix)
-] as const;
+import { defineConfig } from '@wagmi/cli';
+import { hardhat, react } from '@wagmi/cli/plugins';
 
-export const YOUR_CONTRACT_ADDRESS = {
-  1: '0x...', // Ethereum Mainnet
-  11155111: '0x...', // Sepolia Testnet
-  137: '0x...', // Polygon Mainnet
-  80002: '0x...', // Polygon Amoy Testnet
-} as const;
+export default defineConfig({
+  out: 'app/lib/web3/contracts/generated.ts',
+  plugins: [
+    react(),
+    hardhat({
+      project: '../../',  // Path to your Hardhat project
+      artifacts: 'app/lib/web3/artifacts',
+    }),
+  ],
+});
 ```
 
-### Step 2: Create Custom Hooks
+### Step 2: Compile Contracts & Generate Types
 
-Create `app/hooks/use-your-contract.ts`:
+```bash
+# Compile your Solidity contracts
+npm run compile  # or: cd ../hardhat && npx hardhat compile
+
+# Generate type-safe React hooks
+npm run wagmi
+```
+
+This automatically generates:
+- Type-safe contract hooks
+- Proper TypeScript types
+- All function signatures
+- Event types
+
+### Step 3: Use Generated Hooks
 
 ```typescript
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
-import { YOUR_CONTRACT_ABI, YOUR_CONTRACT_ADDRESS } from '~/lib/contracts/your-contract';
-import { useWeb3Chain } from '~/hooks/use-web3';
+// app/components/your-component.tsx
+import {
+  useReadYourContractGetData,
+  useWriteYourContractSetData,
+} from '~/lib/web3/contracts/generated';
 
-// Hook for reading data
-export function useYourData() {
-  const { chainId } = useWeb3Chain();
+export function YourComponent() {
+  // Read contract data (type-safe!)
+  const { data, isLoading } = useReadYourContractGetData();
   
-  const { data, isLoading, refetch } = useReadContract({
-    address: YOUR_CONTRACT_ADDRESS[chainId],
-    abi: YOUR_CONTRACT_ABI,
-    functionName: 'yourFunction',
-  });
+  // Write to contract (type-safe!)
+  const { writeContract, isPending } = useWriteYourContractSetData();
 
-  return { data, isLoading, refetch };
-}
-
-// Hook for writing data
-export function useYourAction() {
-  const { chainId } = useWeb3Chain();
-  const { writeContract, data: hash, isPending } = useWriteContract();
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
-
-  const execute = () => {
+  const handleUpdate = () => {
     writeContract({
-      address: YOUR_CONTRACT_ADDRESS[chainId],
-      abi: YOUR_CONTRACT_ABI,
-      functionName: 'yourFunction',
+      args: [BigInt(123)],  // TypeScript knows the exact parameter types!
+      chainId: 1,
     });
   };
 
-  return { execute, isPending, isConfirming, isSuccess };
+  return (
+    // Your JSX
+  );
 }
 ```
 
-### Step 3: Use in Components
+### Step 4: Enjoy Type Safety!
 
 ```typescript
 // app/components/your-component.tsx
@@ -140,15 +154,11 @@ export function YourComponent() {
 }
 ```
 
-### Step 4: Test on Testnet
-
-1. Deploy your contract to Sepolia or Polygon Amoy
-2. Update the address in your config file
-3. Test all functions thoroughly
-
-### Step 5: Deploy to Production
-
-After testing, update mainnet addresses and deploy!
+All contract functions are now type-safe:
+- ✅ Function names autocomplete
+- ✅ Parameter types are enforced
+- ✅ Return types are inferred
+- ✅ No manual ABI configuration needed!
 
 ---
 
@@ -308,13 +318,29 @@ You have everything you need:
 
 ## 📖 Documentation Links
 
+### Primary Guides
+
+- **[Hardhat Wagmi Integration](./docs/HARDHAT_WAGMI_INTEGRATION.md)** ⭐ **START HERE** - Type-safe contracts with Hardhat + Wagmi
 - **[Complete Integration Guide](./docs/SMART_CONTRACT_INTEGRATION.md)** - Full documentation
 - **[Quick Reference](./docs/SMART_CONTRACT_QUICK_REFERENCE.md)** - Quick patterns
+
+### Additional Resources
+
 - **[Developer Guide](./docs/DEVELOPER_GUIDE.md)** - Project overview
 - **[Web3 Setup](./docs/WEB3_SETUP.md)** - Web3 configuration
 - **[Web3 Quick Start](./docs/WEB3_QUICK_START.md)** - Get started in 5 minutes
 
 ---
 
-**Happy coding! If you have questions, check the documentation or the example files. Everything you need is already in your codebase! 🎨**
+## 🎯 Key Advantages of Hardhat + Wagmi
+
+1. **Type Safety** - Catch errors at compile time, not runtime
+2. **Auto-completion** - Your IDE knows your contract functions
+3. **No Manual ABI** - Automatically generated from Solidity
+4. **Simplified Workflow** - Compile once, use everywhere
+5. **Always Up-to-Date** - Regenerate types when contracts change
+
+---
+
+**Happy coding! Check the [Hardhat Wagmi Integration Guide](./docs/HARDHAT_WAGMI_INTEGRATION.md) to get started with type-safe contracts! 🎨**
 
