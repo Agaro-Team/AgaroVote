@@ -26,7 +26,7 @@ Create a file to store your contract ABIs and addresses:
 
 /**
  * Voting Contract Configuration
- * 
+ *
  * Store your contract ABI and addresses for different networks
  */
 
@@ -34,28 +34,28 @@ Create a file to store your contract ABIs and addresses:
 export const VOTING_CONTRACT_ABI = [
   {
     inputs: [],
-    name: "getTotalVotes",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'getTotalVotes',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    inputs: [{ internalType: "uint256", name: "proposalId", type: "uint256" }],
-    name: "getProposal",
+    inputs: [{ internalType: 'uint256', name: 'proposalId', type: 'uint256' }],
+    name: 'getProposal',
     outputs: [
-      { internalType: "string", name: "title", type: "string" },
-      { internalType: "uint256", name: "voteCount", type: "uint256" },
-      { internalType: "bool", name: "isActive", type: "bool" },
+      { internalType: 'string', name: 'title', type: 'string' },
+      { internalType: 'uint256', name: 'voteCount', type: 'uint256' },
+      { internalType: 'bool', name: 'isActive', type: 'bool' },
     ],
-    stateMutability: "view",
-    type: "function",
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    inputs: [{ internalType: "uint256", name: "proposalId", type: "uint256" }],
-    name: "vote",
+    inputs: [{ internalType: 'uint256', name: 'proposalId', type: 'uint256' }],
+    name: 'vote',
     outputs: [],
-    stateMutability: "nonpayable",
-    type: "function",
+    stateMutability: 'nonpayable',
+    type: 'function',
   },
 ] as const;
 
@@ -66,7 +66,7 @@ export const VOTING_CONTRACT_ADDRESS = {
   137: '0x...', // Polygon Mainnet
   80002: '0x...', // Polygon Amoy Testnet
 } as const;
-``` 
+```
 
 ### 2. Create Contract Constants Helper
 
@@ -97,7 +97,7 @@ import { useWeb3Chain } from '~/hooks/use-web3';
 
 function TotalVotesDisplay() {
   const { chainId } = useWeb3Chain();
-  
+
   const { data, isLoading, isError, refetch } = useReadContract({
     address: VOTING_CONTRACT_ADDRESS[chainId as keyof typeof VOTING_CONTRACT_ADDRESS],
     abi: VOTING_CONTRACT_ABI,
@@ -116,7 +116,7 @@ function TotalVotesDisplay() {
 ```typescript
 function ProposalDisplay({ proposalId }: { proposalId: number }) {
   const { chainId } = useWeb3Chain();
-  
+
   const { data, isLoading, isError } = useReadContract({
     address: VOTING_CONTRACT_ADDRESS[chainId as keyof typeof VOTING_CONTRACT_ADDRESS],
     abi: VOTING_CONTRACT_ABI,
@@ -166,7 +166,7 @@ import { useWeb3Chain } from '~/hooks/use-web3';
 
 function VoteButton({ proposalId }: { proposalId: number }) {
   const { chainId } = useWeb3Chain();
-  
+
   const { writeContract, data: hash, isPending, isError } = useWriteContract();
 
   // Wait for transaction confirmation
@@ -185,8 +185,8 @@ function VoteButton({ proposalId }: { proposalId: number }) {
 
   return (
     <div>
-      <button 
-        onClick={handleVote} 
+      <button
+        onClick={handleVote}
         disabled={isPending || isConfirming}
       >
         {isPending ? 'Confirming...' : isConfirming ? 'Processing...' : 'Vote'}
@@ -206,7 +206,7 @@ import { parseEventLogs } from 'viem';
 function VoteWithEvents({ proposalId }: { proposalId: number }) {
   const { chainId } = useWeb3Chain();
   const { writeContract, data: hash } = useWriteContract();
-  
+
   const { data: receipt } = useWaitForTransactionReceipt({ hash });
 
   // Parse events from transaction receipt
@@ -232,33 +232,30 @@ Following your codebase pattern, create reusable hooks:
 
 ### Create Contract Hooks File
 
-```typescript
+````typescript
 // app/hooks/use-voting-contract.ts
-
 /**
  * Custom Voting Contract Hooks
- * 
+ *
  * Provides easy-to-use hooks for interacting with the voting contract.
  * Follows the same pattern as use-web3.ts hooks.
  */
-import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useReadContract, useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 import { VOTING_CONTRACT_ABI, VOTING_CONTRACT_ADDRESS } from '~/lib/contracts';
+
 import { useWeb3Chain } from './use-web3';
 
 /**
  * useVotingContractRead Hook
- * 
+ *
  * Generic hook for reading from the voting contract
- * 
+ *
  * @example
  * ```tsx
  * const { data, isLoading } = useVotingContractRead('getTotalVotes');
  * ```
  */
-export function useVotingContractRead<T = unknown>(
-  functionName: string,
-  args?: unknown[]
-) {
+export function useVotingContractRead<T = unknown>(functionName: string, args?: unknown[]) {
   const { chainId } = useWeb3Chain();
   const contractAddress = VOTING_CONTRACT_ADDRESS[chainId as keyof typeof VOTING_CONTRACT_ADDRESS];
 
@@ -272,9 +269,9 @@ export function useVotingContractRead<T = unknown>(
 
 /**
  * useTotalVotes Hook
- * 
+ *
  * Gets the total number of votes across all proposals
- * 
+ *
  * @example
  * ```tsx
  * const { totalVotes, isLoading } = useTotalVotes();
@@ -282,9 +279,7 @@ export function useVotingContractRead<T = unknown>(
  * ```
  */
 export function useTotalVotes() {
-  const { data, isLoading, isError, refetch } = useVotingContractRead<bigint>(
-    'getTotalVotes'
-  );
+  const { data, isLoading, isError, refetch } = useVotingContractRead<bigint>('getTotalVotes');
 
   return {
     totalVotes: data ? Number(data) : 0,
@@ -296,9 +291,9 @@ export function useTotalVotes() {
 
 /**
  * useProposal Hook
- * 
+ *
  * Gets proposal details by ID
- * 
+ *
  * @example
  * ```tsx
  * const { proposal, isLoading } = useProposal(1);
@@ -306,9 +301,10 @@ export function useTotalVotes() {
  * ```
  */
 export function useProposal(proposalId: number) {
-  const { data, isLoading, isError, refetch } = useVotingContractRead<
-    [string, bigint, boolean]
-  >('getProposal', [BigInt(proposalId)]);
+  const { data, isLoading, isError, refetch } = useVotingContractRead<[string, bigint, boolean]>(
+    'getProposal',
+    [BigInt(proposalId)]
+  );
 
   return {
     proposal: data
@@ -326,22 +322,22 @@ export function useProposal(proposalId: number) {
 
 /**
  * useVote Hook
- * 
+ *
  * Submit a vote for a proposal
- * 
+ *
  * @example
  * ```tsx
  * const { vote, isPending, isSuccess } = useVote();
- * 
+ *
  * <button onClick={() => vote(1)}>Vote</button>
  * ```
  */
 export function useVote() {
   const { chainId } = useWeb3Chain();
   const contractAddress = VOTING_CONTRACT_ADDRESS[chainId as keyof typeof VOTING_CONTRACT_ADDRESS];
-  
+
   const { writeContract, data: hash, isPending, isError } = useWriteContract();
-  
+
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,
   });
@@ -351,7 +347,7 @@ export function useVote() {
       console.error('Contract not deployed on this network');
       return;
     }
-    
+
     writeContract({
       address: contractAddress,
       abi: VOTING_CONTRACT_ABI,
@@ -372,9 +368,9 @@ export function useVote() {
 
 /**
  * useVotingContract Hook
- * 
+ *
  * Complete hook that provides all voting contract functionality
- * 
+ *
  * @example
  * ```tsx
  * const voting = useVotingContract();
@@ -389,7 +385,7 @@ export function useVotingContract() {
     // Add more contract functions here
   };
 }
-```
+````
 
 ---
 
@@ -402,7 +398,7 @@ Here's a complete voting component using the custom hooks:
 
 /**
  * Voting Panel Component
- * 
+ *
  * Complete example of smart contract interaction
  */
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
@@ -529,7 +525,7 @@ export default function VotingPage() {
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl font-bold mb-6">Active Proposals</h1>
-      
+
       <div className="grid gap-4">
         <VotingPanel proposalId={1} />
         <VotingPanel proposalId={2} />
@@ -584,12 +580,12 @@ Always use `BigInt` for large numbers and convert for display:
 
 ```typescript
 // ✅ Correct
-args: [BigInt(value)]
+args: [BigInt(value)];
 
 // Display
-data?.toString()
+data?.toString();
 // or
-Number(data)
+Number(data);
 ```
 
 ### 5. **Refetch After Writes**
@@ -622,7 +618,7 @@ Show transaction hash and block explorer link:
 
 ```typescript
 {hash && (
-  <a 
+  <a
     href={`https://etherscan.io/tx/${hash}`}
     target="_blank"
     rel="noopener noreferrer"
@@ -661,18 +657,21 @@ const { data } = useReadContracts({
 ## Common Patterns
 
 ### Read-Only Functions (View/Pure)
+
 - Use `useReadContract`
 - No wallet connection required (but recommended)
 - No gas fees
 - Instant results
 
 ### State-Changing Functions
+
 - Use `useWriteContract`
 - Wallet connection required
 - Costs gas
 - Use `useWaitForTransactionReceipt` for confirmation
 
 ### Events
+
 - Use `useWatchContractEvent` to listen for contract events
 - Great for real-time updates
 
@@ -694,13 +693,13 @@ useWatchContractEvent({
 
 ## Quick Reference
 
-| Action | Hook | Gas Required | Returns |
-|--------|------|--------------|---------|
-| Read data | `useReadContract` | No | Data instantly |
-| Write data | `useWriteContract` | Yes | Transaction hash |
-| Wait for confirmation | `useWaitForTransactionReceipt` | No | Receipt |
-| Watch events | `useWatchContractEvent` | No | Live updates |
-| Multiple reads | `useReadContracts` | No | Array of data |
+| Action                | Hook                           | Gas Required | Returns          |
+| --------------------- | ------------------------------ | ------------ | ---------------- |
+| Read data             | `useReadContract`              | No           | Data instantly   |
+| Write data            | `useWriteContract`             | Yes          | Transaction hash |
+| Wait for confirmation | `useWaitForTransactionReceipt` | No           | Receipt          |
+| Watch events          | `useWatchContractEvent`        | No           | Live updates     |
+| Multiple reads        | `useReadContracts`             | No           | Array of data    |
 
 ---
 
@@ -715,6 +714,6 @@ useWatchContractEvent({
 ---
 
 For more information on wagmi hooks, see:
+
 - [wagmi documentation](https://wagmi.sh/react/api/hooks)
 - [viem documentation](https://viem.sh/)
-

@@ -7,6 +7,7 @@ Complete guide for type-safe smart contract interactions using Hardhat and Wagmi
 ## 📖 Overview
 
 This setup provides:
+
 - ✅ **Type-safe contract interactions** - TypeScript knows your contract functions
 - ✅ **Automatic hook generation** - No manual ABI configuration
 - ✅ **Auto-complete support** - Your IDE suggests function names and parameters
@@ -20,6 +21,7 @@ This setup provides:
 ### 1. Prerequisites
 
 Make sure you have:
+
 - Hardhat project with compiled contracts
 - `@wagmi/cli` installed (already included)
 - Wagmi configuration file (`wagmi.config.ts`)
@@ -37,7 +39,7 @@ export default defineConfig({
   plugins: [
     react(),
     hardhat({
-      project: '../../',  // Path to Hardhat project
+      project: '../../', // Path to Hardhat project
       artifacts: 'app/lib/web3/artifacts',
     }),
   ],
@@ -116,8 +118,8 @@ export function VoteButton({ proposalId }: { proposalId: bigint }) {
   };
 
   return (
-    <button 
-      onClick={() => handleVote(true)} 
+    <button
+      onClick={() => handleVote(true)}
       disabled={isPending}
     >
       {isPending ? 'Voting...' : 'Cast Vote'}
@@ -194,14 +196,14 @@ export function VotingCard({ proposalId }: { proposalId: bigint }) {
       <CardContent>
         <p>{proposal.description}</p>
         <div className="mt-4 space-x-2">
-          <Button 
-            onClick={() => handleVote(true)} 
+          <Button
+            onClick={() => handleVote(true)}
             disabled={isPending}
           >
             Vote Yes
           </Button>
-          <Button 
-            onClick={() => handleVote(false)} 
+          <Button
+            onClick={() => handleVote(false)}
             disabled={isPending}
             variant="outline"
           >
@@ -228,8 +230,8 @@ export function VotingCard({ proposalId }: { proposalId: bigint }) {
 const { data } = useReadContract({
   address: '0x...',
   abi: VOTING_ABI,
-  functionName: 'getProposl',  // Typo! No error until runtime
-  args: ['123'],  // Wrong type! Should be BigInt
+  functionName: 'getProposl', // Typo! No error until runtime
+  args: ['123'], // Wrong type! Should be BigInt
 });
 ```
 
@@ -238,7 +240,7 @@ const { data } = useReadContract({
 ```typescript
 // ✅ Full type safety
 const { data } = useReadVotingGetProposal({
-  args: [BigInt(123)],  // TypeScript enforces correct types
+  args: [BigInt(123)], // TypeScript enforces correct types
 });
 // getProposl would show an error immediately
 ```
@@ -344,6 +346,7 @@ export default defineConfig({
 ### Issue: Hooks not generating
 
 **Solution:**
+
 ```bash
 # 1. Ensure contracts are compiled
 cd ../hardhat && npx hardhat compile
@@ -358,6 +361,7 @@ cd ../frontend && npm run wagmi
 ### Issue: Type errors after contract update
 
 **Solution:**
+
 ```bash
 # Regenerate everything
 npm run generate  # or manually:
@@ -368,6 +372,7 @@ npm run generate  # or manually:
 
 **Solution:**
 Update addresses in `wagmi.config.ts`:
+
 ```typescript
 hardhat({
   // ...
@@ -377,12 +382,13 @@ hardhat({
       11155111: '0xYourSepoliaAddress',
     },
   },
-})
+});
 ```
 
 ### Issue: Cannot find generated hooks
 
 **Check:**
+
 1. Output path in `wagmi.config.ts`
 2. Import path in your components
 3. Generated file exists
@@ -401,6 +407,7 @@ npm run generate
 ### 2. Gitignore Generated Files (Optional)
 
 Add to `.gitignore`:
+
 ```
 app/lib/web3/contracts/generated.ts
 app/lib/web3/artifacts/
@@ -419,8 +426,8 @@ const data = result.data as any;
 ### 4. Handle Loading and Error States
 
 ```typescript
-const { data, isLoading, error } = useReadVotingGetProposal({ 
-  args: [proposalId] 
+const { data, isLoading, error } = useReadVotingGetProposal({
+  args: [proposalId]
 });
 
 if (isLoading) return <Spinner />;
@@ -450,6 +457,7 @@ npm run wagmi:watch
 ## 📞 Need Help?
 
 Check these docs:
+
 - [Smart Contract Integration](./SMART_CONTRACT_INTEGRATION.md)
 - [Developer Guide](./DEVELOPER_GUIDE.md)
 - [Web3 Setup](./WEB3_SETUP.md)

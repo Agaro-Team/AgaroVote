@@ -35,7 +35,7 @@ import { useWeb3Chain } from '~/hooks/use-web3';
 
 function MyComponent() {
   const { chainId } = useWeb3Chain();
-  
+
   const { data, isLoading } = useReadContract({
     address: MY_CONTRACT_ADDRESS[chainId],
     abi: MY_CONTRACT_ABI,
@@ -63,7 +63,7 @@ const { data } = useReadContract({
 // app/hooks/use-my-contract.ts
 export function useMyData() {
   const { chainId } = useWeb3Chain();
-  
+
   const { data, isLoading, refetch } = useReadContract({
     address: MY_CONTRACT_ADDRESS[chainId],
     abi: MY_CONTRACT_ABI,
@@ -89,9 +89,9 @@ import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 
 function MyComponent() {
   const { chainId } = useWeb3Chain();
-  
+
   const { writeContract, data: hash, isPending } = useWriteContract();
-  
+
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash,
   });
@@ -119,7 +119,7 @@ function MyComponent() {
 // app/hooks/use-my-contract.ts
 export function useMyAction() {
   const { chainId } = useWeb3Chain();
-  
+
   const { writeContract, data: hash, isPending, isError } = useWriteContract();
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
 
@@ -233,29 +233,29 @@ const { data } = useReadContract({
 
 ## 📦 Common Data Types
 
-| Solidity Type | TypeScript Type | Example |
-|---------------|----------------|---------|
-| `uint256` | `bigint` | `BigInt(123)` |
-| `address` | `` `0x${string}` `` | `'0x123...'` |
-| `bool` | `boolean` | `true` |
-| `string` | `string` | `'hello'` |
-| `bytes` | `Hex` | `'0x1234'` |
+| Solidity Type | TypeScript Type     | Example       |
+| ------------- | ------------------- | ------------- |
+| `uint256`     | `bigint`            | `BigInt(123)` |
+| `address`     | `` `0x${string}` `` | `'0x123...'`  |
+| `bool`        | `boolean`           | `true`        |
+| `string`      | `string`            | `'hello'`     |
+| `bytes`       | `Hex`               | `'0x1234'`    |
 
 ### Converting Values
 
 ```typescript
-// Number to BigInt (for contract input)
-BigInt(123)
-
-// BigInt to Number (for display)
-Number(data)
-data?.toString()
-
 // Format ETH values
 import { formatEther, parseEther } from 'viem';
 
-formatEther(BigInt('1000000000000000000')) // '1.0'
-parseEther('1.5') // BigInt
+// Number to BigInt (for contract input)
+BigInt(123);
+
+// BigInt to Number (for display)
+Number(data);
+data?.toString();
+
+formatEther(BigInt('1000000000000000000')); // '1.0'
+parseEther('1.5'); // BigInt
 ```
 
 ---
@@ -306,8 +306,8 @@ function MyContractComponent() {
         <CardTitle>Current Value: {data?.toString()}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Button 
-          onClick={handleAction} 
+        <Button
+          onClick={handleAction}
           disabled={isPending || isConfirming}
         >
           {isPending ? 'Preparing...' : isConfirming ? 'Confirming...' : 'Update Value'}
@@ -351,8 +351,8 @@ function getExplorerTxUrl(chainId: number, txHash: string) {
 ```typescript
 {isError && error && (
   <div className="text-red-500">
-    {error.message.includes('User rejected') 
-      ? 'Transaction cancelled' 
+    {error.message.includes('User rejected')
+      ? 'Transaction cancelled'
       : 'Transaction failed'}
   </div>
 )}
@@ -383,23 +383,32 @@ app/
 ## ⚡ Performance Tips
 
 1. **Use `enabled` to control queries:**
+
    ```typescript
-   query: { enabled: !!contractAddress && isConnected }
+   query: {
+     enabled: !!contractAddress && isConnected;
+   }
    ```
 
 2. **Set refetch intervals for live data:**
+
    ```typescript
-   query: { refetchInterval: 10000 } // 10 seconds
+   query: {
+     refetchInterval: 10000;
+   } // 10 seconds
    ```
 
 3. **Batch multiple reads with multicall:**
+
    ```typescript
    useReadContracts({ contracts: [...] })
    ```
 
 4. **Cache expensive queries:**
    ```typescript
-   query: { staleTime: 60000 } // Cache for 1 minute
+   query: {
+     staleTime: 60000;
+   } // Cache for 1 minute
    ```
 
 ---
@@ -407,7 +416,9 @@ app/
 ## 🐛 Common Issues
 
 ### Issue: "Contract not deployed"
+
 **Fix:** Check if contract address exists for current chain:
+
 ```typescript
 if (!CONTRACT_ADDRESS[chainId]) {
   return <div>Contract not available on this network</div>;
@@ -415,14 +426,18 @@ if (!CONTRACT_ADDRESS[chainId]) {
 ```
 
 ### Issue: "Invalid BigInt"
+
 **Fix:** Always convert numbers to BigInt:
+
 ```typescript
-args: [BigInt(value)] // ✅
-args: [value]          // ❌
+args: [BigInt(value)]; // ✅
+args: [value]; // ❌
 ```
 
 ### Issue: "User rejected transaction"
+
 **Fix:** Handle user cancellation:
+
 ```typescript
 if (error?.message.includes('User rejected')) {
   // Show friendly message
@@ -442,4 +457,3 @@ if (error?.message.includes('User rejected')) {
 - `app/lib/contracts/example-voting-contract.ts`
 - `app/hooks/use-example-voting-contract.ts`
 - `app/components/example-voting-card.tsx`
-

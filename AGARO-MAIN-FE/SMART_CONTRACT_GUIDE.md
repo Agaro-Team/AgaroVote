@@ -72,7 +72,7 @@ export default defineConfig({
   plugins: [
     react(),
     hardhat({
-      project: '../../',  // Path to your Hardhat project
+      project: '../../', // Path to your Hardhat project
       artifacts: 'app/lib/web3/artifacts',
     }),
   ],
@@ -90,6 +90,7 @@ npm run wagmi
 ```
 
 This automatically generates:
+
 - Type-safe contract hooks
 - Proper TypeScript types
 - All function signatures
@@ -107,7 +108,7 @@ import {
 export function YourComponent() {
   // Read contract data (type-safe!)
   const { data, isLoading } = useReadYourContractGetData();
-  
+
   // Write to contract (type-safe!)
   const { writeContract, isPending } = useWriteYourContractSetData();
 
@@ -155,6 +156,7 @@ export function YourComponent() {
 ```
 
 All contract functions are now type-safe:
+
 - ✅ Function names autocomplete
 - ✅ Parameter types are enforced
 - ✅ Return types are inferred
@@ -221,7 +223,7 @@ const { data, isLoading } = useReadContract({
 ### Writing Data (Transactions)
 
 ```typescript
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
 const { writeContract, data: hash, isPending } = useWriteContract();
 const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -281,18 +283,23 @@ All you need to do is add your contract ABI and start building! 🚀
 ## 📞 Common Questions
 
 ### Q: Do I need to modify existing Web3 setup?
+
 **A:** No! Your Web3 setup is complete. Just add your contract configuration and hooks.
 
 ### Q: Can I use multiple contracts?
+
 **A:** Yes! Create separate files for each contract in `lib/contracts/` and corresponding hooks.
 
 ### Q: What about TypeScript types?
+
 **A:** Always use `as const` on your ABI for automatic type inference.
 
 ### Q: How do I handle errors?
+
 **A:** Check the example component for error handling patterns.
 
 ### Q: What about transaction confirmations?
+
 **A:** Use `useWaitForTransactionReceipt` to wait for confirmations.
 
 ---
@@ -343,4 +350,3 @@ You have everything you need:
 ---
 
 **Happy coding! Check the [Hardhat Wagmi Integration Guide](./docs/HARDHAT_WAGMI_INTEGRATION.md) to get started with type-safe contracts! 🎨**
-

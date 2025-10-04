@@ -3,119 +3,24 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Spinner } from '~/components/ui/spinner';
+import { useCounterUI } from '~/hooks/use-counter-ui';
 import { useWeb3Chain } from '~/hooks/use-web3';
-import {
-  counterConfig,
-  useReadCounterX,
-  useWatchCounterIncrementEvent,
-  useWriteCounterInc,
-  useWriteCounterIncBy,
-} from '~/lib/web3/contracts/generated';
-
-import { useRef, useState } from 'react';
-
-import { useQueryClient } from '@tanstack/react-query';
+import { counterConfig } from '~/lib/web3/contracts/generated';
 
 export function CounterUI() {
   const { address, isConnected } = useAccount();
   const { chainName } = useWeb3Chain();
 
-  const customValueInputRef = useRef<HTMLInputElement>(null);
-  const [events, setEvents] = useState<string[]>([]);
-
-  // Query Client
-  const queryClient = useQueryClient();
-
-  // Read counter value
-  const { data: counterValue, isLoading: isReading, queryKey } = useReadCounterX();
-
-  // Write operations
-  const { writeContractAsync: increment, isPending: isIncrementing } = useWriteCounterInc({
-    mutation: {
-      onMutate: async () => {
-        await queryClient.cancelQueries({ queryKey });
-
-        const oldData = await queryClient.getQueryData(queryKey);
-
-        await queryClient.setQueryData(queryKey, (oldData: bigint) => {
-          if (oldData) return oldData + BigInt(1);
-          return BigInt(1);
-        });
-
-        return { oldData: oldData as bigint };
-      },
-      onSuccess: () => {
-        queryClient.refetchQueries({ queryKey });
-      },
-      onError: (error, variables, context) => {
-        if (context?.oldData) {
-          queryClient.setQueryData(queryKey, context.oldData);
-        }
-      },
-    },
-  });
-
-  const { writeContractAsync: incrementBy, isPending: isIncrementingBy } = useWriteCounterIncBy({
-    mutation: {
-      onMutate: async ({ args }) => {
-        const [value] = args as [bigint];
-        if (!value) return;
-        if (value <= 0) return;
-        if (typeof value !== 'bigint') return;
-        if (value === BigInt(0)) return;
-
-        await queryClient.cancelQueries({ queryKey });
-
-        const oldData = await queryClient.getQueryData(queryKey);
-
-        await queryClient.setQueryData(queryKey, (oldData: bigint) => {
-          if (oldData) return oldData + value;
-          return BigInt(1);
-        });
-        return { oldData: oldData as bigint };
-      },
-      onSuccess: () => {
-        queryClient.refetchQueries({ queryKey });
-      },
-      onError: (error, variables, context) => {
-        if (context?.oldData) {
-          queryClient.setQueryData(queryKey, context.oldData);
-        }
-      },
-    },
-  });
-
-  // Watch for events
-  useWatchCounterIncrementEvent({
-    onLogs: (logs) => {
-      logs.forEach((log) => {
-        const newEvent = `Counter incremented by ${log.args.by} at block ${log.blockNumber}`;
-        setEvents((prev) => [newEvent, ...prev.slice(0, 4)]); // Keep last 5 events
-      });
-    },
-  });
-
-  const handleIncrement = async () => {
-    try {
-      await increment({
-        args: [],
-      });
-    } catch (error) {
-      console.error('Failed to increment:', error);
-    }
-  };
-
-  const handleIncrementBy = async () => {
-    try {
-      if (!customValueInputRef.current) return;
-      const value = BigInt(customValueInputRef.current.value);
-      await incrementBy({
-        args: [value],
-      });
-    } catch (error) {
-      console.error('Failed to increment by custom value:', error);
-    }
-  };
+  const {
+    handleIncrement,
+    handleIncrementBy,
+    isIncrementing,
+    isIncrementingBy,
+    events,
+    counterValue,
+    isReading,
+    customValueInputRef,
+  } = useCounterUI();
 
   if (!isConnected) {
     return (
@@ -167,12 +72,7 @@ export function CounterUI() {
           {/* Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Increment by 1 */}
-            <Button
-              onClick={handleIncrement}
-              disabled={isIncrementing || isReading}
-              className="h-12 text-lg"
-              size="lg"
-            >
+            <Button onClick={handleIncrement} disabled={isIncrementing || isReading}>
               {isIncrementing ? (
                 <div className="flex items-center gap-2">
                   <Spinner className="w-4 h-4" />

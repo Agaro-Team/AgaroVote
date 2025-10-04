@@ -9,6 +9,7 @@ import {
 
 import type { Route } from './+types/root';
 import './app.css';
+import { Toaster } from './components/ui/sonner';
 import { QueryClientProvider } from './lib/query-client/provider';
 import { ThemeProvider } from './lib/theme-provider';
 import { getTheme } from './lib/theme.server';
@@ -69,6 +70,7 @@ export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
       <Web3Provider>
         <QueryClientProvider>
           <Outlet />
+          <Toaster />
         </QueryClientProvider>
       </Web3Provider>
     </ThemeProvider>

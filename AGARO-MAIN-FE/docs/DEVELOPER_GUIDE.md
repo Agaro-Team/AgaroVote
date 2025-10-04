@@ -112,22 +112,26 @@ app/
 ## 🔧 Tech Stack
 
 ### Core
+
 - **React Router v7** - Routing and SSR
 - **React 19** - UI framework
 - **TypeScript** - Type safety
 - **Vite** - Build tool
 
 ### Web3
+
 - **wagmi v2.17.5** - React hooks for Ethereum
 - **viem v2.37.11** - TypeScript Ethereum library
 - **WalletConnect** - Multi-wallet support
 
 ### UI
+
 - **Tailwind CSS v4** - Styling
 - **Shadcn UI** - Component library
 - **Lucide React** - Icons
 
 ### State Management
+
 - **TanStack Query v5** - Data fetching and caching
 - **React Query Persist** - Persistence layer
 
@@ -155,6 +159,7 @@ const { chainId, chainName, switchChain } = useWeb3Chain();
 Two main patterns for interacting with smart contracts:
 
 **1. Reading Data (View Functions):**
+
 ```typescript
 import { useReadContract } from 'wagmi';
 
@@ -167,8 +172,9 @@ const { data, isLoading } = useReadContract({
 ```
 
 **2. Writing Data (Transactions):**
+
 ```typescript
-import { useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useWaitForTransactionReceipt, useWriteContract } from 'wagmi';
 
 const { writeContract, data: hash, isPending } = useWriteContract();
 const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -190,6 +196,7 @@ See [Smart Contract Integration Guide](./SMART_CONTRACT_INTEGRATION.md) for deta
 ### Shadcn UI Components
 
 Pre-built components in `app/components/ui/`:
+
 - Avatar, Button, Card, Dialog, Dropdown Menu
 - Input, Separator, Sheet, Sidebar, Skeleton
 - Spinner, Tooltip, and more
@@ -197,11 +204,13 @@ Pre-built components in `app/components/ui/`:
 ### Custom Components
 
 **Web3 Components:**
+
 - `WalletConnectButton` - Connect/disconnect wallet
 - `WalletInfoCard` - Display wallet info
 - `ChainSwitcher` - Switch networks
 
 **Example Components:**
+
 - `ExampleVotingCard` - Full smart contract interaction example
 
 ---
@@ -232,7 +241,7 @@ import { MY_CONTRACT_ABI, MY_CONTRACT_ADDRESS } from '~/lib/contracts/my-contrac
 
 export function useMyContractData() {
   const { chainId } = useWeb3Chain();
-  
+
   const { data, isLoading } = useReadContract({
     address: MY_CONTRACT_ADDRESS[chainId],
     abi: MY_CONTRACT_ABI,
@@ -251,14 +260,15 @@ import { useMyContractData } from '~/hooks/use-my-contract';
 
 export function MyComponent() {
   const { data, isLoading } = useMyContractData();
-  
+
   if (isLoading) return <div>Loading...</div>;
-  
+
   return <div>{data?.toString()}</div>;
 }
 ```
 
 For complete examples, see:
+
 - `app/lib/contracts/example-voting-contract.ts`
 - `app/hooks/use-example-voting-contract.ts`
 - `app/components/example-voting-card.tsx`
@@ -270,6 +280,7 @@ For complete examples, see:
 ### Manual Testing Checklist
 
 **Wallet Connection:**
+
 - [ ] Connect with MetaMask
 - [ ] Connect with WalletConnect
 - [ ] Connect with Coinbase Wallet
@@ -277,12 +288,14 @@ For complete examples, see:
 - [ ] Reconnect after page refresh
 
 **Network Switching:**
+
 - [ ] Switch to Ethereum Mainnet
 - [ ] Switch to Sepolia
 - [ ] Switch to Polygon
 - [ ] Switch to Polygon Amoy
 
 **Smart Contracts:**
+
 - [ ] Read contract data
 - [ ] Write to contract
 - [ ] Handle transaction confirmation
@@ -340,6 +353,7 @@ The codebase follows specific patterns - **always check existing code before add
 ### Issue: Contract not deployed error
 
 **Solution:** Check if contract address exists for current chain:
+
 ```typescript
 const contractAddress = CONTRACT_ADDRESS[chainId];
 if (!contractAddress) {
@@ -350,14 +364,16 @@ if (!contractAddress) {
 ### Issue: BigInt errors
 
 **Solution:** Always use `BigInt()` for large numbers:
+
 ```typescript
-args: [BigInt(value)] // ✅ Correct
-args: [value]          // ❌ Wrong
+args: [BigInt(value)]; // ✅ Correct
+args: [value]; // ❌ Wrong
 ```
 
 ### Issue: Transaction not updating UI
 
 **Solution:** Refetch data after successful transaction:
+
 ```typescript
 const { refetch } = useReadContract({...});
 const { isSuccess } = useWaitForTransactionReceipt({ hash });
@@ -370,6 +386,7 @@ useEffect(() => {
 ### Issue: User rejected transaction
 
 **Solution:** Handle user cancellation gracefully:
+
 ```typescript
 {isError && error?.message.includes('User rejected') && (
   <div>Transaction cancelled by user</div>
@@ -440,6 +457,7 @@ yarn start
 ### Environment Variables
 
 Required for production:
+
 ```
 VITE_WALLETCONNECT_PROJECT_ID=your_project_id
 ```
@@ -449,6 +467,7 @@ VITE_WALLETCONNECT_PROJECT_ID=your_project_id
 ## 📞 Support
 
 For questions or issues:
+
 1. Check this documentation
 2. Review example files
 3. Check existing implementations
@@ -457,4 +476,3 @@ For questions or issues:
 ---
 
 **Happy coding! 🎉**
-
