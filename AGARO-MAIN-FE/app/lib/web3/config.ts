@@ -4,7 +4,7 @@
  * This file contains the Web3/Ethereum configuration for the AgaroVote application.
  * It sets up the supported chains and wallet connectors using wagmi and viem.
  */
-import { createConfig, http } from 'wagmi';
+import { cookieStorage, createConfig, createStorage, http } from 'wagmi';
 import { hardhat, mainnet, sepolia } from 'wagmi/chains';
 
 /**
@@ -31,6 +31,7 @@ export const supportedChains = [
  */
 export const config = createConfig({
   chains: supportedChains,
+
   // connectors: [
   //   // MetaMask, Rainbow, Brave Wallet, etc. (injected wallets)
   //   injected({
@@ -67,6 +68,11 @@ export const config = createConfig({
 
   // Enable SSR mode for React Router
   ssr: true,
+
+  // Storage
+  storage: createStorage({
+    storage: cookieStorage,
+  }),
 });
 
 /**

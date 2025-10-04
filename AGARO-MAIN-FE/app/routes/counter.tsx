@@ -1,4 +1,7 @@
+import { redirect } from 'react-router';
+import { cookieToInitialState } from 'wagmi';
 import { CounterUI } from '~/components/counter-ui';
+import { config } from '~/lib/web3/config';
 
 import type { Route } from './+types/counter';
 
@@ -7,6 +10,14 @@ export function meta({}: Route.MetaArgs) {
     { title: 'Counter Contract - AgaroVote' },
     { name: 'description', content: 'Interact with the Counter smart contract' },
   ];
+}
+
+export async function loader({ request }: Route.LoaderArgs) {
+  const initialState = cookieToInitialState(config, request.headers.get('Cookie') || '');
+
+  if (!initialState?.current) {
+    redirect('/');
+  }
 }
 
 export default function CounterPage() {

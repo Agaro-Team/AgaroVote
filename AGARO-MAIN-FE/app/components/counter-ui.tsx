@@ -62,7 +62,7 @@ export function CounterUI() {
                   Loading...
                 </div>
               ) : (
-                counterValue?.toString() || '0'
+                Intl.NumberFormat('en-US').format(Number(counterValue?.toString() || '0'))
               )}
             </div>
           </div>
