@@ -19,7 +19,7 @@ import {
 import {
   EXAMPLE_VOTING_CONTRACT_ABI,
   getVotingContractAddress,
-} from '~/lib/contracts/example-voting-contract';
+} from '~/lib/web3/contracts/example-voting-contract';
 
 import { useEffect } from 'react';
 
