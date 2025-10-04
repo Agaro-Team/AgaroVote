@@ -9,7 +9,10 @@
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\""
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "wagmi": "wagmi generate",
+    "wagmi:watch": "wagmi generate --watch",
+    "prepare": "wagmi generate"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
@@ -49,6 +52,7 @@
     "@types/node": "^22",
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
+    "@wagmi/cli": "^2.6.0",
     "prettier": "^3.6.2",
     "shadcn": "^3.3.1",
     "tailwindcss": "^4.1.13",
