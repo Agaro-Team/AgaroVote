@@ -5,14 +5,13 @@
  * It sets up the supported chains and wallet connectors using wagmi and viem.
  */
 import { createConfig, http } from 'wagmi';
-import { hardhat, mainnet, polygon, polygonAmoy, sepolia } from 'wagmi/chains';
-import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors';
+import { hardhat, mainnet, sepolia } from 'wagmi/chains';
 
 /**
  * WalletConnect Project ID
  * Get your project ID at https://cloud.walletconnect.com
  */
-const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '';
+// const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '';
 
 /**
  * Supported blockchain networks
@@ -21,8 +20,8 @@ const projectId = import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || '';
 export const supportedChains = [
   mainnet, // Ethereum Mainnet
   sepolia, // Ethereum Sepolia Testnet
-  polygon, // Polygon Mainnet
-  polygonAmoy, // Polygon Amoy Testnet
+  // polygon, // Polygon Mainnet
+  // polygonAmoy, // Polygon Amoy Testnet
   hardhat,
 ] as const;
 
@@ -32,37 +31,37 @@ export const supportedChains = [
  */
 export const config = createConfig({
   chains: supportedChains,
-  connectors: [
-    // MetaMask, Rainbow, Brave Wallet, etc. (injected wallets)
-    injected({
-      shimDisconnect: true,
-    }),
+  // connectors: [
+  //   // MetaMask, Rainbow, Brave Wallet, etc. (injected wallets)
+  //   injected({
+  //     shimDisconnect: true,
+  //   }),
 
-    // WalletConnect - for mobile wallets
-    walletConnect({
-      projectId,
-      metadata: {
-        name: 'AgaroVote',
-        description: 'Decentralized Voting for Everyone',
-        url: typeof window !== 'undefined' ? window.location.origin : '',
-        icons: [typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : ''],
-      },
-      showQrModal: true,
-    }),
+  //   // WalletConnect - for mobile wallets
+  //   walletConnect({
+  //     projectId,
+  //     metadata: {
+  //       name: 'AgaroVote',
+  //       description: 'Decentralized Voting for Everyone',
+  //       url: typeof window !== 'undefined' ? window.location.origin : '',
+  //       icons: [typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : ''],
+  //     },
+  //     showQrModal: true,
+  //   }),
 
-    // Coinbase Wallet
-    coinbaseWallet({
-      appName: 'AgaroVote',
-      appLogoUrl: typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : '',
-    }),
-  ],
+  //   // Coinbase Wallet
+  //   coinbaseWallet({
+  //     appName: 'AgaroVote',
+  //     appLogoUrl: typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : '',
+  //   }),
+  // ],
 
   // Transport configuration for each chain
   transports: {
     [mainnet.id]: http(),
     [sepolia.id]: http(),
-    [polygon.id]: http(),
-    [polygonAmoy.id]: http(),
+    // [polygon.id]: http(),
+    // [polygonAmoy.id]: http(),
     [hardhat.id]: http(),
   },
 

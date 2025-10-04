@@ -7,8 +7,11 @@ import { mergeRecords } from '../utils';
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // 5 minutes
-      gcTime: 1000 * 60 * 60 * 24, // 24 hours (required for persistence)
+      gcTime: 1_000 * 60 * 60 * 24, // 24 hours
+      staleTime: 1_000 * 60 * 5, // 5 minutes
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
+      refetchOnReconnect: true,
       queryKeyHashFn: hashFn, // For proper serialization in devtools
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors

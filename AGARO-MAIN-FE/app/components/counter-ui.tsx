@@ -3,27 +3,87 @@ import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Spinner } from '~/components/ui/spinner';
+import { useWeb3Chain } from '~/hooks/use-web3';
 import {
+  counterConfig,
   useReadCounterX,
   useWatchCounterIncrementEvent,
   useWriteCounterInc,
   useWriteCounterIncBy,
 } from '~/lib/web3/contracts/generated';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+
+import { useQueryClient } from '@tanstack/react-query';
 
 export function CounterUI() {
   const { address, isConnected } = useAccount();
-  const [customValue, setCustomValue] = useState('5');
+  const { chainName } = useWeb3Chain();
+
+  const customValueInputRef = useRef<HTMLInputElement>(null);
   const [events, setEvents] = useState<string[]>([]);
 
+  // Query Client
+  const queryClient = useQueryClient();
+
   // Read counter value
-  const { data: counterValue, isLoading: isReading, refetch } = useReadCounterX();
+  const { data: counterValue, isLoading: isReading, queryKey } = useReadCounterX();
 
   // Write operations
-  const { writeContract: increment, isPending: isIncrementing } = useWriteCounterInc();
+  const { writeContractAsync: increment, isPending: isIncrementing } = useWriteCounterInc({
+    mutation: {
+      onMutate: async () => {
+        await queryClient.cancelQueries({ queryKey });
 
-  const { writeContract: incrementBy, isPending: isIncrementingBy } = useWriteCounterIncBy();
+        const oldData = await queryClient.getQueryData(queryKey);
+
+        await queryClient.setQueryData(queryKey, (oldData: bigint) => {
+          if (oldData) return oldData + BigInt(1);
+          return BigInt(1);
+        });
+
+        return { oldData: oldData as bigint };
+      },
+      onSuccess: () => {
+        queryClient.refetchQueries({ queryKey });
+      },
+      onError: (error, variables, context) => {
+        if (context?.oldData) {
+          queryClient.setQueryData(queryKey, context.oldData);
+        }
+      },
+    },
+  });
+
+  const { writeContractAsync: incrementBy, isPending: isIncrementingBy } = useWriteCounterIncBy({
+    mutation: {
+      onMutate: async ({ args }) => {
+        const [value] = args as [bigint];
+        if (!value) return;
+        if (value <= 0) return;
+        if (typeof value !== 'bigint') return;
+        if (value === BigInt(0)) return;
+
+        await queryClient.cancelQueries({ queryKey });
+
+        const oldData = await queryClient.getQueryData(queryKey);
+
+        await queryClient.setQueryData(queryKey, (oldData: bigint) => {
+          if (oldData) return oldData + value;
+          return BigInt(1);
+        });
+        return { oldData: oldData as bigint };
+      },
+      onSuccess: () => {
+        queryClient.refetchQueries({ queryKey });
+      },
+      onError: (error, variables, context) => {
+        if (context?.oldData) {
+          queryClient.setQueryData(queryKey, context.oldData);
+        }
+      },
+    },
+  });
 
   // Watch for events
   useWatchCounterIncrementEvent({
@@ -37,8 +97,9 @@ export function CounterUI() {
 
   const handleIncrement = async () => {
     try {
-      increment({});
-      refetch(); // Refresh the counter value
+      await increment({
+        args: [],
+      });
     } catch (error) {
       console.error('Failed to increment:', error);
     }
@@ -46,11 +107,11 @@ export function CounterUI() {
 
   const handleIncrementBy = async () => {
     try {
-      const value = BigInt(customValue);
-      incrementBy({
+      if (!customValueInputRef.current) return;
+      const value = BigInt(customValueInputRef.current.value);
+      await incrementBy({
         args: [value],
       });
-      refetch(); // Refresh the counter value
     } catch (error) {
       console.error('Failed to increment by custom value:', error);
     }
@@ -127,17 +188,14 @@ export function CounterUI() {
               <div className="flex gap-2">
                 <Input
                   type="number"
+                  ref={customValueInputRef}
                   placeholder="Enter value"
-                  value={customValue}
-                  onChange={(e) => setCustomValue(e.target.value)}
                   className="flex-1"
                   min="1"
                 />
                 <Button
                   onClick={handleIncrementBy}
-                  disabled={
-                    isIncrementingBy || isReading || !customValue || Number(customValue) <= 0
-                  }
+                  disabled={isIncrementingBy || isReading}
                   className="h-10"
                 >
                   {isIncrementingBy ? <Spinner className="w-4 h-4" /> : 'Add'}
@@ -200,16 +258,14 @@ export function CounterUI() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <div className="font-medium text-muted-foreground">Contract Address</div>
-              <div className="font-mono text-xs break-all">
-                0x0000000000000000000000000000000000000000
-              </div>
+              <div className="font-mono text-xs break-all">{counterConfig.address}</div>
               <div className="text-xs text-muted-foreground mt-1">
                 Update this with your deployed contract address
               </div>
             </div>
             <div>
               <div className="font-medium text-muted-foreground">Network</div>
-              <div className="font-mono">Sepolia Testnet</div>
+              <div className="font-mono">{chainName}</div>
             </div>
             <div>
               <div className="font-medium text-muted-foreground">Functions</div>
