@@ -29,10 +29,18 @@
 
 ### Data & State Management
 
+- **[Optimistic Mutations](./OPTIMISTIC_MUTATIONS.md)** ⭐ Custom hook for optimistic UI updates
+- **[Multi-Chain Optimization](./MULTI_CHAIN_OPTIMIZATION.md)** ⭐ Preventing unnecessary multi-chain queries
 - [React Query Setup](./REACT_QUERY_SETUP.md) - Data fetching and caching
 - [Persistence Setup](./PERSISTENCE_SETUP.md) - Data persistence configuration
 - [Persistence Implementation](./PERSISTENCE_IMPLEMENTATION.md) - Implementation details
 - [Persistence Update](./PERSISTENCE_UPDATE.md) - Latest updates
+
+### Form Management
+
+- **[Form Composition](./FORM_COMPOSITION.md)** ⭐ TanStack Form + shadcn Field pattern
+- **[Form Validation](./FORM_VALIDATION.md)** - Form validation with inline validators
+- **[Toast Implementation](./TOAST_IMPLEMENTATION.md)** - Sonner toast notifications
 
 ---
 

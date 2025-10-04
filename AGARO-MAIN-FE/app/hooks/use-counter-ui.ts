@@ -1,3 +1,4 @@
+import { useChainId } from 'wagmi';
 import { useAppForm } from '~/components/form';
 import {
   useReadCounterX,
@@ -12,9 +13,16 @@ import { createIncrementUpdater, useOptimisticMutation } from './use-optimistic-
 
 export const useCounterUI = () => {
   const [events, setEvents] = useState<string[]>([]);
+  const chainId = useChainId();
 
-  // Read counter value
-  const { data: counterValue, isLoading: isReading, queryKey } = useReadCounterX();
+  // Read counter value - only query the connected chain
+  const {
+    data: counterValue,
+    isLoading: isReading,
+    queryKey,
+  } = useReadCounterX({
+    chainId,
+  });
 
   // Optimistic mutation for increment by 1
   const incrementMutation = useOptimisticMutation<bigint>({
@@ -59,8 +67,9 @@ export const useCounterUI = () => {
     mutation: incrementByMutation.callbacks,
   });
 
-  // Watch for events
+  // Watch for events - only watch the connected chain
   useWatchCounterIncrementEvent({
+    chainId,
     onLogs: (logs) => {
       logs.forEach((log) => {
         const newEvent = `Counter incremented by ${log.args.by} at block ${log.blockNumber}`;

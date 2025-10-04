@@ -142,7 +142,7 @@ export function useOptimisticMutation<TData = unknown, TVariables = unknown>({
     onSuccess: async (data: unknown, variables: TVariables, context?: MutationContext<TData>) => {
       // Refetch queries to ensure consistency
       if (refetchOnSuccess) {
-        await queryClient.refetchQueries({ queryKey });
+        await queryClient.invalidateQueries({ queryKey });
       }
 
       // Show success toast
