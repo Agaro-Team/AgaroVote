@@ -1,7 +1,6 @@
 import { useAccount } from 'wagmi';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
 import { Spinner } from '~/components/ui/spinner';
 import { useCounterUI } from '~/hooks/use-counter-ui';
 import { useWeb3Chain } from '~/hooks/use-web3';
@@ -13,13 +12,12 @@ export function CounterUI() {
 
   const {
     handleIncrement,
-    handleIncrementBy,
     isIncrementing,
     isIncrementingBy,
     events,
     counterValue,
     isReading,
-    customValueInputRef,
+    incrementByForm,
   } = useCounterUI();
 
   if (!isConnected) {
@@ -84,27 +82,43 @@ export function CounterUI() {
             </Button>
 
             {/* Custom Increment */}
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  ref={customValueInputRef}
-                  placeholder="Enter value"
-                  className="flex-1"
-                  min="1"
-                />
-                <Button
-                  onClick={handleIncrementBy}
-                  disabled={isIncrementingBy || isReading}
-                  className="h-10"
+            <incrementByForm.AppForm>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  incrementByForm.handleSubmit();
+                }}
+                className="space-y-2"
+              >
+                <incrementByForm.AppField
+                  name="value"
+                  validators={{
+                    onChange: ({ value }) => {
+                      if (!value) return 'Value is required';
+                      if (isNaN(Number(value))) return 'Must be a valid number';
+                      if (Number(value) <= 0) return 'Value must be greater than 0';
+                      if (!Number.isInteger(Number(value))) return 'Value must be a whole number';
+                      if (Number(value) > Number.MAX_SAFE_INTEGER) return 'Value is too large';
+                      return undefined;
+                    },
+                  }}
                 >
-                  {isIncrementingBy ? <Spinner className="w-4 h-4" /> : 'Add'}
-                </Button>
-              </div>
-              <div className="text-xs text-muted-foreground">
-                Increment by custom value (must be positive)
-              </div>
-            </div>
+                  {(field) => (
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <field.NumberField
+                          placeholder="Enter value"
+                          description="Increment by custom value (must be a positive whole number)"
+                          disabled={isIncrementingBy || isReading}
+                        />
+                      </div>
+                      <incrementByForm.SubmitButton label="Add" loadingLabel="Incrementing..." />
+                    </div>
+                  )}
+                </incrementByForm.AppField>
+              </form>
+            </incrementByForm.AppForm>
           </div>
 
           {/* Wallet Info */}

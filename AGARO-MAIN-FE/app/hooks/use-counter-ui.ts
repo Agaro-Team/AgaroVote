@@ -1,3 +1,4 @@
+import { useAppForm } from '~/components/form';
 import {
   useReadCounterX,
   useWatchCounterIncrementEvent,
@@ -5,12 +6,11 @@ import {
   useWriteCounterIncBy,
 } from '~/lib/web3/contracts/generated';
 
-import { useRef, useState } from 'react';
+import { useState } from 'react';
 
 import { createIncrementUpdater, useOptimisticMutation } from './use-optimistic-mutation';
 
 export const useCounterUI = () => {
-  const customValueInputRef = useRef<HTMLInputElement>(null);
   const [events, setEvents] = useState<string[]>([]);
 
   // Read counter value
@@ -69,6 +69,25 @@ export const useCounterUI = () => {
     },
   });
 
+  // TanStack Form for increment by custom value
+  const incrementByForm = useAppForm({
+    defaultValues: {
+      value: '',
+    },
+    onSubmit: async ({ value }) => {
+      try {
+        const bigIntValue = BigInt(value.value);
+        await incrementBy({
+          args: [bigIntValue],
+        });
+        // Reset form on success
+        incrementByForm.reset();
+      } catch (error) {
+        console.error('Failed to increment by custom value:', error);
+      }
+    },
+  });
+
   const handleIncrement = async () => {
     try {
       await increment({
@@ -79,26 +98,13 @@ export const useCounterUI = () => {
     }
   };
 
-  const handleIncrementBy = async () => {
-    try {
-      if (!customValueInputRef.current) return;
-      const value = BigInt(customValueInputRef.current.value);
-      await incrementBy({
-        args: [value],
-      });
-    } catch (error) {
-      console.error('Failed to increment by custom value:', error);
-    }
-  };
-
   return {
     handleIncrement,
-    handleIncrementBy,
     isIncrementing,
     isIncrementingBy,
     events,
     counterValue,
     isReading,
-    customValueInputRef,
+    incrementByForm,
   };
 };
