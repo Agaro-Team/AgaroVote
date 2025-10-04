@@ -5,7 +5,7 @@
  * It sets up the supported chains and wallet connectors using wagmi and viem.
  */
 import { createConfig, http } from 'wagmi';
-import { mainnet, polygon, polygonAmoy, sepolia } from 'wagmi/chains';
+import { hardhat, mainnet, polygon, polygonAmoy, sepolia } from 'wagmi/chains';
 import { coinbaseWallet, injected, walletConnect } from 'wagmi/connectors';
 
 /**
@@ -23,6 +23,7 @@ export const supportedChains = [
   sepolia, // Ethereum Sepolia Testnet
   polygon, // Polygon Mainnet
   polygonAmoy, // Polygon Amoy Testnet
+  hardhat,
 ] as const;
 
 /**
@@ -62,6 +63,7 @@ export const config = createConfig({
     [sepolia.id]: http(),
     [polygon.id]: http(),
     [polygonAmoy.id]: http(),
+    [hardhat.id]: http(),
   },
 
   // Enable SSR mode for React Router

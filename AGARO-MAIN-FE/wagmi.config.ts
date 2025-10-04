@@ -1,16 +1,14 @@
 import { defineConfig } from '@wagmi/cli';
-import { react } from '@wagmi/cli/plugins';
-
-import { WAGMIGOTCHI_ABI } from './app/lib/contracts/wagmigotchi.abi';
+import { hardhat, react } from '@wagmi/cli/plugins';
 
 export default defineConfig({
-  out: 'app/lib/contracts/generated.ts',
-  contracts: [
-    {
-      name: 'Wagmigotchi',
-      address: '0xecb504d39723b0be0e3a9aa33d646642d1051ee1',
-      abi: WAGMIGOTCHI_ABI,
-    },
+  out: 'app/lib/web3/contracts/generated.ts',
+
+  plugins: [
+    react(),
+    hardhat({
+      project: '../../',
+      artifacts: 'app/lib/web3/artifacts',
+    }),
   ],
-  plugins: [react()],
 });
