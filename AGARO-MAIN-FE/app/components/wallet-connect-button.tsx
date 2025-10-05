@@ -99,7 +99,15 @@ export function WalletConnectButton({
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleCopyAddress} className="cursor-pointer">
+        <DropdownMenuItem
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            handleCopyAddress();
+          }}
+          className="cursor-pointer"
+        >
           {copied ? (
             <>
               <CheckCircle2 className="h-4 w-4 mr-2 text-green-500" />
