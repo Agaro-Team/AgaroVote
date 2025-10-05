@@ -3,8 +3,6 @@ import { AppSidebar } from '~/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '~/components/ui/sidebar';
 import { walletAuthMiddleware } from '~/lib/middleware';
 
-import type { Route } from './+types/layout';
-
 /**
  * Middleware
  *
@@ -12,7 +10,7 @@ import type { Route } from './+types/layout';
  * This middleware runs for all child routes under /dashboard.
  * Users must have a connected wallet to access any dashboard page.
  */
-export const middleware: Route.MiddlewareFunction[] = [walletAuthMiddleware];
+export const middleware = [walletAuthMiddleware];
 
 export default function DashboardLayout() {
   return (

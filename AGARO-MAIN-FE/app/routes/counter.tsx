@@ -16,7 +16,7 @@ export function meta({}: Route.MetaArgs) {
  * Protects this route with wallet authentication.
  * Users must have a connected wallet to access this page.
  */
-export const middleware: Route.MiddlewareFunction[] = [walletAuthMiddleware];
+export const middleware = [walletAuthMiddleware];
 
 export default function CounterPage() {
   return (

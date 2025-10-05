@@ -6,7 +6,7 @@
  *
  * Based on: https://reactrouter.com/how-to/middleware
  */
-import { redirect } from 'react-router';
+import { type MiddlewareFunction, redirect } from 'react-router';
 import { cookieToInitialState } from 'wagmi';
 import { config } from '~/lib/web3/config';
 
@@ -29,7 +29,7 @@ import { walletContext } from './context';
  * ];
  * ```
  */
-export const walletAuthMiddleware = async (args: any) => {
+export const walletAuthMiddleware: MiddlewareFunction = async (args) => {
   const { request, context } = args;
   // Get wagmi state from cookies
   const cookieHeader = request.headers.get('Cookie') || '';
@@ -79,7 +79,7 @@ export const walletAuthMiddleware = async (args: any) => {
  * }
  * ```
  */
-export const optionalWalletMiddleware = async (args: any) => {
+export const optionalWalletMiddleware: MiddlewareFunction = async (args) => {
   const { request, context } = args;
   const cookieHeader = request.headers.get('Cookie') || '';
   const initialState = cookieToInitialState(config, cookieHeader);
