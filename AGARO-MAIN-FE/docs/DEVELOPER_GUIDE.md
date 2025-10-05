@@ -33,6 +33,7 @@
 
 ### Data & State Management
 
+- **[Transaction Lifecycle](./TRANSACTION_LIFECYCLE.md)** ⭐ Handling blockchain transaction states properly
 - **[Optimistic Mutations](./OPTIMISTIC_MUTATIONS.md)** ⭐ Custom hook for optimistic UI updates
 - **[Multi-Chain Optimization](./MULTI_CHAIN_OPTIMIZATION.md)** ⭐ Preventing unnecessary multi-chain queries
 - [React Query Setup](./REACT_QUERY_SETUP.md) - Data fetching and caching

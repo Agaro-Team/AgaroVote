@@ -4,7 +4,7 @@
  * Simplified hooks that wrap wagmi hooks for easier usage across the application.
  * These hooks provide wallet connection status, account info, and blockchain interactions.
  */
-import { formatEther } from 'viem';
+import { type TransactionReceipt, formatEther } from 'viem';
 import {
   useAccount,
   useBalance,
@@ -12,7 +12,10 @@ import {
   useConnect,
   useDisconnect,
   useSwitchChain,
+  useWaitForTransactionReceipt,
 } from 'wagmi';
+
+import { useEffect } from 'react';
 
 interface ConnectCallbacks {
   onSuccess?: () => void;
@@ -165,3 +168,45 @@ export function useWalletDisplay() {
     getChainDisplayName,
   };
 }
+
+/**
+ * useWaitForTransactionReceiptEffect Hook
+ *
+ * Waits for a transaction receipt and calls a callback function when it is confirmed
+ *
+ * @example
+ * ```tsx
+ * useWaitForTransactionReceiptEffect('0x1234567890', () => {
+ *   console.log('Transaction confirmed');
+ * });
+ * ```
+ * @param txHash - The transaction hash to wait for
+ * @param onSuccess
+ */
+export const useWaitForTransactionReceiptEffect = (
+  txHash?: `0x${string}`,
+  onSuccess?: (receipt: TransactionReceipt) => void
+) => {
+  const { chainId } = useWeb3Chain();
+
+  const {
+    data: receipt,
+    isLoading: isConfirming,
+    isSuccess: isConfirmed,
+  } = useWaitForTransactionReceipt({
+    hash: txHash,
+    chainId,
+  });
+
+  useEffect(() => {
+    if (isConfirmed && receipt) {
+      onSuccess?.(receipt);
+    }
+  }, [isConfirmed, receipt, onSuccess]);
+
+  return {
+    isConfirming,
+    isConfirmed,
+    receipt: receipt ?? undefined,
+  };
+};

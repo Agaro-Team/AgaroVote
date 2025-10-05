@@ -1,3 +1,4 @@
+import { toast } from 'sonner';
 import { useChainId } from 'wagmi';
 import { useAppForm } from '~/components/form';
 import {
@@ -9,64 +10,39 @@ import {
 
 import { useState } from 'react';
 
-import { createIncrementUpdater, useOptimisticMutation } from './use-optimistic-mutation';
+import { useWaitForTransactionReceiptEffect } from './use-web3';
 
 export const useCounterUI = () => {
   const [events, setEvents] = useState<string[]>([]);
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
   const chainId = useChainId();
 
   // Read counter value - only query the connected chain
   const {
     data: counterValue,
     isLoading: isReading,
-    queryKey,
+    refetch: refetchCounter,
   } = useReadCounterX({
     chainId,
   });
 
-  // Optimistic mutation for increment by 1
-  const incrementMutation = useOptimisticMutation<bigint>({
-    queryKey,
-    optimisticUpdate: (oldData) => {
-      if (oldData) return oldData + BigInt(1);
-      return BigInt(1);
-    },
-    successMessage: {
-      title: 'Counter incremented!',
-      description: 'The counter value has been increased by 1.',
-    },
-    errorMessage: {
-      title: 'Failed to increment counter',
-      description: 'An error occurred while incrementing the counter.',
-    },
-    refetchOnSuccess: false,
-  });
-
-  // Optimistic mutation for increment by custom value
-  const incrementByMutation = useOptimisticMutation<bigint, any>({
-    queryKey,
-    optimisticUpdate: createIncrementUpdater<bigint>((vars) => vars.args[0] as bigint),
-    successMessage: {
-      title: 'Counter incremented!',
-      description: (_, variables) => {
-        const [value] = variables.args as [bigint];
-        return `The counter value has been increased by ${value.toString()}.`;
-      },
-    },
-    errorMessage: {
-      title: 'Failed to increment counter',
-      description: 'An error occurred while incrementing the counter.',
-    },
-    refetchOnSuccess: false,
-  });
-
   // Write operations
-  const { writeContractAsync: increment, isPending: isIncrementing } = useWriteCounterInc({
-    mutation: incrementMutation.callbacks,
-  });
+  const { writeContractAsync: increment, isPending: isIncrementing } = useWriteCounterInc({});
 
-  const { writeContractAsync: incrementBy, isPending: isIncrementingBy } = useWriteCounterIncBy({
-    mutation: incrementByMutation.callbacks,
+  const { writeContractAsync: incrementBy, isPending: isIncrementingBy } = useWriteCounterIncBy({});
+
+  // Handle transaction confirmation
+  const { isConfirming, isConfirmed } = useWaitForTransactionReceiptEffect(txHash, (receipt) => {
+    // Refetch the counter value after confirmation
+    refetchCounter();
+
+    // Show success toast
+    toast.success('Transaction confirmed!', {
+      description: `Counter updated successfully. Block: ${receipt.blockNumber}`,
+    });
+
+    // Clear transaction hash
+    setTxHash(undefined);
   });
 
   // Watch for events - only watch the connected chain
@@ -88,31 +64,61 @@ export const useCounterUI = () => {
     onSubmit: async ({ value }) => {
       try {
         const bigIntValue = BigInt(value.value);
-        await incrementBy({
+        const hash = await incrementBy({
           args: [bigIntValue],
         });
+        // Store transaction hash to track confirmation
+        setTxHash(hash);
         // Reset form on success
         incrementByForm.reset();
       } catch (error) {
-        console.error('Failed to increment by custom value:', error);
+        if (error instanceof Error) {
+          console.error('Failed to increment by custom value:', error);
+          toast.error('Failed to increment by custom value', {
+            description:
+              error.message || 'An error occurred while incrementing the counter by custom value.',
+          });
+        }
       }
     },
   });
 
   const handleIncrement = async () => {
     try {
-      await increment({
+      const hash = await increment({
         args: [],
       });
+      // Store transaction hash to track confirmation
+      setTxHash(hash);
     } catch (error) {
-      console.error('Failed to increment:', error);
+      if (error instanceof Error) {
+        toast.error('Failed to increment', {
+          description: error.message || 'An error occurred while incrementing the counter.',
+        });
+      }
+    }
+  };
+
+  const handleIncrementBy = async () => {
+    try {
+      await incrementByForm.handleSubmit();
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error('Failed to increment by custom value', {
+          description:
+            error.message || 'An error occurred while incrementing the counter by custom value.',
+        });
+      }
     }
   };
 
   return {
     handleIncrement,
+    handleIncrementBy,
     isIncrementing,
     isIncrementingBy,
+    isConfirming, // New: Transaction confirmation state
+    isConfirmed, // New: Whether transaction is confirmed
     events,
     counterValue,
     isReading,

@@ -4,12 +4,14 @@ import { hashFn } from '@wagmi/core/query';
 
 import { mergeRecords } from '../utils';
 
+const gcTime = 1000 * 60 * 60 * 24; // 24 hours
+const staleTime = 1000 * 60 * 5; // 5 minutes
+
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnMount: true,
-      refetchOnWindowFocus: true,
-      refetchOnReconnect: true,
+      gcTime,
+      staleTime,
       queryKeyHashFn: hashFn, // For proper serialization in devtools
       retry: (failureCount, error) => {
         // Don't retry on 4xx errors

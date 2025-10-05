@@ -12,13 +12,18 @@ export function CounterUI() {
 
   const {
     handleIncrement,
+    handleIncrementBy,
     isIncrementing,
     isIncrementingBy,
+    isConfirming,
     events,
     counterValue,
     isReading,
     incrementByForm,
   } = useCounterUI();
+
+  // Combined loading state: either sending transaction or waiting for confirmation
+  const isProcessing = isIncrementing || isIncrementingBy || isConfirming;
 
   if (!isConnected) {
     return (
@@ -65,16 +70,28 @@ export function CounterUI() {
                 Intl.NumberFormat('en-US').format(Number(counterValue?.toString() || '0'))
               )}
             </div>
+            {/* Transaction Status Indicator */}
+            {isConfirming && (
+              <div className="mt-3 text-sm text-muted-foreground flex items-center justify-center gap-2">
+                <Spinner className="w-4 h-4" type="ellipsis" />
+                Waiting for blockchain confirmation...
+              </div>
+            )}
           </div>
 
           {/* Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Increment by 1 */}
-            <Button onClick={handleIncrement} disabled={isIncrementing || isReading}>
+            <Button onClick={handleIncrement} disabled={isProcessing || isReading}>
               {isIncrementing ? (
                 <div className="flex items-center gap-2">
                   <Spinner className="w-4 h-4" />
-                  Incrementing...
+                  Sending transaction...
+                </div>
+              ) : isConfirming ? (
+                <div className="flex items-center gap-2">
+                  <Spinner className="w-4 h-4" />
+                  Confirming...
                 </div>
               ) : (
                 'Increment by 1'
@@ -87,7 +104,7 @@ export function CounterUI() {
                 onSubmit={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  incrementByForm.handleSubmit();
+                  handleIncrementBy();
                 }}
                 className="space-y-2"
               >
@@ -110,10 +127,33 @@ export function CounterUI() {
                         <field.NumberField
                           placeholder="Enter value"
                           description="Increment by custom value (must be a positive whole number)"
-                          disabled={isIncrementingBy || isReading}
+                          disabled={isProcessing || isReading}
                         />
                       </div>
-                      <incrementByForm.SubmitButton label="Add" loadingLabel="Incrementing..." />
+                      <Button
+                        type="submit"
+                        disabled={
+                          isProcessing ||
+                          isReading ||
+                          field.state.meta.errors.length > 0 ||
+                          !field.state.value
+                        }
+                        className="h-10 mt-0"
+                      >
+                        {isIncrementingBy ? (
+                          <div className="flex items-center gap-2">
+                            <Spinner className="w-4 h-4" />
+                            Sending...
+                          </div>
+                        ) : isConfirming ? (
+                          <div className="flex items-center gap-2">
+                            <Spinner className="w-4 h-4" />
+                            Confirming...
+                          </div>
+                        ) : (
+                          'Add'
+                        )}
+                      </Button>
                     </div>
                   )}
                 </incrementByForm.AppField>
