@@ -18,6 +18,10 @@
 - **[Smart Contract Integration Guide](./SMART_CONTRACT_INTEGRATION.md)** - Complete guide to connecting custom smart contracts
 - **[Smart Contract Quick Reference](./SMART_CONTRACT_QUICK_REFERENCE.md)** - Quick copy-paste patterns and examples
 
+### Authentication & Security
+
+- **[Wallet Authentication Middleware](./WALLET_AUTH_MIDDLEWARE.md)** ⭐ Protecting routes with React Router v8 middleware
+
 ### Features & Implementation
 
 - [Web3 Architecture](./WEB3_ARCHITECTURE.md) - Architecture overview and design decisions

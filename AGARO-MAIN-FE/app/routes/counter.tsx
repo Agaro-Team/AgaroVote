@@ -1,7 +1,5 @@
-import { redirect } from 'react-router';
-import { cookieToInitialState } from 'wagmi';
 import { CounterUI } from '~/components/counter-ui';
-import { config } from '~/lib/web3/config';
+import { walletAuthMiddleware } from '~/lib/middleware';
 
 import type { Route } from './+types/counter';
 
@@ -12,13 +10,13 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const initialState = cookieToInitialState(config, request.headers.get('Cookie') || '');
-
-  if (!initialState?.current) {
-    redirect('/');
-  }
-}
+/**
+ * Middleware
+ *
+ * Protects this route with wallet authentication.
+ * Users must have a connected wallet to access this page.
+ */
+export const middleware: Route.MiddlewareFunction[] = [walletAuthMiddleware];
 
 export default function CounterPage() {
   return (
