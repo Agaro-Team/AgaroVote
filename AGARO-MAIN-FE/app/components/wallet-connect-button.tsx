@@ -5,6 +5,7 @@
  * Displays address when connected, shows connect button when disconnected.
  */
 import { CheckCircle2, Copy, LogOut, Wallet } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import { useWalletDisplay, useWeb3Wallet } from '~/hooks/use-web3';
 
 import { useState } from 'react';
@@ -38,6 +39,8 @@ export function WalletConnectButton({
   size = 'default',
 }: WalletConnectButtonProps) {
   const { address, isConnected, connect, disconnect, connectors, isPending } = useWeb3Wallet();
+  const navigate = useNavigate();
+
   const { shortenAddress } = useWalletDisplay();
   const [copied, setCopied] = useState(false);
 
@@ -66,7 +69,13 @@ export function WalletConnectButton({
           {connectors.map((connector) => (
             <DropdownMenuItem
               key={connector.id}
-              onClick={() => connect(connector.id)}
+              onClick={() =>
+                connect(connector.id, {
+                  onSuccess: () => {
+                    navigate('/dashboard');
+                  },
+                })
+              }
               className="cursor-pointer"
             >
               <Wallet className="h-4 w-4 mr-2" />

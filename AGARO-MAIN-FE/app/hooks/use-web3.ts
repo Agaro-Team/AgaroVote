@@ -14,6 +14,11 @@ import {
   useSwitchChain,
 } from 'wagmi';
 
+interface ConnectCallbacks {
+  onSuccess?: () => void;
+  onError?: (error: Error) => void;
+}
+
 /**
  * useWeb3Wallet Hook
  *
@@ -43,10 +48,10 @@ export function useWeb3Wallet() {
     chain,
 
     // Actions
-    connect: (connectorId?: string) => {
+    connect: (connectorId?: string, callbacks?: ConnectCallbacks) => {
       const connector = connectorId ? connectors.find((c) => c.id === connectorId) : connectors[0];
       if (connector) {
-        connect({ connector });
+        connect({ connector }, callbacks ?? {});
       }
     },
     disconnect,

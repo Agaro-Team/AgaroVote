@@ -39,6 +39,7 @@ export const useCounterUI = () => {
       title: 'Failed to increment counter',
       description: 'An error occurred while incrementing the counter.',
     },
+    refetchOnSuccess: false,
   });
 
   // Optimistic mutation for increment by custom value
@@ -56,6 +57,7 @@ export const useCounterUI = () => {
       title: 'Failed to increment counter',
       description: 'An error occurred while incrementing the counter.',
     },
+    refetchOnSuccess: false,
   });
 
   // Write operations
