@@ -30,14 +30,13 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "A test voting pool for testing purposes",
                 candidates: ["Alice", "Bob", "Charlie"],
                 candidatesTotal: 3,
-                owner: owner.address
             };
 
             await expect(entryPoint.newVotingPool(poolData))
                 .to.emit(entryPoint, "VotingPoolCreated")
                 .withArgs(1, ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
-                    ["string", "string", "string[]", "uint8", "address", "uint256"],
-                    [poolData.title, poolData.description, poolData.candidates, poolData.candidatesTotal, poolData.owner, 0]
+                    ["string", "string", "string[]", "uint8", "uint256", "address"],
+                    [poolData.title, poolData.description, poolData.candidates, poolData.candidatesTotal, 0, owner.address]
                 )));
         });
 
@@ -47,7 +46,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Test Description",
                 candidates: ["Option A", "Option B"],
                 candidatesTotal: 2,
-                owner: owner.address
             };
 
             expect(await entryPoint.version()).to.equal(0);
@@ -61,7 +59,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "First pool with 2 candidates",
                 candidates: ["Yes", "No"],
                 candidatesTotal: 2,
-                owner: owner.address
             };
 
             const poolData2 = {
@@ -69,7 +66,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Second pool with 5 candidates",
                 candidates: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
                 candidatesTotal: 5,
-                owner: owner.address
             };
 
             await entryPoint.newVotingPool(poolData1);
@@ -85,7 +81,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Pool with many candidates",
                 candidates: candidates,
                 candidatesTotal: 10,
-                owner: owner.address
             };
 
             await expect(entryPoint.newVotingPool(poolData))
@@ -98,7 +93,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Pool with no candidates",
                 candidates: [],
                 candidatesTotal: 0,
-                owner: owner.address
             };
 
             await expect(entryPoint.newVotingPool(poolData))
@@ -112,7 +106,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Pool with maximum candidates",
                 candidates: candidates,
                 candidatesTotal: 255,
-                owner: owner.address
             };
 
             await expect(entryPoint.newVotingPool(poolData))
@@ -127,7 +120,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Anyone can create pools",
                 candidates: ["Choice A", "Choice B", "Choice C"],
                 candidatesTotal: 3,
-                owner: voter.address
             };
 
             await expect(entryPoint.connect(voter).newVotingPool(poolData))
@@ -140,7 +132,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Testing gas consumption",
                 candidates: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
                 candidatesTotal: 5,
-                owner: owner.address
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -155,7 +146,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Testing contract validation",
                 candidates: ["Candidate 1", "Candidate 2", "Candidate 3"],
                 candidatesTotal: 3,
-                owner: owner.address
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -185,7 +175,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "First pool for validation",
                 candidates: ["Yes", "No"],
                 candidatesTotal: 2,
-                owner: owner.address
             };
 
             const poolData2 = {
@@ -193,7 +182,6 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 description: "Second pool for validation",
                 candidates: ["Option A", "Option B", "Option C", "Option D"],
                 candidatesTotal: 4,
-                owner: owner.address
             };
 
             const tx1 = await entryPoint.newVotingPool(poolData1);

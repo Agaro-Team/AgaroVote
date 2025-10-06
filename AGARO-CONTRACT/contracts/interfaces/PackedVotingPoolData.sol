@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: UNLICENSED
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
 struct VotingPoolDataArgument {
@@ -6,7 +6,11 @@ struct VotingPoolDataArgument {
     string description;
     string[] candidates;
     uint8 candidatesTotal;
-    address owner;
+}
+
+struct VoteArgument {
+    bytes32 poolHash;
+    uint8 candidateSelected;
 }
 
 struct PoolData {
