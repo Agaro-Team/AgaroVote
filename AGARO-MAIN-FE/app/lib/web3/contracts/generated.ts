@@ -35,16 +35,11 @@ export const entryPointAbi = [
   {
     type: 'error',
     inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolDoesNotExists',
-  },
-  {
-    type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'PoolDoesNotHaveVoterStorage',
   },
   {
     type: 'error',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
+    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'PoolHashDoesNotExist',
   },
   {
@@ -65,6 +60,31 @@ export const entryPointAbi = [
       },
     ],
     name: 'PoolBinded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'poolHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'selected',
+        internalType: 'uint8',
+        type: 'uint8',
+        indexed: false,
+      },
+    ],
+    name: 'VoteSucced',
   },
   {
     type: 'event',
@@ -212,22 +232,29 @@ export const entryPointAbi = [
 
 export const iEntryPointAbi = [
   {
-    type: 'error',
+    type: 'event',
+    anonymous: false,
     inputs: [
-      { name: '_poolHash', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'candidate', internalType: 'uint8', type: 'uint8' },
+      {
+        name: 'poolHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'selected',
+        internalType: 'uint8',
+        type: 'uint8',
+        indexed: false,
+      },
     ],
-    name: 'CandidateDoesNotExist',
-  },
-  {
-    type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolDoesNotHaveVoterStorage',
-  },
-  {
-    type: 'error',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolHashDoesNotExist',
+    name: 'VoteSucced',
   },
   {
     type: 'event',
@@ -289,6 +316,11 @@ export const iVoterStorageAbi = [
     name: 'PoolAlreadyExists',
   },
   {
+    type: 'error',
+    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PoolDoesNotHaveVoterStorage',
+  },
+  {
     type: 'event',
     anonymous: false,
     inputs: [
@@ -316,8 +348,16 @@ export const iVoterStorageAbi = [
 export const iVotingPoolAbi = [
   {
     type: 'error',
+    inputs: [
+      { name: '_poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'candidate', internalType: 'uint8', type: 'uint8' },
+    ],
+    name: 'CandidateDoesNotExist',
+  },
+  {
+    type: 'error',
     inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolDoesNotExists',
+    name: 'PoolHashDoesNotExist',
   },
   {
     type: 'function',
@@ -346,6 +386,11 @@ export const voterStorageAbi = [
     type: 'error',
     inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'PoolAlreadyExists',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PoolDoesNotHaveVoterStorage',
   },
   {
     type: 'event',
@@ -409,8 +454,16 @@ export const voterStorageAbi = [
 export const votingPoolAbi = [
   {
     type: 'error',
+    inputs: [
+      { name: '_poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'candidate', internalType: 'uint8', type: 'uint8' },
+    ],
+    name: 'CandidateDoesNotExist',
+  },
+  {
+    type: 'error',
     inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolDoesNotExists',
+    name: 'PoolHashDoesNotExist',
   },
   {
     type: 'function',
@@ -607,6 +660,15 @@ export const useWatchEntryPointPoolBindedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"VoteSucced"`
+ */
+export const useWatchEntryPointVoteSuccedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: entryPointAbi,
+    eventName: 'VoteSucced',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"VotingPoolCreated"`
  */
 export const useWatchEntryPointVotingPoolCreatedEvent =
@@ -652,6 +714,15 @@ export const useSimulateIEntryPointNewVotingPool =
  */
 export const useWatchIEntryPointEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: iEntryPointAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iEntryPointAbi}__ and `eventName` set to `"VoteSucced"`
+ */
+export const useWatchIEntryPointVoteSuccedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iEntryPointAbi,
+    eventName: 'VoteSucced',
+  })
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iEntryPointAbi}__ and `eventName` set to `"VotingPoolCreated"`
