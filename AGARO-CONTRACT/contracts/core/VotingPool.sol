@@ -6,7 +6,13 @@ import "../interfaces/IVotingPool.sol";
 
 contract VotingPool is IVotingPool {
     uint256 public version;
-    mapping(bytes32 => PoolData) pools;
+    mapping(bytes32 => PoolData) public pools;
+
+    function isContractValid(
+        bytes32 _poolHash
+    ) external view returns (bool isExist) {
+        return pools[_poolHash].voterStorageHashLocation != bytes32(0);
+    }
 
     function _new(
         bytes32 _poolHash,

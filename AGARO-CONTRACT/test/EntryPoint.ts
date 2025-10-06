@@ -137,5 +137,82 @@ describe("EntryPoint - Voting Pool Creation", function () {
 
             expect(receipt?.gasUsed).to.be.lessThan(500000);
         });
+
+        it("Should validate contract existence correctly", async function () {
+            const poolData = {
+                title: "Validation Test Pool",
+                description: "Testing contract validation",
+                candidates: 3,
+                owner: owner.address
+            };
+
+            const tx = await entryPoint.newVotingPool(poolData);
+            const receipt = await tx.wait();
+
+            const event = receipt?.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            expect(event).to.not.be.undefined;
+            const poolHash = event?.topics[2];
+
+            expect(await entryPoint.isContractValid(poolHash)).to.be.true;
+
+            const nonExistentHash = ethers.keccak256(ethers.toUtf8Bytes("non-existent"));
+            expect(await entryPoint.isContractValid(nonExistentHash)).to.be.false;
+        });
+
+        it("Should validate multiple pools correctly", async function () {
+            const poolData1 = {
+                title: "Pool 1",
+                description: "First pool for validation",
+                candidates: 2,
+                owner: owner.address
+            };
+
+            const poolData2 = {
+                title: "Pool 2",
+                description: "Second pool for validation",
+                candidates: 4,
+                owner: owner.address
+            };
+
+            const tx1 = await entryPoint.newVotingPool(poolData1);
+            const receipt1 = await tx1.wait();
+
+            const tx2 = await entryPoint.newVotingPool(poolData2);
+            const receipt2 = await tx2.wait();
+
+            const event1 = receipt1?.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const event2 = receipt2?.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const poolHash1 = event1?.topics[2];
+            const poolHash2 = event2?.topics[2];
+
+            expect(await entryPoint.isContractValid(poolHash1)).to.be.true;
+            expect(await entryPoint.isContractValid(poolHash2)).to.be.true;
+
+            expect(poolHash1).to.not.equal(poolHash2);
+        });
     });
 });
