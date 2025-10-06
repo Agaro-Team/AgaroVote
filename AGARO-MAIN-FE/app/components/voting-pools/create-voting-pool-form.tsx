@@ -13,7 +13,7 @@ import { useCreateVotingPool } from '~/hooks/use-create-voting-pool';
 
 import { useEffect } from 'react';
 
-import { CandidatesArrayField } from './candidates-array-field';
+import { ChoicesArrayField } from './choices-array-field';
 
 /**
  * Zod Schema for Voting Pool Form Validation
@@ -29,18 +29,18 @@ const votingPoolSchema = z.object({
     .min(1, 'Description is required')
     .max(1000, 'Description must be 1000 characters or less')
     .refine((val) => val.trim().length > 0, 'Description cannot be empty'),
-  candidates: z
+  choices: z
     .array(z.string())
-    .min(2, 'At least 2 candidates are required')
+    .min(2, 'At least 2 choices are required')
     .refine(
-      (candidates) => candidates.filter((c) => c.trim() !== '').length >= 2,
-      'At least 2 candidates must have names'
+      (choices) => choices.filter((c) => c.trim() !== '').length >= 2,
+      'At least 2 choices must have names'
     )
-    .refine((candidates) => {
-      const nonEmpty = candidates.filter((c) => c.trim() !== '');
+    .refine((choices) => {
+      const nonEmpty = choices.filter((c) => c.trim() !== '');
       const unique = new Set(nonEmpty.map((c) => c.trim().toLowerCase()));
       return unique.size === nonEmpty.length;
-    }, 'Candidate names must be unique'),
+    }, 'Choice names must be unique'),
 });
 
 type CreateVotingPoolFormData = z.infer<typeof votingPoolSchema>;
@@ -53,23 +53,24 @@ export function CreateVotingPoolForm() {
     defaultValues: {
       title: '',
       description: '',
-      candidates: ['', ''], // Start with 2 empty candidates
+      choices: ['', ''], // Start with 2 empty choices
     } satisfies CreateVotingPoolFormData,
     onSubmit: async ({ value }) => {
-      // Validate candidates
-      const validCandidates = value.candidates.filter((c) => c.trim() !== '');
+      // Validate choices
+      const validChoices = value.choices.filter((c) => c.trim() !== '');
 
-      if (validCandidates.length < 2) {
-        toast.error('Please add at least 2 candidates with names');
+      if (validChoices.length < 2) {
+        toast.error('Please add at least 2 choices with names');
         return;
       }
 
       // Create the pool with candidatesTotal calculated
+      // Note: Smart contract still uses "candidates" terminology
       createPool({
         title: value.title,
         description: value.description,
-        candidates: validCandidates,
-        candidatesTotal: validCandidates.length,
+        candidates: validChoices, // Map "choices" to "candidates" for contract
+        candidatesTotal: validChoices.length,
       });
     },
   });
@@ -150,19 +151,19 @@ export function CreateVotingPoolForm() {
               )}
             </form.AppField>
 
-            {/* Candidates Array Field */}
+            {/* Choices Array Field */}
             <form.AppField
-              name="candidates"
+              name="choices"
               validators={{
                 onChange: ({ value }) => {
-                  const result = votingPoolSchema.shape.candidates.safeParse(value);
+                  const result = votingPoolSchema.shape.choices.safeParse(value);
                   return result.success ? undefined : result.error.issues[0]?.message;
                 },
               }}
             >
               {(field) => (
-                <CandidatesArrayField
-                  candidates={field.state.value}
+                <ChoicesArrayField
+                  choices={field.state.value}
                   onChange={field.handleChange}
                   onBlur={field.handleBlur}
                   errors={field.state.meta.errors as string[]}
