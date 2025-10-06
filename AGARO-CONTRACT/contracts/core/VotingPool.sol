@@ -21,7 +21,7 @@ contract VotingPool is IVotingPool {
         )
     {
         if (!isContractValid(_poolHash)) {
-            revert PoolDoesNotExists(_poolHash);
+            revert PoolHashDoesNotExist(_poolHash);
         }
 
         PoolData storage pool = pools[_poolHash];

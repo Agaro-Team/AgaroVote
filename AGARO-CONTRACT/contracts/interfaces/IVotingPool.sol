@@ -4,7 +4,8 @@ pragma solidity ^0.8.28;
 import "../interfaces/PackedVotingPoolData.sol";
 
 interface IVotingPool {
-    error PoolDoesNotExists(bytes32 poolHash);
+    error PoolHashDoesNotExist(bytes32 poolHash);
+    error CandidateDoesNotExist(bytes32 _poolHash, uint8 candidate);
 
     function isContractValid(
         bytes32 _poolHash

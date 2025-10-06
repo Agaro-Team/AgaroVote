@@ -17,17 +17,17 @@ contract VoterStorage is IVoterStorage {
 
     function _vote(
         bytes32 storageLocation,
-        address sender,
+        address voter,
         uint8 selected
     ) internal {
-        if (poolStorageVoters[storageLocation][sender].isVoted) {
+        if (poolStorageVoters[storageLocation][voter].isVoted) {
             revert AlreadyVoted(
                 storageHashToPool[storageLocation],
                 storageLocation,
-                sender
+                voter
             );
         }
-        poolStorageVoters[storageLocation][sender] = VoterData({
+        poolStorageVoters[storageLocation][voter] = VoterData({
             selected: selected,
             isVoted: true
         });
