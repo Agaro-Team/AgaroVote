@@ -203,9 +203,65 @@ describe("EntryPoint - Voting Functionality", function () {
             const poolInfo = await entryPoint.getPoolData(poolHash);
             const storageLocation = poolInfo.voterStorageHashLocation;
 
-            expect(await entryPoint.poolStorageVoters(storageLocation, voter1.address)).to.equal(0);
-            expect(await entryPoint.poolStorageVoters(storageLocation, voter2.address)).to.equal(1);
-            expect(await entryPoint.poolStorageVoters(storageLocation, voter3.address)).to.equal(0);
+            const voter1Data = await entryPoint.poolStorageVoters(storageLocation, voter1.address);
+            const voter2Data = await entryPoint.poolStorageVoters(storageLocation, voter2.address);
+            const voter3Data = await entryPoint.poolStorageVoters(storageLocation, voter3.address);
+
+            expect(voter1Data.selected).to.equal(0);
+            expect(voter1Data.isVoted).to.be.true;
+
+            expect(voter2Data.selected).to.equal(1);
+            expect(voter2Data.isVoted).to.be.true;
+
+            expect(voter3Data.selected).to.equal(0);
+            expect(voter3Data.isVoted).to.be.false;
+        });
+        it("Should prevent a voter from voting twice in the same pool", async function () {
+            const poolData = {
+                title: "Double Vote Test",
+                description: "Ensure voters cannot vote twice",
+                candidates: ["A", "B", "C"],
+                candidatesTotal: 3,
+            };
+
+            const tx = await entryPoint.newVotingPool(poolData);
+            const receipt = await tx.wait();
+
+            const votingPoolEvent = receipt.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const poolHash = votingPoolEvent?.topics[2];
+            expect(poolHash).to.not.be.undefined;
+
+            const poolInfo = await entryPoint.getPoolData(poolHash);
+            const storageLocation = poolInfo.voterStorageHashLocation;
+
+            expect(await
+                entryPoint.connect(voter1).vote({
+                    poolHash,
+                    candidateSelected: 0,
+                })
+            ).to.not.be.revert;
+
+            await expect(
+                entryPoint.connect(voter1).vote({
+                    poolHash,
+                    candidateSelected: 1,
+                })
+            )
+                .to.be.revertedWithCustomError(entryPoint, "AlreadyVoted")
+                .withArgs(poolHash, storageLocation, voter1.address);
+
+            const voterData = await entryPoint.poolStorageVoters(storageLocation, voter1.address);
+
+            expect(voterData.selected).to.equal(0);
+            expect(voterData.isVoted).to.be.true;
         });
     });
 

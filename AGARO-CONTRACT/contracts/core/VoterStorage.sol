@@ -5,8 +5,9 @@ import "../interfaces/PackedVotingPoolData.sol";
 import "../interfaces/IVoterStorage.sol";
 
 contract VoterStorage is IVoterStorage {
-    mapping(bytes32 => mapping(address => uint8)) public poolStorageVoters;
+    mapping(bytes32 => mapping(address => VoterData)) public poolStorageVoters;
     mapping(bytes32 => bytes32) public poolHashToStorage;
+    mapping(bytes32 => bytes32) public storageHashToPool;
 
     function isPoolHaveVoterStorage(
         bytes32 _poolHash
@@ -19,13 +20,24 @@ contract VoterStorage is IVoterStorage {
         address sender,
         uint8 selected
     ) internal {
-        poolStorageVoters[storageLocation][sender] = selected;
+        if (poolStorageVoters[storageLocation][sender].isVoted) {
+            revert AlreadyVoted(
+                storageHashToPool[storageLocation],
+                storageLocation,
+                sender
+            );
+        }
+        poolStorageVoters[storageLocation][sender] = VoterData({
+            selected: selected,
+            isVoted: true
+        });
     }
 
     function _bind(bytes32 _poolHash, bytes32 _poolStorageHash) internal {
         if (poolHashToStorage[_poolHash] != bytes32(0))
             revert PoolAlreadyExists(_poolHash);
         poolHashToStorage[_poolHash] = _poolStorageHash;
+        storageHashToPool[_poolStorageHash] = _poolHash;
         emit PoolBinded(_poolHash, _poolStorageHash);
     }
 }

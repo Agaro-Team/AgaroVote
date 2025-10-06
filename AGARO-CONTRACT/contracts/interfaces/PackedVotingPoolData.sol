@@ -12,6 +12,10 @@ struct VoteArgument {
     bytes32 poolHash;
     uint8 candidateSelected;
 }
+struct VoterData {
+    uint8 selected;
+    bool isVoted;
+}
 
 struct PoolData {
     uint256 version;
