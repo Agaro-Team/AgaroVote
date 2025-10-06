@@ -81,6 +81,8 @@ export function CreateVotingPoolForm() {
       toast.success('Voting pool created successfully!', {
         description: `Transaction: ${txHash.slice(0, 10)}...${txHash.slice(-8)}`,
       });
+
+      form.reset();
     }
   }, [isSuccess, txHash]);
 
