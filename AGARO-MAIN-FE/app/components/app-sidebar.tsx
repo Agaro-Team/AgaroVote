@@ -91,7 +91,7 @@ const data = {
         },
         {
           title: 'Create New',
-          url: '/voting-pools/create',
+          url: '/dashboard/voting-pools/create',
         },
       ],
     },

@@ -1,6 +1,6 @@
 import type { Address } from 'viem';
 
-import { type Plugin, defineConfig, loadEnv } from '@wagmi/cli';
+import { defineConfig, loadEnv } from '@wagmi/cli';
 import { hardhat, react } from '@wagmi/cli/plugins';
 
 export default defineConfig(async () => {
@@ -15,9 +15,12 @@ export default defineConfig(async () => {
       react(),
       hardhat({
         project: '../AGARO-CONTRACT',
+        include: ['EntryPoint*'],
         deployments: {
           AgaroVote: {
-            '31337': env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT as Address,
+            1: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET as Address,
+            11155111: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA as Address,
+            31337: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT as Address,
           },
         },
       }),
