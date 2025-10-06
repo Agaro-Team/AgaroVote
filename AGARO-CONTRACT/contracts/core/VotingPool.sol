@@ -39,8 +39,24 @@ contract VotingPool is IVotingPool {
         return pools[_poolHash].voterStorageHashLocation != bytes32(0);
     }
 
-    function _incSelected(bytes32 _hashPool, uint8 selected) internal {
-        pools[_hashPool].candidatesVotersCount[selected]++;
+    function _incSelected(
+        bytes32 _hashPool,
+        uint8 selected,
+        address voter
+    ) internal {
+        PoolData storage pool = pools[_hashPool];
+
+        pool.candidatesVotersCount[selected]++;
+
+        pool.poolVoterHash = keccak256(
+            abi.encode(
+                pool.version,
+                pool.voterStorageHashLocation,
+                pool.candidatesVotersCount,
+                pool.owner,
+                voter
+            )
+        );
     }
 
     function _new(
@@ -53,7 +69,8 @@ contract VotingPool is IVotingPool {
             version: version,
             voterStorageHashLocation: voterStorageHashLocation,
             candidatesVotersCount: new uint256[](_poolData.candidatesTotal),
-            owner: owner
+            owner: owner,
+            poolVoterHash: bytes32(0)
         });
         unchecked {
             version++;

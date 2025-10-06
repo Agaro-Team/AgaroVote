@@ -5,7 +5,7 @@ import "../interfaces/PackedVotingPoolData.sol";
 
 interface IEntryPoint {
     event VotingPoolCreated(uint256 indexed version, bytes32 indexed poolHash);
-    event VoteSucced(
+    event VoteSucceeded(
         bytes32 indexed poolHash,
         address indexed voter,
         uint8 selected
