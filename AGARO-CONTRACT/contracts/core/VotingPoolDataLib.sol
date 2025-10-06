@@ -10,9 +10,18 @@ library VotingPoolDataLib {
     ) internal pure returns (bytes memory ret) {
         string memory title = _poolData.title;
         string memory description = _poolData.description;
-        uint8 candidates = _poolData.candidates;
+        string[] memory candidates = _poolData.candidates;
+        uint8 candidatesTotal = _poolData.candidatesTotal;
         address owner = _poolData.owner;
-        return abi.encode(title, description, candidates, owner, version);
+        return
+            abi.encode(
+                title,
+                description,
+                candidates,
+                candidatesTotal,
+                owner,
+                version
+            );
     }
 
     function getHash(

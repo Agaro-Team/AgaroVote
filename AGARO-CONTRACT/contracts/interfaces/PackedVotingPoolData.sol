@@ -4,13 +4,14 @@ pragma solidity ^0.8.28;
 struct VotingPoolDataArgument {
     string title;
     string description;
-    uint8 candidates;
+    string[] candidates;
+    uint8 candidatesTotal;
     address owner;
 }
 
 struct PoolData {
     uint256 version;
     bytes32 voterStorageHashLocation;
-    uint8[] candidates;
+    uint256[] candidatesVotersCount;
     address owner;
 }

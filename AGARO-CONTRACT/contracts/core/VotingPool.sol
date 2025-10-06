@@ -21,7 +21,7 @@ contract VotingPool is IVotingPool {
         pools[_poolHash] = PoolData({
             version: version,
             voterStorageHashLocation: keccak256(abi.encode(_poolHash)),
-            candidates: new uint8[](_poolData.candidates),
+            candidatesVotersCount: new uint256[](_poolData.candidatesTotal),
             owner: _poolData.owner
         });
         version++;
