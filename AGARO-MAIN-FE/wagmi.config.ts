@@ -9,23 +9,18 @@ export default defineConfig(async () => {
     envDir: process.cwd(),
   });
 
-  const plugins: Plugin[] = [react()];
-
-  if (process.env.NODE_ENV === 'dev') {
-    plugins.push(
+  return {
+    out: 'app/lib/web3/contracts/generated.ts',
+    plugins: [
+      react(),
       hardhat({
         project: '../AGARO-CONTRACT',
         deployments: {
-          Counter: {
-            '31337': env.AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT as Address,
+          AgaroVote: {
+            '31337': env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT as Address,
           },
         },
-      })
-    );
-  }
-
-  return {
-    out: 'app/lib/web3/contracts/generated.ts',
-    plugins,
+      }),
+    ],
   };
 });
