@@ -13,7 +13,6 @@ const walletRoutes = prefix('wallet', [
 
 export default [
   index('routes/home.tsx'),
-  route('counter', 'routes/counter.tsx'),
   ...dashboardRoutes,
   ...walletRoutes,
 ] satisfies RouteConfig;

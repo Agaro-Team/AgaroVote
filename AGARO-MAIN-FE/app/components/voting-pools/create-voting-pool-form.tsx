@@ -9,7 +9,7 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 import { useAppForm } from '~/components/form/use-app-form';
 import { Card } from '~/components/ui/card';
-import { useCreateVotingPool } from '~/hooks/use-create-voting-pool';
+import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
 
 import { useEffect } from 'react';
 
@@ -81,12 +81,8 @@ export function CreateVotingPoolForm() {
       toast.success('Voting pool created successfully!', {
         description: `Transaction: ${txHash.slice(0, 10)}...${txHash.slice(-8)}`,
       });
-      // Redirect to dashboard after a short delay
-      setTimeout(() => {
-        navigate('/dashboard');
-      }, 2000);
     }
-  }, [isSuccess, txHash, navigate]);
+  }, [isSuccess, txHash]);
 
   // Handle error
   useEffect(() => {
