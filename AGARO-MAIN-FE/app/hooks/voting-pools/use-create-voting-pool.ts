@@ -63,10 +63,6 @@ export function useCreateVotingPool() {
     },
   });
 
-  console.log({
-    version,
-  });
-
   // Wait for transaction confirmation
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,

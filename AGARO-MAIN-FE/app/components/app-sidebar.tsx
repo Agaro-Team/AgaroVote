@@ -74,20 +74,20 @@ const data = {
     },
     {
       title: 'Voting Pools',
-      url: '/voting-pools',
+      url: '/dashboard/voting-pools',
       icon: Vote,
       items: [
         {
           title: 'Browse All',
-          url: '/voting-pools',
+          url: '/dashboard/voting-pools',
         },
         {
           title: 'Active Polls',
-          url: '/voting-pools/active',
+          url: '/dashboard/voting-pools/active',
         },
         {
           title: 'Completed',
-          url: '/voting-pools/completed',
+          url: '/dashboard/voting-pools/completed',
         },
         {
           title: 'Create New',

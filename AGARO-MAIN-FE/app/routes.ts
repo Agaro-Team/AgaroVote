@@ -3,6 +3,7 @@ import { type RouteConfig, index, layout, prefix, route } from '@react-router/de
 const dashboardRoutes = prefix('dashboard', [
   layout('routes/dashboard/layout.tsx', [
     index('routes/dashboard/index.tsx'),
+    route('voting-pools', 'routes/dashboard/voting-pools/index.tsx'),
     route('voting-pools/create', 'routes/dashboard/voting-pools/create.tsx'),
   ]),
 ]);
