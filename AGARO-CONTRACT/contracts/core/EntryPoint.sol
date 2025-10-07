@@ -24,7 +24,7 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
 
     function vote(VoteArgument calldata _voteData) external {
         bytes32 storageLocation = _verifyVoteData(_voteData);
-        _incSelected(
+        bytes32 newPoolVoterHash = _incSelected(
             _voteData.poolHash,
             _voteData.candidateSelected,
             msg.sender
@@ -34,7 +34,8 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
         emit VoteSucceeded(
             _voteData.poolHash,
             msg.sender,
-            _voteData.candidateSelected
+            _voteData.candidateSelected,
+            newPoolVoterHash
         );
     }
 

@@ -8,7 +8,8 @@ interface IEntryPoint {
     event VoteSucceeded(
         bytes32 indexed poolHash,
         address indexed voter,
-        uint8 selected
+        uint8 selected,
+        bytes32 newPoolVoterHash
     );
 
     function newVotingPool(VotingPoolDataArgument calldata _poolData) external;

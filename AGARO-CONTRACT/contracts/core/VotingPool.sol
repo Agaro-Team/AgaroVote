@@ -43,20 +43,21 @@ contract VotingPool is IVotingPool {
         bytes32 _hashPool,
         uint8 selected,
         address voter
-    ) internal {
+    ) internal returns (bytes32) {
         PoolData storage pool = pools[_hashPool];
 
         pool.candidatesVotersCount[selected]++;
-
-        pool.poolVoterHash = keccak256(
+        bytes32 newPoolVoterHash = keccak256(
             abi.encode(
-                pool.version,
-                pool.voterStorageHashLocation,
+                voter,
+                _hashPool,
+                pool.poolVoterHash,
                 pool.candidatesVotersCount,
-                pool.owner,
-                voter
+                pool.voterStorageHashLocation
             )
         );
+        pool.poolVoterHash = newPoolVoterHash;
+        return newPoolVoterHash;
     }
 
     function _new(
