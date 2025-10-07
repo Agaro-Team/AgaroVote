@@ -96,7 +96,7 @@ export function useCreateVotingPool() {
         }
 
         // Verify version matches (optional but recommended)
-        if (eventVersion === version) {
+        if (eventVersion !== version) {
           return;
         }
 
