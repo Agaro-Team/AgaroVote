@@ -6,43 +6,61 @@
 
 ## 🚀 Setup (One Time)
 
-### 1. Create Contract Config
+### 1. Auto-Generate Contract Hooks (Recommended)
+
+```bash
+# After compiling Hardhat contracts
+yarn wagmi
+
+# Watch mode for development
+yarn wagmi:watch
+```
+
+### 2. Contract Address Config
 
 ```typescript
-// app/lib/contracts/my-contract.ts
-export const MY_CONTRACT_ABI = [
-  // Your ABI here
-] as const;
+// app/lib/web3/contracts/entry-point-config.ts
+import type { Address } from 'viem';
 
-export const MY_CONTRACT_ADDRESS = {
-  1: '0x...', // Mainnet
-  11155111: '0x...', // Sepolia
-  137: '0x...', // Polygon
-  80002: '0x...', // Amoy
-} as const;
+export const ENTRY_POINT_CONTRACT_ADDRESS: Record<number, Address> = {
+  1: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET,
+  11155111: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA,
+  31337: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT,
+};
+
+export function getEntryPointAddress(chainId: number): Address | undefined {
+  return ENTRY_POINT_CONTRACT_ADDRESS[chainId];
+}
+```
+
+### 3. Environment Variables
+
+```bash
+# .env
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT=0x...
 ```
 
 ---
 
 ## 📖 Reading Contract Data (View Functions)
 
-### Basic Read
+### Using Auto-Generated Hooks
 
 ```typescript
-import { useReadContract } from 'wagmi';
-import { MY_CONTRACT_ABI, MY_CONTRACT_ADDRESS } from '~/lib/contracts/my-contract';
+import { useReadEntryPointVersion } from '~/lib/web3/contracts/generated';
+import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
 import { useWeb3Chain } from '~/hooks/use-web3';
 
 function MyComponent() {
   const { chainId } = useWeb3Chain();
 
-  const { data, isLoading } = useReadContract({
-    address: MY_CONTRACT_ADDRESS[chainId],
-    abi: MY_CONTRACT_ABI,
-    functionName: 'myFunction',
+  const { data: version, isLoading } = useReadEntryPointVersion({
+    address: getEntryPointAddress(chainId),
   });
 
-  return <div>{data?.toString()}</div>;
+  return <div>Version: {version?.toString()}</div>;
 }
 ```
 
@@ -57,24 +75,33 @@ const { data } = useReadContract({
 });
 ```
 
-### Custom Hook Pattern
+### Custom Hook Pattern with Optimistic Updates
 
 ```typescript
-// app/hooks/use-my-contract.ts
-export function useMyData() {
-  const { chainId } = useWeb3Chain();
+// app/hooks/voting-pools/use-create-voting-pool.ts
+import { useWriteEntryPointNewVotingPool } from '~/lib/web3/contracts/generated';
+import { useOptimisticMutation } from '../use-optimistic-mutation';
 
-  const { data, isLoading, refetch } = useReadContract({
-    address: MY_CONTRACT_ADDRESS[chainId],
-    abi: MY_CONTRACT_ABI,
-    functionName: 'getData',
+export function useCreateVotingPool() {
+  const { chainId } = useWeb3Chain();
+  
+  const mutation = useOptimisticMutation({
+    queryKey: ['voting-pools'],
+    successMessage: 'Voting pool created!',
   });
 
-  return {
-    myData: data ? Number(data) : 0,
-    isLoading,
-    refetch,
+  const { writeContract, isPending } = useWriteEntryPointNewVotingPool({
+    mutation: mutation.callbacks,
+  });
+
+  const createPool = (data: VotingPoolData) => {
+    writeContract({
+      address: getEntryPointAddress(chainId)!,
+      args: [data],
+    });
   };
+
+  return { createPool, isPending };
 }
 ```
 
@@ -452,8 +479,131 @@ if (error?.message.includes('User rejected')) {
 - [Web3 Setup](./WEB3_SETUP.md)
 - [Web3 Quick Start](./WEB3_QUICK_START.md)
 
-## 📦 Example Files
+## 🗳️ AgaroVote Voting Pool Patterns
 
-- `app/lib/contracts/example-voting-contract.ts`
-- `app/hooks/use-example-voting-contract.ts`
-- `app/components/example-voting-card.tsx`
+### Create Voting Pool with Hash Verification
+
+```typescript
+import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
+
+function CreatePoolButton() {
+  const { createPool, isPending, isConfirming, offChainHash } = useCreateVotingPool();
+
+  const handleCreate = () => {
+    createPool({
+      title: 'Best Programming Language',
+      description: 'Vote for your favorite',
+      candidates: ['TypeScript', 'Rust', 'Go'],
+      candidatesTotal: 3,
+    });
+  };
+
+  return (
+    <div>
+      <button onClick={handleCreate} disabled={isPending || isConfirming}>
+        {isPending ? 'Sending...' : isConfirming ? 'Confirming...' : 'Create Pool'}
+      </button>
+      {offChainHash && <p>Off-chain hash: {offChainHash}</p>}
+    </div>
+  );
+}
+```
+
+### Compute Hash Off-Chain
+
+```typescript
+import { useVotingPoolHash } from '~/hooks/voting-pools/use-voting-pool';
+
+function HashPreview() {
+  const { computePoolHash, validateAndHash } = useVotingPoolHash();
+
+  const poolData = {
+    title: 'Test Pool',
+    description: 'Description',
+    candidates: ['A', 'B', 'C'],
+  };
+
+  // Simple hash computation
+  const hash = computePoolHash(poolData, 1n); // version 1
+
+  // With validation
+  const result = validateAndHash(poolData, 1n);
+  if (result.isValid) {
+    console.log('Hash:', result.offChainHash);
+  } else {
+    console.error('Validation error:', result.error);
+  }
+
+  return <div>Hash: {hash}</div>;
+}
+```
+
+### Watch Voting Pool Events
+
+```typescript
+import { useWatchEntryPointVotingPoolCreatedEvent } from '~/lib/web3/contracts/generated';
+import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
+
+function VotingPoolListener() {
+  const { chainId } = useWeb3Chain();
+
+  useWatchEntryPointVotingPoolCreatedEvent({
+    address: getEntryPointAddress(chainId),
+    onLogs: (logs) => {
+      logs.forEach((log) => {
+        const { poolHash, owner, version } = log.args;
+        console.log('New pool created:', { poolHash, owner, version });
+        // Refetch pools or update UI
+      });
+    },
+  });
+
+  return null; // Event listener component
+}
+```
+
+### Transaction Lifecycle with Hash Verification
+
+```typescript
+import { useWaitForTransactionReceiptEffect } from '~/hooks/use-web3';
+
+function PoolCreationFlow() {
+  const [txHash, setTxHash] = useState<`0x${string}` | undefined>();
+  const [offChainHash, setOffChainHash] = useState<`0x${string}` | undefined>();
+
+  // Wait for transaction confirmation
+  useWaitForTransactionReceiptEffect(txHash, (receipt) => {
+    console.log('Transaction confirmed:', receipt.blockNumber);
+    // Refetch data after confirmation
+    queryClient.invalidateQueries({ queryKey: ['voting-pools'] });
+  });
+
+  const handleCreate = async () => {
+    // 1. Compute hash
+    const hash = computePoolHash(poolData, version);
+    setOffChainHash(hash);
+
+    // 2. Submit transaction
+    const tx = await writeContract({ args: [poolData] });
+    setTxHash(tx);
+  };
+
+  return (
+    <div>
+      {txHash && <p>Transaction: {txHash}</p>}
+      {offChainHash && <p>Expected hash: {offChainHash}</p>}
+    </div>
+  );
+}
+```
+
+---
+
+## 📦 Example Files (AgaroVote)
+
+- `app/lib/web3/contracts/entry-point-config.ts` - Contract addresses
+- `app/lib/web3/contracts/generated.ts` - Auto-generated hooks
+- `app/lib/web3/voting-pool-utils.ts` - Hash utilities
+- `app/hooks/voting-pools/use-create-voting-pool.ts` - Pool creation
+- `app/hooks/voting-pools/use-voting-pool.ts` - Hash computation
+- `app/components/voting-pools/create-voting-pool-form.tsx` - UI component

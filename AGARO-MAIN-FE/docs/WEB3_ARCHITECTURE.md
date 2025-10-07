@@ -25,21 +25,37 @@ root.tsx
 ```
 app/
 ├── lib/
-│   └── web3/
-│       ├── config.ts              # Chains & connectors setup
-│       └── provider.tsx           # WagmiProvider wrapper
+│   ├── web3/
+│   │   ├── config.ts                     # Chains & connectors setup (cookie storage)
+│   │   ├── provider.tsx                  # WagmiProvider wrapper
+│   │   ├── voting-pool-utils.ts          # Voting pool encoding, hashing, validation
+│   │   └── contracts/
+│   │       ├── entry-point-config.ts     # Contract addresses per chain
+│   │       └── generated.ts              # Auto-generated hooks from @wagmi/cli
+│   └── query-client/
+│       ├── config.ts                     # React Query configuration
+│       └── provider.tsx                  # Query client provider
 │
 ├── hooks/
-│   └── use-web3.ts               # Custom hooks layer
-│       ├── useWeb3Wallet()       # Connection state
-│       ├── useWalletBalance()    # Balance queries
-│       ├── useWeb3Chain()        # Network info
-│       └── useWalletDisplay()    # Formatting utils
+│   ├── use-web3.ts                      # Custom hooks layer
+│   │   ├── useWeb3Wallet()              # Connection state
+│   │   ├── useWalletBalance()           # Balance queries
+│   │   ├── useWeb3Chain()               # Network info
+│   │   ├── useWalletDisplay()           # Formatting utils
+│   │   └── useWaitForTransactionReceiptEffect()  # Transaction confirmation
+│   ├── use-optimistic-mutation.ts       # Optimistic updates
+│   └── voting-pools/
+│       ├── use-create-voting-pool.ts    # Create pools with hash verification
+│       └── use-voting-pool.ts           # Compute and verify pool hashes
 │
 └── components/
-    ├── wallet-connect-button.tsx  # Connect UI
-    ├── wallet-info-card.tsx       # Info display
-    └── chain-switcher.tsx         # Network switcher
+    ├── wallet-connect-button.tsx        # Connect UI
+    ├── wallet-info-card.tsx             # Info display
+    ├── chain-switcher.tsx               # Network switcher
+    └── voting-pools/
+        ├── create-voting-pool-form.tsx  # Pool creation form
+        ├── voting-pool-card.tsx         # Pool display card
+        └── voting-pools-list.tsx        # List of pools
 ```
 
 ---
@@ -176,10 +192,19 @@ supportedChains
     │   └── http://ethereum-rpc
     ├── Sepolia (id: 11155111)
     │   └── http://sepolia-rpc
-    ├── Polygon (id: 137)
-    │   └── http://polygon-rpc
-    └── Polygon Amoy (id: 80002)
-        └── http://amoy-rpc
+    └── Hardhat (id: 31337)
+        └── http://localhost:8545 (local development)
+```
+
+### Contract Deployment Per Chain
+
+```
+entry-point-config.ts
+    ↓
+ENTRY_POINT_CONTRACT_ADDRESS
+    ├── 1: VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET
+    ├── 11155111: VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA
+    └── 31337: VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT
 ```
 
 Users can switch between chains using `ChainSwitcher` component or `useWeb3Chain()` hook.
@@ -194,18 +219,94 @@ Users can switch between chains using `ChainSwitcher` component or `useWeb3Chain
 wagmi hooks → React Query
     ├── Automatic caching
     ├── Background refetching
-    ├── Optimistic updates
-    └── Error retry logic
+    ├── Optimistic updates (via useOptimisticMutation)
+    ├── Error retry logic
+    └── Query persistence (localStorage)
 ```
 
 ### Context State
 
 ```
-WagmiProvider
+WagmiProvider (with cookie storage)
     ├── Active account
     ├── Connected chain
     ├── Connection status
-    └── Available connectors
+    ├── Available connectors
+    └── Connection persistence (cookies for SSR)
+```
+
+### Optimistic Updates Flow
+
+```
+User Action
+    ↓
+useOptimisticMutation
+    ↓
+1. Cancel queries
+2. Snapshot current data
+3. Update cache optimistically
+    ↓
+Contract Write
+    ↓
+Success → Refetch real data
+Error → Rollback to snapshot
+```
+
+---
+
+## 🗳️ Voting Pool Architecture
+
+### Hash Verification System
+
+```
+Off-Chain (Frontend)
+    ↓
+1. User submits voting pool data
+    ↓
+2. Compute hash off-chain (voting-pool-utils.ts)
+   - Encode: title, description, candidates, total, version, owner
+   - Hash: keccak256(encoded data)
+    ↓
+3. Store hash for later verification
+    ↓
+4. Submit transaction to EntryPoint contract
+    ↓
+On-Chain (Smart Contract)
+    ↓
+5. Contract computes hash with same logic
+    ↓
+6. Contract emits VotingPoolCreated event with hash
+    ↓
+7. Frontend watches event
+    ↓
+8. Compare off-chain hash vs on-chain hash
+    ↓
+9. If match → Success ✅
+   If mismatch → Security Alert! 🚨
+```
+
+### Replay Attack Prevention
+
+```
+Version Tracking
+    ↓
+Each pool creation increments version
+    ↓
+Version included in hash computation
+    ↓
+Same data + different version = different hash
+    ↓
+Prevents replay attacks
+```
+
+### Transaction Lifecycle
+
+```
+1. [Sending] → User confirms in wallet
+2. [Pending] → Transaction hash received
+3. [Confirming] → Waiting for block inclusion
+4. [Confirmed] → Transaction mined
+5. [Verified] → Hash matches, pool created ✅
 ```
 
 ---
@@ -216,6 +317,7 @@ WagmiProvider
 
 - Wallet private keys never leave the user's wallet
 - No sensitive data stored in application
+- Hash computation done client-side (gas savings + verification)
 
 ### 2. User Approval Required
 
@@ -226,11 +328,19 @@ WagmiProvider
 
 - Always verify correct network before transactions
 - Prompt users to switch if on wrong network
+- Contract addresses configured per chain
 
 ### 4. Address Validation
 
 - Validate all addresses before use
 - Use checksummed addresses
+- Validate voting pool data before submission
+
+### 5. Hash Verification
+
+- Off-chain hash computation for transparency
+- On-chain hash verification for security
+- Event-based verification to detect anomalies
 
 ---
 
@@ -298,48 +408,65 @@ useWalletDisplay
 
 ```typescript
 // lib/web3/config.ts
-import { arbitrum } from 'wagmi/chains';
+import { polygon } from 'wagmi/chains';
 
 export const supportedChains = [
   mainnet,
   sepolia,
-  polygon,
-  polygonAmoy,
-  arbitrum, // Add new chain
+  hardhat,
+  polygon, // Add new chain
 ];
+
+// lib/web3/contracts/entry-point-config.ts
+export const ENTRY_POINT_CONTRACT_ADDRESS: Record<number, Address> = {
+  1: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET,
+  11155111: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA,
+  31337: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT,
+  137: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_POLYGON, // Add
+};
 ```
 
-### 2. Add New Wallets
+### 2. Add New Wallets (Currently Commented Out)
 
 ```typescript
-// lib/web3/config.ts
-import { safe } from 'wagmi/connectors';
-
+// lib/web3/config.ts - Uncomment to enable
 connectors: [
-  injected(),
-  walletConnect(),
-  coinbaseWallet(),
-  safe(), // Add new connector
+  injected({ shimDisconnect: true }),
+  walletConnect({ projectId, ... }),
+  coinbaseWallet({ appName: 'AgaroVote', ... }),
+  // Add more connectors here
 ];
 ```
 
-### 3. Add Custom Hooks
+### 3. Add Custom Contract Hooks
 
 ```typescript
-// hooks/use-web3.ts
-export function useContractRead() {
-  // Your custom hook logic
+// hooks/voting-pools/use-vote.ts
+import { useWriteEntryPointVote } from '~/lib/web3/contracts/generated';
+
+export function useVote() {
+  // Your voting logic with optimistic updates
 }
 ```
 
-### 4. Add New Components
+### 4. Add New Voting Pool Features
 
 ```typescript
-// components/transaction-button.tsx
-export function TransactionButton() {
-  const { address } = useWeb3Wallet();
-  // Your transaction logic
+// hooks/voting-pools/use-voting-results.ts
+export function useVotingResults(poolId: bigint) {
+  // Fetch and display voting results
 }
+```
+
+### 5. Extend Optimistic Mutations
+
+```typescript
+// Use existing useOptimisticMutation for new features
+const mutation = useOptimisticMutation({
+  queryKey,
+  optimisticUpdate: (oldData) => /* custom logic */,
+  successMessage: 'Action completed!',
+});
 ```
 
 ---
