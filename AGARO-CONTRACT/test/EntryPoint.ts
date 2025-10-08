@@ -27,6 +27,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
 
     describe("Voting Pool Creation", function () {
         it("Should create a private voting pool without emitting VotingPoolCreated event", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Private Voting Pool",
                 description: "Only whitelisted voters can participate",
@@ -34,6 +35,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: true,
                 candidates: ["Alice", "Bob"],
                 candidatesTotal: 2,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -53,6 +58,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
             expect(await entryPoint.version()).to.equal(1);
         });
         it("Should create a voting pool with specified candidates", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Test Voting Pool",
                 description: "A test voting pool for testing purposes",
@@ -60,6 +66,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Alice", "Bob", "Charlie"],
                 candidatesTotal: 3,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             await expect(entryPoint.newVotingPool(poolData))
@@ -71,6 +81,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         });
 
         it("Should increment version after creating a pool", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Test Pool",
                 description: "Test Description",
@@ -78,6 +89,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Option A", "Option B"],
                 candidatesTotal: 2,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             expect(await entryPoint.version()).to.equal(0);
@@ -86,6 +101,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         });
 
         it("Should create multiple pools with different candidate counts", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData1 = {
                 title: "Pool 1",
                 description: "First pool with 2 candidates",
@@ -93,6 +109,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Yes", "No"],
                 candidatesTotal: 2,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const poolData2 = {
@@ -102,6 +122,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
                 candidatesTotal: 5,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             await entryPoint.newVotingPool(poolData1);
@@ -112,6 +136,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
 
         it("Should create pool with many candidates", async function () {
             const candidates = Array.from({ length: 10 }, (_, i) => `Candidate ${i + 1}`);
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Many Candidates Pool",
                 description: "Pool with many candidates",
@@ -119,6 +144,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: candidates,
                 candidatesTotal: 10,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             await expect(entryPoint.newVotingPool(poolData))
@@ -126,6 +155,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         });
 
         it("Should create pool with zero candidates", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Zero Candidates Pool",
                 description: "Pool with no candidates",
@@ -133,6 +163,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: [],
                 candidatesTotal: 0,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             await expect(entryPoint.newVotingPool(poolData))
@@ -141,6 +175,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
 
         it("Should create pool with maximum uint8 candidates", async function () {
             const candidates = Array.from({ length: 255 }, (_, i) => `Candidate ${i + 1}`);
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Max Candidates Pool",
                 description: "Pool with maximum candidates",
@@ -148,6 +183,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: candidates,
                 candidatesTotal: 255,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             await expect(entryPoint.newVotingPool(poolData))
@@ -155,8 +194,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
         });
 
         it("Should allow anyone to create voting pools", async function () {
-            const [, voter] = await hardhatEthers.getSigners();
-
+            const [voter] = await hardhatEthers.getSigners();
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Public Pool",
                 description: "Anyone can create pools",
@@ -164,6 +203,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Choice A", "Choice B", "Choice C"],
                 candidatesTotal: 3,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             await expect(entryPoint.connect(voter).newVotingPool(poolData))
@@ -171,6 +214,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         });
 
         it("Should create pool within reasonable gas limits", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Gas Test Pool",
                 description: "Testing gas consumption",
@@ -178,6 +222,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
                 candidatesTotal: 5,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -187,6 +235,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         });
 
         it("Should validate contract existence correctly", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Validation Test Pool",
                 description: "Testing contract validation",
@@ -194,6 +243,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Candidate 1", "Candidate 2", "Candidate 3"],
                 candidatesTotal: 3,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -218,6 +271,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         });
 
         it("Should validate multiple pools correctly", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData1 = {
                 title: "Pool 1",
                 description: "First pool for validation",
@@ -225,6 +279,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Yes", "No"],
                 candidatesTotal: 2,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const poolData2 = {
@@ -234,6 +292,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 isPrivate: false,
                 candidates: ["Option A", "Option B", "Option C", "Option D"],
                 candidatesTotal: 4,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx1 = await entryPoint.newVotingPool(poolData1);

@@ -24,7 +24,7 @@ contract MerkleAllowlist is Ownable, Initializable, IMerkleAllowlist {
     function isAllowed(
         address account,
         bytes32[] calldata proof
-    ) external view onlyOwner returns (bool) {
+    ) external view returns (bool) {
         bytes32 leaf = keccak256(abi.encodePacked(account));
         return MerkleProof.verify(proof, merkleRoot, leaf);
     }

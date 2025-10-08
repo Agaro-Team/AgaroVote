@@ -8,6 +8,12 @@ struct VotingPoolDataArgument {
     bool isPrivate;
     string[] candidates;
     uint8 candidatesTotal;
+    VotingPoolExpiry expiry;
+}
+
+struct VotingPoolExpiry {
+    uint256 startDate;
+    uint256 endDate;
 }
 
 struct VoteArgument {
@@ -29,4 +35,5 @@ struct PoolData {
     bytes32 poolVoterHash;
     uint256[] candidatesVotersCount;
     bytes32 voterStorageHashLocation;
+    VotingPoolExpiry expiry;
 }

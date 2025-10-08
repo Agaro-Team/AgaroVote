@@ -43,6 +43,8 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
     }
 
     function vote(VoteArgument calldata _voteData) external {
+        bytes32 storageLocation = _verifyVoteData(_voteData);
+
         PoolData memory poolData = pools[_voteData.poolHash];
         address cont = poolData.merkleRootContract;
         if (cont != address(0)) {
@@ -54,7 +56,17 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
             );
         }
 
-        bytes32 storageLocation = _verifyVoteData(_voteData);
+        if (
+            block.timestamp < poolData.expiry.startDate ||
+            block.timestamp > poolData.expiry.endDate
+        ) {
+            revert VotingIsNotActive(
+                _voteData.poolHash,
+                poolData.expiry.startDate,
+                poolData.expiry.endDate
+            );
+        }
+
         bytes32 newPoolVoterHash = _incSelected(
             _voteData.poolHash,
             _voteData.candidateSelected,
@@ -108,6 +120,7 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
         address voter
     ) private view returns (bool) {
         bool isAllowed = IMerkleAllowlist(cont).isAllowed(msg.sender, proofs);
+
         if (!isAllowed) {
             revert AddressIsNotAllowed(voter, poolHash);
         }

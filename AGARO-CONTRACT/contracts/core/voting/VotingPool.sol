@@ -75,7 +75,8 @@ contract VotingPool is IVotingPool {
             merkleRootContract: merkleRootContract,
             voterStorageHashLocation: voterStorageHashLocation,
             candidatesVotersCount: new uint256[](_poolData.candidatesTotal),
-            poolVoterHash: bytes32(0)
+            poolVoterHash: bytes32(0),
+            expiry: _poolData.expiry
         });
         unchecked {
             version++;

@@ -19,6 +19,7 @@ describe("EntryPoint - Voting Functionality", function () {
 
     describe("Voting Pool Creation", function () {
         it("Should create a voting pool and bind voter storage", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Test Voting Pool",
                 description: "A test voting pool for voting",
@@ -26,6 +27,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: ["Alice", "Bob", "Charlie"],
                 candidatesTotal: 3,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -58,6 +63,7 @@ describe("EntryPoint - Voting Functionality", function () {
         });
 
         it("Should initialize candidate vote counts to zero", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Vote Count Test",
                 description: "Testing initial vote counts",
@@ -65,6 +71,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: ["Option A", "Option B", "Option C"],
                 candidatesTotal: 3,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -92,6 +102,7 @@ describe("EntryPoint - Voting Functionality", function () {
         let poolHash: string;
 
         beforeEach(async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Voting Test Pool",
                 description: "Pool for testing voting",
@@ -99,6 +110,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: ["Yes", "No", "Maybe"],
                 candidatesTotal: 3,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -237,6 +252,8 @@ describe("EntryPoint - Voting Functionality", function () {
             expect(voter3Data.isVoted).to.be.false;
         });
         it("Should prevent a voter from voting twice in the same pool", async function () {
+            const now = Math.floor(Date.now() / 1000);
+
             const poolData = {
                 title: "Double Vote Test",
                 description: "Ensure voters cannot vote twice",
@@ -244,6 +261,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: ["A", "B", "C"],
                 candidatesTotal: 3,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -292,6 +313,7 @@ describe("EntryPoint - Voting Functionality", function () {
             const leaves = whitelist.map(addr => keccak256(addr));
             const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
             const root = tree.getHexRoot();
+            const now = Math.floor(Date.now() / 1000);
 
             const poolData = {
                 title: "Private Pool",
@@ -300,6 +322,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: ["Alice", "Bob"],
                 candidatesTotal: 2,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const proofs = tree.getHexProof(keccak256(voter1.address));
@@ -333,6 +359,7 @@ describe("EntryPoint - Voting Functionality", function () {
             const leaves = whitelist.map(addr => keccak256(addr));
             const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
             const root = tree.getHexRoot();
+            const now = Math.floor(Date.now() / 1000);
 
             const poolData = {
                 title: "Private Pool",
@@ -341,6 +368,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: ["Alice", "Bob"],
                 candidatesTotal: 2,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const proofs = tree.getHexProof(keccak256(voter1.address));
@@ -376,6 +407,7 @@ describe("EntryPoint - Voting Functionality", function () {
         let poolHash: string;
 
         beforeEach(async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Edge Case Pool",
                 description: "Pool for testing edge cases",
@@ -383,6 +415,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: ["Single Option"],
                 candidatesTotal: 1,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -415,8 +451,8 @@ describe("EntryPoint - Voting Functionality", function () {
         });
 
         it("Should handle maximum uint8 candidate selection", async function () {
-
             const manyCandidates = Array.from({ length: 255 }, (_, i) => `Candidate ${i + 1}`);
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Max Candidates Pool",
                 description: "Pool with maximum candidates",
@@ -424,6 +460,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: manyCandidates,
                 candidatesTotal: 255,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(poolData);
@@ -454,6 +494,7 @@ describe("EntryPoint - Voting Functionality", function () {
         });
 
         it("Should handle empty pool gracefully", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const emptyPoolData = {
                 title: "Empty Pool",
                 description: "Pool with no candidates",
@@ -461,6 +502,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: [],
                 candidatesTotal: 0,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx = await entryPoint.newVotingPool(emptyPoolData);
@@ -491,6 +536,7 @@ describe("EntryPoint - Voting Functionality", function () {
 
     describe("Gas Usage", function () {
         it("Should vote within reasonable gas limits", async function () {
+            const now = Math.floor(Date.now() / 1000);
             const poolData = {
                 title: "Gas Test Pool",
                 description: "Testing gas consumption for voting",
@@ -498,6 +544,10 @@ describe("EntryPoint - Voting Functionality", function () {
                 isPrivate: false,
                 candidates: ["A", "B", "C"],
                 candidatesTotal: 3,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 3600 * 24 * 2,   // 2 days
+                },
             };
 
             const tx1 = await entryPoint.newVotingPool(poolData);
@@ -525,6 +575,95 @@ describe("EntryPoint - Voting Functionality", function () {
 
             expect(receipt1?.gasUsed).to.be.lessThan(500000);
             expect(receipt2?.gasUsed).to.be.lessThan(200000);
+        });
+        it("Should revert if voting before startDate", async function () {
+            const now = Math.floor(Date.now() / 1000);
+            const poolData = {
+                title: "Early Voting Pool",
+                description: "Voting should not be active yet",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
+                candidates: ["Alice", "Bob"],
+                candidatesTotal: 2,
+                expiry: {
+                    startDate: now + 3600, // starts in 1 hour
+                    endDate: now + 3600 * 24, // 1 day duration
+                },
+            };
+
+            const tx = await entryPoint.newVotingPool(poolData);
+            const receipt = await tx.wait();
+
+            const votingPoolEvent = receipt.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const poolHash = votingPoolEvent?.topics[2];
+            expect(poolHash).to.not.be.undefined;
+
+            const voteData = {
+                poolHash,
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash],
+            };
+
+            await expect(entryPoint.connect(voter1).vote(voteData))
+                .to.be.revertedWithCustomError(entryPoint, "VotingIsNotActive")
+                .withArgs(
+                    poolHash,
+                    poolData.expiry.startDate,
+                    poolData.expiry.endDate
+                );
+        });
+
+        it("Should revert if voting after endDate", async function () {
+            const now = Math.floor(Date.now() / 1000);
+            const poolData = {
+                title: "Expired Voting Pool",
+                description: "Voting period has ended",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
+                candidates: ["Alice", "Bob"],
+                candidatesTotal: 2,
+                expiry: {
+                    startDate: now - 7200, // started 2 hours ago
+                    endDate: now - 3600,   // ended 1 hour ago
+                },
+            };
+
+            const tx = await entryPoint.newVotingPool(poolData);
+            const receipt = await tx.wait();
+
+            const votingPoolEvent = receipt.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const poolHash = votingPoolEvent?.topics[2];
+            expect(poolHash).to.not.be.undefined;
+
+            const voteData = {
+                poolHash,
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash],
+            };
+
+            await expect(entryPoint.connect(voter1).vote(voteData))
+                .to.be.revertedWithCustomError(entryPoint, "VotingIsNotActive")
+                .withArgs(
+                    poolHash,
+                    poolData.expiry.startDate,
+                    poolData.expiry.endDate
+                );
         });
     });
 });

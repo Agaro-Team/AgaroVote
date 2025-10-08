@@ -13,6 +13,11 @@ interface IEntryPoint {
     );
 
     error AddressIsNotAllowed(address voter, bytes32 poolHash);
+    error VotingIsNotActive(
+        bytes32 poolHash,
+        uint256 startDate,
+        uint256 endData
+    );
 
     function newVotingPool(VotingPoolDataArgument calldata _poolData) external;
 }
