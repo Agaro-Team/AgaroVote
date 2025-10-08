@@ -4,7 +4,10 @@
  * Custom hook for creating new voting pools on the blockchain.
  * Integrates with the EntryPoint smart contract.
  * Includes off-chain hash computation and on-chain verification.
+ * Handles Merkle root generation for private pools.
  */
+import keccak256 from 'keccak256';
+import { MerkleTree } from 'merkletreejs';
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
@@ -24,6 +27,9 @@ export interface VotingPoolData {
   description: string;
   candidates: string[];
   candidatesTotal: number;
+  expiryDate: Date;
+  isPrivate: boolean;
+  allowedAddresses: string[];
 }
 
 /**
@@ -123,8 +129,30 @@ export function useCreateVotingPool() {
   });
 
   /**
+   * Generate Merkle root hash from allowed addresses
+   * This is done off-chain to minimize gas fees
+   */
+  const generateMerkleRoot = (addresses: string[]): `0x${string}` => {
+    // Hash each address using keccak256
+    const leaves = addresses.map((addr) => keccak256(addr));
+
+    // Create merkle tree with sorted pairs
+    const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+
+    // Get the root hash
+    const root = tree.getHexRoot() as `0x${string}`;
+
+    console.log('🌳 Merkle Tree Generated:', {
+      addresses: addresses.length,
+      root,
+    });
+
+    return root;
+  };
+
+  /**
    * Create a new voting pool
-   * @param poolData - The voting pool data containing title, description, candidates, and candidatesTotal
+   * @param poolData - The voting pool data containing title, description, candidates, expiry, privacy settings, and allowed addresses
    */
   const createPool = (poolData: VotingPoolData) => {
     if (!chainId) {
@@ -149,6 +177,27 @@ export function useCreateVotingPool() {
     }
 
     try {
+      // Calculate expiry timestamps
+      const now = Math.floor(Date.now() / 1000); // Current time in Unix timestamp
+      const endDate = Math.floor(poolData.expiryDate.getTime() / 1000); // Convert to Unix timestamp
+
+      // Generate Merkle root hash if private pool, otherwise use zero hash
+      let merkleRootHash: `0x${string}` =
+        '0x0000000000000000000000000000000000000000000000000000000000000000';
+
+      if (poolData.isPrivate && poolData.allowedAddresses.length > 0) {
+        merkleRootHash = generateMerkleRoot(poolData.allowedAddresses);
+      }
+
+      console.log('📝 Creating pool with data:', {
+        title: poolData.title,
+        isPrivate: poolData.isPrivate,
+        merkleRootHash,
+        startDate: now,
+        endDate,
+        candidates: poolData.candidates.length,
+      });
+
       // Compute off-chain hash before submission
       const fullPoolData = createVotingPoolData({
         title: poolData.title,
@@ -172,13 +221,19 @@ export function useCreateVotingPool() {
           {
             title: poolData.title,
             description: poolData.description,
+            merkleRootHash,
+            isPrivate: poolData.isPrivate,
             candidates: poolData.candidates,
             candidatesTotal: candidatesTotalUint8,
+            expiry: {
+              startDate: BigInt(now),
+              endDate: BigInt(endDate),
+            },
           },
         ],
       });
     } catch (error) {
-      toast.error('Failed to compute hash', {
+      toast.error('Failed to create pool', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
     }

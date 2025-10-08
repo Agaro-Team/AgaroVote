@@ -6,6 +6,7 @@
  */
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
+import { isAddress } from 'viem';
 import { z } from 'zod';
 import { useAppForm } from '~/components/form/use-app-form';
 import { Card } from '~/components/ui/card';
@@ -13,35 +14,90 @@ import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool
 
 import { useEffect } from 'react';
 
+import { AllowedAddressesField } from './allowed-addresses-field';
 import { ChoicesArrayField } from './choices-array-field';
 
 /**
  * Zod Schema for Voting Pool Form Validation
  */
-const votingPoolSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Title is required')
-    .max(200, 'Title must be 200 characters or less')
-    .refine((val) => val.trim().length > 0, 'Title cannot be empty'),
-  description: z
-    .string()
-    .min(1, 'Description is required')
-    .max(1000, 'Description must be 1000 characters or less')
-    .refine((val) => val.trim().length > 0, 'Description cannot be empty'),
-  choices: z
-    .array(z.string())
-    .min(2, 'At least 2 choices are required')
-    .refine(
-      (choices) => choices.filter((c) => c.trim() !== '').length >= 2,
-      'At least 2 choices must have names'
-    )
-    .refine((choices) => {
-      const nonEmpty = choices.filter((c) => c.trim() !== '');
-      const unique = new Set(nonEmpty.map((c) => c.trim().toLowerCase()));
-      return unique.size === nonEmpty.length;
-    }, 'Choice names must be unique'),
-});
+const votingPoolSchema = z
+  .object({
+    title: z
+      .string()
+      .min(1, 'Title is required')
+      .max(200, 'Title must be 200 characters or less')
+      .refine((val) => val.trim().length > 0, 'Title cannot be empty'),
+    description: z
+      .string()
+      .min(1, 'Description is required')
+      .max(1000, 'Description must be 1000 characters or less')
+      .refine((val) => val.trim().length > 0, 'Description cannot be empty'),
+    choices: z
+      .array(z.string())
+      .min(2, 'At least 2 choices are required')
+      .refine(
+        (choices) => choices.filter((c) => c.trim() !== '').length >= 2,
+        'At least 2 choices must have names'
+      )
+      .refine((choices) => {
+        const nonEmpty = choices.filter((c) => c.trim() !== '');
+        const unique = new Set(nonEmpty.map((c) => c.trim().toLowerCase()));
+        return unique.size === nonEmpty.length;
+      }, 'Choice names must be unique'),
+    expiryDate: z
+      .date({
+        message: 'Expiry date is required',
+      })
+      .refine((date) => date > new Date(), 'Expiry date must be in the future'),
+    isPrivate: z.boolean().default(false),
+    allowedAddresses: z.array(z.string()).optional(),
+  })
+  .superRefine((data, ctx) => {
+    // If private, validate allowed addresses
+    if (data.isPrivate) {
+      if (!data.allowedAddresses || data.allowedAddresses.length === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'At least 1 address is required for private pools',
+          path: ['allowedAddresses'],
+        });
+        return;
+      }
+
+      // Validate each address
+      const validAddresses = data.allowedAddresses.filter((addr) => addr.trim() !== '');
+
+      if (validAddresses.length === 0) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'At least 1 valid address is required for private pools',
+          path: ['allowedAddresses'],
+        });
+        return;
+      }
+
+      // Check if all addresses are valid Ethereum addresses
+      for (let i = 0; i < validAddresses.length; i++) {
+        if (!isAddress(validAddresses[i])) {
+          ctx.addIssue({
+            code: 'custom',
+            message: `Address ${i + 1} is not a valid Ethereum address`,
+            path: ['allowedAddresses'],
+          });
+        }
+      }
+
+      // Check for duplicate addresses
+      const unique = new Set(validAddresses.map((addr) => addr.toLowerCase()));
+      if (unique.size !== validAddresses.length) {
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Addresses must be unique',
+          path: ['allowedAddresses'],
+        });
+      }
+    }
+  });
 
 type CreateVotingPoolFormData = z.infer<typeof votingPoolSchema>;
 
@@ -54,6 +110,9 @@ export function CreateVotingPoolForm() {
       title: '',
       description: '',
       choices: ['', ''], // Start with 2 empty choices
+      expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // Default to tomorrow
+      isPrivate: false,
+      allowedAddresses: [''], // Start with 1 empty address
     } satisfies CreateVotingPoolFormData,
     onSubmit: async ({ value }) => {
       // Validate choices
@@ -64,13 +123,26 @@ export function CreateVotingPoolForm() {
         return;
       }
 
-      // Create the pool with candidatesTotal calculated
+      // Validate addresses for private pools
+      let validAddresses: string[] = [];
+      if (value.isPrivate) {
+        validAddresses = (value.allowedAddresses || []).filter((addr) => addr.trim() !== '');
+        if (validAddresses.length === 0) {
+          toast.error('Please add at least 1 valid address for private pool');
+          return;
+        }
+      }
+
+      // Create the pool with all required data
       // Note: Smart contract still uses "candidates" terminology
       createPool({
         title: value.title,
         description: value.description,
         candidates: validChoices, // Map "choices" to "candidates" for contract
         candidatesTotal: validChoices.length,
+        expiryDate: value.expiryDate!,
+        isPrivate: value.isPrivate,
+        allowedAddresses: validAddresses,
       });
     },
   });
@@ -168,6 +240,68 @@ export function CreateVotingPoolForm() {
                 />
               )}
             </form.AppField>
+
+            {/* Expiry Date Field */}
+            <form.AppField
+              name="expiryDate"
+              validators={{
+                onChange: ({ value }) => {
+                  const result = votingPoolSchema.shape.expiryDate.safeParse(value);
+                  return result.success ? undefined : result.error.issues[0]?.message;
+                },
+              }}
+            >
+              {(field) => (
+                <field.DatePickerField
+                  label="Expiry Date"
+                  placeholder="Select when voting ends"
+                  description="Choose the date and time when voting will close"
+                  disabled={isSubmitting}
+                  fromDate={new Date()} // Can't select past dates
+                />
+              )}
+            </form.AppField>
+
+            {/* Private Pool Switch */}
+            <form.AppField name="isPrivate">
+              {(field) => (
+                <field.SwitchField
+                  label="Private Pool"
+                  description="Enable to restrict voting to specific wallet addresses only"
+                  disabled={isSubmitting}
+                />
+              )}
+            </form.AppField>
+
+            {/* Allowed Addresses - Only shown when isPrivate is true */}
+            <form.Subscribe selector={(state) => ({ isPrivate: state.values.isPrivate })}>
+              {({ isPrivate }) =>
+                isPrivate && (
+                  <form.AppField
+                    name="allowedAddresses"
+                    validators={{
+                      onChange: ({ value }) => {
+                        // Run full schema validation for cross-field validation
+                        const result = votingPoolSchema.safeParse({
+                          ...form.state.values,
+                          allowedAddresses: value,
+                        });
+
+                        if (!result.success) {
+                          const addressError = result.error.issues.find(
+                            (issue) => issue.path[0] === 'allowedAddresses'
+                          );
+                          return addressError?.message;
+                        }
+                        return undefined;
+                      },
+                    }}
+                  >
+                    {(field) => <AllowedAddressesField disabled={isSubmitting} />}
+                  </form.AppField>
+                )
+              }
+            </form.Subscribe>
 
             {/* Submit Button */}
             <div className="flex items-center gap-4 pt-4">

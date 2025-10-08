@@ -11,6 +11,9 @@ export { useAppForm, withForm, useFieldContext, useFormContext } from './use-app
 // Field components (TanStack Form + shadcn Field)
 export { TextField } from './fields/text-field';
 export { NumberField } from './fields/number-field';
+export { SwitchField } from './fields/switch-field';
+export { DatePickerField } from './fields/date-picker-field';
+export { TextareaField } from './fields/textarea-field';
 
 // Form components
 export { SubmitButton } from './components/submit-button';
