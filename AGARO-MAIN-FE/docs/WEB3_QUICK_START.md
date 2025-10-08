@@ -11,20 +11,34 @@
 Create a `.env` file:
 
 ```bash
-VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
+# Smart Contract Addresses (Required)
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT=0x...
+
+# Optional: WalletConnect (currently not in use)
+# VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
 ```
 
-Get your Project ID at: https://cloud.walletconnect.com
+Get WalletConnect Project ID at: https://cloud.walletconnect.com (if enabling)
 
-### 2. Test the Connection
+### 2. Generate Contract Hooks
+
+After compiling your Hardhat contracts:
+
+```bash
+yarn wagmi
+```
+
+### 3. Test the Connection
 
 Start the dev server:
 
 ```bash
-npm run dev
+yarn dev
 ```
 
-Navigate to: http://localhost:5173/wallet
+Navigate to: http://localhost:5173/dashboard
 
 ---
 
@@ -72,20 +86,31 @@ import { ChainSwitcher } from '~/components/chain-switcher';
 - `<WalletConnectButton />` - Connect/disconnect wallet
 - `<WalletInfoCard />` - Display wallet details
 - `<ChainSwitcher />` - Switch networks
+- `<CreateVotingPoolForm />` - Create voting pools
+- `<VotingPoolCard />` - Display pool info
 
 ### ✅ Hooks
 
+**Wallet & Connection:**
 - `useWeb3Wallet()` - Wallet connection state
 - `useWalletBalance()` - Get wallet balance
 - `useWeb3Chain()` - Network information
 - `useWalletDisplay()` - Formatting utilities
+- `useWaitForTransactionReceiptEffect()` - Transaction confirmation
+
+**Smart Contracts:**
+- Auto-generated hooks from `@wagmi/cli` (e.g., `useReadEntryPointVersion`)
+- `useCreateVotingPool()` - Create pools with hash verification
+- `useVotingPoolHash()` - Compute and verify hashes
+- `useOptimisticMutation()` - Optimistic UI updates
 
 ### ✅ Configuration
 
-- Multiple wallet support (MetaMask, WalletConnect, Coinbase)
-- Multi-chain ready (Ethereum, Polygon, Sepolia, Amoy)
-- SSR compatible with React Router
-- TypeScript typed
+- Default browser wallet support (MetaMask, etc.)
+- Multi-chain ready (Ethereum Mainnet, Sepolia, Hardhat Local)
+- SSR compatible with cookie storage
+- TypeScript typed with auto-generated contract types
+- Hash verification system for data integrity
 
 ---
 
@@ -103,16 +128,39 @@ if (!isConnected) {
 return <ProtectedContent />;
 ```
 
-### Wallet-Aware Component
+### Create Voting Pool
 
 ```tsx
-const { address, isConnected, connect } = useWeb3Wallet();
+import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
 
-if (!isConnected) {
-  return <button onClick={() => connect()}>Connect</button>;
-}
+const { createPool, isPending, isConfirming } = useCreateVotingPool();
 
-return <p>Welcome {address}</p>;
+const handleCreate = () => {
+  createPool({
+    title: 'Best Framework',
+    description: 'Vote for your favorite',
+    candidates: ['React', 'Vue', 'Svelte'],
+    candidatesTotal: 3,
+  });
+};
+
+<button onClick={handleCreate} disabled={isPending || isConfirming}>
+  {isPending ? 'Sending...' : isConfirming ? 'Confirming...' : 'Create Pool'}
+</button>
+```
+
+### Read Contract Data
+
+```tsx
+import { useReadEntryPointVersion } from '~/lib/web3/contracts/generated';
+import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
+
+const { chainId } = useWeb3Chain();
+const { data: version } = useReadEntryPointVersion({
+  address: getEntryPointAddress(chainId),
+});
+
+return <p>Contract Version: {version?.toString()}</p>;
 ```
 
 ### Network Guard
@@ -120,10 +168,10 @@ return <p>Welcome {address}</p>;
 ```tsx
 const { chainId, switchChain } = useWeb3Chain();
 
-if (chainId !== 1) {
+if (chainId !== 1 && chainId !== 11155111) {
   return (
-    <button onClick={() => switchChain({ chainId: 1 })}>
-      Switch to Ethereum
+    <button onClick={() => switchChain({ chainId: 11155111 })}>
+      Switch to Sepolia
     </button>
   );
 }
@@ -131,9 +179,12 @@ if (chainId !== 1) {
 
 ---
 
-## 🚀 Demo Page
+## 🚀 Demo Pages
 
-Visit `/wallet` route to see all features in action!
+- `/dashboard` - Main dashboard with wallet integration
+- `/dashboard/voting-pools` - View voting pools
+- `/dashboard/voting-pools/create` - Create new voting pool
+- `/wallet` - Wallet connection demo (if available)
 
 ---
 

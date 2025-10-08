@@ -11,7 +11,12 @@
   "wagmi": "^2.17.5",
   "viem": "^2.37.11",
   "@wagmi/core": "^2.21.2",
-  "@wagmi/connectors": "^5.11.2"
+  "@wagmi/connectors": "^5.11.2",
+  "@wagmi/cli": "^2.6.0",
+  "@tanstack/react-query": "^5.90.2",
+  "@tanstack/react-query-devtools": "^5.90.2",
+  "@tanstack/react-query-persist-client": "^5.90.2",
+  "hardhat": "^3.0.6"
 }
 ```
 
@@ -21,16 +26,27 @@
 
 ### Configuration & Providers
 
-- `app/lib/web3/config.ts` - Web3 configuration (chains, connectors)
+- `app/lib/web3/config.ts` - Web3 configuration (chains, connectors, cookie storage)
 - `app/lib/web3/provider.tsx` - Web3Provider component wrapper
+- `wagmi.config.ts` - Wagmi CLI configuration for auto-generating hooks
+
+### Smart Contract Integration
+
+- `app/lib/web3/contracts/entry-point-config.ts` - EntryPoint contract addresses
+- `app/lib/web3/contracts/generated.ts` - Auto-generated contract hooks (from @wagmi/cli)
+- `app/lib/web3/voting-pool-utils.ts` - Voting pool utilities (encoding, hashing, validation)
 
 ### Custom Hooks
 
-- `app/hooks/use-web3.ts` - Four custom hooks:
+- `app/hooks/use-web3.ts` - Five custom hooks:
   - `useWeb3Wallet()` - Wallet connection state & actions
   - `useWalletBalance()` - Fetch & format balance
   - `useWeb3Chain()` - Chain info & switching
   - `useWalletDisplay()` - Display utilities (shorten address, etc.)
+  - `useWaitForTransactionReceiptEffect()` - Transaction confirmation with callback
+- `app/hooks/use-optimistic-mutation.ts` - Optimistic UI updates for transactions
+- `app/hooks/voting-pools/use-create-voting-pool.ts` - Create voting pools with hash verification
+- `app/hooks/voting-pools/use-voting-pool.ts` - Compute and verify voting pool hashes
 
 ### UI Components
 
@@ -63,9 +79,9 @@
 
 - Ethereum Mainnet
 - Sepolia Testnet
-- Polygon Mainnet
-- Polygon Amoy Testnet
+- Hardhat Local Network (for development)
 - Easy network switching
+- Per-chain contract address configuration
 
 ### ✅ User Experience
 
@@ -79,11 +95,14 @@
 ### ✅ Developer Experience
 
 - Type-safe with TypeScript
-- Well-documented code
+- Auto-generated contract hooks from ABIs
+- Well-documented code  
 - Reusable hooks and components
-- SSR compatible
+- SSR compatible with cookie storage
 - Follows existing codebase patterns
 - Zero linting errors
+- Optimistic updates for better UX
+- Transaction lifecycle management
 
 ---
 
@@ -127,15 +146,21 @@ import { WalletInfoCard } from '~/components/wallet-info-card';
 
 ## 🔧 Configuration Required
 
-### Environment Variable
+### Environment Variables
 
 Create a `.env` file with:
 
 ```bash
-VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
+# Smart Contract Addresses (Required)
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT=0x...
+
+# WalletConnect (Optional - currently not in use)
+# VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
 ```
 
-**Get your Project ID:** https://cloud.walletconnect.com
+**Get WalletConnect Project ID:** https://cloud.walletconnect.com (if enabling WalletConnect)
 
 ---
 
@@ -146,7 +171,12 @@ VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
 - [x] Provider integrated into `root.tsx`
 - [x] Custom hooks created
 - [x] UI components built
-- [x] Demo page created
+- [x] Smart contract integration (EntryPoint)
+- [x] Auto-generated contract hooks (@wagmi/cli)
+- [x] Voting pool creation with hash verification
+- [x] Optimistic mutations for better UX
+- [x] Transaction lifecycle handling
+- [x] Demo pages created
 - [x] Documentation written
 - [x] Type checking passed
 - [x] No linting errors
@@ -210,21 +240,24 @@ To test the implementation:
 
 Ready to implement:
 
-1. **Smart Contract Integration**
-   - Connect to voting contracts
-   - Read voting proposals
-   - Submit votes
+1. ✅ **Smart Contract Integration** - COMPLETED
+   - ✅ EntryPoint contract integration
+   - ✅ Auto-generated type-safe hooks
+   - ✅ Voting pool creation and management
 
-2. **Transaction Handling**
-   - Sign and send transactions
-   - Transaction status tracking
-   - Error handling
+2. ✅ **Transaction Handling** - COMPLETED
+   - ✅ Sign and send transactions
+   - ✅ Transaction lifecycle tracking
+   - ✅ Optimistic updates
+   - ✅ Error handling with rollback
 
-3. **Advanced Features**
+3. **Future Enhancements**
    - ENS name resolution
-   - Token balance display
+   - Token balance display for voting pools
    - Transaction history
    - Multi-signature support
+   - Enable WalletConnect for mobile wallets
+   - Add more voting pool features (voting, results, etc.)
 
 ---
 
