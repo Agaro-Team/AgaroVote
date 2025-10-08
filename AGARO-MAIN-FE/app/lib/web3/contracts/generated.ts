@@ -1,9 +1,9 @@
 import {
   createUseReadContract,
+  createUseWriteContract,
   createUseSimulateContract,
   createUseWatchContractEvent,
-  createUseWriteContract,
-} from 'wagmi/codegen';
+} from 'wagmi/codegen'
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EntryPoint
@@ -298,7 +298,7 @@ export const entryPointAbi = [
     outputs: [],
     stateMutability: 'nonpayable',
   },
-] as const;
+] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
@@ -309,55 +309,59 @@ export const entryPointAbi = [
  */
 export const useReadEntryPoint = /*#__PURE__*/ createUseReadContract({
   abi: entryPointAbi,
-});
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"getPoolData"`
  */
-export const useReadEntryPointGetPoolData = /*#__PURE__*/ createUseReadContract({
-  abi: entryPointAbi,
-  functionName: 'getPoolData',
-});
+export const useReadEntryPointGetPoolData = /*#__PURE__*/ createUseReadContract(
+  { abi: entryPointAbi, functionName: 'getPoolData' },
+)
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"isContractValid"`
  */
-export const useReadEntryPointIsContractValid = /*#__PURE__*/ createUseReadContract({
-  abi: entryPointAbi,
-  functionName: 'isContractValid',
-});
+export const useReadEntryPointIsContractValid =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'isContractValid',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"isPoolHaveVoterStorage"`
  */
-export const useReadEntryPointIsPoolHaveVoterStorage = /*#__PURE__*/ createUseReadContract({
-  abi: entryPointAbi,
-  functionName: 'isPoolHaveVoterStorage',
-});
+export const useReadEntryPointIsPoolHaveVoterStorage =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'isPoolHaveVoterStorage',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"merkleAllowListImplementation"`
  */
-export const useReadEntryPointMerkleAllowListImplementation = /*#__PURE__*/ createUseReadContract({
-  abi: entryPointAbi,
-  functionName: 'merkleAllowListImplementation',
-});
+export const useReadEntryPointMerkleAllowListImplementation =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'merkleAllowListImplementation',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"poolHashToStorage"`
  */
-export const useReadEntryPointPoolHashToStorage = /*#__PURE__*/ createUseReadContract({
-  abi: entryPointAbi,
-  functionName: 'poolHashToStorage',
-});
+export const useReadEntryPointPoolHashToStorage =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'poolHashToStorage',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"poolStorageVoters"`
  */
-export const useReadEntryPointPoolStorageVoters = /*#__PURE__*/ createUseReadContract({
-  abi: entryPointAbi,
-  functionName: 'poolStorageVoters',
-});
+export const useReadEntryPointPoolStorageVoters =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'poolStorageVoters',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"pools"`
@@ -365,15 +369,16 @@ export const useReadEntryPointPoolStorageVoters = /*#__PURE__*/ createUseReadCon
 export const useReadEntryPointPools = /*#__PURE__*/ createUseReadContract({
   abi: entryPointAbi,
   functionName: 'pools',
-});
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"storageHashToPool"`
  */
-export const useReadEntryPointStorageHashToPool = /*#__PURE__*/ createUseReadContract({
-  abi: entryPointAbi,
-  functionName: 'storageHashToPool',
-});
+export const useReadEntryPointStorageHashToPool =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'storageHashToPool',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"version"`
@@ -381,22 +386,23 @@ export const useReadEntryPointStorageHashToPool = /*#__PURE__*/ createUseReadCon
 export const useReadEntryPointVersion = /*#__PURE__*/ createUseReadContract({
   abi: entryPointAbi,
   functionName: 'version',
-});
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__
  */
 export const useWriteEntryPoint = /*#__PURE__*/ createUseWriteContract({
   abi: entryPointAbi,
-});
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"newVotingPool"`
  */
-export const useWriteEntryPointNewVotingPool = /*#__PURE__*/ createUseWriteContract({
-  abi: entryPointAbi,
-  functionName: 'newVotingPool',
-});
+export const useWriteEntryPointNewVotingPool =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'newVotingPool',
+  })
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"vote"`
@@ -404,58 +410,62 @@ export const useWriteEntryPointNewVotingPool = /*#__PURE__*/ createUseWriteContr
 export const useWriteEntryPointVote = /*#__PURE__*/ createUseWriteContract({
   abi: entryPointAbi,
   functionName: 'vote',
-});
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__
  */
 export const useSimulateEntryPoint = /*#__PURE__*/ createUseSimulateContract({
   abi: entryPointAbi,
-});
+})
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"newVotingPool"`
  */
-export const useSimulateEntryPointNewVotingPool = /*#__PURE__*/ createUseSimulateContract({
-  abi: entryPointAbi,
-  functionName: 'newVotingPool',
-});
+export const useSimulateEntryPointNewVotingPool =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'newVotingPool',
+  })
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"vote"`
  */
-export const useSimulateEntryPointVote = /*#__PURE__*/ createUseSimulateContract({
-  abi: entryPointAbi,
-  functionName: 'vote',
-});
+export const useSimulateEntryPointVote =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'vote',
+  })
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__
  */
-export const useWatchEntryPointEvent = /*#__PURE__*/ createUseWatchContractEvent({
-  abi: entryPointAbi,
-});
+export const useWatchEntryPointEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: entryPointAbi })
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"PoolBinded"`
  */
-export const useWatchEntryPointPoolBindedEvent = /*#__PURE__*/ createUseWatchContractEvent({
-  abi: entryPointAbi,
-  eventName: 'PoolBinded',
-});
+export const useWatchEntryPointPoolBindedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: entryPointAbi,
+    eventName: 'PoolBinded',
+  })
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"VoteSucceeded"`
  */
-export const useWatchEntryPointVoteSucceededEvent = /*#__PURE__*/ createUseWatchContractEvent({
-  abi: entryPointAbi,
-  eventName: 'VoteSucceeded',
-});
+export const useWatchEntryPointVoteSucceededEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: entryPointAbi,
+    eventName: 'VoteSucceeded',
+  })
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"VotingPoolCreated"`
  */
-export const useWatchEntryPointVotingPoolCreatedEvent = /*#__PURE__*/ createUseWatchContractEvent({
-  abi: entryPointAbi,
-  eventName: 'VotingPoolCreated',
-});
+export const useWatchEntryPointVotingPoolCreatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: entryPointAbi,
+    eventName: 'VotingPoolCreated',
+  })
