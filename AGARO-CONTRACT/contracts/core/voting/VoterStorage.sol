@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "../interfaces/PackedVotingPoolData.sol";
-import "../interfaces/IVoterStorage.sol";
+import "../../structs.sol";
+import "../../interfaces/voting/IVoterStorage.sol";
 
 contract VoterStorage is IVoterStorage {
     mapping(bytes32 => mapping(address => VoterData)) public poolStorageVoters;

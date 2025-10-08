@@ -6,11 +6,13 @@ const { ethers: hardhatEthers } = await network.connect();
 
 describe("EntryPoint - Voting Pool Creation", function () {
     let entryPoint: any;
+    let merkleAllowListContract: any;
     let owner: any;
 
     beforeEach(async function () {
         [owner] = await hardhatEthers.getSigners();
-        entryPoint = await hardhatEthers.deployContract("EntryPoint");
+        merkleAllowListContract = await hardhatEthers.deployContract("MerkleAllowlist");
+        entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleAllowListContract.getAddress()]);
     });
 
     describe("Deployment", function () {
@@ -28,6 +30,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData = {
                 title: "Test Voting Pool",
                 description: "A test voting pool for testing purposes",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Alice", "Bob", "Charlie"],
                 candidatesTotal: 3,
             };
@@ -44,6 +48,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData = {
                 title: "Test Pool",
                 description: "Test Description",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Option A", "Option B"],
                 candidatesTotal: 2,
             };
@@ -57,6 +63,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData1 = {
                 title: "Pool 1",
                 description: "First pool with 2 candidates",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Yes", "No"],
                 candidatesTotal: 2,
             };
@@ -64,6 +72,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData2 = {
                 title: "Pool 2",
                 description: "Second pool with 5 candidates",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
                 candidatesTotal: 5,
             };
@@ -79,6 +89,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData = {
                 title: "Many Candidates Pool",
                 description: "Pool with many candidates",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: candidates,
                 candidatesTotal: 10,
             };
@@ -91,6 +103,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData = {
                 title: "Zero Candidates Pool",
                 description: "Pool with no candidates",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: [],
                 candidatesTotal: 0,
             };
@@ -104,6 +118,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData = {
                 title: "Max Candidates Pool",
                 description: "Pool with maximum candidates",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: candidates,
                 candidatesTotal: 255,
             };
@@ -118,6 +134,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData = {
                 title: "Public Pool",
                 description: "Anyone can create pools",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Choice A", "Choice B", "Choice C"],
                 candidatesTotal: 3,
             };
@@ -130,6 +148,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData = {
                 title: "Gas Test Pool",
                 description: "Testing gas consumption",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
                 candidatesTotal: 5,
             };
@@ -144,6 +164,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData = {
                 title: "Validation Test Pool",
                 description: "Testing contract validation",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Candidate 1", "Candidate 2", "Candidate 3"],
                 candidatesTotal: 3,
             };
@@ -173,6 +195,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData1 = {
                 title: "Pool 1",
                 description: "First pool for validation",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Yes", "No"],
                 candidatesTotal: 2,
             };
@@ -180,6 +204,8 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const poolData2 = {
                 title: "Pool 2",
                 description: "Second pool for validation",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
                 candidates: ["Option A", "Option B", "Option C", "Option D"],
                 candidatesTotal: 4,
             };

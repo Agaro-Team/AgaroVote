@@ -1,25 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./VotingPool.sol";
-import "./VotingPoolDataLib.sol";
 import "./VoterStorage.sol";
-import "../interfaces/PackedVotingPoolData.sol";
-import "../interfaces/IEntryPoint.sol";
+import "../MerkleRootStructure/MerkleAllowList.sol";
+import "../../lib/VotingPoolDataArgumentLib.sol";
+import "../../interfaces/voting/IEntryPoint.sol";
 
 contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
     using VotingPoolDataLib for VotingPoolDataArgument;
+    using Clones for address;
+
+    address public immutable merkleAllowImplementation;
+
+    constructor(address _merkleAllowImplementation) {
+        merkleAllowImplementation = _merkleAllowImplementation;
+    }
 
     function newVotingPool(VotingPoolDataArgument calldata _poolData) external {
+        address merkleRootContract = address(0);
+
+        if (_poolData.merkleRootHash != bytes32(0)) {
+            merkleRootContract = createMerkleAllowlist(
+                _poolData.merkleRootHash
+            );
+        }
+
         (bytes32 poolHash, bytes32 voterStorageHashLocation) = _new(
             _poolData.getHash(version, msg.sender),
             _poolData,
+            _poolData.isPrivate,
+            merkleRootContract,
             msg.sender
         );
 
         _bind(poolHash, voterStorageHashLocation);
 
-        emit VotingPoolCreated(version, poolHash);
+        if (!_poolData.isPrivate) {
+            emit VotingPoolCreated(version, poolHash);
+        }
     }
 
     function vote(VoteArgument calldata _voteData) external {
@@ -60,5 +80,12 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
         }
 
         return pools[_voteData.poolHash].voterStorageHashLocation;
+    }
+
+    function createMerkleAllowlist(
+        bytes32 root
+    ) private returns (address newClone) {
+        newClone = merkleAllowImplementation.clone();
+        MerkleAllowlist(newClone).initialize(msg.sender, root);
     }
 }

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "../interfaces/PackedVotingPoolData.sol";
+import "../../structs.sol";
 
 interface IVoterStorage {
     error PoolAlreadyExists(bytes32 poolHash);

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "../interfaces/PackedVotingPoolData.sol";
-import "../interfaces/IVotingPool.sol";
+import "../../structs.sol";
+import "../../interfaces/voting/IVotingPool.sol";
 
 contract VotingPool is IVotingPool {
     uint256 public version;
@@ -63,14 +63,18 @@ contract VotingPool is IVotingPool {
     function _new(
         bytes32 _poolHash,
         VotingPoolDataArgument memory _poolData,
+        bool isPrivate,
+        address merkleRootContract,
         address owner
     ) internal returns (bytes32, bytes32) {
         bytes32 voterStorageHashLocation = keccak256(abi.encode(_poolHash));
         pools[_poolHash] = PoolData({
             version: version,
+            owner: owner,
+            isPrivate: isPrivate,
+            merkleRootContract: merkleRootContract,
             voterStorageHashLocation: voterStorageHashLocation,
             candidatesVotersCount: new uint256[](_poolData.candidatesTotal),
-            owner: owner,
             poolVoterHash: bytes32(0)
         });
         unchecked {
