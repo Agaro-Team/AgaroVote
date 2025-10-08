@@ -12,10 +12,10 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
     using VotingPoolDataLib for VotingPoolDataArgument;
     using Clones for address;
 
-    address public immutable merkleAllowImplementation;
+    address public immutable merkleAllowListImplementation;
 
-    constructor(address _merkleAllowImplementation) {
-        merkleAllowImplementation = _merkleAllowImplementation;
+    constructor(address _merkleAllowListImplementation) {
+        merkleAllowListImplementation = _merkleAllowListImplementation;
     }
 
     function newVotingPool(VotingPoolDataArgument calldata _poolData) external {
@@ -109,7 +109,7 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
     function createMerkleAllowlist(
         bytes32 root
     ) private returns (address newClone) {
-        newClone = merkleAllowImplementation.clone();
+        newClone = merkleAllowListImplementation.clone();
         MerkleAllowlist(newClone).initialize(address(this), root);
     }
 

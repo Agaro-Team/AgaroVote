@@ -6,13 +6,16 @@ import keccak256 from "keccak256";;
 
 const { ethers: hardhatEthers } = await network.connect();
 
+console.log("Generating 1000 addresses..")
+const randomWallets = Array.from({ length: 999 }, () => ethers.Wallet.createRandom().address);
+
 describe("EntryPoint - Voting Functionality", function () {
     let entryPoint: any;
     let merkleAllowListContract: any;
-    let owner: any, voter1: any, voter2: any, voter3: any;
+    let voter1: any, voter2: any, voter3: any;
 
     beforeEach(async function () {
-        [voter1, voter2, voter3, owner] = await hardhatEthers.getSigners();
+        [voter1, voter2, voter3] = await hardhatEthers.getSigners();
         merkleAllowListContract = await hardhatEthers.deployContract("MerkleAllowlist");
         entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleAllowListContract.getAddress()]);
     });
@@ -309,7 +312,7 @@ describe("EntryPoint - Voting Functionality", function () {
             expect(voterData.isVoted).to.be.true;
         });
         it("Should not allow non-whitelisted voter to vote using Merkle proofs", async function () {
-            const whitelist = [owner.address, voter1.address, voter2.address];
+            const whitelist = [...randomWallets, voter1.address];
             const leaves = whitelist.map(addr => keccak256(addr));
             const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
             const root = tree.getHexRoot();
@@ -351,11 +354,11 @@ describe("EntryPoint - Voting Functionality", function () {
                 proofs,
             };
 
-            await expect(entryPoint.connect(voter3).vote(voteData))
+            await expect(entryPoint.connect(voter2).vote(voteData))
                 .to.revertedWithCustomError(entryPoint, "AddressIsNotAllowed");
         });
         it("Should allow whitelisted voter to vote using Merkle proofs", async function () {
-            const whitelist = [owner.address, voter1.address, voter2.address];
+            const whitelist = [...randomWallets, voter1.address];
             const leaves = whitelist.map(addr => keccak256(addr));
             const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
             const root = tree.getHexRoot();
