@@ -1,7 +1,11 @@
 import { type RouteConfig, index, layout, prefix, route } from '@react-router/dev/routes';
 
 const dashboardRoutes = prefix('dashboard', [
-  layout('routes/dashboard/layout.tsx', [index('routes/dashboard/index.tsx')]),
+  layout('routes/dashboard/layout.tsx', [
+    index('routes/dashboard/index.tsx'),
+    route('voting-pools', 'routes/dashboard/voting-pools/index.tsx'),
+    route('voting-pools/create', 'routes/dashboard/voting-pools/create.tsx'),
+  ]),
 ]);
 
 const walletRoutes = prefix('wallet', [
@@ -10,7 +14,6 @@ const walletRoutes = prefix('wallet', [
 
 export default [
   index('routes/home.tsx'),
-  route('counter', 'routes/counter.tsx'),
   ...dashboardRoutes,
   ...walletRoutes,
 ] satisfies RouteConfig;
