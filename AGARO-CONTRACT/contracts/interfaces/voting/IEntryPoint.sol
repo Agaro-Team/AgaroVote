@@ -12,5 +12,7 @@ interface IEntryPoint {
         bytes32 newPoolVoterHash
     );
 
+    error AddressIsNotAllowed(address voter, bytes32 poolHash);
+
     function newVotingPool(VotingPoolDataArgument calldata _poolData) external;
 }

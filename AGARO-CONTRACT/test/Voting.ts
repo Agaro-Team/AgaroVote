@@ -1,16 +1,15 @@
 import { expect } from "chai";
 import { network } from "hardhat";
 import { ethers } from "ethers";
+import { MerkleTree } from "merkletreejs";
+import keccak256 from "keccak256";;
 
 const { ethers: hardhatEthers } = await network.connect();
 
 describe("EntryPoint - Voting Functionality", function () {
     let entryPoint: any;
     let merkleAllowListContract: any;
-    let owner: any;
-    let voter1: any;
-    let voter2: any;
-    let voter3: any;
+    let owner: any, voter1: any, voter2: any, voter3: any;
 
     beforeEach(async function () {
         [voter1, voter2, voter3, owner] = await hardhatEthers.getSigners();
@@ -120,7 +119,8 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should allow a voter to vote for a candidate", async function () {
             const voteData = {
                 poolHash: poolHash,
-                candidateSelected: 0
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash]
             };
 
             expect(await entryPoint.connect(voter1).vote(voteData))
@@ -135,17 +135,20 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should allow multiple voters to vote", async function () {
             await entryPoint.connect(voter1).vote({
                 poolHash: poolHash,
-                candidateSelected: 0
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash]
             });
 
             await entryPoint.connect(voter2).vote({
                 poolHash: poolHash,
-                candidateSelected: 1
+                candidateSelected: 1,
+                proofs: [ethers.ZeroHash]
             });
 
             await entryPoint.connect(voter3).vote({
                 poolHash: poolHash,
-                candidateSelected: 0
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash]
             });
 
             const poolInfo = await entryPoint.getPoolData(poolHash);
@@ -157,7 +160,8 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should prevent voting for non-existent candidate", async function () {
             const voteData = {
                 poolHash: poolHash,
-                candidateSelected: 5
+                candidateSelected: 5,
+                proofs: [ethers.ZeroHash]
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -169,7 +173,8 @@ describe("EntryPoint - Voting Functionality", function () {
             const nonExistentHash = ethers.keccak256(ethers.toUtf8Bytes("non-existent"));
             const voteData = {
                 poolHash: nonExistentHash,
-                candidateSelected: 0
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash]
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -181,14 +186,18 @@ describe("EntryPoint - Voting Functionality", function () {
 
         //     await entryPoint.connect(voter1).vote({
         //         poolHash: poolHash,
-        //         candidateSelected: 0
+        //         candidateSelected: 0,
+        //         proofs: [ethers.ZeroHash]     
         //     });
+        // 
 
 
         //     await entryPoint.connect(voter1).vote({
         //         poolHash: poolHash,
-        //         candidateSelected: 1
+        //         candidateSelected: 1,
+        //         proofs: [ethers.ZeroHash]     
         //     });
+        // 
 
 
         //     const poolInfo = await entryPoint.getPoolData(poolHash);
@@ -201,12 +210,14 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should track individual voter choices in storage", async function () {
             await entryPoint.connect(voter1).vote({
                 poolHash: poolHash,
-                candidateSelected: 0
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash]
             });
 
             await entryPoint.connect(voter2).vote({
                 poolHash: poolHash,
-                candidateSelected: 1
+                candidateSelected: 1,
+                proofs: [ethers.ZeroHash]
             });
 
             const poolInfo = await entryPoint.getPoolData(poolHash);
@@ -257,6 +268,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 entryPoint.connect(voter1).vote({
                     poolHash,
                     candidateSelected: 0,
+                    proofs: [ethers.ZeroHash]
                 })
             ).to.not.be.revert;
 
@@ -264,6 +276,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 entryPoint.connect(voter1).vote({
                     poolHash,
                     candidateSelected: 1,
+                    proofs: [ethers.ZeroHash]
                 })
             )
                 .to.be.revertedWithCustomError(entryPoint, "AlreadyVoted")
@@ -274,7 +287,90 @@ describe("EntryPoint - Voting Functionality", function () {
             expect(voterData.selected).to.equal(0);
             expect(voterData.isVoted).to.be.true;
         });
+        it("Should not allow non-whitelisted voter to vote using Merkle proofs", async function () {
+            const whitelist = [owner.address, voter1.address, voter2.address];
+            const leaves = whitelist.map(addr => keccak256(addr));
+            const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+            const root = tree.getHexRoot();
+
+            const poolData = {
+                title: "Private Pool",
+                description: "Merkle-based voting",
+                merkleRootHash: root,
+                isPrivate: false,
+                candidates: ["Alice", "Bob"],
+                candidatesTotal: 2,
+            };
+
+            const proofs = tree.getHexProof(keccak256(voter1.address));
+
+            const tx = await entryPoint.newVotingPool(poolData);
+            const receipt = await tx.wait();
+            const votingPoolEvent = receipt.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const poolHash = votingPoolEvent?.topics[2];
+            expect(poolHash).to.not.be.undefined;
+
+
+            const voteData = {
+                poolHash,
+                candidateSelected: 1,
+                proofs,
+            };
+
+            await expect(entryPoint.connect(voter3).vote(voteData))
+                .to.revertedWithCustomError(entryPoint, "AddressIsNotAllowed");
+        });
+        it("Should allow whitelisted voter to vote using Merkle proofs", async function () {
+            const whitelist = [owner.address, voter1.address, voter2.address];
+            const leaves = whitelist.map(addr => keccak256(addr));
+            const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
+            const root = tree.getHexRoot();
+
+            const poolData = {
+                title: "Private Pool",
+                description: "Merkle-based voting",
+                merkleRootHash: root,
+                isPrivate: false,
+                candidates: ["Alice", "Bob"],
+                candidatesTotal: 2,
+            };
+
+            const proofs = tree.getHexProof(keccak256(voter1.address));
+
+            const tx = await entryPoint.newVotingPool(poolData);
+            const receipt = await tx.wait();
+            const votingPoolEvent = receipt.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const poolHash = votingPoolEvent?.topics[2];
+            expect(poolHash).to.not.be.undefined;
+
+
+            const voteData = {
+                poolHash,
+                candidateSelected: 1,
+                proofs,
+            };
+
+            await expect(entryPoint.connect(voter1).vote(voteData))
+                .to.emit(entryPoint, "VoteSucceeded");
+        });
     });
+
 
     describe("Edge Cases and Error Handling", function () {
         let poolHash: string;
@@ -307,7 +403,8 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should handle voting with minimum candidates (1)", async function () {
             const voteData = {
                 poolHash: poolHash,
-                candidateSelected: 0
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash]
             };
 
             expect(await entryPoint.connect(voter1).vote(voteData))
@@ -345,7 +442,8 @@ describe("EntryPoint - Voting Functionality", function () {
 
             const voteData = {
                 poolHash: maxPoolHash,
-                candidateSelected: 254
+                candidateSelected: 254,
+                proofs: [ethers.ZeroHash]
             };
 
             expect(await entryPoint.connect(voter1).vote(voteData))
@@ -381,7 +479,8 @@ describe("EntryPoint - Voting Functionality", function () {
 
             const voteData = {
                 poolHash: emptyPoolHash,
-                candidateSelected: 0
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash]
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -417,7 +516,8 @@ describe("EntryPoint - Voting Functionality", function () {
 
             const voteData = {
                 poolHash: poolHash,
-                candidateSelected: 0
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash]
             };
 
             const tx2 = await entryPoint.connect(voter1).vote(voteData);

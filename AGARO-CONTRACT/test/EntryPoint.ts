@@ -26,6 +26,32 @@ describe("EntryPoint - Voting Pool Creation", function () {
     });
 
     describe("Voting Pool Creation", function () {
+        it("Should create a private voting pool without emitting VotingPoolCreated event", async function () {
+            const poolData = {
+                title: "Private Voting Pool",
+                description: "Only whitelisted voters can participate",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: true,
+                candidates: ["Alice", "Bob"],
+                candidatesTotal: 2,
+            };
+
+            const tx = await entryPoint.newVotingPool(poolData);
+            const receipt = await tx.wait();
+
+            const hasEvent = receipt.logs.some((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            expect(hasEvent).to.be.false;
+
+            expect(await entryPoint.version()).to.equal(1);
+        });
         it("Should create a voting pool with specified candidates", async function () {
             const poolData = {
                 title: "Test Voting Pool",

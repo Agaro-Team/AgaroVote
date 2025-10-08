@@ -13,6 +13,7 @@ struct VotingPoolDataArgument {
 struct VoteArgument {
     bytes32 poolHash;
     uint8 candidateSelected;
+    bytes32[] proofs;
 }
 
 struct VoterData {

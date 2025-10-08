@@ -43,12 +43,24 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
     }
 
     function vote(VoteArgument calldata _voteData) external {
+        PoolData memory poolData = pools[_voteData.poolHash];
+        address cont = poolData.merkleRootContract;
+        if (cont != address(0)) {
+            _verifyAddressWithProof(
+                cont,
+                _voteData.proofs,
+                _voteData.poolHash,
+                msg.sender
+            );
+        }
+
         bytes32 storageLocation = _verifyVoteData(_voteData);
         bytes32 newPoolVoterHash = _incSelected(
             _voteData.poolHash,
             _voteData.candidateSelected,
             msg.sender
         );
+
         _vote(storageLocation, msg.sender, _voteData.candidateSelected);
 
         emit VoteSucceeded(
@@ -86,6 +98,20 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
         bytes32 root
     ) private returns (address newClone) {
         newClone = merkleAllowImplementation.clone();
-        MerkleAllowlist(newClone).initialize(msg.sender, root);
+        MerkleAllowlist(newClone).initialize(address(this), root);
+    }
+
+    function _verifyAddressWithProof(
+        address cont,
+        bytes32[] memory proofs,
+        bytes32 poolHash,
+        address voter
+    ) private view returns (bool) {
+        bool isAllowed = IMerkleAllowlist(cont).isAllowed(msg.sender, proofs);
+        if (!isAllowed) {
+            revert AddressIsNotAllowed(voter, poolHash);
+        }
+
+        return isAllowed;
     }
 }
