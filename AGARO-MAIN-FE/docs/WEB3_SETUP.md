@@ -42,10 +42,16 @@ app/
 Create a `.env` file in the project root:
 
 ```bash
-VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
+# Smart Contract Addresses
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT=0x...
+
+# Optional: WalletConnect (currently not in use)
+# VITE_WALLETCONNECT_PROJECT_ID=your_project_id_here
 ```
 
-Get your WalletConnect Project ID at: https://cloud.walletconnect.com
+Get your WalletConnect Project ID at: https://cloud.walletconnect.com (if enabling WalletConnect)
 
 ### 2. Supported Networks
 
@@ -53,17 +59,18 @@ Currently configured networks (see `app/lib/web3/config.ts`):
 
 - **Ethereum Mainnet** (Chain ID: 1)
 - **Sepolia Testnet** (Chain ID: 11155111)
-- **Polygon Mainnet** (Chain ID: 137)
-- **Polygon Amoy Testnet** (Chain ID: 80002)
+- **Hardhat Local** (Chain ID: 31337) - For local development
 
 To add more networks, edit `supportedChains` in `config.ts`.
 
 ### 3. Wallet Connectors
 
-Available wallet connectors:
+**Note:** Wallet connectors are currently commented out in the config. The app uses the default browser wallet (MetaMask, etc.).
+
+To enable additional connectors, uncomment and configure in `app/lib/web3/config.ts`:
 
 - **Injected** - MetaMask, Rainbow, Brave Wallet, etc.
-- **WalletConnect** - Mobile wallets via QR code
+- **WalletConnect** - Mobile wallets via QR code (requires Project ID)
 - **Coinbase Wallet** - Coinbase's browser extension/app
 
 ---
@@ -225,33 +232,32 @@ Network switching dropdown.
 
 ## 💾 Data Persistence
 
-All query data (including wallet balances, network info, etc.) is automatically persisted to localStorage and restored on page refresh. This is powered by TanStack Query's persistence feature.
+All wagmi connection data is automatically persisted using **cookie storage** for SSR compatibility. This is configured in the wagmi config.
 
 ### How It Works
 
 ```tsx
-// Automatically handled by QueryClientProvider
-// Query data is saved to localStorage with a 24-hour cache time
-// Data is restored on page reload
+// Configured in app/lib/web3/config.ts
+storage: createStorage({
+  storage: cookieStorage, // Uses cookies instead of localStorage for SSR
+})
 ```
 
 ### Benefits
 
-- **Better UX**: No re-fetching on page refresh if data is still fresh
-- **Faster Loading**: Instant display of cached data
-- **Offline Support**: View previously loaded data without network
-- **BigInt Support**: Properly serializes blockchain data types
+- **SSR Compatible**: Works with React Router's server-side rendering
+- **Persistent Connection**: Wallet stays connected across page refreshes
+- **Secure**: Uses HttpOnly cookies when configured
+- **Cross-Tab Sync**: Connection state syncs across browser tabs
 
-### Clear Cache
+### Clear Connection Data
 
-To clear persisted data, users can:
+To disconnect and clear storage:
 
 ```typescript
-// Programmatically clear cache
-queryClient.clear();
-
-// Or manually delete from localStorage
-localStorage.removeItem('REACT_QUERY_OFFLINE_CACHE');
+// Use the disconnect function from useWeb3Wallet
+const { disconnect } = useWeb3Wallet();
+disconnect();
 ```
 
 ---
@@ -358,11 +364,15 @@ if (chainId !== REQUIRED_CHAIN_ID) {
 
 ## 🎓 Next Steps
 
-1. **Add voting contract interactions** - Use viem to interact with smart contracts
-2. **Implement transaction signing** - Add functions to sign and send transactions
-3. **Add ENS support** - Display ENS names instead of addresses
-4. **Implement wallet switching** - Allow users to switch between multiple accounts
-5. **Add transaction history** - Track user's voting transactions
+1. ✅ **Smart Contract Integration** - EntryPoint contract integrated with auto-generated hooks
+2. ✅ **Transaction Signing** - Implemented via wagmi's useWriteContract
+3. ✅ **Voting Pool Creation** - Create and manage voting pools on-chain
+4. ✅ **Hash Verification** - Off-chain hash computation with on-chain verification
+5. **Future Enhancements**:
+   - Add ENS support - Display ENS names instead of addresses
+   - Implement wallet switching - Allow users to switch between multiple accounts
+   - Add transaction history - Track user's voting transactions
+   - Enable WalletConnect - Support mobile wallets
 
 ---
 

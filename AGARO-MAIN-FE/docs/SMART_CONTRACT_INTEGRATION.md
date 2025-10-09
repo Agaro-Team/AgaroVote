@@ -17,55 +17,88 @@
 
 ## Setup Contract Configuration
 
-### 1. Create Contract Configuration File
+### 1. Auto-Generated Contract Hooks (Recommended)
 
-Create a file to store your contract ABIs and addresses:
+**AgaroVote uses @wagmi/cli to auto-generate type-safe hooks from your Hardhat contracts.**
+
+#### Configuration (`wagmi.config.ts`):
 
 ```typescript
-// app/lib/contracts/voting-contract.ts
+import { defineConfig, loadEnv } from '@wagmi/cli';
+import { hardhat, react } from '@wagmi/cli/plugins';
 
-/**
- * Voting Contract Configuration
- *
- * Store your contract ABI and addresses for different networks
- */
+export default defineConfig(async () => {
+  const env = loadEnv({
+    mode: process.env.NODE_ENV,
+    envDir: process.cwd(),
+  });
 
-// Your contract ABI (get this from your compiled contract)
-export const VOTING_CONTRACT_ABI = [
-  {
-    inputs: [],
-    name: 'getTotalVotes',
-    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'proposalId', type: 'uint256' }],
-    name: 'getProposal',
-    outputs: [
-      { internalType: 'string', name: 'title', type: 'string' },
-      { internalType: 'uint256', name: 'voteCount', type: 'uint256' },
-      { internalType: 'bool', name: 'isActive', type: 'bool' },
+  return {
+    out: 'app/lib/web3/contracts/generated.ts',
+    plugins: [
+      react(),
+      hardhat({
+        project: '../AGARO-CONTRACT',
+        include: ['EntryPoint*'],
+        deployments: {
+          AgaroVote: {
+            1: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET,
+            11155111: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA,
+            31337: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT,
+          },
+        },
+      }),
     ],
-    stateMutability: 'view',
-    type: 'function',
-  },
-  {
-    inputs: [{ internalType: 'uint256', name: 'proposalId', type: 'uint256' }],
-    name: 'vote',
-    outputs: [],
-    stateMutability: 'nonpayable',
-    type: 'function',
-  },
-] as const;
+  };
+});
+```
 
-// Contract addresses for different chains
-export const VOTING_CONTRACT_ADDRESS = {
-  1: '0x...', // Ethereum Mainnet
-  11155111: '0x...', // Sepolia Testnet
-  137: '0x...', // Polygon Mainnet
-  80002: '0x...', // Polygon Amoy Testnet
-} as const;
+#### Generate Hooks:
+
+```bash
+# After compiling your Hardhat contracts
+yarn wagmi
+
+# Or watch mode for development
+yarn wagmi:watch
+```
+
+#### Generated Output (`app/lib/web3/contracts/generated.ts`):
+
+```typescript
+// Auto-generated - DO NOT EDIT
+export const useReadEntryPointVersion = () => { /* ... */ };
+export const useWriteEntryPointNewVotingPool = () => { /* ... */ };
+export const useWatchEntryPointVotingPoolCreatedEvent = () => { /* ... */ };
+// ... more hooks
+```
+
+### 2. Contract Address Configuration
+
+Store contract addresses per chain:
+
+```typescript
+// app/lib/web3/contracts/entry-point-config.ts
+import type { Address } from 'viem';
+
+export const ENTRY_POINT_CONTRACT_ADDRESS: Record<number, Address> = {
+  1: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET,
+  11155111: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA,
+  31337: import.meta.env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT,
+};
+
+export function getEntryPointAddress(chainId: number): Address | undefined {
+  return ENTRY_POINT_CONTRACT_ADDRESS[chainId];
+}
+```
+
+### 3. Environment Variables
+
+```bash
+# .env
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA=0x...
+VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT=0x...
 ```
 
 ### 2. Create Contract Constants Helper
@@ -88,26 +121,24 @@ export function getContractAddress(
 
 ## Reading Contract Data (View Functions)
 
-### Basic Usage with `useReadContract`
+### Using Auto-Generated Hooks
 
 ```typescript
-import { useReadContract } from 'wagmi';
-import { VOTING_CONTRACT_ABI, VOTING_CONTRACT_ADDRESS } from '~/lib/contracts';
+import { useReadEntryPointVersion } from '~/lib/web3/contracts/generated';
+import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
 import { useWeb3Chain } from '~/hooks/use-web3';
 
-function TotalVotesDisplay() {
+function ContractVersionDisplay() {
   const { chainId } = useWeb3Chain();
 
-  const { data, isLoading, isError, refetch } = useReadContract({
-    address: VOTING_CONTRACT_ADDRESS[chainId as keyof typeof VOTING_CONTRACT_ADDRESS],
-    abi: VOTING_CONTRACT_ABI,
-    functionName: 'getTotalVotes',
+  const { data: version, isLoading, isError } = useReadEntryPointVersion({
+    address: getEntryPointAddress(chainId),
   });
 
   if (isLoading) return <p>Loading...</p>;
-  if (isError) return <p>Error loading votes</p>;
+  if (isError) return <p>Error loading version</p>;
 
-  return <p>Total Votes: {data?.toString()}</p>;
+  return <p>Contract Version: {version?.toString()}</p>;
 }
 ```
 
@@ -389,127 +420,142 @@ export function useVotingContract() {
 
 ---
 
-## Complete Example
+## Complete Example: Creating a Voting Pool
 
-Here's a complete voting component using the custom hooks:
+Here's the actual implementation from AgaroVote:
 
 ```typescript
-// app/components/voting-panel.tsx
+// app/hooks/voting-pools/use-create-voting-pool.ts
+import { toast } from 'sonner';
+import { useWaitForTransactionReceipt } from 'wagmi';
+import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
+import {
+  useReadEntryPointVersion,
+  useWatchEntryPointVotingPoolCreatedEvent,
+  useWriteEntryPointNewVotingPool,
+} from '~/lib/web3/contracts/generated';
+import { createVotingPoolData, getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
+import { useWeb3Chain, useWeb3Wallet } from '../use-web3';
 
-/**
- * Voting Panel Component
- *
- * Complete example of smart contract interaction
- */
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Button } from '~/components/ui/button';
-import { Skeleton } from '~/components/ui/skeleton';
-import { useTotalVotes, useProposal, useVote } from '~/hooks/use-voting-contract';
-import { useWeb3Wallet } from '~/hooks/use-web3';
-
-interface VotingPanelProps {
-  proposalId: number;
+export interface VotingPoolData {
+  title: string;
+  description: string;
+  candidates: string[];
+  candidatesTotal: number;
 }
 
-export function VotingPanel({ proposalId }: VotingPanelProps) {
-  const { isConnected } = useWeb3Wallet();
-  const { totalVotes, isLoading: loadingTotal } = useTotalVotes();
-  const { proposal, isLoading: loadingProposal, refetch } = useProposal(proposalId);
-  const { vote, isPending, isConfirming, isSuccess, isError } = useVote();
+export function useCreateVotingPool() {
+  const { chainId } = useWeb3Chain();
+  const { address: walletAddress } = useWeb3Wallet();
+  const [offChainHash, setOffChainHash] = useState<`0x${string}` | null>(null);
 
-  const handleVote = () => {
-    vote(proposalId);
+  // Read contract version (for hash computation)
+  const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
+    address: getEntryPointAddress(chainId),
+  });
+
+  // Write to contract
+  const { writeContract, data: txHash, isPending } = useWriteEntryPointNewVotingPool();
+
+  // Wait for confirmation
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash: txHash,
+  });
+
+  // Watch for VotingPoolCreated event to verify hash
+  useWatchEntryPointVotingPoolCreatedEvent({
+    address: getEntryPointAddress(chainId),
+    onLogs: (logs) => {
+      logs.forEach((log) => {
+        const { poolHash: onChainHash } = log.args;
+
+        if (!offChainHash || !onChainHash) return;
+
+        // Verify hash matches
+        if (offChainHash !== onChainHash) {
+          toast.error('Hash Anomaly Detected!', {
+            description: 'Off-chain and on-chain hashes do not match.',
+          });
+        } else {
+          toast.success('Hash Verified!', {
+            description: 'Off-chain and on-chain hashes match perfectly.',
+          });
+        }
+
+        setOffChainHash(null);
+      });
+    },
+  });
+
+  const createPool = (poolData: VotingPoolData) => {
+    if (!version || !walletAddress) {
+      toast.error('Missing required data');
+      return;
+    }
+
+    // Compute off-chain hash
+    const fullPoolData = createVotingPoolData({
+      title: poolData.title,
+      description: poolData.description,
+      candidates: poolData.candidates,
+    });
+
+    const computedHash = getVotingPoolHash(fullPoolData, version, walletAddress);
+    setOffChainHash(computedHash);
+
+    // Submit to blockchain
+    writeContract({
+      address: getEntryPointAddress(chainId)!,
+      args: [
+        {
+          title: poolData.title,
+          description: poolData.description,
+          candidates: poolData.candidates,
+          candidatesTotal: poolData.candidatesTotal,
+        },
+      ],
+    });
   };
 
-  // Refetch proposal data after successful vote
-  if (isSuccess) {
-    refetch();
-  }
+  // Refetch version after success (for next pool creation)
+  useEffect(() => {
+    if (isSuccess) {
+      refetchVersion();
+    }
+  }, [isSuccess, refetchVersion]);
 
-  if (!isConnected) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Connect Wallet</CardTitle>
-          <CardDescription>Please connect your wallet to vote</CardDescription>
-        </CardHeader>
-      </Card>
-    );
-  }
+  return {
+    createPool,
+    isPending,
+    isConfirming,
+    isSuccess,
+    txHash,
+    offChainHash,
+  };
+}
+```
 
-  if (loadingProposal) {
-    return (
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-8 w-[200px]" />
-          <Skeleton className="h-4 w-[300px]" />
-        </CardHeader>
-        <CardContent>
-          <Skeleton className="h-10 w-full" />
-        </CardContent>
-      </Card>
-    );
-  }
+### Usage in Component:
 
-  if (!proposal) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle>Proposal Not Found</CardTitle>
-        </CardHeader>
-      </Card>
-    );
-  }
+```typescript
+// app/components/voting-pools/create-voting-pool-form.tsx
+import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
+import { Button } from '~/components/ui/button';
+
+export function CreateVotingPoolForm() {
+  const { createPool, isPending, isConfirming } = useCreateVotingPool();
+
+  const handleSubmit = (data: VotingPoolData) => {
+    createPool(data);
+  };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>{proposal.title}</CardTitle>
-        <CardDescription>
-          {proposal.isActive ? '🟢 Active' : '🔴 Closed'}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Current Votes</p>
-          <p className="text-2xl font-bold">{proposal.voteCount}</p>
-        </div>
-
-        {loadingTotal ? (
-          <Skeleton className="h-4 w-[150px]" />
-        ) : (
-          <p className="text-sm text-muted-foreground">
-            Total votes across all proposals: {totalVotes}
-          </p>
-        )}
-
-        <Button
-          onClick={handleVote}
-          disabled={!proposal.isActive || isPending || isConfirming}
-          className="w-full"
-        >
-          {isPending && 'Preparing transaction...'}
-          {isConfirming && 'Confirming transaction...'}
-          {!isPending && !isConfirming && 'Submit Vote'}
-        </Button>
-
-        {isSuccess && (
-          <div className="p-3 bg-green-100 dark:bg-green-900 rounded-md">
-            <p className="text-sm text-green-800 dark:text-green-100">
-              ✅ Vote submitted successfully!
-            </p>
-          </div>
-        )}
-
-        {isError && (
-          <div className="p-3 bg-red-100 dark:bg-red-900 rounded-md">
-            <p className="text-sm text-red-800 dark:text-red-100">
-              ❌ Failed to submit vote. Please try again.
-            </p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+      <Button type="submit" disabled={isPending || isConfirming}>
+        {isPending ? 'Sending...' : isConfirming ? 'Confirming...' : 'Create Pool'}
+      </Button>
+    </form>
   );
 }
 ```
@@ -703,15 +749,112 @@ useWatchContractEvent({
 
 ---
 
-## Next Steps
+## Hash Verification System
 
-1. Add your contract ABI to `app/lib/contracts/`
-2. Create custom hooks in `app/hooks/use-[contract-name].ts`
-3. Build UI components using your hooks
-4. Test on testnet first (Sepolia/Amoy)
-5. Deploy to mainnet
+AgaroVote uses off-chain hash computation with on-chain verification for transparency and security.
+
+### Voting Pool Utilities
+
+```typescript
+// app/lib/web3/voting-pool-utils.ts
+import { encodeAbiParameters, keccak256, parseAbiParameters } from 'viem';
+
+export interface VotingPoolData {
+  title: string;
+  description: string;
+  candidates: string[];
+  candidatesTotal: number;
+}
+
+// Encode pool data (matches Solidity encoding)
+export function encodeVotingPoolData(
+  poolData: VotingPoolData,
+  version: bigint,
+  owner: Address
+): `0x${string}` {
+  return encodeAbiParameters(
+    parseAbiParameters('string, string, string[], uint8, uint256, address'),
+    [
+      poolData.title,
+      poolData.description,
+      poolData.candidates,
+      poolData.candidatesTotal,
+      version,
+      owner,
+    ]
+  );
+}
+
+// Compute hash (matches Solidity hash)
+export function getVotingPoolHash(
+  poolData: VotingPoolData,
+  version: bigint,
+  owner: Address
+): `0x${string}` {
+  const encoded = encodeVotingPoolData(poolData, version, owner);
+  return keccak256(encoded);
+}
+
+// Helper to create pool data with auto-calculated total
+export function createVotingPoolData(
+  data: Omit<VotingPoolData, 'candidatesTotal'>
+): VotingPoolData {
+  return {
+    ...data,
+    candidatesTotal: data.candidates.length,
+  };
+}
+```
+
+### Why Hash Verification?
+
+1. **Transparency**: Users can verify data wasn't tampered with
+2. **Security**: Detects anomalies between frontend and blockchain
+3. **Gas Savings**: Hash computation is free off-chain
+4. **Replay Prevention**: Version tracking prevents duplicate submissions
+
+### Complete Flow
+
+```
+1. User submits pool data
+   ↓
+2. Frontend computes hash off-chain (free)
+   ↓
+3. Store hash for later comparison
+   ↓
+4. Submit transaction to blockchain
+   ↓
+5. Smart contract computes same hash on-chain
+   ↓
+6. Smart contract emits event with hash
+   ↓
+7. Frontend watches event
+   ↓
+8. Compare: off-chain hash === on-chain hash
+   ↓
+9. Success: Hashes match ✅
+   Failure: Show security alert 🚨
+```
 
 ---
+
+## Next Steps
+
+1. ✅ **Auto-generate hooks** - Use `yarn wagmi` after compiling contracts
+2. ✅ **Configure addresses** - Set environment variables for each chain
+3. ✅ **Build features** - Use generated hooks in your components
+4. ✅ **Hash verification** - Implement off-chain computation for transparency
+5. **Test thoroughly** - Test on testnet (Sepolia/Hardhat) before mainnet
+6. **Deploy** - Deploy to mainnet when ready
+
+---
+
+## Related Documentation
+
+- [Hardhat + Wagmi Integration](./HARDHAT_WAGMI_INTEGRATION.md) - Detailed guide on auto-generating hooks
+- [Transaction Lifecycle](./TRANSACTION_LIFECYCLE.md) - Handling transaction states
+- [Optimistic Mutations](./OPTIMISTIC_MUTATIONS.md) - Better UX with optimistic updates
+- [Web3 Setup](./WEB3_SETUP.md) - Complete wallet integration guide
 
 For more information on wagmi hooks, see:
 
