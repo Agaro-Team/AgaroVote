@@ -4,6 +4,7 @@
  * Custom hook for creating new voting pools on the blockchain.
  * Integrates with the EntryPoint smart contract.
  * Includes off-chain hash computation and on-chain verification.
+ * Handles Merkle root generation for private pools.
  */
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
@@ -13,7 +14,8 @@ import {
   useWatchEntryPointVotingPoolCreatedEvent,
   useWriteEntryPointNewVotingPool,
 } from '~/lib/web3/contracts/generated';
-import { createVotingPoolData, getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
+import { generateMerkleRoot } from '~/lib/web3/utils';
+import { getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -24,6 +26,9 @@ export interface VotingPoolData {
   description: string;
   candidates: string[];
   candidatesTotal: number;
+  expiryDate: Date;
+  isPrivate: boolean;
+  allowedAddresses: string[];
 }
 
 /**
@@ -57,25 +62,12 @@ export function useCreateVotingPool() {
 
   const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
     address: getEntryPointAddress(chainId),
-    query: {
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    },
   });
 
   // Wait for transaction confirmation
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
-
-  // Refetch version after successful pool creation
-  // This is critical for replay attack prevention - version increments with each pool
-  useEffect(() => {
-    if (isSuccess) {
-      console.log('🔄 Refetching version for next pool creation (replay attack prevention)');
-      refetchVersion();
-    }
-  }, [isSuccess, refetchVersion]);
 
   // Watch for VotingPoolCreated event to verify hash
   useWatchEntryPointVotingPoolCreatedEvent({
@@ -96,7 +88,7 @@ export function useCreateVotingPool() {
         }
 
         // Verify version matches (optional but recommended)
-        if (eventVersion !== version) {
+        if (eventVersion === version) {
           return;
         }
 
@@ -124,9 +116,9 @@ export function useCreateVotingPool() {
 
   /**
    * Create a new voting pool
-   * @param poolData - The voting pool data containing title, description, candidates, and candidatesTotal
+   * @param poolData - The voting pool data containing title, description, candidates, expiry, privacy settings, and allowed addresses
    */
-  const createPool = (poolData: VotingPoolData) => {
+  const createPool = async (poolData: VotingPoolData) => {
     if (!chainId) {
       toast.error('No chain connected');
       return;
@@ -143,46 +135,77 @@ export function useCreateVotingPool() {
       return;
     }
 
-    if (!version) {
+    if (typeof version === 'undefined') {
       toast.error('Could not fetch contract version');
       return;
     }
 
     try {
-      // Compute off-chain hash before submission
-      const fullPoolData = createVotingPoolData({
+      // Calculate expiry timestamps
+      const now = Math.floor(Date.now() / 1000); // Current time in Unix timestamp
+      const endDate = Math.floor(poolData.expiryDate.getTime() / 1000); // Convert to Unix timestamp
+
+      // Generate Merkle root hash if private pool, otherwise use zero hash
+      let merkleRootHash: `0x${string}` =
+        '0x0000000000000000000000000000000000000000000000000000000000000000';
+
+      if (poolData.allowedAddresses.length > 0) {
+        merkleRootHash = generateMerkleRoot(poolData.allowedAddresses);
+      }
+
+      // Convert candidatesTotal to uint8 format
+      const candidatesTotalUint8 = poolData.candidatesTotal as unknown as number;
+
+      const args = {
+        title: poolData.title,
+        description: poolData.description,
+        merkleRootHash,
+        isPrivate: poolData.isPrivate,
+        candidates: poolData.candidates,
+        candidatesTotal: candidatesTotalUint8,
+        expiry: {
+          startDate: BigInt(now),
+          endDate: BigInt(endDate),
+        },
+      };
+
+      const targetHashedPayload = {
         title: poolData.title,
         description: poolData.description,
         candidates: poolData.candidates,
-      });
+        candidatesTotal: candidatesTotalUint8,
+        version,
+        owner: walletAddress,
+      };
 
-      const computedHash = getVotingPoolHash(fullPoolData, version, walletAddress);
+      // Compute off-chain hash before submission
+      const computedHash = getVotingPoolHash(targetHashedPayload, version, walletAddress);
 
       // Store hash for later verification
       setOffChainHash(computedHash);
       offChainHashRef.current = computedHash;
 
-      // Convert candidatesTotal to uint8 format
-      const candidatesTotalUint8 = poolData.candidatesTotal as unknown as number;
-
       // Submit to blockchain
       writeContract({
         address: contractAddress,
-        args: [
-          {
-            title: poolData.title,
-            description: poolData.description,
-            candidates: poolData.candidates,
-            candidatesTotal: candidatesTotalUint8,
-          },
-        ],
+        args: [args],
       });
     } catch (error) {
-      toast.error('Failed to compute hash', {
+      console.error('🔄 Error:', error);
+      toast.error('Failed to create pool', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   };
+
+  // Refetch version after successful pool creation
+  // This is critical for replay attack prevention - version increments with each pool
+  useEffect(() => {
+    if (isSuccess) {
+      console.log('🔄 Refetching version for next pool creation (replay attack prevention)');
+      refetchVersion();
+    }
+  }, [isSuccess, refetchVersion]);
 
   return {
     createPool,
