@@ -157,6 +157,7 @@ export function useCreateVotingPool() {
       const candidatesTotalUint8 = poolData.candidatesTotal as unknown as number;
 
       const args = {
+        versioning: version,
         title: poolData.title,
         description: poolData.description,
         merkleRootHash,

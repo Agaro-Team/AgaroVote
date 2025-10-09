@@ -72,6 +72,11 @@ export const entryPointAbi = [
   },
   {
     type: 'error',
+    inputs: [{ name: 'version', internalType: 'uint256', type: 'uint256' }],
+    name: 'VersioningError',
+  },
+  {
+    type: 'error',
     inputs: [
       { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'startDate', internalType: 'uint256', type: 'uint256' },
@@ -197,6 +202,7 @@ export const entryPointAbi = [
         internalType: 'struct VotingPoolDataArgument',
         type: 'tuple',
         components: [
+          { name: 'versioning', internalType: 'uint256', type: 'uint256' },
           { name: 'title', internalType: 'string', type: 'string' },
           { name: 'description', internalType: 'string', type: 'string' },
           { name: 'merkleRootHash', internalType: 'bytes32', type: 'bytes32' },
