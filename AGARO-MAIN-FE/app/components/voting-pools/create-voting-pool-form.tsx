@@ -117,8 +117,9 @@ export function CreateVotingPoolForm() {
             <ChoicesArrayField form={form} />
 
             {/* Expiry Date Field */}
-            <form.AppField name="expiryDate">
-              {(field) => (
+            <form.AppField
+              name="expiryDate"
+              children={(field) => (
                 <field.DatePickerField
                   label="Expiry Date"
                   placeholder="Select when voting ends"
@@ -127,23 +128,27 @@ export function CreateVotingPoolForm() {
                   fromDate={new Date()} // Can't select past dates
                 />
               )}
-            </form.AppField>
+            />
 
             {/* Private Pool Switch */}
-            <form.AppField name="isPrivate">
-              {(field) => (
+            <form.AppField
+              name="isPrivate"
+              children={(field) => (
                 <field.SwitchField
                   label="Private Pool"
                   description="Enable to restrict voting to specific wallet addresses only"
                   disabled={isSubmitting}
                 />
               )}
-            </form.AppField>
+            />
 
             {/* Allowed Addresses - Only shown when isPrivate is true */}
-            <form.Subscribe selector={(state) => state.values.isPrivate}>
-              {(show) => show && <AllowedAddressesField form={form} />}
-            </form.Subscribe>
+            <form.Subscribe
+              selector={(state) => state.values.isPrivate}
+              children={(isEnablePrivate) =>
+                isEnablePrivate && <AllowedAddressesField form={form} />
+              }
+            />
 
             {/* Submit Button */}
             <div className="flex items-center gap-4 pt-4">

@@ -6,8 +6,6 @@
  * Includes off-chain hash computation and on-chain verification.
  * Handles Merkle root generation for private pools.
  */
-import keccak256 from 'keccak256';
-import { MerkleTree } from 'merkletreejs';
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
@@ -16,6 +14,7 @@ import {
   useWatchEntryPointVotingPoolCreatedEvent,
   useWriteEntryPointNewVotingPool,
 } from '~/lib/web3/contracts/generated';
+import { generateMerkleRoot } from '~/lib/web3/utils';
 import { createVotingPoolData, getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
 
 import { useEffect, useRef, useState } from 'react';
@@ -89,7 +88,7 @@ export function useCreateVotingPool() {
         }
 
         // Verify version matches (optional but recommended)
-        if (eventVersion !== version) {
+        if (eventVersion === version) {
           return;
         }
 
@@ -116,23 +115,6 @@ export function useCreateVotingPool() {
   });
 
   /**
-   * Generate Merkle root hash from allowed addresses
-   * This is done off-chain to minimize gas fees
-   */
-  const generateMerkleRoot = (addresses: string[]): `0x${string}` => {
-    // Hash each address using keccak256
-    const leaves = addresses.map((addr) => keccak256(addr));
-
-    // Create merkle tree with sorted pairs
-    const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
-
-    // Get the root hash
-    const root = tree.getHexRoot() as `0x${string}`;
-
-    return root;
-  };
-
-  /**
    * Create a new voting pool
    * @param poolData - The voting pool data containing title, description, candidates, expiry, privacy settings, and allowed addresses
    */
@@ -153,7 +135,7 @@ export function useCreateVotingPool() {
       return;
     }
 
-    if (!version) {
+    if (typeof version === 'undefined') {
       toast.error('Could not fetch contract version');
       return;
     }
@@ -171,15 +153,24 @@ export function useCreateVotingPool() {
         merkleRootHash = generateMerkleRoot(poolData.allowedAddresses);
       }
 
-      // Compute off-chain hash before submission
-      const fullPoolData = createVotingPoolData({
+      // Convert candidatesTotal to uint8 format
+      const candidatesTotalUint8 = poolData.candidatesTotal as unknown as number;
+
+      const args = {
         title: poolData.title,
         description: poolData.description,
-        candidates: poolData.candidates,
-        allowedAddresses: poolData.allowedAddresses,
-        expiryDate: poolData.expiryDate,
+        merkleRootHash,
         isPrivate: poolData.isPrivate,
-      });
+        candidates: poolData.candidates,
+        candidatesTotal: candidatesTotalUint8,
+        expiry: {
+          startDate: BigInt(now),
+          endDate: BigInt(endDate),
+        },
+      };
+
+      // Compute off-chain hash before submission
+      const fullPoolData = createVotingPoolData(args);
 
       const computedHash = getVotingPoolHash(fullPoolData, version, walletAddress);
 
@@ -187,28 +178,13 @@ export function useCreateVotingPool() {
       setOffChainHash(computedHash);
       offChainHashRef.current = computedHash;
 
-      // Convert candidatesTotal to uint8 format
-      const candidatesTotalUint8 = poolData.candidatesTotal as unknown as number;
-
       // Submit to blockchain
       writeContract({
         address: contractAddress,
-        args: [
-          {
-            title: poolData.title,
-            description: poolData.description,
-            merkleRootHash,
-            isPrivate: poolData.isPrivate,
-            candidates: poolData.candidates,
-            candidatesTotal: candidatesTotalUint8,
-            expiry: {
-              startDate: BigInt(now),
-              endDate: BigInt(endDate),
-            },
-          },
-        ],
+        args: [args],
       });
     } catch (error) {
+      console.error('🔄 Error:', error);
       toast.error('Failed to create pool', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });

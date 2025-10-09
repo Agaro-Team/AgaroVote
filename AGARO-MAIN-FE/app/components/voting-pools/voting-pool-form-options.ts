@@ -66,6 +66,12 @@ const votingPoolSchema = z
         if (!isAddress(validAddresses[i])) {
           ctx.addIssue({
             code: 'custom',
+            message: `Address not a valid Ethereum address`,
+            path: ['allowedAddresses', i],
+          });
+
+          ctx.addIssue({
+            code: 'custom',
             message: `Address ${i + 1} is not a valid Ethereum address`,
             path: ['allowedAddresses'],
           });
@@ -92,14 +98,12 @@ const defaultValues: CreateVotingPoolFormData = {
   choices: ['', ''],
   expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
   isPrivate: false,
-  allowedAddresses: [],
+  allowedAddresses: [''],
 };
 
 export const votingPoolFormOptions = formOptions({
   defaultValues,
-  validationLogic: revalidateLogic({
-    modeAfterSubmission: 'blur',
-  }),
+  validationLogic: revalidateLogic(),
   validators: {
     onDynamic: votingPoolSchema,
   },

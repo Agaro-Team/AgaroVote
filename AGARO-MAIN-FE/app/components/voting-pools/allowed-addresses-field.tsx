@@ -16,7 +16,7 @@ import { votingPoolFormOptions } from './voting-pool-form-options';
 export const AllowedAddressesField = withForm({
   ...votingPoolFormOptions,
   render: ({ form }) => {
-    const hasError = form.state.errorMap?.onDynamic?.length || false;
+    const hasError = form.state.errors.length || false;
     const addresses = form.state.values.allowedAddresses || [];
 
     return (
@@ -50,15 +50,19 @@ export const AllowedAddressesField = withForm({
                     name={`allowedAddresses[${index}]`}
                     children={(subField) => (
                       <div className="flex gap-2 items-start">
-                        <Input
-                          id={`allowedAddresses.${index}`}
-                          name={`allowedAddresses.${index}`}
-                          value={subField.state.value}
-                          onChange={(e) => subField.handleChange((prev) => e.target.value)}
-                          onBlur={subField.handleBlur}
-                          aria-invalid={subField.state.meta.errors.length > 0}
-                          placeholder="0x..."
-                        />
+                        <Field>
+                          <Input
+                            id={`allowedAddresses.${index}`}
+                            name={`allowedAddresses.${index}`}
+                            value={subField.state.value}
+                            onChange={(e) => subField.handleChange((prev) => e.target.value)}
+                            onBlur={subField.handleBlur}
+                            aria-invalid={subField.state.meta.errors.length > 0}
+                            placeholder="0x..."
+                          />
+
+                          <FieldError>{subField.state.meta.errors?.[index]?.message}</FieldError>
+                        </Field>
 
                         <Button
                           type="button"
@@ -83,7 +87,7 @@ export const AllowedAddressesField = withForm({
                 </FieldDescription>
               )}
               <FieldError
-                errors={field.state.meta.errorMap?.onDynamic?.map((error) => ({
+                errors={field.state.meta.errors.map((error) => ({
                   message: error?.message,
                 }))}
               />

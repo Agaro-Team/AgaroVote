@@ -49,7 +49,7 @@ export const ChoicesArrayField = withForm({
                           variant="outline"
                           size="icon"
                           onClick={() => field.removeValue(index)}
-                          disabled={field.state.value.length <= 1}
+                          disabled={field.state.value.length <= 2}
                           aria-label={`Remove choice ${index + 1}`}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -60,7 +60,7 @@ export const ChoicesArrayField = withForm({
                 ))}
               </div>
 
-              {field.state.meta.errorMap?.onDynamic?.map((error, index) => (
+              {field.state.meta.errors?.map((error, index) => (
                 <FieldError key={index}>{error?.message}</FieldError>
               ))}
             </div>
