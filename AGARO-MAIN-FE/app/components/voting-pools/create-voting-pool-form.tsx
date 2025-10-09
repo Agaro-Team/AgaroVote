@@ -31,16 +31,6 @@ export function CreateVotingPoolForm() {
         return;
       }
 
-      // Validate addresses for private pools
-      let validAddresses: string[] = [];
-      if (value.isPrivate) {
-        validAddresses = (value.allowedAddresses || []).filter((addr) => addr.trim() !== '');
-        if (validAddresses.length === 0) {
-          toast.error('Please add at least 1 valid address for private pool');
-          return;
-        }
-      }
-
       // Create the pool with all required data
       // Note: Smart contract still uses "candidates" terminology
       createPool({
@@ -50,7 +40,7 @@ export function CreateVotingPoolForm() {
         candidatesTotal: validChoices.length,
         expiryDate: value.expiryDate!,
         isPrivate: value.isPrivate,
-        allowedAddresses: validAddresses,
+        allowedAddresses: value.allowedAddresses.filter((addr) => addr.trim() !== ''),
       });
     },
   });
