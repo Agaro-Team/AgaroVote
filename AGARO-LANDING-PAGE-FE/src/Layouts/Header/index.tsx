@@ -23,13 +23,14 @@ function Index() {
   }, []);
 
   const NavMenu = [
-    { id: 1, label: 'Main', to: 'main' },
-    { id: 2, label: 'Second', to: 'second' },
-    { id: 3, label: 'About', route: '/about' },
+    { id: 1, label: 'Section', to: 'main' },
+    { id: 2, label: 'Hot It Work', to: 'second' },
+    { id: 4, label: 'FAQ', to: 'third' },
+    { id: 5, label: 'About', route: '/about' },
   ];
 
   return isMobile ? (
-    <MobileHeader isScrolled={isScrolled} />
+    <MobileHeader isScrolled={isScrolled} NavMenu={NavMenu} />
   ) : (
     <DesktopHeader isScrolled={isScrolled} NavMenu={NavMenu} />
   );

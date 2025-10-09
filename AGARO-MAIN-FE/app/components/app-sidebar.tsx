@@ -1,20 +1,12 @@
 import {
   AudioWaveform,
-  Award,
-  BadgeCheck,
-  BookOpen,
-  Building2,
-  Coins,
   Command,
   GalleryVerticalEnd,
   History,
   LayoutDashboard,
-  Settings2,
-  Shield,
   Vote,
 } from 'lucide-react';
 import { NavMain } from '~/components/nav-main';
-import { NavProjects } from '~/components/nav-projects';
 import { NavUser } from '~/components/nav-user';
 import { TeamSwitcher } from '~/components/team-switcher';
 import {
@@ -62,14 +54,14 @@ const data = {
           title: 'Overview',
           url: '/dashboard',
         },
-        {
-          title: 'My Activity',
-          url: '/dashboard/activity',
-        },
-        {
-          title: 'Analytics',
-          url: '/dashboard/analytics',
-        },
+        // {
+        //   title: 'My Activity',
+        //   url: '/dashboard/activity',
+        // },
+        // {
+        //   title: 'Analytics',
+        //   url: '/dashboard/analytics',
+        // },
       ],
     },
     {
@@ -78,20 +70,12 @@ const data = {
       icon: Vote,
       items: [
         {
-          title: 'Browse All',
-          url: '/dashboard/voting-pools',
-        },
-        {
-          title: 'Active Polls',
-          url: '/dashboard/voting-pools/active',
-        },
-        {
-          title: 'Completed',
-          url: '/dashboard/voting-pools/completed',
-        },
-        {
           title: 'Create New',
           url: '/dashboard/voting-pools/create',
+        },
+        {
+          title: 'Browse All',
+          url: '/dashboard/voting-pools',
         },
       ],
     },
@@ -108,117 +92,113 @@ const data = {
           title: 'Pending Votes',
           url: '/my-votes/pending',
         },
-        {
-          title: 'Participated',
-          url: '/my-votes/participated',
-        },
       ],
     },
-    {
-      title: 'Rewards & Staking',
-      url: '/rewards',
-      icon: Coins,
-      items: [
-        {
-          title: 'My Rewards',
-          url: '/rewards',
-        },
-        {
-          title: 'Claim Rewards',
-          url: '/rewards/claim',
-        },
-        {
-          title: 'Staking Pool',
-          url: '/rewards/staking',
-        },
-        {
-          title: 'Reward History',
-          url: '/rewards/history',
-        },
-      ],
-    },
-    {
-      title: 'Verification',
-      url: '/verification',
-      icon: Shield,
-      items: [
-        {
-          title: 'Blockchain Explorer',
-          url: '/verification/explorer',
-        },
-        {
-          title: 'Vote Verification',
-          url: '/verification/votes',
-        },
-        {
-          title: 'Transaction History',
-          url: '/verification/transactions',
-        },
-      ],
-    },
-    {
-      title: 'Documentation',
-      url: '/docs',
-      icon: BookOpen,
-      items: [
-        {
-          title: 'Getting Started',
-          url: '/docs',
-        },
-        {
-          title: 'How to Vote',
-          url: '/docs/voting',
-        },
-        {
-          title: 'Voting Models',
-          url: '/docs/models',
-        },
-        {
-          title: 'FAQ',
-          url: '/docs/faq',
-        },
-      ],
-    },
-    {
-      title: 'Settings',
-      url: '/settings',
-      icon: Settings2,
-      items: [
-        {
-          title: 'Profile',
-          url: '/settings',
-        },
-        {
-          title: 'Wallet',
-          url: '/settings/wallet',
-        },
-        {
-          title: 'Notifications',
-          url: '/settings/notifications',
-        },
-        {
-          title: 'Security',
-          url: '/settings/security',
-        },
-      ],
-    },
+    // {
+    //   title: 'Rewards & Staking',
+    //   url: '/rewards',
+    //   icon: Coins,
+    //   items: [
+    //     {
+    //       title: 'My Rewards',
+    //       url: '/rewards',
+    //     },
+    //     {
+    //       title: 'Claim Rewards',
+    //       url: '/rewards/claim',
+    //     },
+    //     {
+    //       title: 'Staking Pool',
+    //       url: '/rewards/staking',
+    //     },
+    //     {
+    //       title: 'Reward History',
+    //       url: '/rewards/history',
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: 'Verification',
+    //   url: '/verification',
+    //   icon: Shield,
+    //   items: [
+    //     {
+    //       title: 'Blockchain Explorer',
+    //       url: '/verification/explorer',
+    //     },
+    //     {
+    //       title: 'Vote Verification',
+    //       url: '/verification/votes',
+    //     },
+    //     {
+    //       title: 'Transaction History',
+    //       url: '/verification/transactions',
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: 'Documentation',
+    //   url: '/docs',
+    //   icon: BookOpen,
+    //   items: [
+    //     {
+    //       title: 'Getting Started',
+    //       url: '/docs',
+    //     },
+    //     {
+    //       title: 'How to Vote',
+    //       url: '/docs/voting',
+    //     },
+    //     {
+    //       title: 'Voting Models',
+    //       url: '/docs/models',
+    //     },
+    //     {
+    //       title: 'FAQ',
+    //       url: '/docs/faq',
+    //     },
+    //   ],
+    // },
+    // {
+    //   title: 'Settings',
+    //   url: '/settings',
+    //   icon: Settings2,
+    //   items: [
+    //     {
+    //       title: 'Profile',
+    //       url: '/settings',
+    //     },
+    //     {
+    //       title: 'Wallet',
+    //       url: '/settings/wallet',
+    //     },
+    //     {
+    //       title: 'Notifications',
+    //       url: '/settings/notifications',
+    //     },
+    //     {
+    //       title: 'Security',
+    //       url: '/settings/security',
+    //     },
+    //   ],
+    // },
   ],
   projects: [
-    {
-      name: 'National Election 2025',
-      url: '/organizations/election-2025',
-      icon: Award,
-    },
-    {
-      name: 'DAO Governance',
-      url: '/organizations/dao',
-      icon: Building2,
-    },
-    {
-      name: 'Community Votes',
-      url: '/organizations/community',
-      icon: BadgeCheck,
-    },
+    // {
+    //   name: 'National Election 2025',
+    //   url: '/organizations/election-2025',
+    //   icon: Award,
+    // },
+    // {
+    //   name: 'DAO Governance',
+    //   url: '/organizations/dao',
+    //   icon: Building2,
+    // },
+    // {
+    //   name: 'Community Votes',
+    //   url: '/organizations/community',
+    //   icon: BadgeCheck,
+    // },
   ],
 };
 
@@ -230,7 +210,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
+        {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={data.user} />

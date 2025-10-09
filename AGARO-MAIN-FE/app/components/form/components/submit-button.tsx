@@ -31,11 +31,11 @@ export function SubmitButton({
   const form = useFormContext();
 
   return (
-    <form.Subscribe selector={(state) => ({ isSubmitting: state.isSubmitting })}>
-      {({ isSubmitting }) => (
+    <form.Subscribe selector={(state) => [state.canSubmit, state.isSubmitting]}>
+      {([canSubmit, isSubmitting]) => (
         <Button
           type="submit"
-          disabled={disabled || isSubmitting}
+          disabled={disabled || isSubmitting || !canSubmit}
           className={className}
           variant={variant}
           size={size}

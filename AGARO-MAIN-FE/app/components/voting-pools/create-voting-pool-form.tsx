@@ -6,55 +6,22 @@
  */
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
-import { z } from 'zod';
 import { useAppForm } from '~/components/form/use-app-form';
 import { Card } from '~/components/ui/card';
 import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
 
 import { useEffect } from 'react';
 
+import { AllowedAddressesField } from './allowed-addresses-field';
 import { ChoicesArrayField } from './choices-array-field';
-
-/**
- * Zod Schema for Voting Pool Form Validation
- */
-const votingPoolSchema = z.object({
-  title: z
-    .string()
-    .min(1, 'Title is required')
-    .max(200, 'Title must be 200 characters or less')
-    .refine((val) => val.trim().length > 0, 'Title cannot be empty'),
-  description: z
-    .string()
-    .min(1, 'Description is required')
-    .max(1000, 'Description must be 1000 characters or less')
-    .refine((val) => val.trim().length > 0, 'Description cannot be empty'),
-  choices: z
-    .array(z.string())
-    .min(2, 'At least 2 choices are required')
-    .refine(
-      (choices) => choices.filter((c) => c.trim() !== '').length >= 2,
-      'At least 2 choices must have names'
-    )
-    .refine((choices) => {
-      const nonEmpty = choices.filter((c) => c.trim() !== '');
-      const unique = new Set(nonEmpty.map((c) => c.trim().toLowerCase()));
-      return unique.size === nonEmpty.length;
-    }, 'Choice names must be unique'),
-});
-
-type CreateVotingPoolFormData = z.infer<typeof votingPoolSchema>;
+import { votingPoolFormOptions } from './voting-pool-form-options';
 
 export function CreateVotingPoolForm() {
   const navigate = useNavigate();
   const { createPool, isPending, isConfirming, isSuccess, error, txHash } = useCreateVotingPool();
 
   const form = useAppForm({
-    defaultValues: {
-      title: '',
-      description: '',
-      choices: ['', ''], // Start with 2 empty choices
-    } satisfies CreateVotingPoolFormData,
+    ...votingPoolFormOptions,
     onSubmit: async ({ value }) => {
       // Validate choices
       const validChoices = value.choices.filter((c) => c.trim() !== '');
@@ -64,13 +31,16 @@ export function CreateVotingPoolForm() {
         return;
       }
 
-      // Create the pool with candidatesTotal calculated
+      // Create the pool with all required data
       // Note: Smart contract still uses "candidates" terminology
       createPool({
         title: value.title,
         description: value.description,
         candidates: validChoices, // Map "choices" to "candidates" for contract
         candidatesTotal: validChoices.length,
+        expiryDate: value.expiryDate!,
+        isPrivate: value.isPrivate,
+        allowedAddresses: value.allowedAddresses.filter((addr) => addr.trim() !== ''),
       });
     },
   });
@@ -109,15 +79,7 @@ export function CreateVotingPoolForm() {
         >
           <div className="space-y-6">
             {/* Title Field */}
-            <form.AppField
-              name="title"
-              validators={{
-                onChange: ({ value }) => {
-                  const result = votingPoolSchema.shape.title.safeParse(value);
-                  return result.success ? undefined : result.error.issues[0]?.message;
-                },
-              }}
-            >
+            <form.AppField name="title">
               {(field) => (
                 <field.TextField
                   label="Title"
@@ -129,15 +91,7 @@ export function CreateVotingPoolForm() {
             </form.AppField>
 
             {/* Description Field */}
-            <form.AppField
-              name="description"
-              validators={{
-                onChange: ({ value }) => {
-                  const result = votingPoolSchema.shape.description.safeParse(value);
-                  return result.success ? undefined : result.error.issues[0]?.message;
-                },
-              }}
-            >
+            <form.AppField name="description">
               {(field) => (
                 <field.TextareaField
                   label="Description"
@@ -150,24 +104,36 @@ export function CreateVotingPoolForm() {
             </form.AppField>
 
             {/* Choices Array Field */}
+            <ChoicesArrayField form={form} />
+
+            {/* Expiry Date Field */}
             <form.AppField
-              name="choices"
-              validators={{
-                onChange: ({ value }) => {
-                  const result = votingPoolSchema.shape.choices.safeParse(value);
-                  return result.success ? undefined : result.error.issues[0]?.message;
-                },
-              }}
-            >
-              {(field) => (
-                <ChoicesArrayField
-                  choices={field.state.value}
-                  onChange={field.handleChange}
-                  onBlur={field.handleBlur}
-                  errors={field.state.meta.errors as string[]}
+              name="expiryDate"
+              children={(field) => (
+                <field.DatePickerField
+                  label="Expiry Date"
+                  placeholder="Select when voting ends"
+                  description="Choose the date and time when voting will close"
+                  disabled={isSubmitting}
+                  fromDate={new Date()} // Can't select past dates
                 />
               )}
-            </form.AppField>
+            />
+
+            {/* Private Pool Switch */}
+            <form.AppField
+              name="isPrivate"
+              children={(field) => (
+                <field.SwitchField
+                  label="Private Pool"
+                  description="Set to true to restrict visibility"
+                  disabled={isSubmitting}
+                />
+              )}
+            />
+
+            {/* Allowed Addresses - Only shown when isPrivate is true */}
+            <AllowedAddressesField form={form} />
 
             {/* Submit Button */}
             <div className="flex items-center gap-4 pt-4">
