@@ -14,11 +14,10 @@ const votingPoolSchema = z
       .refine((val) => val.trim().length > 0, 'Title cannot be empty'),
     description: z
       .string()
-      .min(1, 'Description is required')
       .max(1000, 'Description must be 1000 characters or less')
       .refine((val) => val.trim().length > 0, 'Description cannot be empty'),
     choices: z
-      .array(z.string())
+      .array(z.string().min(1, 'Choice cannot be empty'))
       .min(2, 'At least 2 choices are required')
       .refine(
         (choices) => choices.filter((c) => c.trim() !== '').length >= 2,
