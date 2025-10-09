@@ -20,9 +20,7 @@ contract VotingPool is IVotingPool {
             address owner
         )
     {
-        if (!isContractValid(_poolHash)) {
-            revert PoolHashDoesNotExist(_poolHash);
-        }
+        if (!isContractValid(_poolHash)) revert PoolHashDoesNotExist(_poolHash);
 
         PoolData storage pool = pools[_poolHash];
         return (

@@ -20,13 +20,13 @@ contract VoterStorage is IVoterStorage {
         address voter,
         uint8 selected
     ) internal {
-        if (poolStorageVoters[storageLocation][voter].isVoted) {
+        if (poolStorageVoters[storageLocation][voter].isVoted)
             revert AlreadyVoted(
                 storageHashToPool[storageLocation],
                 storageLocation,
                 voter
             );
-        }
+
         poolStorageVoters[storageLocation][voter] = VoterData({
             selected: selected,
             isVoted: true
