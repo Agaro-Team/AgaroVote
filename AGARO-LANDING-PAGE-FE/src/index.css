@@ -3,4 +3,59 @@
 body {
   margin: 0;
   padding: 0;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Custom nav hover underline */
+.nav-link {
+  @apply relative text-left cursor-pointer;
+}
+
+.nav-link::after {
+  content: '';
+  @apply absolute left-0 right-0 -bottom-1 mx-auto w-0 h-[2px] bg-gray-400 transition-all duration-300;
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@layer base {
+  :root {
+    --primary-foreground: oklch(1 0 0);
+    --background: oklch(0.994 0 0);
+    --foreground: oklch(0 0 0);
+    --primary: oklch(0.5393 0.2713 286.7462);
+    --sidebar: oklch(0.9777 0.0051 247.8763);
+    --border: oklch(0.85 0 0);
+    --background-blur-nav: oklch(0.994 0 0 / 0.8);
+    --gradient-from: oklch(0.994 0 0);
+    --gradient-via: oklch(0 0 0 / 0.05);
+    --light-glow: oklch(0.2223 0.006 271.1393 / 0.8);
+
+  }
+
+  .dark {
+    --background: oklch(0.2223 0.006 271.1393);
+    --foreground: oklch(0.9551 0 0);
+    --primary: oklch(0.6132 0.2294 291.7437);
+    --sidebar: oklch(0.2011 0.0039 286.0396);
+    --background-blur-nav: oklch(0.2223 0.006 271.1393 / 0.8);
+    --border: oklch(0.35 0 0);
+    --gradient-from: oklch(0.2223 0.006 271.1393);
+    --gradient-from: oklch(0.2223 0.006 271.1393); 
+    --gradient-via: oklch(0.9551 0 0 / 0.05);
+    --light-glow: oklch(0.5393 0.2713 286.7462);
+
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
 }
