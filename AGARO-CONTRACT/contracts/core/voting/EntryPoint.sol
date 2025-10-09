@@ -19,6 +19,8 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
     }
 
     function newVotingPool(VotingPoolDataArgument calldata _poolData) external {
+        if (_poolData.versioning < version) revert VersioningError(_poolData.versioning);
+
         address merkleRootContract = address(0);
 
         if (_poolData.merkleRootHash != bytes32(0))

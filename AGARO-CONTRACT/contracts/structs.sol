@@ -2,6 +2,7 @@
 pragma solidity ^0.8.28;
 
 struct VotingPoolDataArgument {
+    uint256 versioning;
     string title;
     string description;
     bytes32 merkleRootHash;

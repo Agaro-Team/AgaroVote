@@ -13,6 +13,7 @@ interface IEntryPoint {
     );
 
     error AddressIsNotAllowed(address voter, bytes32 poolHash);
+    error VersioningError(uint256 version);
     error VotingIsNotActive(
         bytes32 poolHash,
         uint256 startDate,

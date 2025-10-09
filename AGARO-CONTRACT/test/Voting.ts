@@ -24,6 +24,7 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should create a voting pool and bind voter storage", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Test Voting Pool",
                 description: "A test voting pool for voting",
                 merkleRootHash: ethers.ZeroHash,
@@ -68,6 +69,7 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should initialize candidate vote counts to zero", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Vote Count Test",
                 description: "Testing initial vote counts",
                 merkleRootHash: ethers.ZeroHash,
@@ -107,6 +109,7 @@ describe("EntryPoint - Voting Functionality", function () {
         beforeEach(async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Voting Test Pool",
                 description: "Pool for testing voting",
                 merkleRootHash: ethers.ZeroHash,
@@ -258,6 +261,7 @@ describe("EntryPoint - Voting Functionality", function () {
             const now = Math.floor(Date.now() / 1000);
 
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Double Vote Test",
                 description: "Ensure voters cannot vote twice",
                 merkleRootHash: ethers.ZeroHash,
@@ -319,6 +323,7 @@ describe("EntryPoint - Voting Functionality", function () {
             const now = Math.floor(Date.now() / 1000);
 
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Private Pool",
                 description: "Merkle-based voting",
                 merkleRootHash: root,
@@ -365,6 +370,7 @@ describe("EntryPoint - Voting Functionality", function () {
             const now = Math.floor(Date.now() / 1000);
 
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Private Pool",
                 description: "Merkle-based voting",
                 merkleRootHash: root,
@@ -412,6 +418,7 @@ describe("EntryPoint - Voting Functionality", function () {
         beforeEach(async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Edge Case Pool",
                 description: "Pool for testing edge cases",
                 merkleRootHash: ethers.ZeroHash,
@@ -457,6 +464,7 @@ describe("EntryPoint - Voting Functionality", function () {
             const manyCandidates = Array.from({ length: 255 }, (_, i) => `Candidate ${i + 1}`);
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Max Candidates Pool",
                 description: "Pool with maximum candidates",
                 merkleRootHash: ethers.ZeroHash,
@@ -499,6 +507,7 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should handle empty pool gracefully", async function () {
             const now = Math.floor(Date.now() / 1000);
             const emptyPoolData = {
+                versioning: await entryPoint.version(),
                 title: "Empty Pool",
                 description: "Pool with no candidates",
                 merkleRootHash: ethers.ZeroHash,
@@ -541,6 +550,7 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should vote within reasonable gas limits", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Gas Test Pool",
                 description: "Testing gas consumption for voting",
                 merkleRootHash: ethers.ZeroHash,
@@ -582,6 +592,7 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should revert if voting before startDate", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Early Voting Pool",
                 description: "Voting should not be active yet",
                 merkleRootHash: ethers.ZeroHash,
@@ -627,6 +638,52 @@ describe("EntryPoint - Voting Functionality", function () {
         it("Should revert if voting after endDate", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
+                title: "Expired Voting Pool",
+                description: "Voting period has ended",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
+                candidates: ["Alice", "Bob"],
+                candidatesTotal: 2,
+                expiry: {
+                    startDate: now - 7200, // started 2 hours ago
+                    endDate: now - 3600,   // ended 1 hour ago
+                },
+            };
+
+            const tx = await entryPoint.newVotingPool(poolData);
+            const receipt = await tx.wait();
+
+            const votingPoolEvent = receipt.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPoolCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const poolHash = votingPoolEvent?.topics[2];
+            expect(poolHash).to.not.be.undefined;
+
+            const voteData = {
+                poolHash,
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash],
+            };
+
+            await expect(entryPoint.connect(voter1).vote(voteData))
+                .to.be.revertedWithCustomError(entryPoint, "VotingIsNotActive")
+                .withArgs(
+                    poolHash,
+                    poolData.expiry.startDate,
+                    poolData.expiry.endDate
+                );
+        });
+        it("Should revert if version does not match", async function () {
+            const now = Math.floor(Date.now() / 1000);
+            const poolData = {
+                versioning: await entryPoint.version() + 1n,
                 title: "Expired Voting Pool",
                 description: "Voting period has ended",
                 merkleRootHash: ethers.ZeroHash,

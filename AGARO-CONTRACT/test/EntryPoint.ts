@@ -29,6 +29,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         it("Should create a private voting pool without emitting VotingPoolCreated event", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Private Voting Pool",
                 description: "Only whitelisted voters can participate",
                 merkleRootHash: ethers.ZeroHash,
@@ -60,6 +61,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         it("Should create a voting pool with specified candidates", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Test Voting Pool",
                 description: "A test voting pool for testing purposes",
                 merkleRootHash: ethers.ZeroHash,
@@ -83,6 +85,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         it("Should increment version after creating a pool", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Test Pool",
                 description: "Test Description",
                 merkleRootHash: ethers.ZeroHash,
@@ -103,6 +106,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         it("Should create multiple pools with different candidate counts", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData1 = {
+                versioning: await entryPoint.version(),
                 title: "Pool 1",
                 description: "First pool with 2 candidates",
                 merkleRootHash: ethers.ZeroHash,
@@ -116,6 +120,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
             };
 
             const poolData2 = {
+                versioning: await entryPoint.version() + 1n,
                 title: "Pool 2",
                 description: "Second pool with 5 candidates",
                 merkleRootHash: ethers.ZeroHash,
@@ -138,6 +143,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const candidates = Array.from({ length: 10 }, (_, i) => `Candidate ${i + 1}`);
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Many Candidates Pool",
                 description: "Pool with many candidates",
                 merkleRootHash: ethers.ZeroHash,
@@ -157,6 +163,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         it("Should create pool with zero candidates", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Zero Candidates Pool",
                 description: "Pool with no candidates",
                 merkleRootHash: ethers.ZeroHash,
@@ -177,6 +184,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const candidates = Array.from({ length: 255 }, (_, i) => `Candidate ${i + 1}`);
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Max Candidates Pool",
                 description: "Pool with maximum candidates",
                 merkleRootHash: ethers.ZeroHash,
@@ -197,6 +205,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const [voter] = await hardhatEthers.getSigners();
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Public Pool",
                 description: "Anyone can create pools",
                 merkleRootHash: ethers.ZeroHash,
@@ -216,6 +225,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         it("Should create pool within reasonable gas limits", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Gas Test Pool",
                 description: "Testing gas consumption",
                 merkleRootHash: ethers.ZeroHash,
@@ -237,6 +247,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         it("Should validate contract existence correctly", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData = {
+                versioning: await entryPoint.version(),
                 title: "Validation Test Pool",
                 description: "Testing contract validation",
                 merkleRootHash: ethers.ZeroHash,
@@ -273,6 +284,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
         it("Should validate multiple pools correctly", async function () {
             const now = Math.floor(Date.now() / 1000);
             const poolData1 = {
+                versioning: await entryPoint.version(),
                 title: "Pool 1",
                 description: "First pool for validation",
                 merkleRootHash: ethers.ZeroHash,
@@ -286,6 +298,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
             };
 
             const poolData2 = {
+                versioning: await entryPoint.version() + 1n,
                 title: "Pool 2",
                 description: "Second pool for validation",
                 merkleRootHash: ethers.ZeroHash,
