@@ -3,17 +3,13 @@ import { type Address, encodeAbiParameters, keccak256, parseAbiParameters } from
 /**
  * Voting Pool Data structure matching Solidity's VotingPoolDataArgument
  */
-export interface VotingPoolData {
+export interface VotingData {
   title: string;
   description: string;
   candidates: string[];
-  candidatesTotal: number; // uint8 in Solidity
-  merkleRootHash: `0x${string}`;
-  expiry: {
-    startDate: bigint;
-    endDate: bigint;
-  };
-  isPrivate: boolean;
+  candidatesTotal: number;
+  version: bigint;
+  owner: Address;
 }
 
 /**
@@ -34,7 +30,7 @@ export interface VotingPoolData {
  * @returns Encoded bytes as hex string
  */
 export function encodeVotingPoolData(
-  poolData: VotingPoolData,
+  poolData: VotingData,
   version: bigint,
   owner: Address
 ): `0x${string}` {
@@ -52,14 +48,12 @@ export function encodeVotingPoolData(
 
   // Encode using the same order as Solidity: title, description, candidates, candidatesTotal, version, owner
   const encoded = encodeAbiParameters(
-    parseAbiParameters('string, string, bytes32, string[], uint8, bool, uint256, address'),
+    parseAbiParameters('string, string, string[], uint8, uint256, address'),
     [
       poolData.title,
       poolData.description,
-      poolData.merkleRootHash,
       poolData.candidates,
       poolData.candidatesTotal,
-      poolData.isPrivate,
       version,
       owner,
     ]
@@ -99,27 +93,10 @@ export function encodeVotingPoolData(
  * ```
  */
 export function getVotingPoolHash(
-  poolData: VotingPoolData,
+  poolData: VotingData,
   version: bigint,
   owner: Address
 ): `0x${string}` {
   const encoded = encodeVotingPoolData(poolData, version, owner);
   return keccak256(encoded);
-}
-
-/**
- * Helper to create VotingPoolData with auto-calculated candidatesTotal
- *
- * @example
- * ```ts
- * const poolData = createVotingPoolData({
- *   title: "Best Framework",
- *   description: "Choose your favorite",
- *   candidates: ["React", "Vue", "Svelte"]
- * });
- * // candidatesTotal is automatically set to 3
- * ```
- */
-export function createVotingPoolData(data: VotingPoolData): VotingPoolData {
-  return data;
 }

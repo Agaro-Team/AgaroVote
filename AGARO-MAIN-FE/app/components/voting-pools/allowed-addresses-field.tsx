@@ -17,7 +17,6 @@ export const AllowedAddressesField = withForm({
   ...votingPoolFormOptions,
   render: ({ form }) => {
     const hasError = form.state.errors.length || false;
-    const addresses = form.state.values.allowedAddresses || [];
 
     return (
       <form.AppField
@@ -29,7 +28,7 @@ export const AllowedAddressesField = withForm({
               <div className="flex items-center justify-between">
                 <FieldLabel htmlFor={field.name}>
                   Allowed Addresses{' '}
-                  <span className="text-muted-foreground">({addresses.length} total)</span>
+                  <span className="text-muted-foreground">({field.state.value.length} total)</span>
                 </FieldLabel>
                 <Button
                   type="button"
@@ -69,7 +68,6 @@ export const AllowedAddressesField = withForm({
                           variant="outline"
                           size="icon"
                           onClick={() => field.removeValue(index)}
-                          disabled={field.state.value.length <= 1}
                           aria-label={`Remove address ${index + 1}`}
                         >
                           <Trash2 className="h-4 w-4" />

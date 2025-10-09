@@ -15,7 +15,7 @@ import {
   useWriteEntryPointNewVotingPool,
 } from '~/lib/web3/contracts/generated';
 import { generateMerkleRoot } from '~/lib/web3/utils';
-import { createVotingPoolData, getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
+import { getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
 
 import { useEffect, useRef, useState } from 'react';
 
@@ -149,7 +149,7 @@ export function useCreateVotingPool() {
       let merkleRootHash: `0x${string}` =
         '0x0000000000000000000000000000000000000000000000000000000000000000';
 
-      if (poolData.isPrivate && poolData.allowedAddresses.length > 0) {
+      if (poolData.allowedAddresses.length > 0) {
         merkleRootHash = generateMerkleRoot(poolData.allowedAddresses);
       }
 
@@ -169,10 +169,17 @@ export function useCreateVotingPool() {
         },
       };
 
-      // Compute off-chain hash before submission
-      const fullPoolData = createVotingPoolData(args);
+      const targetHashedPayload = {
+        title: poolData.title,
+        description: poolData.description,
+        candidates: poolData.candidates,
+        candidatesTotal: candidatesTotalUint8,
+        version,
+        owner: walletAddress,
+      };
 
-      const computedHash = getVotingPoolHash(fullPoolData, version, walletAddress);
+      // Compute off-chain hash before submission
+      const computedHash = getVotingPoolHash(targetHashedPayload, version, walletAddress);
 
       // Store hash for later verification
       setOffChainHash(computedHash);

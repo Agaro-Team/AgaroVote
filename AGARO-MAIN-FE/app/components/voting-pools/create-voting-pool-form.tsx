@@ -136,19 +136,14 @@ export function CreateVotingPoolForm() {
               children={(field) => (
                 <field.SwitchField
                   label="Private Pool"
-                  description="Enable to restrict voting to specific wallet addresses only"
+                  description="Set to true to restrict visibility"
                   disabled={isSubmitting}
                 />
               )}
             />
 
             {/* Allowed Addresses - Only shown when isPrivate is true */}
-            <form.Subscribe
-              selector={(state) => state.values.isPrivate}
-              children={(isEnablePrivate) =>
-                isEnablePrivate && <AllowedAddressesField form={form} />
-              }
-            />
+            <AllowedAddressesField form={form} />
 
             {/* Submit Button */}
             <div className="flex items-center gap-4 pt-4">

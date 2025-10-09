@@ -38,55 +38,34 @@ const votingPoolSchema = z
     allowedAddresses: z.array(z.string()),
   })
   .superRefine((data, ctx) => {
-    // If private, validate allowed addresses
-    if (data.isPrivate) {
-      if (!data.allowedAddresses || data.allowedAddresses.length === 0) {
+    // Validate each address
+    const validAddresses = data.allowedAddresses.filter((addr) => addr.trim() !== '');
+
+    // Check if all addresses are valid Ethereum addresses
+    for (let i = 0; i < validAddresses.length; i++) {
+      if (!isAddress(validAddresses[i])) {
         ctx.addIssue({
           code: 'custom',
-          message: 'At least 1 address is required for private pools',
-          path: ['allowedAddresses'],
+          message: `Address not a valid Ethereum address`,
+          path: ['allowedAddresses', i],
         });
-        return;
-      }
 
-      // Validate each address
-      const validAddresses = data.allowedAddresses.filter((addr) => addr.trim() !== '');
-
-      if (validAddresses.length === 0) {
         ctx.addIssue({
           code: 'custom',
-          message: 'At least 1 valid address is required for private pools',
-          path: ['allowedAddresses'],
-        });
-        return;
-      }
-
-      // Check if all addresses are valid Ethereum addresses
-      for (let i = 0; i < validAddresses.length; i++) {
-        if (!isAddress(validAddresses[i])) {
-          ctx.addIssue({
-            code: 'custom',
-            message: `Address not a valid Ethereum address`,
-            path: ['allowedAddresses', i],
-          });
-
-          ctx.addIssue({
-            code: 'custom',
-            message: `Address ${i + 1} is not a valid Ethereum address`,
-            path: ['allowedAddresses'],
-          });
-        }
-      }
-
-      // Check for duplicate addresses
-      const unique = new Set(validAddresses.map((addr) => addr.toLowerCase()));
-      if (unique.size !== validAddresses.length) {
-        ctx.addIssue({
-          code: 'custom',
-          message: 'Addresses must be unique',
+          message: `Address ${i + 1} is not a valid Ethereum address`,
           path: ['allowedAddresses'],
         });
       }
+    }
+
+    // Check for duplicate addresses
+    const unique = new Set(validAddresses.map((addr) => addr.toLowerCase()));
+    if (unique.size !== validAddresses.length) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Addresses must be unique',
+        path: ['allowedAddresses'],
+      });
     }
   });
 
@@ -98,7 +77,7 @@ const defaultValues: CreateVotingPoolFormData = {
   choices: ['', ''],
   expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
   isPrivate: false,
-  allowedAddresses: [''],
+  allowedAddresses: [],
 };
 
 export const votingPoolFormOptions = formOptions({
