@@ -63,25 +63,12 @@ export function useCreateVotingPool() {
 
   const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
     address: getEntryPointAddress(chainId),
-    query: {
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    },
   });
 
   // Wait for transaction confirmation
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
   });
-
-  // Refetch version after successful pool creation
-  // This is critical for replay attack prevention - version increments with each pool
-  useEffect(() => {
-    if (isSuccess) {
-      console.log('🔄 Refetching version for next pool creation (replay attack prevention)');
-      refetchVersion();
-    }
-  }, [isSuccess, refetchVersion]);
 
   // Watch for VotingPoolCreated event to verify hash
   useWatchEntryPointVotingPoolCreatedEvent({
@@ -142,11 +129,6 @@ export function useCreateVotingPool() {
     // Get the root hash
     const root = tree.getHexRoot() as `0x${string}`;
 
-    console.log('🌳 Merkle Tree Generated:', {
-      addresses: addresses.length,
-      root,
-    });
-
     return root;
   };
 
@@ -154,7 +136,7 @@ export function useCreateVotingPool() {
    * Create a new voting pool
    * @param poolData - The voting pool data containing title, description, candidates, expiry, privacy settings, and allowed addresses
    */
-  const createPool = (poolData: VotingPoolData) => {
+  const createPool = async (poolData: VotingPoolData) => {
     if (!chainId) {
       toast.error('No chain connected');
       return;
@@ -189,20 +171,14 @@ export function useCreateVotingPool() {
         merkleRootHash = generateMerkleRoot(poolData.allowedAddresses);
       }
 
-      console.log('📝 Creating pool with data:', {
-        title: poolData.title,
-        isPrivate: poolData.isPrivate,
-        merkleRootHash,
-        startDate: now,
-        endDate,
-        candidates: poolData.candidates.length,
-      });
-
       // Compute off-chain hash before submission
       const fullPoolData = createVotingPoolData({
         title: poolData.title,
         description: poolData.description,
         candidates: poolData.candidates,
+        allowedAddresses: poolData.allowedAddresses,
+        expiryDate: poolData.expiryDate,
+        isPrivate: poolData.isPrivate,
       });
 
       const computedHash = getVotingPoolHash(fullPoolData, version, walletAddress);
@@ -238,6 +214,15 @@ export function useCreateVotingPool() {
       });
     }
   };
+
+  // Refetch version after successful pool creation
+  // This is critical for replay attack prevention - version increments with each pool
+  useEffect(() => {
+    if (isSuccess) {
+      console.log('🔄 Refetching version for next pool creation (replay attack prevention)');
+      refetchVersion();
+    }
+  }, [isSuccess, refetchVersion]);
 
   return {
     createPool,

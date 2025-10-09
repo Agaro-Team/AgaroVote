@@ -37,6 +37,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className="" suppressHydrationWarning>
       <head>
+        <script src="https://unpkg.com/react-scan/dist/auto.global.js" />
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <Meta />
@@ -55,7 +56,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <div className="min-h-dvh">{children}</div>
         <ScrollRestoration />
         <Scripts />

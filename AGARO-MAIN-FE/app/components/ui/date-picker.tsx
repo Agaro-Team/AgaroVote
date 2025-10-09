@@ -125,10 +125,7 @@ export function DatePicker({
           onSelect={handleDateChange}
           disabled={disabled}
           fromDate={fromDate}
-          hidden={{
-            from: fromDate,
-            after: toDate,
-          }}
+          toDate={toDate}
           autoFocus
           {...calendarProps}
         />

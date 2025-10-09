@@ -7,6 +7,8 @@
 import { Field, FieldDescription, FieldError, FieldLabel } from '~/components/ui/field';
 import { Textarea } from '~/components/ui/textarea';
 
+import { useStore } from '@tanstack/react-form';
+
 import { useFieldContext } from '../form-context';
 
 interface TextareaFieldProps extends React.ComponentProps<'textarea'> {
@@ -28,7 +30,10 @@ export function TextareaField({
   ...props
 }: TextareaFieldProps) {
   const field = useFieldContext<string>();
-  const hasError = field.state.meta.errors.length > 0;
+  const errors = useStore(field.store, (state) =>
+    state.meta.errors.map((error) => ({ message: error.message }))
+  );
+  const hasError = errors.length > 0;
 
   return (
     <Field orientation={orientation} data-invalid={hasError}>
@@ -46,7 +51,9 @@ export function TextareaField({
         {...props}
       />
       {description && !hasError && <FieldDescription>{description}</FieldDescription>}
-      <FieldError errors={field.state.meta.errors.map((error) => ({ message: error }))} />
+      {errors.map((error, index) => (
+        <FieldError key={index}>{error.message}</FieldError>
+      ))}
     </Field>
   );
 }

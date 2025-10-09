@@ -8,6 +8,9 @@ export interface VotingPoolData {
   description: string;
   candidates: string[];
   candidatesTotal: number; // uint8 in Solidity
+  expiryDate: Date;
+  isPrivate: boolean;
+  allowedAddresses: string[];
 }
 
 /**
@@ -46,7 +49,7 @@ export function encodeVotingPoolData(
 
   // Encode using the same order as Solidity: title, description, candidates, candidatesTotal, version, owner
   const encoded = encodeAbiParameters(
-    parseAbiParameters('string, string, string[], uint8, uint256, address'),
+    parseAbiParameters('string, string, string[], uint8, uint256, address, bool, string[]'),
     [
       poolData.title,
       poolData.description,
@@ -54,6 +57,8 @@ export function encodeVotingPoolData(
       poolData.candidatesTotal,
       version,
       owner,
+      poolData.isPrivate,
+      poolData.allowedAddresses,
     ]
   );
 
