@@ -21,10 +21,10 @@ export class User extends BaseEntity {
   @Column({ type: 'varchar', length: 255 })
   password: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, name: 'first_name' })
   firstName: string;
 
-  @Column({ type: 'varchar', length: 255 })
+  @Column({ type: 'varchar', length: 255, name: 'last_name' })
   lastName: string;
 
   @Column({
@@ -41,7 +41,7 @@ export class User extends BaseEntity {
   })
   status: UserStatus;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ type: 'timestamp', nullable: true, name: 'last_login_at' })
   lastLoginAt?: Date;
 
   // Domain methods
