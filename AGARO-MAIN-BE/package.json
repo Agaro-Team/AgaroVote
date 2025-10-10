@@ -24,7 +24,8 @@
     "migration:run": "typeorm-ts-node-commonjs migration:run -d ormconfig.ts",
     "migration:revert": "typeorm-ts-node-commonjs migration:revert -d ormconfig.ts",
     "schema:sync": "typeorm-ts-node-commonjs schema:sync -d ormconfig.ts",
-    "schema:drop": "typeorm-ts-node-commonjs schema:drop -d ormconfig.ts"
+    "schema:drop": "typeorm-ts-node-commonjs schema:drop -d ormconfig.ts",
+    "ts:check": "tsc --noEmit"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
