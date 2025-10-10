@@ -2,9 +2,9 @@ import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import {
   USER_REPOSITORY,
   type IUserRepository,
-} from '../../domain/repositories/user-repository.interface';
-import { UpdateUserDto } from '../dto/update-user.dto';
-import { User } from '../../domain/entities/user.entity';
+} from '@modules/user/domain/repositories/user-repository.interface';
+import { UpdateUserDto } from '@modules/user/application/dto/update-user.dto';
+import { User } from '@modules/user/domain/entities/user.entity';
 
 @Injectable()
 export class UpdateUserUseCase {

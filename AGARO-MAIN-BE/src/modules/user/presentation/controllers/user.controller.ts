@@ -9,14 +9,14 @@ import {
   HttpCode,
   HttpStatus,
 } from '@nestjs/common';
-import { CreateUserDto } from '../../application/dto/create-user.dto';
-import { UpdateUserDto } from '../../application/dto/update-user.dto';
-import { UserResponseDto } from '../../application/dto/user-response.dto';
-import { CreateUserUseCase } from '../../application/use-cases/create-user.use-case';
-import { GetUserByIdUseCase } from '../../application/use-cases/get-user-by-id.use-case';
-import { GetAllUsersUseCase } from '../../application/use-cases/get-all-users.use-case';
-import { UpdateUserUseCase } from '../../application/use-cases/update-user.use-case';
-import { DeleteUserUseCase } from '../../application/use-cases/delete-user.use-case';
+import { CreateUserDto } from '@modules/user/application/dto/create-user.dto';
+import { UpdateUserDto } from '@modules/user/application/dto/update-user.dto';
+import { UserResponseDto } from '@modules/user/application/dto/user-response.dto';
+import { CreateUserUseCase } from '@modules/user/application/use-cases/create-user.use-case';
+import { GetUserByIdUseCase } from '@modules/user/application/use-cases/get-user-by-id.use-case';
+import { GetAllUsersUseCase } from '@modules/user/application/use-cases/get-all-users.use-case';
+import { UpdateUserUseCase } from '@modules/user/application/use-cases/update-user.use-case';
+import { DeleteUserUseCase } from '@modules/user/application/use-cases/delete-user.use-case';
 
 @Controller('users')
 export class UserController {

@@ -2,7 +2,7 @@ import { Injectable, Inject, NotFoundException } from '@nestjs/common';
 import {
   USER_REPOSITORY,
   type IUserRepository,
-} from '../../domain/repositories/user-repository.interface';
+} from '@modules/user/domain/repositories/user-repository.interface';
 
 @Injectable()
 export class DeleteUserUseCase {
