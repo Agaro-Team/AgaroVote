@@ -1,6 +1,14 @@
-type Gravatar @entity(immutable: false) {
+type VotingPool @entity(immutable: true) {
   id: ID!
-  owner: Bytes!
-  displayName: String!
-  imageUrl: String!
+  version: BigInt!
+  poolHash: Bytes!
+}
+
+type Vote @entity(immutable: true) {
+  id: ID!
+  poolHash: Bytes!
+  voter: Bytes!
+  candidateSelected: BigInt!
+  newPoolVoterHash: Bytes!
+  timestamp: BigInt!
 }

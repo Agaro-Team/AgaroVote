@@ -24,7 +24,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
             expect(await entryPoint.version()).to.equal(0);
         });
     });
-
+    
     describe("Voting Pool Creation", function () {
         it("Should create a private voting pool without emitting VotingPoolCreated event", async function () {
             const now = Math.floor(Date.now() / 1000);

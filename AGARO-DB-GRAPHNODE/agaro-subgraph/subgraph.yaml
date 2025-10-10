@@ -1,27 +1,36 @@
 specVersion: 0.0.4
-description: Gravatar for Ethereum
-repository: https://github.com/graphprotocol/graph-toolings
+description: EntryPoint Voting subgraph (local)
+repository: https://github.com/yourname/yourrepo
 schema:
   file: ./schema.graphql
+
 dataSources:
   - kind: ethereum/contract
-    name: Gravity
-    network: mainnet
+    name: EntryPoint
+    network: local
     source:
-      address: '0x2E645469f354BB4F5c8a05B3b30A929361cf77eC'
-      abi: Gravity
+      address: "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
+      abi: EntryPoint
+      startBlock: 0
     mapping:
       kind: ethereum/events
-      apiVersion: 0.0.6
+      apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
-        - Gravatar
+        - VotingPool
+        - Vote
       abis:
-        - name: Gravity
-          file: ./artifacts/contracts/Gravity.sol/GravatarRegistry.json
+        - name: EntryPoint
+          file: ../../AGARO-CONTRACT/artifacts/contracts/core/voting/EntryPoint.sol/EntryPoint.json
+        - name: VoterStorage
+          file: ../../AGARO-CONTRACT/artifacts/contracts/core/voting/VoterStorage.sol/VoterStorage.json
+        - name: VotingPool
+          file: ../../AGARO-CONTRACT/artifacts/contracts/core/voting/VotingPool.sol/VotingPool.json
+        - name: MerkleAllowList
+          file: ../../AGARO-CONTRACT/artifacts/contracts/core/MerkleRootStructure/MerkleAllowList.sol/MerkleAllowList.json
       eventHandlers:
-        - event: NewGravatar(uint256,address,string,string)
-          handler: handleNewGravatar
-        - event: UpdatedGravatar(uint256,address,string,string)
-          handler: handleUpdatedGravatar
+        - event: VotingPoolCreated(indexed uint256,indexed bytes32)
+          handler: handleVotingPoolCreated
+        - event: VoteSucceeded(indexed bytes32,indexed address,uint8,bytes32)
+          handler: handleVoteSucceeded
       file: ./src/mapping.ts
