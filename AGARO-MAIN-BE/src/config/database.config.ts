@@ -8,7 +8,14 @@ export default registerAs(
     host: process.env.DB_HOST || 'localhost',
     port: parseInt(process.env.DB_PORT || '5432', 10),
     username: process.env.DB_USERNAME || 'root',
-    password: process.env.DB_PASSWORD || 'root',
+    password: (() => {
+      if (!process.env.DB_PASSWORD) {
+        throw new Error(
+          'Database password (DB_PASSWORD) must be set in environment variables.',
+        );
+      }
+      return process.env.DB_PASSWORD;
+    })(),
     database: process.env.DB_NAME || 'agaro_vote_db',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
     synchronize: process.env.NODE_ENV !== 'production',
