@@ -44,6 +44,21 @@ Complete file structure and organization.
 - Module template
 - Layer breakdown
 
+### **6️⃣ [Module Generation](./06-MODULE-GENERATION.md)** ⚙️
+Learn how to generate new modules quickly.
+- NestJS CLI commands
+- Custom DDD generator
+- Complete CRUD generator ⚡
+- Step-by-step examples
+- Best practices
+
+### **📖 [Generator Example](./GENERATOR-EXAMPLE.md)** 💡
+See a complete example of the CRUD generator in action.
+- Real-world example
+- Before/after comparison
+- Customization guide
+- API testing examples
+
 ---
 
 ## 🚀 Quick Commands
@@ -60,6 +75,12 @@ yarn start:prod
 
 # Run tests
 yarn test
+
+# Generate complete CRUD module (⚡ Recommended)
+yarn generate:crud <module-name> <entity-name>
+
+# Generate module structure only
+yarn generate:module <module-name> <entity-name>
 
 # Database migrations
 yarn migration:generate src/database/migrations/MigrationName

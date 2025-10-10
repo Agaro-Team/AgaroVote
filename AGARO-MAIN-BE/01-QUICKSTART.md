@@ -88,6 +88,9 @@ yarn build         # Build for production
 yarn lint          # Check code quality
 yarn format        # Format code
 yarn test          # Run tests
+
+# Generate complete CRUD module
+yarn generate:crud poll poll
 ```
 
 ## 🐳 Docker Commands
