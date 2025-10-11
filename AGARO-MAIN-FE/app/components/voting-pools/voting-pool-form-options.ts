@@ -83,6 +83,6 @@ export const votingPoolFormOptions = formOptions({
   defaultValues,
   validationLogic: revalidateLogic(),
   validators: {
-    onDynamic: votingPoolSchema,
+    onChange: votingPoolSchema,
   },
 });
