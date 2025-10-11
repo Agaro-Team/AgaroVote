@@ -13,6 +13,8 @@ import {
 import { CreatePollDto } from '../../application/dto/create-poll.dto';
 import { UpdatePollDto } from '../../application/dto/update-poll.dto';
 import { PollResponseDto } from '../../application/dto/poll-response.dto';
+import { PollFilterDto } from '../../application/dto/poll-filter.dto';
+import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
 import { CreatePollUseCase } from '../../application/use-cases/create-poll.use-case';
 import { GetPollByIdUseCase } from '../../application/use-cases/get-poll-by-id.use-case';
 import { GetAllPollsUseCase } from '../../application/use-cases/get-all-polls.use-case';
@@ -22,6 +24,10 @@ import { GetPollsByCreatorUseCase } from '../../application/use-cases/get-polls-
 import { GetActivePollsUseCase } from '../../application/use-cases/get-active-polls.use-case';
 import { GetOngoingPollsUseCase } from '../../application/use-cases/get-ongoing-polls.use-case';
 import { CheckVotingEligibilityUseCase } from '../../application/use-cases/check-voting-eligibility.use-case';
+import { GetAllPollsPaginatedUseCase } from '../../application/use-cases/get-all-polls-paginated.use-case';
+import { GetActivePollsPaginatedUseCase } from '../../application/use-cases/get-active-polls-paginated.use-case';
+import { GetOngoingPollsPaginatedUseCase } from '../../application/use-cases/get-ongoing-polls-paginated.use-case';
+import { GetPollsByCreatorPaginatedUseCase } from '../../application/use-cases/get-polls-by-creator-paginated.use-case';
 
 @Controller('polls')
 export class PollController {
@@ -35,6 +41,10 @@ export class PollController {
     private readonly getActivePollsUseCase: GetActivePollsUseCase,
     private readonly getOngoingPollsUseCase: GetOngoingPollsUseCase,
     private readonly checkVotingEligibilityUseCase: CheckVotingEligibilityUseCase,
+    private readonly getAllPollsPaginatedUseCase: GetAllPollsPaginatedUseCase,
+    private readonly getActivePollsPaginatedUseCase: GetActivePollsPaginatedUseCase,
+    private readonly getOngoingPollsPaginatedUseCase: GetOngoingPollsPaginatedUseCase,
+    private readonly getPollsByCreatorPaginatedUseCase: GetPollsByCreatorPaginatedUseCase,
   ) {}
 
   @Post()
@@ -45,29 +55,51 @@ export class PollController {
   }
 
   @Get()
-  async findAll(): Promise<PollResponseDto[]> {
-    const polls = await this.getAllPollsUseCase.execute();
-    return polls.map((poll) => PollResponseDto.fromEntity(poll, false));
+  async findAll(
+    @Query() filters: PollFilterDto,
+  ): Promise<IPaginatedResult<PollResponseDto>> {
+    const result = await this.getAllPollsPaginatedUseCase.execute(filters);
+    return {
+      data: result.data.map((poll) => PollResponseDto.fromEntity(poll, true)),
+      meta: result.meta,
+    };
   }
 
   @Get('active')
-  async findActive(): Promise<PollResponseDto[]> {
-    const polls = await this.getActivePollsUseCase.execute();
-    return polls.map((poll) => PollResponseDto.fromEntity(poll, true));
+  async findActive(
+    @Query() filters: PollFilterDto,
+  ): Promise<IPaginatedResult<PollResponseDto>> {
+    const result = await this.getActivePollsPaginatedUseCase.execute(filters);
+    return {
+      data: result.data.map((poll) => PollResponseDto.fromEntity(poll, true)),
+      meta: result.meta,
+    };
   }
 
   @Get('ongoing')
-  async findOngoing(): Promise<PollResponseDto[]> {
-    const polls = await this.getOngoingPollsUseCase.execute();
-    return polls.map((poll) => PollResponseDto.fromEntity(poll, true));
+  async findOngoing(
+    @Query() filters: PollFilterDto,
+  ): Promise<IPaginatedResult<PollResponseDto>> {
+    const result = await this.getOngoingPollsPaginatedUseCase.execute(filters);
+    return {
+      data: result.data.map((poll) => PollResponseDto.fromEntity(poll, true)),
+      meta: result.meta,
+    };
   }
 
   @Get('creator/:walletAddress')
   async findByCreator(
     @Param('walletAddress') walletAddress: string,
-  ): Promise<PollResponseDto[]> {
-    const polls = await this.getPollsByCreatorUseCase.execute(walletAddress);
-    return polls.map((poll) => PollResponseDto.fromEntity(poll, true));
+    @Query() filters: PollFilterDto,
+  ): Promise<IPaginatedResult<PollResponseDto>> {
+    const result = await this.getPollsByCreatorPaginatedUseCase.execute(
+      walletAddress,
+      filters,
+    );
+    return {
+      data: result.data.map((poll) => PollResponseDto.fromEntity(poll, true)),
+      meta: result.meta,
+    };
   }
 
   @Get(':id')

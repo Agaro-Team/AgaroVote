@@ -19,6 +19,10 @@ import { GetPollsByCreatorUseCase } from './application/use-cases/get-polls-by-c
 import { GetActivePollsUseCase } from './application/use-cases/get-active-polls.use-case';
 import { GetOngoingPollsUseCase } from './application/use-cases/get-ongoing-polls.use-case';
 import { CheckVotingEligibilityUseCase } from './application/use-cases/check-voting-eligibility.use-case';
+import { GetAllPollsPaginatedUseCase } from './application/use-cases/get-all-polls-paginated.use-case';
+import { GetActivePollsPaginatedUseCase } from './application/use-cases/get-active-polls-paginated.use-case';
+import { GetOngoingPollsPaginatedUseCase } from './application/use-cases/get-ongoing-polls-paginated.use-case';
+import { GetPollsByCreatorPaginatedUseCase } from './application/use-cases/get-polls-by-creator-paginated.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Poll, PollChoice, PollAddress])],
@@ -45,6 +49,10 @@ import { CheckVotingEligibilityUseCase } from './application/use-cases/check-vot
     GetActivePollsUseCase,
     GetOngoingPollsUseCase,
     CheckVotingEligibilityUseCase,
+    GetAllPollsPaginatedUseCase,
+    GetActivePollsPaginatedUseCase,
+    GetOngoingPollsPaginatedUseCase,
+    GetPollsByCreatorPaginatedUseCase,
   ],
   exports: [POLL_REPOSITORY, POLL_CHOICE_REPOSITORY, POLL_ADDRESS_REPOSITORY],
 })
