@@ -1,5 +1,5 @@
+import type { AxiosInstance, AxiosResponse, CreateAxiosDefaults } from 'axios';
 import axios, { AxiosError } from 'axios';
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios';
 
 // API utilities for React Query
 export class ApiError extends Error {
@@ -15,13 +15,14 @@ export class ApiError extends Error {
 }
 
 // Create axios instance with default configuration
-const createApiClient = (): AxiosInstance => {
+export const createApiClient = (options?: CreateAxiosDefaults): AxiosInstance => {
   const client = axios.create({
     baseURL: 'https://jsonplaceholder.typicode.com', // TODO: Adjust this
     timeout: 10000,
     headers: {
       'Content-Type': 'application/json',
     },
+    ...options,
   });
 
   // Request interceptor
@@ -79,43 +80,3 @@ const createApiClient = (): AxiosInstance => {
 
   return client;
 };
-
-// Create the API client instance
-export const apiClient = createApiClient();
-
-// Generic API client function with error handling
-export async function apiRequest<T>(endpoint: string, config?: AxiosRequestConfig): Promise<T> {
-  try {
-    const response = await apiClient.request<T>({
-      url: endpoint,
-      ...config,
-    });
-    return response.data;
-  } catch (error) {
-    // Error is already handled by the response interceptor
-    throw error;
-  }
-}
-
-// HTTP method helpers
-export const api = {
-  // GET request
-  get: <T>(endpoint: string, config?: AxiosRequestConfig) =>
-    apiRequest<T>(endpoint, { ...config, method: 'GET' }),
-
-  // POST request
-  post: <T>(endpoint: string, data?: any, config?: AxiosRequestConfig) =>
-    apiRequest<T>(endpoint, { ...config, method: 'POST', data }),
-
-  // PUT request
-  put: <T>(endpoint: string, data?: any, config?: AxiosRequestConfig) =>
-    apiRequest<T>(endpoint, { ...config, method: 'PUT', data }),
-
-  // PATCH request
-  patch: <T>(endpoint: string, data?: any, config?: AxiosRequestConfig) =>
-    apiRequest<T>(endpoint, { ...config, method: 'PATCH', data }),
-
-  // DELETE request
-  delete: <T>(endpoint: string, config?: AxiosRequestConfig) =>
-    apiRequest<T>(endpoint, { ...config, method: 'DELETE' }),
-} as const;

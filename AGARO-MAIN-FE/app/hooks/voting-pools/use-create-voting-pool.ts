@@ -8,6 +8,7 @@
  */
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
+import { pollService } from '~/lib/api/poll/poll.service';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
 import {
   useReadEntryPointVersion,
@@ -18,6 +19,8 @@ import { generateMerkleRoot } from '~/lib/web3/utils';
 import { getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
 
 import { useEffect, useRef, useState } from 'react';
+
+import { mutationOptions, useMutation } from '@tanstack/react-query';
 
 import { useWeb3Chain, useWeb3Wallet } from '../use-web3';
 
@@ -51,9 +54,15 @@ export function useCreateVotingPool() {
   const [offChainHash, setOffChainHash] = useState<`0x${string}` | null>(null);
   const offChainHashRef = useRef<`0x${string}` | null>(null);
 
+  const { mutateAsync: storePoll, isPending: isCreatePollWeb2Pending } = useMutation(
+    mutationOptions({
+      mutationFn: pollService.createPoll,
+    })
+  );
+
   // Prepare the contract write
   const {
-    writeContract,
+    writeContractAsync,
     data: txHash,
     isPending,
     isError,
@@ -180,14 +189,27 @@ export function useCreateVotingPool() {
       };
 
       // Compute off-chain hash before submission
-      const computedHash = getVotingPoolHash(targetHashedPayload, version, walletAddress);
+      const poolHash = getVotingPoolHash(targetHashedPayload, version, walletAddress);
 
       // Store hash for later verification
-      setOffChainHash(computedHash);
-      offChainHashRef.current = computedHash;
+      setOffChainHash(poolHash);
+      offChainHashRef.current = poolHash;
+
+      // Store to web 2 DB
+      await storePoll({
+        title: poolData.title,
+        description: poolData.description,
+        choices: poolData.candidates.map((choice) => ({ choiceText: choice })),
+        startDate: new Date(), // For now using now
+        endDate: poolData.expiryDate,
+        isPrivate: poolData.isPrivate,
+        addresses: poolData.allowedAddresses.map((address) => ({ walletAddress: address })),
+        creatorWalletAddress: walletAddress,
+        poolHash: poolHash,
+      });
 
       // Submit to blockchain
-      writeContract({
+      await writeContractAsync({
         address: contractAddress,
         args: [args],
       });
@@ -210,7 +232,7 @@ export function useCreateVotingPool() {
 
   return {
     createPool,
-    isPending,
+    isPending: isCreatePollWeb2Pending || isPending,
     isConfirming,
     isSuccess,
     isError,
