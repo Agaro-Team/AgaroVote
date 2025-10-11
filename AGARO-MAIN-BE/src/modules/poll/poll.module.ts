@@ -23,6 +23,8 @@ import { GetAllPollsPaginatedUseCase } from './application/use-cases/get-all-pol
 import { GetActivePollsPaginatedUseCase } from './application/use-cases/get-active-polls-paginated.use-case';
 import { GetOngoingPollsPaginatedUseCase } from './application/use-cases/get-ongoing-polls-paginated.use-case';
 import { GetPollsByCreatorPaginatedUseCase } from './application/use-cases/get-polls-by-creator-paginated.use-case';
+import { UpdatePollTransactionStatusUseCase } from './application/use-cases/update-poll-transaction-status.use-case';
+import { ActivatePollUseCase } from './application/use-cases/activate-poll.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Poll, PollChoice, PollAddress])],
@@ -53,6 +55,8 @@ import { GetPollsByCreatorPaginatedUseCase } from './application/use-cases/get-p
     GetActivePollsPaginatedUseCase,
     GetOngoingPollsPaginatedUseCase,
     GetPollsByCreatorPaginatedUseCase,
+    UpdatePollTransactionStatusUseCase,
+    ActivatePollUseCase,
   ],
   exports: [POLL_REPOSITORY, POLL_CHOICE_REPOSITORY, POLL_ADDRESS_REPOSITORY],
 })

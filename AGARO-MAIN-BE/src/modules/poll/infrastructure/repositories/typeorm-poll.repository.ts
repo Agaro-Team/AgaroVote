@@ -211,4 +211,16 @@ export class TypeORMPollRepository implements IPollRepository {
       },
     };
   }
+
+  async updateByPoolHash(
+    poolHash: string,
+    entity: Partial<Poll>,
+  ): Promise<Poll> {
+    await this.repository.update({ poolHash }, entity);
+    const poll = await this.findByPoolHash(poolHash);
+    if (!poll) {
+      throw new Error('Poll not found after update');
+    }
+    return poll;
+  }
 }

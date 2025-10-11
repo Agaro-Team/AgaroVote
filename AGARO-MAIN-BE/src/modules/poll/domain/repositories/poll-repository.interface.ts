@@ -16,6 +16,7 @@ export interface IPollRepository extends IRepository<Poll> {
     walletAddress: string,
     filters: PollFilterDto,
   ): Promise<IPaginatedResult<Poll>>;
+  updateByPoolHash(poolHash: string, entity: Partial<Poll>): Promise<Poll>;
 }
 
 export const POLL_REPOSITORY = Symbol('POLL_REPOSITORY');

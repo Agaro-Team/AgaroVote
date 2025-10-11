@@ -4,6 +4,7 @@ import type { PollChoice } from './poll-choice.entity';
 import type { PollAddress } from './poll-address.entity';
 
 export enum TransactionStatus {
+  PENDING = 'pending',
   SUCCESS = 'success',
   FAILED = 'failed',
 }
@@ -38,10 +39,11 @@ export class Poll extends BaseEntity {
     name: 'transaction_status',
     type: 'enum',
     enum: TransactionStatus,
+    default: TransactionStatus.PENDING,
   })
   transactionStatus: TransactionStatus;
 
-  @Column({ name: 'is_active', type: 'boolean', default: true })
+  @Column({ name: 'is_active', type: 'boolean', default: false })
   isActive: boolean;
 
   @OneToMany('PollChoice', 'poll', {
@@ -99,5 +101,24 @@ export class Poll extends BaseEntity {
 
   isCreator(walletAddress: string): boolean {
     return this.creatorWalletAddress === walletAddress;
+  }
+
+  isPending(): boolean {
+    return this.transactionStatus === TransactionStatus.PENDING;
+  }
+
+  isTransactionSuccessful(): boolean {
+    return this.transactionStatus === TransactionStatus.SUCCESS;
+  }
+
+  isTransactionFailed(): boolean {
+    return this.transactionStatus === TransactionStatus.FAILED;
+  }
+
+  isTransactionComplete(): boolean {
+    return (
+      this.transactionStatus === TransactionStatus.SUCCESS ||
+      this.transactionStatus === TransactionStatus.FAILED
+    );
   }
 }

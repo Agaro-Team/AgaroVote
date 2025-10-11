@@ -17,7 +17,10 @@ import {
   type IPollAddressRepository,
 } from '@modules/poll/domain/repositories/poll-address-repository.interface';
 import { CreatePollDto } from '@modules/poll/application/dto/create-poll.dto';
-import { Poll } from '@modules/poll/domain/entities/poll.entity';
+import {
+  Poll,
+  TransactionStatus,
+} from '@modules/poll/domain/entities/poll.entity';
 
 @Injectable()
 export class CreatePollUseCase {
@@ -54,7 +57,9 @@ export class CreatePollUseCase {
       ...pollData,
       startDate,
       endDate,
-      isActive: createPollDto.isActive ?? true,
+      transactionStatus:
+        createPollDto.transactionStatus ?? TransactionStatus.PENDING,
+      isActive: createPollDto.isActive ?? false,
     });
 
     // Create choices

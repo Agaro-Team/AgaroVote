@@ -57,12 +57,13 @@ export class CreatePollDto {
   @MaxLength(255)
   poolHash: string;
 
+  @IsOptional()
   @IsEnum(TransactionStatus)
-  transactionStatus: TransactionStatus;
+  transactionStatus?: TransactionStatus = TransactionStatus.PENDING;
 
   @IsOptional()
   @IsBoolean()
-  isActive?: boolean;
+  isActive?: boolean = false;
 
   @IsArray()
   @ValidateNested({ each: true })

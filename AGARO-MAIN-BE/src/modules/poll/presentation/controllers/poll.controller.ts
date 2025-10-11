@@ -12,6 +12,7 @@ import {
 } from '@nestjs/common';
 import { CreatePollDto } from '../../application/dto/create-poll.dto';
 import { UpdatePollDto } from '../../application/dto/update-poll.dto';
+import { UpdateTransactionStatusDto } from '../../application/dto/update-transaction-status.dto';
 import { PollResponseDto } from '../../application/dto/poll-response.dto';
 import { PollFilterDto } from '../../application/dto/poll-filter.dto';
 import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
@@ -28,6 +29,8 @@ import { GetAllPollsPaginatedUseCase } from '../../application/use-cases/get-all
 import { GetActivePollsPaginatedUseCase } from '../../application/use-cases/get-active-polls-paginated.use-case';
 import { GetOngoingPollsPaginatedUseCase } from '../../application/use-cases/get-ongoing-polls-paginated.use-case';
 import { GetPollsByCreatorPaginatedUseCase } from '../../application/use-cases/get-polls-by-creator-paginated.use-case';
+import { UpdatePollTransactionStatusUseCase } from '../../application/use-cases/update-poll-transaction-status.use-case';
+import { ActivatePollUseCase } from '../../application/use-cases/activate-poll.use-case';
 
 @Controller('polls')
 export class PollController {
@@ -45,6 +48,8 @@ export class PollController {
     private readonly getActivePollsPaginatedUseCase: GetActivePollsPaginatedUseCase,
     private readonly getOngoingPollsPaginatedUseCase: GetOngoingPollsPaginatedUseCase,
     private readonly getPollsByCreatorPaginatedUseCase: GetPollsByCreatorPaginatedUseCase,
+    private readonly updatePollTransactionStatusUseCase: UpdatePollTransactionStatusUseCase,
+    private readonly activatePollUseCase: ActivatePollUseCase,
   ) {}
 
   @Post()
@@ -122,6 +127,24 @@ export class PollController {
     @Body() updatePollDto: UpdatePollDto,
   ): Promise<PollResponseDto> {
     const poll = await this.updatePollUseCase.execute(id, updatePollDto);
+    return PollResponseDto.fromEntity(poll, true);
+  }
+
+  @Put(':id/transaction-status')
+  async updateTransactionStatus(
+    @Param('id') id: string,
+    @Body() updateTransactionStatusDto: UpdateTransactionStatusDto,
+  ): Promise<PollResponseDto> {
+    const poll = await this.updatePollTransactionStatusUseCase.execute(
+      id,
+      updateTransactionStatusDto.transactionStatus,
+    );
+    return PollResponseDto.fromEntity(poll, true);
+  }
+
+  @Post(':id/activate')
+  async activate(@Param('id') id: string): Promise<PollResponseDto> {
+    const poll = await this.activatePollUseCase.execute(id);
     return PollResponseDto.fromEntity(poll, true);
   }
 
