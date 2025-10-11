@@ -8,7 +8,7 @@
  */
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
-import { pollService } from '~/lib/api/poll/poll.service';
+import { createPollMutationOptions } from '~/lib/query-client/poll/mutations';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
 import {
   useReadEntryPointVersion,
@@ -20,7 +20,7 @@ import { getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { mutationOptions, useMutation } from '@tanstack/react-query';
+import { useMutation } from '@tanstack/react-query';
 
 import { useWeb3Chain, useWeb3Wallet } from '../use-web3';
 
@@ -51,14 +51,16 @@ export interface VotingPoolData {
 export function useCreateVotingPool() {
   const { chainId } = useWeb3Chain();
   const { address: walletAddress } = useWeb3Wallet();
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   const [offChainHash, setOffChainHash] = useState<`0x${string}` | null>(null);
+  const [onChainHash, setOnChainHash] = useState<`0x${string}` | null>(null);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationError, setVerificationError] = useState<string | null>(null);
   const offChainHashRef = useRef<`0x${string}` | null>(null);
+  const verificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { mutateAsync: storePoll, isPending: isCreatePollWeb2Pending } = useMutation(
-    mutationOptions({
-      mutationFn: pollService.createPoll,
-    })
-  );
+  const { mutateAsync: storePoll, isPending: isCreatePollWeb2Pending } =
+    useMutation(createPollMutationOptions);
 
   // Prepare the contract write
   const {
@@ -82,10 +84,16 @@ export function useCreateVotingPool() {
   useWatchEntryPointVotingPoolCreatedEvent({
     address: getEntryPointAddress(chainId),
     onError: (error) => {
-      toast.error('Event monitoring error', {
-        description: error instanceof Error ? error.message : 'Unknown error',
-        duration: 5000,
-      });
+      if (isVerifying) {
+        setVerificationError(error instanceof Error ? error.message : 'Unknown error');
+        setIsVerifying(false);
+
+        // Clear timeout on error
+        if (verificationTimeoutRef.current) {
+          clearTimeout(verificationTimeoutRef.current);
+          verificationTimeoutRef.current = null;
+        }
+      }
     },
     onLogs: (logs) => {
       logs.forEach((log) => {
@@ -96,29 +104,33 @@ export function useCreateVotingPool() {
           return;
         }
 
-        // Verify version matches (optional but recommended)
-        if (eventVersion === version) {
-          return;
+        // Clear verification timeout
+        if (verificationTimeoutRef.current) {
+          clearTimeout(verificationTimeoutRef.current);
+          verificationTimeoutRef.current = null;
         }
 
         // Compare hashes
         if (offChainHashRef.current !== onChainHash) {
           // Hash mismatch - security alert!
+          setVerificationError(
+            'Off-chain and on-chain hashes do not match. This may indicate a security issue.'
+          );
+          setIsVerifying(false);
 
-          toast.error('Hash Anomaly Detected!', {
-            description:
-              'Off-chain and on-chain hashes do not match. This may indicate a security issue.',
-            duration: 10000,
-          });
+          // Clear the reference after error
+          offChainHashRef.current = null;
+          setOffChainHash(null);
         } else {
-          toast.success('Hash Verified!', {
-            description: 'Off-chain and on-chain hashes match perfectly.',
-          });
-        }
+          // Hashes match - success!
+          setOnChainHash(onChainHash);
+          setIsVerifying(false);
+          setShouldRedirect(true);
 
-        // Clear the reference after verification
-        offChainHashRef.current = null;
-        setOffChainHash(null);
+          // Clear the reference (but keep state for UI to show success)
+          offChainHashRef.current = null;
+          // DON'T clear offChainHash state - form needs it to detect success!
+        }
       });
     },
   });
@@ -214,30 +226,61 @@ export function useCreateVotingPool() {
         args: [args],
       });
     } catch (error) {
-      console.error('🔄 Error:', error);
       toast.error('Failed to create pool', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
     }
   };
 
+  // Start verification when transaction is confirmed
+  useEffect(() => {
+    if (isSuccess && offChainHashRef.current) {
+      setIsVerifying(true);
+      setVerificationError(null);
+
+      // Set a 30-second timeout for verification
+      verificationTimeoutRef.current = setTimeout(() => {
+        if (offChainHashRef.current) {
+          setVerificationError(
+            'Verification timeout: Event not received from blockchain within 30 seconds. Please check the blockchain explorer.'
+          );
+          setIsVerifying(false);
+          offChainHashRef.current = null;
+          setOffChainHash(null);
+        }
+      }, 30000);
+    }
+  }, [isSuccess]);
+
   // Refetch version after successful pool creation
   // This is critical for replay attack prevention - version increments with each pool
   useEffect(() => {
     if (isSuccess) {
-      console.log('🔄 Refetching version for next pool creation (replay attack prevention)');
       refetchVersion();
     }
   }, [isSuccess, refetchVersion]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (verificationTimeoutRef.current) {
+        clearTimeout(verificationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     createPool,
     isPending: isCreatePollWeb2Pending || isPending,
     isConfirming,
     isSuccess,
+    isVerifying,
+    verificationError,
     isError,
     error,
     txHash,
+    onChainHash,
     offChainHash,
+    shouldRedirect,
   };
 }

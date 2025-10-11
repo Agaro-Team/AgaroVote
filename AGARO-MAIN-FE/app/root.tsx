@@ -1,3 +1,4 @@
+import { NuqsAdapter } from 'nuqs/adapters/react-router/v7';
 import {
   Links,
   Meta,
@@ -70,7 +71,9 @@ export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
     <ThemeProvider initialTheme={loaderData?.theme || 'system'}>
       <Web3Provider>
         <QueryClientProvider>
-          <Outlet />
+          <NuqsAdapter>
+            <Outlet />
+          </NuqsAdapter>
           <Toaster />
         </QueryClientProvider>
       </Web3Provider>

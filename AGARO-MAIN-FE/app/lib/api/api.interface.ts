@@ -1,0 +1,34 @@
+export enum SortOrder {
+  ASC = 'asc',
+  DESC = 'desc',
+}
+
+export interface ApiRequest {
+  page?: number;
+
+  limit?: number;
+
+  sortBy?: unknown;
+
+  order?: SortOrder;
+
+  q?: string;
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  data: T;
+}
+
+export interface ApiListResponse<T> {
+  data: T[];
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+  };
+}
+
+export interface ApiDetailResponse<T> {
+  data: T;
+}

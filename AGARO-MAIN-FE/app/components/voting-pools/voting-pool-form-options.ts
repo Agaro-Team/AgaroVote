@@ -81,8 +81,12 @@ const defaultValues: CreateVotingPoolFormData = {
 
 export const votingPoolFormOptions = formOptions({
   defaultValues,
-  validationLogic: revalidateLogic(),
+  validationLogic: revalidateLogic({
+    mode: 'change',
+    modeAfterSubmission: 'change',
+  }),
+  canSubmitWhenInvalid: false,
   validators: {
-    onChange: votingPoolSchema,
+    onDynamic: votingPoolSchema,
   },
 });
