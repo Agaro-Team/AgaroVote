@@ -3,19 +3,25 @@
  *
  * A dynamic array field for managing allowed wallet addresses in private voting pools.
  * Allows adding/removing addresses with validation.
+ * Supports bulk CSV upload for adding multiple addresses at once.
  * Uses TanStack Form's field context to avoid props drilling.
  */
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Upload } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '~/components/ui/field';
 
+import { useState } from 'react';
+
 import { withForm } from '../form';
 import { Input } from '../ui/input';
+import { CSVUploadModal } from './csv-upload-modal';
 import { votingPoolFormOptions } from './voting-pool-form-options';
 
 export const AllowedAddressesField = withForm({
   ...votingPoolFormOptions,
   render: ({ form }) => {
+    const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
+
     return (
       <form.AppField
         name="allowedAddresses"
@@ -26,6 +32,14 @@ export const AllowedAddressesField = withForm({
               !field.state.meta.isValid &&
               field.state.meta.errors.length) ||
             false;
+
+          // Handler for CSV upload
+          const handleCSVUpload = (addresses: string[]) => {
+            // Append new addresses to existing ones
+            addresses.forEach((address) => {
+              field.pushValue(address);
+            });
+          };
 
           return (
             <Field
@@ -45,16 +59,28 @@ export const AllowedAddressesField = withForm({
                       ({field.state.value.length} total)
                     </span>
                   </FieldLabel>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => field.pushValue('')}
-                    className="gap-2"
-                  >
-                    <Plus className="h-4 w-4" />
-                    Add Address
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsCSVModalOpen(true)}
+                      className="gap-2"
+                    >
+                      <Upload className="h-4 w-4" />
+                      Upload CSV
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => field.pushValue('')}
+                      className="gap-2"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Add Address
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -115,6 +141,14 @@ export const AllowedAddressesField = withForm({
                   }))}
                 />
               </div>
+
+              {/* CSV Upload Modal */}
+              <CSVUploadModal
+                isOpen={isCSVModalOpen}
+                onClose={() => setIsCSVModalOpen(false)}
+                onUpload={handleCSVUpload}
+                existingAddresses={field.state.value}
+              />
             </Field>
           );
         }}
