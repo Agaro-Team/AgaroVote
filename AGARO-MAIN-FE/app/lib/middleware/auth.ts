@@ -6,7 +6,7 @@
  *
  * Based on: https://reactrouter.com/how-to/middleware
  */
-import { type MiddlewareFunction, redirect } from 'react-router';
+import { type MiddlewareFunction, replace } from 'react-router';
 import { cookieToInitialState } from 'wagmi';
 import { config } from '~/lib/web3/config';
 
@@ -41,7 +41,7 @@ export const walletAuthMiddleware: MiddlewareFunction = async (args) => {
 
   if (!isConnected) {
     // Redirect to home page with a message parameter
-    throw redirect('/?error=wallet-required');
+    throw replace('/?error=wallet-required');
   }
 
   // Store wallet state in context for use in loaders/actions
