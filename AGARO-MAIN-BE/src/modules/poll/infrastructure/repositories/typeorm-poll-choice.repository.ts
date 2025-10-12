@@ -54,4 +54,8 @@ export class TypeORMPollChoiceRepository implements IPollChoiceRepository {
     const result = await this.repository.softDelete({ pollId });
     return (result.affected ?? 0) > 0;
   }
+
+  async save(choice: PollChoice | Partial<PollChoice>): Promise<PollChoice> {
+    return await this.repository.save(choice);
+  }
 }

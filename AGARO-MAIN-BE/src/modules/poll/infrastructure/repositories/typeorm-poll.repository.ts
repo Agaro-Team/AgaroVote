@@ -223,4 +223,8 @@ export class TypeORMPollRepository implements IPollRepository {
     }
     return poll;
   }
+
+  async save(poll: Poll | Partial<Poll>): Promise<Poll> {
+    return await this.repository.save(poll);
+  }
 }

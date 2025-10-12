@@ -45,4 +45,8 @@ export class TypeOrmUserRepository implements IUserRepository {
     const result = await this.repository.softDelete(id);
     return (result.affected ?? 0) > 0;
   }
+
+  async save(user: User | Partial<User>): Promise<User> {
+    return await this.repository.save(user);
+  }
 }

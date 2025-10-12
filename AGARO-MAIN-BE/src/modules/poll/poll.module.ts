@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { CqrsModule } from '@nestjs/cqrs';
 import { Poll } from './domain/entities/poll.entity';
 import { PollChoice } from './domain/entities/poll-choice.entity';
 import { PollAddress } from './domain/entities/poll-address.entity';
@@ -28,7 +29,10 @@ import { ActivatePollUseCase } from './application/use-cases/activate-poll.use-c
 import { UpdateVoterHashUseCase } from './application/use-cases/update-voter-hash.use-case';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Poll, PollChoice, PollAddress])],
+  imports: [
+    TypeOrmModule.forFeature([Poll, PollChoice, PollAddress]),
+    CqrsModule,
+  ],
   controllers: [PollController],
   providers: [
     {
