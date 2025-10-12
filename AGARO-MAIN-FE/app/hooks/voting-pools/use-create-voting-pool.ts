@@ -83,6 +83,7 @@ export function useCreateVotingPool() {
   // Watch for VotingPoolCreated event to verify hash
   useWatchEntryPointVotingPoolCreatedEvent({
     address: getEntryPointAddress(chainId),
+    enabled: isVerifying,
     onError: (error) => {
       if (isVerifying) {
         setVerificationError(error instanceof Error ? error.message : 'Unknown error');

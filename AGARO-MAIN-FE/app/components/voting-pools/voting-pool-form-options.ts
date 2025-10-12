@@ -1,7 +1,7 @@
 import { isAddress } from 'viem';
 import { z } from 'zod';
 
-import { formOptions, revalidateLogic } from '@tanstack/react-form';
+import { formOptions } from '@tanstack/react-form';
 
 /**
  * Zod Schema for Voting Pool Form Validation
@@ -81,12 +81,7 @@ const defaultValues: CreateVotingPoolFormData = {
 
 export const votingPoolFormOptions = formOptions({
   defaultValues,
-  validationLogic: revalidateLogic({
-    mode: 'change',
-    modeAfterSubmission: 'change',
-  }),
-  canSubmitWhenInvalid: false,
   validators: {
-    onDynamic: votingPoolSchema,
+    onChange: votingPoolSchema,
   },
 });

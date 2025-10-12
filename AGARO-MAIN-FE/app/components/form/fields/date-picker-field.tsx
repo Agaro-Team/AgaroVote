@@ -60,10 +60,10 @@ export function DatePickerField({
   datePickerProps,
 }: DatePickerFieldProps) {
   const field = useFieldContext<Date | undefined>();
-  const errors = useStore(field.store, (state) =>
-    state.meta.errors.map((error) => ({ message: error.message }))
-  );
-  const hasError = errors.length > 0;
+  const { errors, hasError } = useStore(field.store, (state) => ({
+    errors: state.meta.errors.map((error) => ({ message: error.message })),
+    hasError: state.meta.isTouched && !state.meta.isValid && state.meta.errors.length > 0,
+  }));
 
   return (
     <Field orientation={orientation} data-invalid={hasError}>
@@ -83,9 +83,13 @@ export function DatePickerField({
         {...datePickerProps}
       />
       {description && !hasError && <FieldDescription>{description}</FieldDescription>}
-      {errors.map((error, index) => (
-        <FieldError key={index}>{error.message}</FieldError>
-      ))}
+      {hasError && (
+        <div className="flex flex-col gap-1">
+          {errors.map((error, index) => (
+            <FieldError key={index}>{error.message}</FieldError>
+          ))}
+        </div>
+      )}
     </Field>
   );
 }

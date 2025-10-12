@@ -7,6 +7,8 @@
 import { Field, FieldDescription, FieldError, FieldLabel } from '~/components/ui/field';
 import { Switch } from '~/components/ui/switch';
 
+import { useStore } from '@tanstack/react-form';
+
 import { useFieldContext } from '../form-context';
 
 interface SwitchFieldProps {
@@ -33,7 +35,11 @@ export function SwitchField({
   switchProps,
 }: SwitchFieldProps) {
   const field = useFieldContext<boolean>();
-  const hasError = field.state.meta.errors.length > 0;
+
+  const { errors, hasError } = useStore(field.store, (state) => ({
+    errors: state.meta.errors.map((error) => ({ message: error.message })),
+    hasError: state.meta.isTouched && !state.meta.isValid && state.meta.errors.length > 0,
+  }));
 
   return (
     <Field orientation={orientation} data-invalid={hasError} className={className}>
@@ -49,7 +55,13 @@ export function SwitchField({
         {...switchProps}
       />
       {description && !hasError && <FieldDescription>{description}</FieldDescription>}
-      <FieldError errors={field.state.meta.errors.map((error) => ({ message: error }))} />
+      {hasError && (
+        <div className="flex flex-col gap-1">
+          {errors.map((error, index) => (
+            <FieldError key={index}>{error.message}</FieldError>
+          ))}
+        </div>
+      )}
     </Field>
   );
 }
