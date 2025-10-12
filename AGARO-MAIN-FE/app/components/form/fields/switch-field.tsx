@@ -44,16 +44,18 @@ export function SwitchField({
   return (
     <Field orientation={orientation} data-invalid={hasError} className={className}>
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
-      <Switch
-        id={field.name}
-        name={field.name}
-        checked={field.state.value ?? false}
-        onCheckedChange={(checked) => field.handleChange(checked)}
-        onBlur={field.handleBlur}
-        disabled={disabled}
-        aria-invalid={hasError}
-        {...switchProps}
-      />
+      <div>
+        <Switch
+          id={field.name}
+          name={field.name}
+          checked={field.state.value ?? false}
+          onCheckedChange={(checked) => field.handleChange(checked)}
+          onBlur={field.handleBlur}
+          disabled={disabled}
+          aria-invalid={hasError}
+          {...switchProps}
+        />
+      </div>
       {description && !hasError && <FieldDescription>{description}</FieldDescription>}
       {hasError && (
         <div className="flex flex-col gap-1">

@@ -34,7 +34,7 @@ const votingPoolSchema = z
       })
       .refine((date) => date > new Date(), 'Expiry date must be in the future'),
     isPrivate: z.boolean(),
-    allowedAddresses: z.array(z.string()),
+    allowedAddresses: z.array(z.string().min(1, 'Address cannot be empty')),
   })
   .superRefine((data, ctx) => {
     // Validate each address

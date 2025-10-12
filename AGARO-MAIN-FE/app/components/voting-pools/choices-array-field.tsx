@@ -42,7 +42,7 @@ export const ChoicesArrayField = withForm({
                 </Button>
               </div>
 
-              <div className="flex flex-col gap-2" data-invalid={hasError}>
+              <div className="flex flex-col gap-2 mb-2" data-invalid={hasError}>
                 {field.state.value.map((__, index) => (
                   <form.Field key={index} name={`choices[${index}]`}>
                     {(subField) => {

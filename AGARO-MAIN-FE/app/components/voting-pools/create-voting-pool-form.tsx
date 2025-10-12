@@ -201,6 +201,7 @@ export function CreateVotingPoolForm() {
               children={(field) => (
                 <field.SwitchField
                   label="Private Pool"
+                  orientation="vertical"
                   description="Set to true to restrict visibility"
                   disabled={isSubmitting}
                 />
