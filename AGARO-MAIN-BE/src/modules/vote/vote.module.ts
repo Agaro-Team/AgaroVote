@@ -28,8 +28,6 @@ import {
   GetVotesPaginatedHandler,
   CheckHasVotedHandler,
   GetAuditLogsHandler,
-  GetPollVoteCountHandler,
-  GetMultiplePollVoteCountsHandler,
 } from './application/queries';
 
 // Event Handlers
@@ -51,8 +49,6 @@ const QueryHandlers = [
   GetVotesPaginatedHandler,
   CheckHasVotedHandler,
   GetAuditLogsHandler,
-  GetPollVoteCountHandler,
-  GetMultiplePollVoteCountsHandler,
 ];
 
 const EventHandlers = [VoteCastedHandler, IllegalVoteAttemptedHandler];
