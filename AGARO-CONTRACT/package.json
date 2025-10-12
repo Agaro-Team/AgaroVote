@@ -2,6 +2,13 @@
   "name": "AGARO-CONTRACT",
   "version": "1.0.0",
   "type": "module",
+  "scripts": {
+    "build": "hardhat compile",
+    "test": "hardhat test",
+    "ignition:entrypoint": "hardhat ignition deploy ignition/modules/EntryPointModule.ts --network localhost",
+    "compile": "hardhat compile",
+    "node": "hardhat node"
+  },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.0.3",
     "@nomicfoundation/hardhat-toolbox-mocha-ethers": "^3.0.0",
