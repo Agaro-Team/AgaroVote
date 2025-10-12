@@ -16,7 +16,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
-import { VotingPoolsList } from '~/components/voting-pools/voting-pools-list';
+import { VotingPoolsList } from '~/routes/dashboard/voting-pools/components/voting-pools-list';
 
 export default function VotingPoolsPage() {
   return (

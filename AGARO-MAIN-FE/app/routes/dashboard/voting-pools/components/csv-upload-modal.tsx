@@ -21,13 +21,19 @@ import {
   DialogTitle,
 } from '~/components/ui/dialog';
 import { ScrollArea } from '~/components/ui/scroll-area';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '~/components/ui/table';
 import type { CSVParseResult } from '~/lib/csv-utils';
 import { downloadAddressTemplate, parseAddressesCSV } from '~/lib/csv-utils';
 import { cn } from '~/lib/utils';
 
 import { useCallback, useState } from 'react';
-
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
 
 interface CSVUploadModalProps {
   isOpen: boolean;

@@ -22,7 +22,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 
-import { useWeb3Chain, useWeb3Wallet } from '../use-web3';
+import { useWeb3Chain, useWeb3Wallet } from '../../../../hooks/use-web3';
 
 export interface VotingPoolData {
   title: string;

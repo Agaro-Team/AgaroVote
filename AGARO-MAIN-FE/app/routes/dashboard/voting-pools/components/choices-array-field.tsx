@@ -5,10 +5,10 @@
  * Allows adding/removing choices with a minimum of 2 required.
  */
 import { Trash2 } from 'lucide-react';
+import { FieldError, FieldLabel, withForm } from '~/components/form';
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
 
-import { FieldError, FieldLabel, withForm } from '../form';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
 import { votingPoolFormOptions } from './voting-pool-form-options';
 
 export const ChoicesArrayField = withForm({

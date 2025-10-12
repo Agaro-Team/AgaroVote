@@ -14,7 +14,7 @@ import {
 } from '~/components/ui/breadcrumb';
 import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
-import { CreateVotingPoolForm } from '~/components/voting-pools/create-voting-pool-form';
+import { CreateVotingPoolForm } from '~/routes/dashboard/voting-pools/components/create-voting-pool-form';
 
 export default function CreateVotingPoolPage() {
   return (

@@ -10,7 +10,7 @@ import { pollInfiniteListQueryOptions } from '~/lib/query-client/poll/queries';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import type { VotingPoolCardProps } from '../../components/voting-pools/voting-pool-card';
+import type { VotingPoolCardProps } from '../components/voting-pool-card';
 
 /**
  * Maps Poll status to card status
@@ -40,6 +40,7 @@ function mapPollStatus(poll: Poll): VotingPoolCardProps['status'] {
  */
 function transformPollToCard(poll: Poll): VotingPoolCardProps {
   return {
+    id: poll.id,
     poolHash: poll.poolHash,
     title: poll.title,
     description: poll.description,

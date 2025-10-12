@@ -5,6 +5,7 @@ const dashboardRoutes = prefix('dashboard', [
     index('routes/dashboard/index.tsx'),
     route('voting-pools', 'routes/dashboard/voting-pools/index.tsx'),
     route('voting-pools/create', 'routes/dashboard/voting-pools/create.tsx'),
+    route('voting-pools/:id', 'routes/dashboard/voting-pools/$id/index.tsx'),
   ]),
 ]);
 

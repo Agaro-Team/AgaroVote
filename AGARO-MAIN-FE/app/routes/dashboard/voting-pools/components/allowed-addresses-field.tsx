@@ -7,13 +7,13 @@
  * Uses TanStack Form's field context to avoid props drilling.
  */
 import { Plus, Trash2, Upload } from 'lucide-react';
+import { withForm } from '~/components/form';
 import { Button } from '~/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '~/components/ui/field';
+import { Input } from '~/components/ui/input';
 
 import { useState } from 'react';
 
-import { withForm } from '../form';
-import { Input } from '../ui/input';
 import { CSVUploadModal } from './csv-upload-modal';
 import { votingPoolFormOptions } from './voting-pool-form-options';
 

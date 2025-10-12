@@ -6,7 +6,7 @@
 import { FileQuestion, Loader2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Skeleton } from '~/components/ui/skeleton';
-import { useVotingPools } from '~/hooks/voting-pools/use-voting-pools';
+import { useVotingPools } from '~/routes/dashboard/voting-pools/hooks/use-voting-pools';
 
 import { VotingPoolCard } from './voting-pool-card';
 
