@@ -1,4 +1,9 @@
-import { Injectable, Inject, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import {
   POLL_REPOSITORY,
   type IPollRepository,
@@ -20,6 +25,10 @@ export class ActivatePollUseCase {
 
     if (!poll) {
       throw new NotFoundException(`Poll with hash ${poolHash} not found`);
+    }
+
+    if (poll.isActive) {
+      throw new BadRequestException('Poll is already active');
     }
 
     // Activate the poll and set transaction status to success
