@@ -16,6 +16,7 @@ import {
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
+import { VotingPoolsFilters } from '~/routes/dashboard/voting-pools/components/voting-pools-filters';
 import { VotingPoolsList } from '~/routes/dashboard/voting-pools/components/voting-pools-list';
 
 export default function VotingPoolsPage() {
@@ -59,6 +60,8 @@ export default function VotingPoolsPage() {
             from completed ones.
           </p>
         </div>
+
+        <VotingPoolsFilters />
 
         {/* Voting Pools List */}
         <VotingPoolsList />

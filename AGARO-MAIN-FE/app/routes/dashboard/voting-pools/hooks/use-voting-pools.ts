@@ -1,16 +1,16 @@
 /**
  * useVotingPools Hook
  *
- * Hook for fetching active voting pools with infinite scroll support
- * Uses URL state for limit parameter
+ * Hook for fetching voting pools with infinite scroll support
+ * Uses centralized filter state management via useVotingPoolsFilters
  */
-import { parseAsInteger, useQueryState } from 'nuqs';
 import type { Poll } from '~/lib/api/poll/poll.interface';
 import { pollInfiniteListQueryOptions } from '~/lib/query-client/poll/queries';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 
 import type { VotingPoolCardProps } from '../components/voting-pool-card';
+import { useVotingPoolsFilters } from './use-voting-pools-filters';
 
 /**
  * Maps Poll status to card status
@@ -53,13 +53,16 @@ function transformPollToCard(poll: Poll): VotingPoolCardProps {
 }
 
 export function useVotingPools() {
-  // Use URL state for limit parameter
-  const [limit] = useQueryState('limit', parseAsInteger.withDefault(9));
+  // Use centralized filter state management
+  const { filters } = useVotingPoolsFilters();
 
   const queryResult = useInfiniteQuery(
     pollInfiniteListQueryOptions({
-      limit,
-      isActive: true,
+      limit: filters.limit,
+      q: filters.q || undefined, // Only send if not empty
+      sortBy: filters.sortBy,
+      order: filters.order,
+      isActive: filters.isActive,
     })
   );
 
@@ -81,6 +84,6 @@ export function useVotingPools() {
     fetchNextPage: queryResult.fetchNextPage,
     isFetchingNextPage: queryResult.isFetchingNextPage,
     totalPolls,
-    limit,
+    filters,
   };
 }

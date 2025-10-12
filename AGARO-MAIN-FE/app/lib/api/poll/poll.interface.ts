@@ -1,6 +1,16 @@
 import type { ApiListResponse, ApiRequest, ApiResponse } from '../api.interface';
 
 /**
+ * Poll sort options matching backend enum
+ */
+export enum PollSortBy {
+  CREATED_AT = 'createdAt',
+  TITLE = 'title',
+  START_DATE = 'startDate',
+  END_DATE = 'endDate',
+}
+
+/**
  * Choice interface - represents a voting option in a poll
  */
 export interface Choice {
@@ -68,6 +78,7 @@ export type CreatePollRequest = {
  * Get polls request - query parameters for fetching polls
  */
 export interface GetPollsRequest extends ApiRequest {
+  sortBy?: PollSortBy;
   isPrivate?: boolean;
   isActive?: boolean;
   transactionStatus?: TransactionStatus;
