@@ -16,7 +16,7 @@ export default function VotePage() {
   const { id } = useParams<{ id: string }>();
   const { data: poll, isLoading, error } = useQuery(pollDetailQueryOptions(id!));
 
-  if (isLoading) {
+  if (isLoading || !poll) {
     return (
       <VotePageLayout>
         <LoadingState />
@@ -24,7 +24,7 @@ export default function VotePage() {
     );
   }
 
-  if (error || !poll) {
+  if (error) {
     return (
       <VotePageLayout>
         <ErrorState />

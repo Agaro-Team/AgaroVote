@@ -9,10 +9,11 @@ import { usePollStatus } from '../hooks/use-poll-status';
 import { useVoteContext } from '../vote-context';
 
 export function NonVotableAlert() {
-  const { poll, canVote } = useVoteContext();
+  const { canVote, nonVotableReason } = useVoteContext();
   const { statusConfig } = usePollStatus();
 
   if (canVote) return null;
+  if (!nonVotableReason) return null;
 
   return (
     <Alert>
@@ -23,10 +24,7 @@ export function NonVotableAlert() {
         </div>
       </AlertTitle>
       <AlertDescription>
-        <p className="text-sm text-muted-foreground">
-          {poll.hasEnded && 'Voting has closed for this poll.'}
-          {!poll.hasStarted && `Voting will start on ${formatDate(poll.startDate, 'DD MMM YYYY')}.`}
-        </p>
+        <p className="text-sm text-muted-foreground">{nonVotableReason}</p>
       </AlertDescription>
     </Alert>
   );

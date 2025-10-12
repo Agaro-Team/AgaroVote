@@ -91,9 +91,6 @@ export function VotingPoolCard({
               {status === 'active' ? 'Vote Now' : 'View Results'}
             </Link>
           </Button>
-          <Button variant="outline" asChild>
-            <Link to={`/dashboard/voting-pools/${id}/details`}>Details</Link>
-          </Button>
         </div>
 
         {/* Pool Hash */}

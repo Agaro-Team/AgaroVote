@@ -1,24 +1,36 @@
 /**
  * Pool Hash Display - Shows pool hash with copy functionality
  */
-import { Hash } from 'lucide-react';
+import { CheckCircle2, Copy, CopyCheckIcon, Hash } from 'lucide-react';
 import { Button } from '~/components/ui/button';
+
+import { useState } from 'react';
 
 import { useVoteContext } from '../vote-context';
 
 export function PoolHashDisplay() {
   const { poll } = useVoteContext();
+  const [isCopied, setIsCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(poll.poolHash);
+    navigator.clipboard.writeText(poll.poolHash).then(() => {
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    });
   };
 
   return (
     <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
       <Hash className="h-4 w-4 text-muted-foreground" />
-      <code className="text-xs font-mono flex-1">{poll.poolHash}</code>
+      <code className="text-xs font-mono flex-1">
+        {poll.poolHash.slice(0, 6)}...{poll.poolHash.slice(-4)}
+      </code>
       <Button variant="ghost" size="sm" onClick={handleCopy}>
-        Copy
+        {isCopied ? (
+          <CopyCheckIcon className="h-4 w-4 text-green-500" />
+        ) : (
+          <Copy className="h-4 w-4" />
+        )}
       </Button>
     </div>
   );
