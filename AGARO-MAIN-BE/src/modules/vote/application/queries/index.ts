@@ -10,3 +10,7 @@ export * from './check-has-voted/check-has-voted.query';
 export * from './check-has-voted/check-has-voted.handler';
 export * from './get-audit-logs/get-audit-logs.query';
 export * from './get-audit-logs/get-audit-logs.handler';
+export * from './get-poll-vote-count/get-poll-vote-count.query';
+export * from './get-poll-vote-count/get-poll-vote-count.handler';
+export * from './get-multiple-poll-vote-counts/get-multiple-poll-vote-counts.query';
+export * from './get-multiple-poll-vote-counts/get-multiple-poll-vote-counts.handler';

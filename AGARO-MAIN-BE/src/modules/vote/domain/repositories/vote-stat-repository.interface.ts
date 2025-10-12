@@ -10,6 +10,11 @@ export interface IVoteStatRepository extends IRepository<VoteStat> {
   findByPollId(pollId: string): Promise<VoteStat[]>;
 
   /**
+   * Find statistics for multiple polls (batch query for performance)
+   */
+  findByPollIds(pollIds: string[]): Promise<VoteStat[]>;
+
+  /**
    * Find statistics for a specific choice
    */
   findByChoiceId(choiceId: string): Promise<VoteStat | null>;
