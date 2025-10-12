@@ -30,6 +30,19 @@ export class TypeORMVoteStatRepository implements IVoteStatRepository {
     });
   }
 
+  async findByPollIds(pollIds: string[]): Promise<VoteStat[]> {
+    if (pollIds.length === 0) {
+      return [];
+    }
+
+    return await this.repository
+      .createQueryBuilder('vote_stat')
+      .where('vote_stat.poll_id IN (:...pollIds)', { pollIds })
+      .orderBy('vote_stat.poll_id', 'ASC')
+      .addOrderBy('vote_stat.vote_count', 'DESC')
+      .getMany();
+  }
+
   async findByChoiceId(choiceId: string): Promise<VoteStat | null> {
     return await this.repository.findOne({ where: { choiceId } });
   }

@@ -26,6 +26,7 @@ export class PollResponseDto {
   endDate: Date;
   creatorWalletAddress: string;
   poolHash: string;
+  voteCount: number;
   transactionStatus: TransactionStatus;
   isActive: boolean;
   choices?: PollChoiceResponseDto[];
@@ -38,7 +39,11 @@ export class PollResponseDto {
   hasStarted?: boolean;
   hasEnded?: boolean;
 
-  static fromEntity(poll: Poll, includeRelations = false): PollResponseDto {
+  static fromEntity(
+    poll: Poll,
+    includeRelations = false,
+    voteCount = 0,
+  ): PollResponseDto {
     const response = new PollResponseDto();
     response.id = poll.id;
     response.title = poll.title;
@@ -48,6 +53,7 @@ export class PollResponseDto {
     response.endDate = poll.endDate;
     response.creatorWalletAddress = poll.creatorWalletAddress;
     response.poolHash = poll.poolHash;
+    response.voteCount = voteCount;
     response.transactionStatus = poll.transactionStatus;
     response.isActive = poll.isActive;
     response.createdAt = poll.createdAt;
