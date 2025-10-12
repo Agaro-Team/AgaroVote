@@ -8,7 +8,7 @@ import { cn } from '~/lib/utils';
 import { useVoteContext } from '../vote-context';
 
 export function VotingChoices() {
-  const { poll, selectedChoiceId, canVote, selectChoice } = useVoteContext();
+  const { poll, selectedChoiceIndex, canVote, selectChoice } = useVoteContext();
 
   return (
     <Card>
@@ -22,10 +22,9 @@ export function VotingChoices() {
         {poll.choices.map((choice, index) => (
           <VotingChoice
             key={choice.id}
-            choiceId={choice.id}
             choiceText={choice.choiceText}
             index={index}
-            isSelected={selectedChoiceId === choice.id}
+            isSelected={selectedChoiceIndex === index}
             isDisabled={!canVote}
             onSelect={selectChoice}
           />
@@ -36,25 +35,17 @@ export function VotingChoices() {
 }
 
 interface VotingChoiceProps {
-  choiceId: string;
   choiceText: string;
   index: number;
   isSelected: boolean;
   isDisabled: boolean;
-  onSelect: (choiceId: string) => void;
+  onSelect: (choiceIndex: number) => void;
 }
 
-function VotingChoice({
-  choiceId,
-  choiceText,
-  index,
-  isSelected,
-  isDisabled,
-  onSelect,
-}: VotingChoiceProps) {
+function VotingChoice({ choiceText, index, isSelected, isDisabled, onSelect }: VotingChoiceProps) {
   return (
     <button
-      onClick={() => !isDisabled && onSelect(choiceId)}
+      onClick={() => !isDisabled && onSelect(index)}
       disabled={isDisabled}
       className={cn(
         'w-full p-4 rounded-lg border-2 transition-all text-left',

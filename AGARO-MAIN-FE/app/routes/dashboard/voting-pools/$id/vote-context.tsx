@@ -1,19 +1,22 @@
 /**
  * Vote Context - Manages voting state and logic
  */
+import { toast } from 'sonner';
 import { useWeb3Wallet } from '~/hooks/use-web3';
 import type { Poll } from '~/lib/api/poll/poll.interface';
 import { formatDate } from '~/lib/date-utils';
 
-import { type ReactNode, createContext, useContext, useMemo, useState } from 'react';
+import { type ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
+
+import { useVotePoll } from './hooks/use-vote-poll';
 
 interface VoteContextValue {
   poll: Poll;
-  selectedChoiceId: string | null;
+  selectedChoiceIndex: number | null;
   isVoting: boolean;
   canVote: boolean;
   nonVotableReason: string | null;
-  selectChoice: (choiceId: string) => void;
+  selectChoice: (choiceIndex: number) => void;
   submitVote: () => Promise<void>;
 }
 
@@ -34,8 +37,16 @@ interface VoteProviderProps {
 
 export function VoteProvider({ poll, children }: VoteProviderProps) {
   const { address: walletAddress } = useWeb3Wallet();
-  const [selectedChoiceId, setSelectedChoiceId] = useState<string | null>(null);
-  const [isVoting, setIsVoting] = useState(false);
+  const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
+
+  const votePool = useVotePoll();
+
+  const handleSubmitVote = async () => {
+    if (typeof selectedChoiceIndex !== 'number' || !canVote) return;
+    if (!poll) return;
+
+    votePool.vote(poll.poolHash, selectedChoiceIndex);
+  };
 
   const invitedAddresses = poll.addresses?.map((address) => address.walletAddress) || [];
 
@@ -70,30 +81,21 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     return null;
   }, [poll, walletAddress, invitedAddresses]);
 
-  const handleSubmitVote = async () => {
-    if (!selectedChoiceId || !canVote) return;
-
-    setIsVoting(true);
-    try {
-      // TODO: Implement Web3 voting transaction
-      console.log('Voting for choice:', selectedChoiceId);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-    } catch (error) {
-      console.error('Voting error:', error);
-    } finally {
-      setIsVoting(false);
-    }
-  };
-
   const value: VoteContextValue = {
     poll,
-    selectedChoiceId,
-    isVoting,
+    selectedChoiceIndex,
+    isVoting: votePool.isWritingEntryPointVote,
     canVote,
     nonVotableReason: nonVotableReason || null,
-    selectChoice: setSelectedChoiceId,
+    selectChoice: setSelectedChoiceIndex,
     submitVote: handleSubmitVote,
   };
+
+  useEffect(() => {
+    if (votePool.isTransactionReceiptSuccess) {
+      toast.success('Vote submitted successfully');
+    }
+  }, [votePool.isTransactionReceiptSuccess]);
 
   return <VoteContext.Provider value={value}>{children}</VoteContext.Provider>;
 }

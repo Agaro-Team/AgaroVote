@@ -36,7 +36,7 @@ export interface Poll {
   startDate: string;
   endDate: string;
   creatorWalletAddress: string;
-  poolHash: string;
+  poolHash: `0x${string}`;
   transactionStatus: TransactionStatus;
   isActive: boolean;
   choices: Choice[];

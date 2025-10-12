@@ -8,14 +8,14 @@ import { Button } from '~/components/ui/button';
 import { useVoteContext } from '../vote-context';
 
 export function VoteActions() {
-  const { selectedChoiceId, canVote, isVoting, submitVote } = useVoteContext();
+  const { selectedChoiceIndex, canVote, isVoting, submitVote } = useVoteContext();
 
   return (
     <div className="flex gap-3">
       <Button
         size="lg"
         className="flex-1"
-        disabled={!selectedChoiceId || !canVote || isVoting}
+        disabled={typeof selectedChoiceIndex !== 'number' || !canVote || isVoting}
         onClick={submitVote}
       >
         {isVoting ? (
