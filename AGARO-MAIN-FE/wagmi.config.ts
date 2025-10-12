@@ -15,7 +15,6 @@ export default defineConfig(async () => {
       react(),
       hardhat({
         project: '../AGARO-CONTRACT',
-        include: ['EntryPoint*'],
         deployments: {
           AgaroVote: {
             1: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET as Address,
