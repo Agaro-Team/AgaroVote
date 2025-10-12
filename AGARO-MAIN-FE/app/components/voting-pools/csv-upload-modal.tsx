@@ -27,6 +27,8 @@ import { cn } from '~/lib/utils';
 
 import { useCallback, useState } from 'react';
 
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table';
+
 interface CSVUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -238,26 +240,28 @@ export function CSVUploadModal({
                       Invalid Addresses ({parseResult.invalidAddresses.length})
                     </h4>
                     <ScrollArea className="h-48 border rounded-lg">
-                      <table className="w-full text-xs">
-                        <thead className="bg-muted sticky top-0">
-                          <tr>
-                            <th className="text-left p-2 font-medium">Line</th>
-                            <th className="text-left p-2 font-medium">Address</th>
-                            <th className="text-left p-2 font-medium">Error</th>
-                          </tr>
-                        </thead>
-                        <tbody>
+                      <Table className="w-full text-xs">
+                        <TableHeader className="bg-muted sticky top-0">
+                          <TableRow>
+                            <TableHead>Line</TableHead>
+                            <TableHead>Address</TableHead>
+                            <TableHead>Error</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {parseResult.invalidAddresses.slice(0, 50).map((item, index) => (
-                            <tr key={index} className="border-t">
-                              <td className="p-2 text-muted-foreground">{item.lineNumber}</td>
-                              <td className="p-2 font-mono break-all">
+                            <TableRow key={index} className="border-t">
+                              <TableCell className="p-2 text-muted-foreground">
+                                {item.lineNumber}
+                              </TableCell>
+                              <TableCell className="p-2 font-mono break-all">
                                 {item.address || '(empty)'}
-                              </td>
-                              <td className="p-2 text-destructive">{item.error}</td>
-                            </tr>
+                              </TableCell>
+                              <TableCell className="p-2 text-destructive">{item.error}</TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                       {parseResult.invalidAddresses.length > 50 && (
                         <div className="p-2 text-center text-xs text-muted-foreground border-t">
                           ... and {parseResult.invalidAddresses.length - 50} more
@@ -274,22 +278,24 @@ export function CSVUploadModal({
                       Valid Addresses ({parseResult.validAddresses.length}) - Preview
                     </h4>
                     <ScrollArea className="h-48 border rounded-lg">
-                      <table className="w-full text-xs">
-                        <thead className="bg-muted sticky top-0">
-                          <tr>
-                            <th className="text-left p-2 font-medium">#</th>
-                            <th className="text-left p-2 font-medium">Address</th>
-                          </tr>
-                        </thead>
-                        <tbody>
+                      <Table className="w-full text-xs">
+                        <TableHeader className="bg-muted sticky top-0">
+                          <TableRow>
+                            <TableHead>Line</TableHead>
+                            <TableHead>Address</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
                           {parseResult.validAddresses.slice(0, 10).map((address, index) => (
-                            <tr key={index} className="border-t">
-                              <td className="p-2 text-muted-foreground">{index + 1}</td>
-                              <td className="p-2 font-mono break-all">{address}</td>
-                            </tr>
+                            <TableRow key={index} className="border-t">
+                              <TableCell className="p-2 text-muted-foreground">
+                                {index + 1}
+                              </TableCell>
+                              <TableCell className="p-2 font-mono break-all">{address}</TableCell>
+                            </TableRow>
                           ))}
-                        </tbody>
-                      </table>
+                        </TableBody>
+                      </Table>
                       {parseResult.validAddresses.length > 10 && (
                         <div className="p-2 text-center text-xs text-muted-foreground border-t">
                           ... and {parseResult.validAddresses.length - 10} more addresses
