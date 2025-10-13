@@ -1,14 +1,6 @@
-import {
-  AudioWaveform,
-  Command,
-  GalleryVerticalEnd,
-  History,
-  LayoutDashboard,
-  Vote,
-} from 'lucide-react';
+import { History, LayoutDashboard, Vote } from 'lucide-react';
 import { NavMain } from '~/components/nav-main';
 import { NavUser } from '~/components/nav-user';
-import { TeamSwitcher } from '~/components/team-switcher';
 import {
   Sidebar,
   SidebarContent,
@@ -26,23 +18,23 @@ const data = {
     email: 'user@agarovote.com',
     avatar: '/avatars/user.jpg',
   },
-  teams: [
-    {
-      name: 'AgaroVote',
-      logo: GalleryVerticalEnd,
-      plan: 'Enterprise',
-    },
-    {
-      name: 'Agaro Corp.',
-      logo: AudioWaveform,
-      plan: 'Startup',
-    },
-    {
-      name: 'Demo Team',
-      logo: Command,
-      plan: 'Free',
-    },
-  ],
+  // teams: [
+  //   {
+  //     name: 'AgaroVote',
+  //     logo: GalleryVerticalEnd,
+  //     plan: 'Enterprise',
+  //   },
+  //   {
+  //     name: 'Agaro Corp.',
+  //     logo: AudioWaveform,
+  //     plan: 'Startup',
+  //   },
+  //   {
+  //     name: 'Demo Team',
+  //     logo: Command,
+  //     plan: 'Free',
+  //   },
+  // ],
   navMain: [
     {
       title: 'Dashboard',
@@ -206,14 +198,20 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        <div className="flex items-center gap-2 px-2">
+          <img
+            src="/Logo.png"
+            alt="AgaroVote Logo"
+            className="h-20 w-full object-cover object-center"
+          />
+        </div>
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
         {/* <NavProjects projects={data.projects} /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

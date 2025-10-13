@@ -8,6 +8,7 @@
  */
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
+import { useWeb3Chain, useWeb3Wallet } from '~/hooks/use-web3';
 import { createPollMutationOptions } from '~/lib/query-client/poll/mutations';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
 import {
@@ -21,8 +22,6 @@ import { getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
 import { useEffect, useRef, useState } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
-
-import { useWeb3Chain, useWeb3Wallet } from '../use-web3';
 
 export interface VotingPoolData {
   title: string;
@@ -83,6 +82,7 @@ export function useCreateVotingPool() {
   // Watch for VotingPoolCreated event to verify hash
   useWatchEntryPointVotingPoolCreatedEvent({
     address: getEntryPointAddress(chainId),
+    enabled: isVerifying,
     onError: (error) => {
       if (isVerifying) {
         setVerificationError(error instanceof Error ? error.message : 'Unknown error');

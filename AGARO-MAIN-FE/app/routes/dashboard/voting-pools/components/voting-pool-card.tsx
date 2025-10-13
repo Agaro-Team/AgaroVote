@@ -10,6 +10,7 @@ import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
 
 export interface VotingPoolCardProps {
+  id: string;
   poolHash: string;
   title: string;
   description: string;
@@ -21,6 +22,7 @@ export interface VotingPoolCardProps {
 }
 
 export function VotingPoolCard({
+  id,
   poolHash,
   title,
   description,
@@ -85,12 +87,9 @@ export function VotingPoolCard({
         {/* Actions */}
         <div className="flex items-center gap-2 pt-2">
           <Button asChild className="flex-1">
-            <Link to={`/dashboard/voting-pools/${poolHash}`}>
+            <Link to={`/dashboard/voting-pools/${id}`}>
               {status === 'active' ? 'Vote Now' : 'View Results'}
             </Link>
-          </Button>
-          <Button variant="outline" asChild>
-            <Link to={`/dashboard/voting-pools/${poolHash}/details`}>Details</Link>
           </Button>
         </div>
 

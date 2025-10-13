@@ -1,7 +1,7 @@
 import { isAddress } from 'viem';
 import { z } from 'zod';
 
-import { formOptions, revalidateLogic } from '@tanstack/react-form';
+import { formOptions } from '@tanstack/react-form';
 
 /**
  * Zod Schema for Voting Pool Form Validation
@@ -34,7 +34,7 @@ const votingPoolSchema = z
       })
       .refine((date) => date > new Date(), 'Expiry date must be in the future'),
     isPrivate: z.boolean(),
-    allowedAddresses: z.array(z.string()),
+    allowedAddresses: z.array(z.string().min(1, 'Address cannot be empty')),
   })
   .superRefine((data, ctx) => {
     // Validate each address
@@ -81,12 +81,7 @@ const defaultValues: CreateVotingPoolFormData = {
 
 export const votingPoolFormOptions = formOptions({
   defaultValues,
-  validationLogic: revalidateLogic({
-    mode: 'change',
-    modeAfterSubmission: 'change',
-  }),
-  canSubmitWhenInvalid: false,
   validators: {
-    onDynamic: votingPoolSchema,
+    onChange: votingPoolSchema,
   },
 });

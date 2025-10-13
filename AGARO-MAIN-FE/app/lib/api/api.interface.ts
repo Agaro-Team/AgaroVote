@@ -1,6 +1,6 @@
 export enum SortOrder {
-  ASC = 'asc',
-  DESC = 'desc',
+  ASC = 'ASC',
+  DESC = 'DESC',
 }
 
 export interface ApiRequest {
@@ -8,7 +8,7 @@ export interface ApiRequest {
 
   limit?: number;
 
-  sortBy?: unknown;
+  sortBy?: string;
 
   order?: SortOrder;
 

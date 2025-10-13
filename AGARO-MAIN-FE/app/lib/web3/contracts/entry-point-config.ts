@@ -26,6 +26,6 @@ export const ENTRY_POINT_CONTRACT_ADDRESS: Record<number, Address> = {
  * @param chainId - The chain ID to get the address for
  * @returns The contract address or undefined if not deployed on that chain
  */
-export function getEntryPointAddress(chainId: number): Address | undefined {
+export function getEntryPointAddress(chainId: number): Address {
   return ENTRY_POINT_CONTRACT_ADDRESS[chainId];
 }

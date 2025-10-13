@@ -1,0 +1,44 @@
+/**
+ * Vote Actions - Submit and cancel buttons
+ */
+import { Vote } from 'lucide-react';
+import { Link } from 'react-router';
+import { Button } from '~/components/ui/button';
+
+import { useVoteContext } from '../vote-context';
+
+export function VoteActions() {
+  const { selectedChoiceIndex, canVote, isVoting, submitVote } = useVoteContext();
+
+  return (
+    <div className="flex gap-3">
+      <Button
+        size="lg"
+        className="flex-1"
+        disabled={typeof selectedChoiceIndex !== 'number' || !canVote || isVoting}
+        onClick={submitVote}
+      >
+        {isVoting ? (
+          <>
+            <Spinner />
+            Processing...
+          </>
+        ) : (
+          <>
+            <Vote className="h-4 w-4 mr-2" />
+            Submit Vote
+          </>
+        )}
+      </Button>
+      <Button variant="outline" size="lg" asChild>
+        <Link to="/dashboard/voting-pools">Cancel</Link>
+      </Button>
+    </div>
+  );
+}
+
+function Spinner() {
+  return (
+    <div className="h-4 w-4 mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+  );
+}

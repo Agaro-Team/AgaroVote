@@ -7,12 +7,12 @@
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { useAppForm } from '~/components/form/use-app-form';
+import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
-import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
 
 import { useEffect, useState } from 'react';
 
-import { Button } from '../ui/button';
+import { useCreateVotingPool } from '../hooks/use-create-voting-pool';
 import { AllowedAddressesField } from './allowed-addresses-field';
 import { ChoicesArrayField } from './choices-array-field';
 import { TransactionProgressDialog } from './transaction-progress';
@@ -201,6 +201,7 @@ export function CreateVotingPoolForm() {
               children={(field) => (
                 <field.SwitchField
                   label="Private Pool"
+                  orientation="vertical"
                   description="Set to true to restrict visibility"
                   disabled={isSubmitting}
                 />

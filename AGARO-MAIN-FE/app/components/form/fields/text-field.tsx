@@ -33,11 +33,10 @@ export function TextField({
 }: TextFieldProps) {
   const field = useFieldContext<string>();
 
-  const errors = useStore(field.store, (state) =>
-    state.meta.errors.map((error) => ({ message: error.message }))
-  );
-  const hasError = errors.length > 0;
-
+  const { errors, hasError } = useStore(field.store, (state) => ({
+    errors: state.meta.errors.map((error) => ({ message: error.message })),
+    hasError: state.meta.isTouched && !state.meta.isValid && state.meta.errors.length > 0,
+  }));
   return (
     <Field orientation={orientation} data-invalid={hasError}>
       {label && <FieldLabel htmlFor={field.name}>{label}</FieldLabel>}
@@ -55,11 +54,13 @@ export function TextField({
         {...props}
       />
       {description && !hasError && <FieldDescription>{description}</FieldDescription>}
-      <div className="flex flex-col gap-1">
-        {errors.map((error, index) => (
-          <FieldError key={index}>{error.message}</FieldError>
-        ))}
-      </div>
+      {hasError && (
+        <div className="flex flex-col gap-1">
+          {errors.map((error, index) => (
+            <FieldError key={index}>{error.message}</FieldError>
+          ))}
+        </div>
+      )}
     </Field>
   );
 }
