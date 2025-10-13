@@ -33,12 +33,15 @@ export function useVotePoll() {
 
   useWatchEntryPointVoteSucceededEvent({
     address: getEntryPointAddress(chainId),
+    enabled: isTransactionReceiptSuccess,
     onError: (error) => {
       console.log('error', error);
       toast.error(error.message);
     },
     onLogs: (logs) => {
-      logs.forEach((log) => {});
+      logs.forEach((log) => {
+        console.log('log', log);
+      });
     },
   });
 
