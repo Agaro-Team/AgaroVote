@@ -16,8 +16,8 @@ interface VoteContextValue {
   isVoting: boolean;
   canVote: boolean;
   nonVotableReason: string | null;
-  selectChoice: (choiceIndex: number) => void;
-  submitVote: () => Promise<void>;
+  selectChoice: (choiceIndex: number, choiceId: string) => void;
+  submitVote: () => void;
 }
 
 const VoteContext = createContext<VoteContextValue | null>(null);
@@ -37,15 +37,19 @@ interface VoteProviderProps {
 
 export function VoteProvider({ poll, children }: VoteProviderProps) {
   const { address: walletAddress } = useWeb3Wallet();
-  const [selectedChoiceIndex, setSelectedChoiceIndex] = useState<number | null>(null);
-
   const votePool = useVotePoll();
 
   const handleSubmitVote = async () => {
-    if (typeof selectedChoiceIndex !== 'number' || !canVote) return;
+    if (typeof votePool.choiceIndex !== 'number' || !canVote) return;
     if (!poll) return;
+    if (!votePool.choiceId) return;
 
-    votePool.vote(poll.poolHash, selectedChoiceIndex);
+    votePool.vote({
+      poolHash: poll.poolHash,
+      poolId: poll.id,
+      candidateSelected: votePool.choiceIndex,
+      choiceId: votePool.choiceId,
+    });
   };
 
   const invitedAddresses = poll.addresses?.map((address) => address.walletAddress) || [];
@@ -83,11 +87,18 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
 
   const value: VoteContextValue = {
     poll,
-    selectedChoiceIndex,
+    selectedChoiceIndex: votePool.choiceIndex,
     isVoting: votePool.isWritingEntryPointVote,
     canVote,
     nonVotableReason: nonVotableReason || null,
-    selectChoice: setSelectedChoiceIndex,
+    selectChoice: (choiceIndex, choiceId) => {
+      if (choiceIndex === votePool.choiceIndex && choiceId === votePool.choiceId) {
+        return;
+      }
+
+      votePool.setChoiceIndex(choiceIndex);
+      votePool.setChoiceId(choiceId);
+    },
     submitVote: handleSubmitVote,
   };
 
