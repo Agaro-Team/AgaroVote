@@ -27,6 +27,7 @@ import { GetPollsByCreatorPaginatedUseCase } from './application/use-cases/get-p
 import { UpdatePollTransactionStatusUseCase } from './application/use-cases/update-poll-transaction-status.use-case';
 import { ActivatePollUseCase } from './application/use-cases/activate-poll.use-case';
 import { UpdateVoterHashUseCase } from './application/use-cases/update-voter-hash.use-case';
+import { CheckVotingEligibilityHandler } from './application/queries/check-voting-eligibility/check-voting-eligibility.handler';
 
 @Module({
   imports: [
@@ -63,6 +64,8 @@ import { UpdateVoterHashUseCase } from './application/use-cases/update-voter-has
     UpdatePollTransactionStatusUseCase,
     ActivatePollUseCase,
     UpdateVoterHashUseCase,
+    // CQRS Handlers
+    CheckVotingEligibilityHandler,
   ],
   exports: [POLL_REPOSITORY, POLL_CHOICE_REPOSITORY, POLL_ADDRESS_REPOSITORY],
 })
