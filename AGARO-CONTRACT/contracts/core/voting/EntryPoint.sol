@@ -19,7 +19,8 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
     }
 
     function newVotingPool(VotingPoolDataArgument calldata _poolData) external {
-        if (_poolData.versioning != version) revert VersioningError(_poolData.versioning);
+        if (_poolData.versioning != version)
+            revert VersioningError(_poolData.versioning);
 
         address merkleRootContract = address(0);
 
@@ -38,7 +39,13 @@ contract EntryPoint is VotingPool, VoterStorage, IEntryPoint {
 
         _bind(poolHash, voterStorageHashLocation);
 
-        if (!_poolData.isPrivate) emit VotingPoolCreated(version, poolHash);
+        if (!_poolData.isPrivate)
+            emit VotingPoolCreated(
+                version,
+                poolHash,
+                voterStorageHashLocation,
+                new uint256[](_poolData.candidatesTotal)
+            );
     }
 
     function vote(VoteArgument calldata _voteData) external {

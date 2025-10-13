@@ -24,7 +24,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
             expect(await entryPoint.version()).to.equal(0);
         });
     });
-    
+
     describe("Voting Pool Creation", function () {
         it("Should create a private voting pool without emitting VotingPoolCreated event", async function () {
             const now = Math.floor(Date.now() / 1000);
@@ -74,12 +74,23 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
+            const expectedPoolHash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
+                ["string", "string", "string[]", "uint8", "uint256", "address"],
+                [poolData.title, poolData.description, poolData.candidates, poolData.candidatesTotal, 0, owner.address]
+            ));
+
+            const expectedVoterStorageHash = ethers.keccak256(
+                ethers.AbiCoder.defaultAbiCoder().encode(
+                    ["bytes32"],
+                    [expectedPoolHash]
+                )
+            );
+
+            const expectedVotesArray = Array(poolData.candidatesTotal).fill(ethers.toBigInt(0));
+
             await expect(entryPoint.newVotingPool(poolData))
                 .to.emit(entryPoint, "VotingPoolCreated")
-                .withArgs(1, ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
-                    ["string", "string", "string[]", "uint8", "uint256", "address"],
-                    [poolData.title, poolData.description, poolData.candidates, poolData.candidatesTotal, 0, owner.address]
-                )));
+                .withArgs(1, expectedPoolHash, expectedVoterStorageHash, expectedVotesArray);
         });
 
         it("Should increment version after creating a pool", async function () {

@@ -49,7 +49,6 @@ contract VotingPool is IVotingPool {
             abi.encode(
                 voter,
                 _hashPool,
-                pool.poolVoterHash,
                 pool.candidatesVotersCount,
                 pool.voterStorageHashLocation
             )

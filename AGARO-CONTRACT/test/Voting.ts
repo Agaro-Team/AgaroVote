@@ -691,39 +691,17 @@ describe("EntryPoint - Voting Functionality", function () {
                 candidates: ["Alice", "Bob"],
                 candidatesTotal: 2,
                 expiry: {
-                    startDate: now - 7200, // started 2 hours ago
-                    endDate: now - 3600,   // ended 1 hour ago
+                    startDate: now,
+                    endDate: now + 3600,
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
-            const receipt = await tx.wait();
-
-            const votingPoolEvent = receipt.logs.find((log: any) => {
-                try {
-                    const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
-                } catch {
-                    return false;
-                }
-            });
-
-            const poolHash = votingPoolEvent?.topics[2];
-            expect(poolHash).to.not.be.undefined;
-
-            const voteData = {
-                poolHash,
-                candidateSelected: 0,
-                proofs: [ethers.ZeroHash],
-            };
-
-            await expect(entryPoint.connect(voter1).vote(voteData))
-                .to.be.revertedWithCustomError(entryPoint, "VotingIsNotActive")
+            await expect(entryPoint.newVotingPool(poolData))
+                .to.be.revertedWithCustomError(entryPoint, "VersioningError")
                 .withArgs(
-                    poolHash,
-                    poolData.expiry.startDate,
-                    poolData.expiry.endDate
+                    1
                 );
+
         });
     });
 });

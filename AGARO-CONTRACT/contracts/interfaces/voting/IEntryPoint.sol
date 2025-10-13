@@ -4,7 +4,12 @@ pragma solidity ^0.8.28;
 import "../../structs.sol";
 
 interface IEntryPoint {
-    event VotingPoolCreated(uint256 indexed version, bytes32 indexed poolHash);
+    event VotingPoolCreated(
+        uint256 indexed version,
+        bytes32 indexed poolHash,
+        bytes32 voterStorageHashLocation,
+        uint256[] candidateCount
+    );
     event VoteSucceeded(
         bytes32 indexed poolHash,
         address indexed voter,
