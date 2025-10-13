@@ -1,48 +1,42 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Delete,
   Body,
-  Param,
+  Controller,
+  Delete,
+  Get,
   HttpCode,
   HttpStatus,
+  Param,
+  Post,
+  Put,
   Query,
 } from '@nestjs/common';
+import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
 import { CreatePollDto } from '../../application/dto/create-poll.dto';
+import { PollFilterDto } from '../../application/dto/poll-filter.dto';
+import { PollResponseDto } from '../../application/dto/poll-response.dto';
 import { UpdatePollDto } from '../../application/dto/update-poll.dto';
 import { UpdateTransactionStatusDto } from '../../application/dto/update-transaction-status.dto';
-import { PollResponseDto } from '../../application/dto/poll-response.dto';
-import { PollFilterDto } from '../../application/dto/poll-filter.dto';
-import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
-import { CreatePollUseCase } from '../../application/use-cases/create-poll.use-case';
-import { GetPollByIdUseCase } from '../../application/use-cases/get-poll-by-id.use-case';
-import { GetAllPollsUseCase } from '../../application/use-cases/get-all-polls.use-case';
-import { UpdatePollUseCase } from '../../application/use-cases/update-poll.use-case';
-import { DeletePollUseCase } from '../../application/use-cases/delete-poll.use-case';
-import { GetPollsByCreatorUseCase } from '../../application/use-cases/get-polls-by-creator.use-case';
-import { GetActivePollsUseCase } from '../../application/use-cases/get-active-polls.use-case';
-import { GetOngoingPollsUseCase } from '../../application/use-cases/get-ongoing-polls.use-case';
+import { UpdateVoterHashDto } from '../../application/dto/update-voter-hash.dto';
+import { ActivatePollUseCase } from '../../application/use-cases/activate-poll.use-case';
 import { CheckVotingEligibilityUseCase } from '../../application/use-cases/check-voting-eligibility.use-case';
-import { GetAllPollsPaginatedUseCase } from '../../application/use-cases/get-all-polls-paginated.use-case';
+import { CreatePollUseCase } from '../../application/use-cases/create-poll.use-case';
+import { DeletePollUseCase } from '../../application/use-cases/delete-poll.use-case';
 import { GetActivePollsPaginatedUseCase } from '../../application/use-cases/get-active-polls-paginated.use-case';
+import { GetAllPollsPaginatedUseCase } from '../../application/use-cases/get-all-polls-paginated.use-case';
 import { GetOngoingPollsPaginatedUseCase } from '../../application/use-cases/get-ongoing-polls-paginated.use-case';
+import { GetPollByIdUseCase } from '../../application/use-cases/get-poll-by-id.use-case';
 import { GetPollsByCreatorPaginatedUseCase } from '../../application/use-cases/get-polls-by-creator-paginated.use-case';
 import { UpdatePollTransactionStatusUseCase } from '../../application/use-cases/update-poll-transaction-status.use-case';
-import { ActivatePollUseCase } from '../../application/use-cases/activate-poll.use-case';
+import { UpdatePollUseCase } from '../../application/use-cases/update-poll.use-case';
+import { UpdateVoterHashUseCase } from '../../application/use-cases/update-voter-hash.use-case';
 
 @Controller('polls')
 export class PollController {
   constructor(
     private readonly createPollUseCase: CreatePollUseCase,
     private readonly getPollByIdUseCase: GetPollByIdUseCase,
-    private readonly getAllPollsUseCase: GetAllPollsUseCase,
     private readonly updatePollUseCase: UpdatePollUseCase,
     private readonly deletePollUseCase: DeletePollUseCase,
-    private readonly getPollsByCreatorUseCase: GetPollsByCreatorUseCase,
-    private readonly getActivePollsUseCase: GetActivePollsUseCase,
-    private readonly getOngoingPollsUseCase: GetOngoingPollsUseCase,
     private readonly checkVotingEligibilityUseCase: CheckVotingEligibilityUseCase,
     private readonly getAllPollsPaginatedUseCase: GetAllPollsPaginatedUseCase,
     private readonly getActivePollsPaginatedUseCase: GetActivePollsPaginatedUseCase,
@@ -50,6 +44,7 @@ export class PollController {
     private readonly getPollsByCreatorPaginatedUseCase: GetPollsByCreatorPaginatedUseCase,
     private readonly updatePollTransactionStatusUseCase: UpdatePollTransactionStatusUseCase,
     private readonly activatePollUseCase: ActivatePollUseCase,
+    private readonly updateVoterHashUseCase: UpdateVoterHashUseCase,
   ) {}
 
   @Post()
@@ -145,6 +140,18 @@ export class PollController {
   @Post(':id/activate')
   async activate(@Param('id') id: string): Promise<PollResponseDto> {
     const poll = await this.activatePollUseCase.execute(id);
+    return PollResponseDto.fromEntity(poll, true);
+  }
+
+  @Put(':id/update-voter-hash')
+  async updateVoterHash(
+    @Param('id') poolHash: string,
+    @Body() updateVoterHashDto: UpdateVoterHashDto,
+  ): Promise<PollResponseDto> {
+    const poll = await this.updateVoterHashUseCase.execute(
+      poolHash,
+      updateVoterHashDto.voterHash,
+    );
     return PollResponseDto.fromEntity(poll, true);
   }
 

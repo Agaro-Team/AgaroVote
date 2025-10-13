@@ -36,6 +36,15 @@ export class Poll extends BaseEntity {
   poolHash: string;
 
   @Column({
+    name: 'voter_hash',
+    type: 'varchar',
+    length: 255,
+    unique: true,
+    nullable: true,
+  })
+  voterHash?: string;
+
+  @Column({
     name: 'transaction_status',
     type: 'enum',
     enum: TransactionStatus,

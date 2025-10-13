@@ -25,6 +25,7 @@ import { GetOngoingPollsPaginatedUseCase } from './application/use-cases/get-ong
 import { GetPollsByCreatorPaginatedUseCase } from './application/use-cases/get-polls-by-creator-paginated.use-case';
 import { UpdatePollTransactionStatusUseCase } from './application/use-cases/update-poll-transaction-status.use-case';
 import { ActivatePollUseCase } from './application/use-cases/activate-poll.use-case';
+import { UpdateVoterHashUseCase } from './application/use-cases/update-voter-hash.use-case';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Poll, PollChoice, PollAddress])],
@@ -57,6 +58,7 @@ import { ActivatePollUseCase } from './application/use-cases/activate-poll.use-c
     GetPollsByCreatorPaginatedUseCase,
     UpdatePollTransactionStatusUseCase,
     ActivatePollUseCase,
+    UpdateVoterHashUseCase,
   ],
   exports: [POLL_REPOSITORY, POLL_CHOICE_REPOSITORY, POLL_ADDRESS_REPOSITORY],
 })
