@@ -45,7 +45,7 @@ function transformPollToCard(poll: Poll): VotingPoolCardProps {
     title: poll.title,
     description: poll.description,
     choices: poll.choices.map((choice) => choice.choiceText),
-    totalVotes: 0, // TODO: Fetch from blockchain when implemented
+    totalVotes: poll.voteCount, // TODO: Fetch from blockchain when implemented
     status: mapPollStatus(poll),
     createdAt: new Date(poll.createdAt),
     endsAt: new Date(poll.endDate),

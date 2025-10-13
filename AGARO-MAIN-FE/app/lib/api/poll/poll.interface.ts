@@ -54,6 +54,7 @@ export interface Poll {
   createdAt: string;
   updatedAt: string;
   // Computed properties
+  voteCount: number;
   isOngoing: boolean;
   hasStarted: boolean;
   hasEnded: boolean;
@@ -72,6 +73,7 @@ export type CreatePollRequest = {
   poolHash: string;
   addresses?: Omit<Address, 'id' | 'pollId' | 'createdAt'>[];
   creatorWalletAddress: string;
+  voteCount: number;
 };
 
 /**
