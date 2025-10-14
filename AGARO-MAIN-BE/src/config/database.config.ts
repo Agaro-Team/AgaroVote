@@ -18,7 +18,7 @@ export default registerAs(
     })(),
     database: process.env.DB_NAME || 'agaro_vote_db',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: process.env.NODE_ENV !== 'production',
+    synchronize: false,
     logging: process.env.NODE_ENV !== 'production',
     migrations: [__dirname + '/../database/migrations/**/*{.ts,.js}'],
     migrationsRun: false,
