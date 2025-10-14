@@ -247,10 +247,15 @@ export class TypeORMPollRepository implements IPollRepository {
     // Note: When using leftJoinAndSelect, raw array contains duplicate rows for each joined relation
     // but entities array contains unique entities with relations already mapped
     // We need to match each entity to its corresponding raw row by poll.id
+    // Build a lookup map for raw rows by poll_id for O(1) access
+    const rawRowMap = new Map<string, RawPollResult>();
+    for (const row of rawAndEntities.raw) {
+      rawRowMap.set(row.poll_id, row);
+    }
+
     const data = rawAndEntities.entities.map((poll) => {
-      // Find the raw row that corresponds to this poll entity
-      // TypeORM prefixes columns with the alias name (e.g., 'poll_id')
-      const rawRow = rawAndEntities.raw.find((row) => row.poll_id === poll.id);
+      // Get the raw row that corresponds to this poll entity
+      const rawRow = rawRowMap.get(poll.id);
       const voteCount = parseInt(rawRow?.voteCount ?? '0') || 0;
 
       return Object.assign(poll, { voteCount }) as PollWithVoteCount;
