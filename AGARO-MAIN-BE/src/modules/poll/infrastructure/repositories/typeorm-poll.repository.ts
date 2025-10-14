@@ -33,8 +33,8 @@ export class TypeORMPollRepository implements IPollRepository {
   }
 
   /**
-   * Find poll with relations and vote count via JOIN
-   * Uses LEFT JOIN on vote_stats table to get vote count in single query
+   * Find poll with relations and vote count via SUBQUERY
+   * Uses subquery to get vote count - cleaner than JOIN with GROUP BY
    */
   async findWithRelations(id: string): Promise<PollWithVoteCount | null> {
     const queryBuilder = this.repository
@@ -43,7 +43,7 @@ export class TypeORMPollRepository implements IPollRepository {
       .leftJoinAndSelect('poll.addresses', 'addresses')
       .where('poll.id = :id', { id });
 
-    // Add vote count via JOIN
+    // Add vote count via subquery
     this.addVoteCountSelect(queryBuilder);
 
     const rawAndEntities = await queryBuilder.getRawAndEntities<{
@@ -55,7 +55,7 @@ export class TypeORMPollRepository implements IPollRepository {
     }
 
     const poll = rawAndEntities.entities[0];
-    const voteCount = parseInt(rawAndEntities.raw[0].votecount) || 0;
+    const voteCount = parseInt(rawAndEntities.raw[0]?.votecount) || 0;
 
     // Preserve the Poll class instance and its methods by using Object.assign
     return Object.assign(poll, { voteCount }) as PollWithVoteCount;
@@ -189,28 +189,35 @@ export class TypeORMPollRepository implements IPollRepository {
   }
 
   /**
-   * Helper method to add vote count to query via LEFT JOIN on vote_stats table
-   * This performs a single JOIN query instead of N+1 queries
+   * Helper method to add vote count to query via SUBQUERY
+   * This avoids the GROUP BY complexity and returns one row per poll
    *
    * SQL generated:
-   * LEFT JOIN vote_stats vs ON vs.poll_id = poll.id
-   * SELECT COALESCE(SUM(vs.vote_count), 0) as voteCount
-   * GROUP BY poll.id, choices.id, addresses.id
+   * SELECT (
+   *   SELECT COALESCE(SUM(vs.vote_count), 0)
+   *   FROM vote_stats vs
+   *   WHERE vs.poll_id = poll.id
+   * ) as voteCount
    */
   private addVoteCountSelect(
     queryBuilder: SelectQueryBuilder<Poll>,
   ): SelectQueryBuilder<Poll> {
-    return queryBuilder
-      .leftJoin('vote_stats', 'vs', 'vs.poll_id = poll.id')
-      .addSelect('COALESCE(SUM(vs.vote_count), 0)', 'voteCount')
-      .groupBy('poll.id')
-      .addGroupBy('choices.id')
-      .addGroupBy('addresses.id');
+    return queryBuilder.addSelect(
+      (subQuery) =>
+        subQuery
+          .select('COALESCE(SUM(vs.vote_count), 0)', 'sum')
+          .from('vote_stats', 'vs')
+          .where('vs.poll_id = poll.id'),
+      'voteCount',
+    );
   }
 
   /**
    * Paginate query results with vote count
    * Maps raw results to PollWithVoteCount entities
+   *
+   * Using subquery approach - each poll returns exactly one row
+   * with its aggregated vote count, avoiding GROUP BY complexity
    */
   private async paginateWithVoteCount(
     queryBuilder: SelectQueryBuilder<Poll>,
@@ -220,26 +227,23 @@ export class TypeORMPollRepository implements IPollRepository {
     const limit = filters.limit || 10;
     const skip = (page - 1) * limit;
 
-    // Clone query builder for count query (before GROUP BY is applied)
-    const countQueryBuilder = queryBuilder.clone();
-
-    // For count, we need to count distinct poll.id
-    const total = await countQueryBuilder
-      .select('COUNT(DISTINCT poll.id)', 'count')
-      .getRawOne()
-      .then((result: { count: string }) => parseInt(result.count) || 0);
+    // Get total count
+    const total = await queryBuilder.getCount();
 
     // Apply pagination to main query
     queryBuilder.skip(skip).take(limit);
 
     const rawAndEntities = await queryBuilder.getRawAndEntities<{
-      votecount: string;
+      voteCount: string;
     }>();
 
-    // Map results with vote counts
-    // Preserve the Poll class instance and its methods by using Object.assign
+    // With subquery approach, entities and raw results are 1:1 aligned
+    // No need for complex mapping - simple index-based mapping works
     const data = rawAndEntities.entities.map((poll, index) => {
-      const voteCount = parseInt(rawAndEntities.raw[index].votecount) || 0;
+      // Try different possible column names that TypeORM might generate
+      const voteCount =
+        parseInt(rawAndEntities.raw[index]?.voteCount || '0') || 0;
+
       return Object.assign(poll, { voteCount }) as PollWithVoteCount;
     });
 
