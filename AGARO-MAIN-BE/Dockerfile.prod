@@ -21,7 +21,7 @@ COPY --from=builder /app/ormconfig.ts ./ormconfig.ts
 
 ENV NODE_ENV=production
 
-EXPOSE 4000
+EXPOSE 3000
 
 RUN addgroup -S nest && adduser -S nest -G nest
 USER nest
