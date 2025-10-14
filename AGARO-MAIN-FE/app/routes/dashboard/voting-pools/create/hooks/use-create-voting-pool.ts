@@ -55,10 +55,11 @@ export function useCreateVotingPool() {
   const [onChainHash, setOnChainHash] = useState<`0x${string}` | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
+  const [votingPoolData, setVotingPoolData] = useState<VotingPoolData | null>(null);
   const offChainHashRef = useRef<`0x${string}` | null>(null);
   const verificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { mutateAsync: storePoll, isPending: isCreatePollWeb2Pending } =
+  const { mutate: storePoll, isPending: isCreatePollWeb2Pending } =
     useMutation(createPollMutationOptions);
 
   // Prepare the contract write
@@ -96,8 +97,13 @@ export function useCreateVotingPool() {
       }
     },
     onLogs: (logs) => {
-      logs.forEach((log) => {
+      logs.forEach((log, index) => {
         const { poolHash: onChainHash, version: eventVersion } = log.args;
+
+        // Only proceed for the last log in the array
+        if (index !== logs.length - 1) {
+          return;
+        }
 
         // Only verify if we have an off-chain hash waiting
         if (!offChainHashRef.current || !onChainHash) {
@@ -127,6 +133,25 @@ export function useCreateVotingPool() {
           setIsVerifying(false);
           setShouldRedirect(true);
 
+          if (!votingPoolData || !walletAddress || !onChainHash) {
+            return;
+          }
+
+          // Store to web 2 DB
+          storePoll({
+            title: votingPoolData.title,
+            description: votingPoolData.description,
+            choices: votingPoolData.candidates.map((choice) => ({ choiceText: choice })),
+            startDate: new Date(), // For now using now
+            endDate: votingPoolData.expiryDate,
+            isPrivate: votingPoolData.isPrivate,
+            addresses: votingPoolData.allowedAddresses.map((address) => ({
+              walletAddress: address,
+            })),
+            creatorWalletAddress: walletAddress,
+            poolHash: onChainHash,
+          });
+
           // Clear the reference (but keep state for UI to show success)
           offChainHashRef.current = null;
           // DON'T clear offChainHash state - form needs it to detect success!
@@ -134,6 +159,30 @@ export function useCreateVotingPool() {
       });
     },
   });
+
+  const storePollDataImmediately = (poolData: VotingPoolData, poolHash: `0x${string}`) => {
+    if (!walletAddress) return;
+
+    // Hashes match - success!
+    setOnChainHash(poolHash);
+    setIsVerifying(false);
+    setShouldRedirect(true);
+
+    // Store immediately to backend
+    storePoll({
+      title: poolData.title,
+      description: poolData.description,
+      choices: poolData.candidates.map((choice) => ({ choiceText: choice })),
+      startDate: new Date(), // For now using now
+      endDate: poolData.expiryDate,
+      isPrivate: poolData.isPrivate,
+      addresses: poolData.allowedAddresses.map((address) => ({
+        walletAddress: address,
+      })),
+      creatorWalletAddress: walletAddress,
+      poolHash,
+    });
+  };
 
   /**
    * Create a new voting pool
@@ -160,6 +209,8 @@ export function useCreateVotingPool() {
       toast.error('Could not fetch contract version');
       return;
     }
+
+    setVotingPoolData(poolData);
 
     try {
       // Calculate expiry timestamps
@@ -207,24 +258,15 @@ export function useCreateVotingPool() {
       setOffChainHash(poolHash);
       offChainHashRef.current = poolHash;
 
-      // Store to web 2 DB
-      await storePoll({
-        title: poolData.title,
-        description: poolData.description,
-        choices: poolData.candidates.map((choice) => ({ choiceText: choice })),
-        startDate: new Date(), // For now using now
-        endDate: poolData.expiryDate,
-        isPrivate: poolData.isPrivate,
-        addresses: poolData.allowedAddresses.map((address) => ({ walletAddress: address })),
-        creatorWalletAddress: walletAddress,
-        poolHash: poolHash,
-      });
-
       // Submit to blockchain
       await writeContractAsync({
         address: contractAddress,
         args: [args],
       });
+
+      if (poolData.isPrivate) {
+        storePollDataImmediately(poolData, poolHash);
+      }
     } catch (error) {
       toast.error('Failed to create pool', {
         description: error instanceof Error ? error.message : 'Unknown error',
