@@ -1,3 +1,5 @@
+import type { ApiResponse } from '../api.interface';
+
 export interface CastVoteRequest {
   pollId: string;
   choiceId: string;
@@ -23,4 +25,43 @@ export interface CastVoteResponse {
   createdAt: string;
   isOnChain: boolean;
   isVerified: boolean;
+}
+
+/**
+ * Get user vote for a specific poll
+ */
+export interface GetUserVoteRequest {
+  pollId: string;
+  voterWalletAddress: string;
+}
+
+export interface GetUserVote {
+  id: string;
+  pollId: string;
+  choiceId: string;
+  voterWalletAddress: string;
+  voterHash: string;
+  poolHash: string;
+  transactionHash: string | null;
+  blockNumber: number | null;
+  signature: string | null;
+  voteWeight: number;
+  votedAt: string;
+  createdAt: string;
+  isOnChain: boolean;
+  isVerified: boolean;
+}
+
+export interface GetUserVoteResponse extends ApiResponse<GetUserVote> {}
+
+/**
+ * Check if user has voted
+ */
+export interface CheckHasVotedRequest {
+  pollId: string;
+  voterWalletAddress: string;
+}
+
+export interface CheckHasVotedResponse {
+  hasVoted: boolean;
 }

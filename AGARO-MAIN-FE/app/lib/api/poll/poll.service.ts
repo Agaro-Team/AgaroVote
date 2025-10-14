@@ -1,5 +1,7 @@
 import { agaroApi } from '../agaro.api';
 import type {
+  CheckVotingEligibilityRequest,
+  CheckVotingEligibilityResponse,
   CreatePollRequest,
   GetPollResponse,
   GetPollsRequest,
@@ -18,5 +20,14 @@ export const pollService = {
   getPollDetail: async (poolHash: string) => {
     const response = await agaroApi.get<GetPollResponse>(`/v1/polls/${poolHash}`);
     return response.data;
+  },
+  checkVotingEligibility: async ({ pollId, walletAddress }: CheckVotingEligibilityRequest) => {
+    const response = await agaroApi.get<CheckVotingEligibilityResponse>(
+      `/v1/polls/${pollId}/eligibility`,
+      {
+        params: { walletAddress },
+      }
+    );
+    return response;
   },
 };
