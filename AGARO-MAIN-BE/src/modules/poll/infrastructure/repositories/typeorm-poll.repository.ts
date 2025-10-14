@@ -264,6 +264,9 @@ export class TypeORMPollRepository implements IPollRepository {
     queryBuilder: SelectQueryBuilder<Poll>,
     filters: PollFilterDto,
   ): void {
+    // Display public only
+    queryBuilder.andWhere('poll.isPrivate = :isPrivate', { isPrivate: false });
+
     // Search query (q) - searches in title and description
     if (filters.q) {
       queryBuilder.andWhere(
