@@ -11,6 +11,7 @@ import { type ReactNode, createContext, useContext, useEffect, useMemo } from 'r
 
 import { useQuery } from '@tanstack/react-query';
 
+import type { VoteStep } from './components/vote-progress-tracker';
 import { useVotePoll } from './hooks/use-vote-poll';
 
 interface VoteContextValue {
@@ -23,6 +24,8 @@ interface VoteContextValue {
   hasVoted: boolean;
   userVotedChoiceId: string | null;
   isLoadingUserVote: boolean;
+  currentVoteStep: VoteStep;
+  voteTxHash: `0x${string}` | undefined;
   selectChoice: (choiceIndex: number, choiceId: string) => void;
   submitVote: () => Promise<void>;
 }
@@ -67,6 +70,46 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     return eligibilityData.data?.eligible ?? false;
   }, [eligibilityData?.data?.eligible]);
 
+  // Determine current voting step based on transaction state
+  const currentVoteStep = useMemo<VoteStep>(() => {
+    // If wallet confirmation is pending
+    if (votePool.isWritingEntryPointVote) {
+      return 'wallet-confirmation';
+    }
+
+    // If transaction hash exists but not confirmed yet
+    if (votePool.voteTxHash && !votePool.isTransactionReceiptSuccess) {
+      if (votePool.isTransactionReceiptLoading) {
+        return 'blockchain-confirmation';
+      }
+      return 'blockchain-submission';
+    }
+
+    // If transaction is confirmed and submitting to backend
+    if (votePool.isTransactionReceiptSuccess && votePool.isSubmittingToBackend) {
+      return 'database-storage';
+    }
+
+    // If transaction is confirmed but backend submission pending
+    if (votePool.isTransactionReceiptSuccess && !votePool.isSubmittingToBackend) {
+      // Check if we have a vote recorded
+      if (hasVoted && votePool.voteTxHash) {
+        return 'complete';
+      }
+      return 'verification';
+    }
+
+    // Default: idle state
+    return 'idle';
+  }, [
+    votePool.isWritingEntryPointVote,
+    votePool.voteTxHash,
+    votePool.isTransactionReceiptSuccess,
+    votePool.isTransactionReceiptLoading,
+    votePool.isSubmittingToBackend,
+    hasVoted,
+  ]);
+
   // Determine non-votable reason
   const nonVotableReason = useMemo(() => {
     if (hasVoted) {
@@ -98,6 +141,8 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     hasVoted,
     userVotedChoiceId,
     isLoadingUserVote,
+    currentVoteStep,
+    voteTxHash: votePool.voteTxHash,
     selectChoice: (choiceIndex, choiceId) => {
       // Prevent selection if user has already voted
       if (hasVoted) {
