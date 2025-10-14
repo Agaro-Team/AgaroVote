@@ -26,4 +26,4 @@ EXPOSE 3000
 RUN addgroup -S nest && adduser -S nest -G nest
 USER nest
 
-CMD yarn migration:run && node dist/src/main
+CMD yarn migration:run:prod && node dist/src/main
