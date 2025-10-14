@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react';
 import { useCreateVotingPool } from '../hooks/use-create-voting-pool';
 import { AllowedAddressesField } from './allowed-addresses-field';
 import { ChoicesArrayField } from './choices-array-field';
+import { ShareVotingPoolModal } from './share-voting-pool-modal';
 import { TransactionProgressDialog } from './transaction-progress';
 import { votingPoolFormOptions } from './voting-pool-form-options';
 
@@ -23,6 +24,7 @@ type ProgressStep = 'idle' | 'saving' | 'wallet' | 'confirming' | 'verifying' | 
 export function CreateVotingPoolForm() {
   const navigate = useNavigate();
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
+  const [openShareModal, setOpenShareModal] = useState(false);
   const [progressStep, setProgressStep] = useState<ProgressStep>('idle');
   const {
     createPool,
@@ -34,6 +36,7 @@ export function CreateVotingPoolForm() {
     shouldRedirect,
     onChainHash,
     offChainHash,
+    storePollData,
   } = useCreateVotingPool();
 
   const form = useAppForm({
@@ -100,7 +103,7 @@ export function CreateVotingPoolForm() {
     }
   }, [verificationError]);
 
-  // Handle successful hash verification and redirect
+  // Handle successful hash verification and show share modal
   useEffect(() => {
     if (shouldRedirect && onChainHash && offChainHash) {
       setProgressStep('success');
@@ -110,17 +113,16 @@ export function CreateVotingPoolForm() {
         duration: 5000,
       });
 
-      // Close dialog, reset form, and redirect after a short delay
+      // Close transaction dialog and open share modal after a short delay
       const timeout = setTimeout(() => {
         setOpenConfirmationDialog(false);
         setProgressStep('idle');
-        form.reset();
-        navigate('/dashboard/voting-pools');
-      }, 2000);
+        setOpenShareModal(true);
+      }, 1500);
 
       return () => clearTimeout(timeout);
     }
-  }, [shouldRedirect, onChainHash, offChainHash, navigate, form]);
+  }, [shouldRedirect, onChainHash, offChainHash]);
 
   // Handle error
   useEffect(() => {
@@ -262,6 +264,19 @@ export function CreateVotingPoolForm() {
           onClose={() => setProgressStep('idle')}
           onConfirm={() => form.handleSubmit()}
         />
+
+        {/* Share Modal - Shows after successful creation */}
+        {onChainHash && (
+          <ShareVotingPoolModal
+            open={openShareModal}
+            onOpenChange={setOpenShareModal}
+            id={storePollData?.data?.id ?? ''}
+            onClose={() => {
+              form.reset();
+              navigate('/dashboard/voting-pools');
+            }}
+          />
+        )}
       </form.AppForm>
     </Card>
   );

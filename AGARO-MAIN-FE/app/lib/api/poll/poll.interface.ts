@@ -75,6 +75,8 @@ export type CreatePollRequest = {
   creatorWalletAddress: string;
 };
 
+export type CreatePollResponse = ApiResponse<Poll>;
+
 /**
  * Get polls request - query parameters for fetching polls
  */
