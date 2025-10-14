@@ -3,6 +3,7 @@ import type {
   CheckVotingEligibilityRequest,
   CheckVotingEligibilityResponse,
   CreatePollRequest,
+  CreatePollResponse,
   GetPollResponse,
   GetPollsRequest,
   GetPollsResponse,
@@ -10,7 +11,8 @@ import type {
 
 export const pollService = {
   createPoll: async (poll: CreatePollRequest) => {
-    await agaroApi.post('/v1/polls', poll);
+    const response = await agaroApi.post<CreatePollResponse>('/v1/polls', poll);
+    return response;
   },
   getActivePolls: async (params: GetPollsRequest) => {
     params.isActive = params.isActive ?? true;

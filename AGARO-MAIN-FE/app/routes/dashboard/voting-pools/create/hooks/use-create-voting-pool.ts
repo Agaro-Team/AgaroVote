@@ -59,8 +59,11 @@ export function useCreateVotingPool() {
   const offChainHashRef = useRef<`0x${string}` | null>(null);
   const verificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const { mutate: storePoll, isPending: isCreatePollWeb2Pending } =
-    useMutation(createPollMutationOptions);
+  const {
+    mutate: storePoll,
+    isPending: isCreatePollWeb2Pending,
+    data: storePollData,
+  } = useMutation(createPollMutationOptions);
 
   // Prepare the contract write
   const {
@@ -324,5 +327,6 @@ export function useCreateVotingPool() {
     onChainHash,
     offChainHash,
     shouldRedirect,
+    storePollData,
   };
 }
