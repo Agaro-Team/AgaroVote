@@ -80,6 +80,7 @@ jobs:
               docker run -d \
                 --name agaro-be \
                 --restart unless-stopped \
+                --network agaro-network \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
                 --env-file ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }} \
                 ${{ env.DOCKER_IMAGE }}:latest
