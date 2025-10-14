@@ -3,13 +3,13 @@ FROM node:20-alpine AS builder
 WORKDIR /app
 
 COPY package*.json ./
-
-RUN yarn install
+RUN yarn install --frozen-lockfile
 
 COPY . .
 
 RUN yarn build
 
+# ---------- RUNNER STAGE ----------
 FROM node:20-alpine AS runner
 
 WORKDIR /app
@@ -17,6 +17,7 @@ WORKDIR /app
 COPY --from=builder /app/package*.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/ormconfig.ts ./ormconfig.ts
 
 ENV NODE_ENV=production
 
@@ -25,4 +26,4 @@ EXPOSE 4000
 RUN addgroup -S nest && adduser -S nest -G nest
 USER nest
 
-CMD ["node", "dist/src/main"]
+CMD yarn migration:run && node dist/src/main
