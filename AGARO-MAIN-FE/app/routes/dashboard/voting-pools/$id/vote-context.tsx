@@ -17,7 +17,7 @@ interface VoteContextValue {
   canVote: boolean;
   nonVotableReason: string | null;
   selectChoice: (choiceIndex: number, choiceId: string) => void;
-  submitVote: () => void;
+  submitVote: () => Promise<void>;
 }
 
 const VoteContext = createContext<VoteContextValue | null>(null);
