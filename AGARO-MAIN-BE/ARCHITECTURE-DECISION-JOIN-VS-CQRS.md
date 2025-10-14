@@ -1,5 +1,15 @@
 # Architecture Decision: Database JOIN vs CQRS for Cross-Module Data
 
+## ✅ DECISION: Database JOIN (Implemented on Oct 14, 2025)
+
+**Final Choice**: We migrated from CQRS QueryBus to SQL JOIN implementation.
+
+**Reason**: For a monolith with single database, JOIN provides better simplicity without sacrificing performance.
+
+See `MIGRATION-SUMMARY-JOIN-IMPLEMENTATION.md` for full implementation details.
+
+---
+
 ## The Question
 
 > "Why don't you add JOIN in repository instead of using CQRS?"
@@ -319,21 +329,24 @@ const poll = await this.pollRepository.findWithVoteCountDirect(id);
 
 ## Recommendation
 
-### For Your Codebase: **CQRS with Batch Optimization** ✅
+### ~~For Your Codebase: **CQRS with Batch Optimization** ✅~~ (CHANGED)
 
-**Reasons:**
-1. Your codebase already follows DDD/CQRS patterns
-2. Clean module boundaries are important to you
-3. Batch optimization solves performance concerns
-4. You're building for long-term maintainability
-5. The architecture is already set up for this
+### **UPDATED DECISION: Database JOIN** ✅ (Oct 14, 2025)
+
+**Reasons for switching to JOIN:**
+1. Simpler code is more valuable than architectural purity for this project
+2. Single database monolith doesn't benefit from module independence
+3. ~80 lines of code removed
+4. Easier for team to understand and maintain
+5. No performance penalty (JOIN is equally fast)
+6. YAGNI: We're not building microservices anytime soon
 
 **Implementation:**
-- ✅ Already done!
-- ✅ `GetMultiplePollVoteCountsQuery` for batch fetching
-- ✅ Single query for multiple polls
-- ✅ Performance comparable to JOIN
-- ✅ Clean architecture maintained
+- ✅ Migrated on Oct 14, 2025
+- ✅ Single JOIN query instead of two queries
+- ✅ Direct `LEFT JOIN vote_stats` in repository
+- ✅ Performance equal or better
+- ✅ Code significantly simpler
 
 ---
 

@@ -10,7 +10,10 @@ import {
   Poll,
   TransactionStatus,
 } from '@modules/poll/domain/entities/poll.entity';
-import { IPollRepository } from '@modules/poll/domain/repositories/poll-repository.interface';
+import {
+  IPollRepository,
+  PollWithVoteCount,
+} from '@modules/poll/domain/repositories/poll-repository.interface';
 import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
 import { PollFilterDto } from '@modules/poll/application/dto/poll-filter.dto';
 
@@ -29,11 +32,32 @@ export class TypeORMPollRepository implements IPollRepository {
     return await this.repository.findOne({ where: { id } });
   }
 
-  async findWithRelations(id: string): Promise<Poll | null> {
-    return await this.repository.findOne({
-      where: { id },
-      relations: ['choices', 'addresses'],
-    });
+  /**
+   * Find poll with relations and vote count via JOIN
+   * Uses LEFT JOIN on vote_stats table to get vote count in single query
+   */
+  async findWithRelations(id: string): Promise<PollWithVoteCount | null> {
+    const queryBuilder = this.repository
+      .createQueryBuilder('poll')
+      .leftJoinAndSelect('poll.choices', 'choices')
+      .leftJoinAndSelect('poll.addresses', 'addresses')
+      .where('poll.id = :id', { id });
+
+    // Add vote count via JOIN
+    this.addVoteCountSelect(queryBuilder);
+
+    const rawAndEntities = await queryBuilder.getRawAndEntities<{
+      votecount: string;
+    }>();
+
+    if (rawAndEntities.entities.length === 0) {
+      return null;
+    }
+
+    const poll = rawAndEntities.entities[0];
+    const voteCount = parseInt(rawAndEntities.raw[0].votecount) || 0;
+
+    return { ...poll, voteCount } as PollWithVoteCount;
   }
 
   async findByPoolHash(poolHash: string): Promise<Poll | null> {
@@ -89,34 +113,45 @@ export class TypeORMPollRepository implements IPollRepository {
     return (result.affected ?? 0) > 0;
   }
 
+  /**
+   * Find all polls paginated with vote counts via JOIN
+   */
   async findAllPaginated(
     filters: PollFilterDto,
-  ): Promise<IPaginatedResult<Poll>> {
+  ): Promise<IPaginatedResult<PollWithVoteCount>> {
     const queryBuilder = this.repository
       .createQueryBuilder('poll')
       .leftJoinAndSelect('poll.choices', 'choices')
       .leftJoinAndSelect('poll.addresses', 'addresses');
 
+    this.addVoteCountSelect(queryBuilder);
     this.applyFilters(queryBuilder, filters);
-    return await this.paginate(queryBuilder, filters);
+    return await this.paginateWithVoteCount(queryBuilder, filters);
   }
 
+  /**
+   * Find active polls paginated with vote counts via JOIN
+   */
   async findActivePaginated(
     filters: PollFilterDto,
-  ): Promise<IPaginatedResult<Poll>> {
+  ): Promise<IPaginatedResult<PollWithVoteCount>> {
     const queryBuilder = this.repository
       .createQueryBuilder('poll')
       .leftJoinAndSelect('poll.choices', 'choices')
       .leftJoinAndSelect('poll.addresses', 'addresses')
       .where('poll.isActive = :isActive', { isActive: true });
 
+    this.addVoteCountSelect(queryBuilder);
     this.applyFilters(queryBuilder, filters);
-    return await this.paginate(queryBuilder, filters);
+    return await this.paginateWithVoteCount(queryBuilder, filters);
   }
 
+  /**
+   * Find ongoing polls paginated with vote counts via JOIN
+   */
   async findOngoingPaginated(
     filters: PollFilterDto,
-  ): Promise<IPaginatedResult<Poll>> {
+  ): Promise<IPaginatedResult<PollWithVoteCount>> {
     const now = new Date();
     const queryBuilder = this.repository
       .createQueryBuilder('poll')
@@ -129,22 +164,94 @@ export class TypeORMPollRepository implements IPollRepository {
       .andWhere('poll.startDate <= :now', { now })
       .andWhere('poll.endDate >= :now', { now });
 
+    this.addVoteCountSelect(queryBuilder);
     this.applyFilters(queryBuilder, filters);
-    return await this.paginate(queryBuilder, filters);
+    return await this.paginateWithVoteCount(queryBuilder, filters);
   }
 
+  /**
+   * Find polls by creator paginated with vote counts via JOIN
+   */
   async findByCreatorPaginated(
     walletAddress: string,
     filters: PollFilterDto,
-  ): Promise<IPaginatedResult<Poll>> {
+  ): Promise<IPaginatedResult<PollWithVoteCount>> {
     const queryBuilder = this.repository
       .createQueryBuilder('poll')
       .leftJoinAndSelect('poll.choices', 'choices')
       .leftJoinAndSelect('poll.addresses', 'addresses')
       .where('poll.creatorWalletAddress = :walletAddress', { walletAddress });
 
+    this.addVoteCountSelect(queryBuilder);
     this.applyFilters(queryBuilder, filters);
-    return await this.paginate(queryBuilder, filters);
+    return await this.paginateWithVoteCount(queryBuilder, filters);
+  }
+
+  /**
+   * Helper method to add vote count to query via LEFT JOIN on vote_stats table
+   * This performs a single JOIN query instead of N+1 queries
+   *
+   * SQL generated:
+   * LEFT JOIN vote_stats vs ON vs.poll_id = poll.id
+   * SELECT COALESCE(SUM(vs.vote_count), 0) as voteCount
+   * GROUP BY poll.id, choices.id, addresses.id
+   */
+  private addVoteCountSelect(
+    queryBuilder: SelectQueryBuilder<Poll>,
+  ): SelectQueryBuilder<Poll> {
+    return queryBuilder
+      .leftJoin('vote_stats', 'vs', 'vs.poll_id = poll.id')
+      .addSelect('COALESCE(SUM(vs.vote_count), 0)', 'voteCount')
+      .groupBy('poll.id')
+      .addGroupBy('choices.id')
+      .addGroupBy('addresses.id');
+  }
+
+  /**
+   * Paginate query results with vote count
+   * Maps raw results to PollWithVoteCount entities
+   */
+  private async paginateWithVoteCount(
+    queryBuilder: SelectQueryBuilder<Poll>,
+    filters: PollFilterDto,
+  ): Promise<IPaginatedResult<PollWithVoteCount>> {
+    const page = filters.page || 1;
+    const limit = filters.limit || 10;
+    const skip = (page - 1) * limit;
+
+    // Clone query builder for count query (before GROUP BY is applied)
+    const countQueryBuilder = queryBuilder.clone();
+
+    // For count, we need to count distinct poll.id
+    const total = await countQueryBuilder
+      .select('COUNT(DISTINCT poll.id)', 'count')
+      .getRawOne()
+      .then((result: { count: string }) => parseInt(result.count) || 0);
+
+    // Apply pagination to main query
+    queryBuilder.skip(skip).take(limit);
+
+    const rawAndEntities = await queryBuilder.getRawAndEntities<{
+      votecount: string;
+    }>();
+
+    // Map results with vote counts
+    const data = rawAndEntities.entities.map((poll, index) => {
+      const voteCount = parseInt(rawAndEntities.raw[index].votecount) || 0;
+      return { ...poll, voteCount } as PollWithVoteCount;
+    });
+
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data,
+      meta: {
+        page,
+        limit,
+        total,
+        totalPages,
+      },
+    };
   }
 
   private applyFilters(
@@ -184,32 +291,6 @@ export class TypeORMPollRepository implements IPollRepository {
     const sortBy = filters.sortBy || 'createdAt';
     const order = filters.order || 'DESC';
     queryBuilder.orderBy(`poll.${sortBy}`, order);
-  }
-
-  private async paginate(
-    queryBuilder: SelectQueryBuilder<Poll>,
-    filters: PollFilterDto,
-  ): Promise<IPaginatedResult<Poll>> {
-    const page = filters.page || 1;
-    const limit = filters.limit || 10;
-    const skip = (page - 1) * limit;
-
-    const [data, total] = await queryBuilder
-      .skip(skip)
-      .take(limit)
-      .getManyAndCount();
-
-    const totalPages = Math.ceil(total / limit);
-
-    return {
-      data,
-      meta: {
-        page,
-        limit,
-        total,
-        totalPages,
-      },
-    };
   }
 
   async updateByPoolHash(

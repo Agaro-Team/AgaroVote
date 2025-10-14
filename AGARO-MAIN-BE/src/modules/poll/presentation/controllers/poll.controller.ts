@@ -29,18 +29,10 @@ import { GetPollsByCreatorPaginatedUseCase } from '../../application/use-cases/g
 import { UpdatePollTransactionStatusUseCase } from '../../application/use-cases/update-poll-transaction-status.use-case';
 import { UpdatePollUseCase } from '../../application/use-cases/update-poll.use-case';
 import { UpdateVoterHashUseCase } from '../../application/use-cases/update-voter-hash.use-case';
-import { QueryBus } from '@nestjs/cqrs';
-import { Poll } from '../../domain/entities/poll.entity';
-import {
-  GetMultiplePollVoteCountsQuery,
-  GetPollVoteCountQuery,
-  PollVoteCountMap,
-} from '@/modules/vote/application/queries';
 
 @Controller('polls')
 export class PollController {
   constructor(
-    private readonly queryBus: QueryBus,
     private readonly createPollUseCase: CreatePollUseCase,
     private readonly getPollByIdUseCase: GetPollByIdUseCase,
     private readonly updatePollUseCase: UpdatePollUseCase,
@@ -55,52 +47,11 @@ export class PollController {
     private readonly updateVoterHashUseCase: UpdateVoterHashUseCase,
   ) {}
 
-  /**
-   * Helper method to transform poll(s) with vote count from Vote module
-   * Uses CQRS QueryBus for loose coupling between modules
-   */
-  private async transformPollWithVoteCount(
-    poll: Poll,
-    includeRelations = false,
-  ): Promise<PollResponseDto> {
-    const voteCount = await this.queryBus.execute<
-      GetPollVoteCountQuery,
-      number
-    >(new GetPollVoteCountQuery(poll.id));
-    return PollResponseDto.fromEntity(poll, includeRelations, voteCount);
-  }
-
-  /**
-   * Helper method to transform multiple polls with vote counts
-   * Uses batch query for better performance (single DB query)
-   */
-  private async transformPollsWithVoteCounts(
-    polls: Poll[],
-    includeRelations = false,
-  ): Promise<PollResponseDto[]> {
-    if (polls.length === 0) {
-      return [];
-    }
-
-    // Batch query - single database call for all poll vote counts!
-    const pollIds = polls.map((poll) => poll.id);
-    const voteCountMap = await this.queryBus.execute<
-      GetMultiplePollVoteCountsQuery,
-      PollVoteCountMap
-    >(new GetMultiplePollVoteCountsQuery(pollIds));
-
-    // Transform all polls with their respective vote counts
-    return polls.map((poll) => {
-      const voteCount = voteCountMap[poll.id] || 0;
-      return PollResponseDto.fromEntity(poll, includeRelations, voteCount);
-    });
-  }
-
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createPollDto: CreatePollDto): Promise<PollResponseDto> {
     const poll = await this.createPollUseCase.execute(createPollDto);
-    return this.transformPollWithVoteCount(poll, true);
+    return PollResponseDto.fromEntity(poll, true);
   }
 
   @Get()
@@ -109,7 +60,7 @@ export class PollController {
   ): Promise<IPaginatedResult<PollResponseDto>> {
     const result = await this.getAllPollsPaginatedUseCase.execute(filters);
     return {
-      data: await this.transformPollsWithVoteCounts(result.data, true),
+      data: result.data.map((poll) => PollResponseDto.fromEntity(poll, true)),
       meta: result.meta,
     };
   }
@@ -120,7 +71,7 @@ export class PollController {
   ): Promise<IPaginatedResult<PollResponseDto>> {
     const result = await this.getActivePollsPaginatedUseCase.execute(filters);
     return {
-      data: await this.transformPollsWithVoteCounts(result.data, true),
+      data: result.data.map((poll) => PollResponseDto.fromEntity(poll, true)),
       meta: result.meta,
     };
   }
@@ -131,7 +82,7 @@ export class PollController {
   ): Promise<IPaginatedResult<PollResponseDto>> {
     const result = await this.getOngoingPollsPaginatedUseCase.execute(filters);
     return {
-      data: await this.transformPollsWithVoteCounts(result.data, true),
+      data: result.data.map((poll) => PollResponseDto.fromEntity(poll, true)),
       meta: result.meta,
     };
   }
@@ -146,7 +97,7 @@ export class PollController {
       filters,
     );
     return {
-      data: await this.transformPollsWithVoteCounts(result.data, true),
+      data: result.data.map((poll) => PollResponseDto.fromEntity(poll, true)),
       meta: result.meta,
     };
   }
@@ -154,7 +105,7 @@ export class PollController {
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<PollResponseDto> {
     const poll = await this.getPollByIdUseCase.execute(id);
-    return this.transformPollWithVoteCount(poll, true);
+    return PollResponseDto.fromEntity(poll, true);
   }
 
   @Get(':id/eligibility')
@@ -171,7 +122,7 @@ export class PollController {
     @Body() updatePollDto: UpdatePollDto,
   ): Promise<PollResponseDto> {
     const poll = await this.updatePollUseCase.execute(id, updatePollDto);
-    return this.transformPollWithVoteCount(poll, true);
+    return PollResponseDto.fromEntity(poll, true);
   }
 
   @Put(':id/transaction-status')
@@ -183,13 +134,13 @@ export class PollController {
       id,
       updateTransactionStatusDto.transactionStatus,
     );
-    return this.transformPollWithVoteCount(poll, true);
+    return PollResponseDto.fromEntity(poll, true);
   }
 
   @Post(':id/activate')
   async activate(@Param('id') id: string): Promise<PollResponseDto> {
     const poll = await this.activatePollUseCase.execute(id);
-    return this.transformPollWithVoteCount(poll, true);
+    return PollResponseDto.fromEntity(poll, true);
   }
 
   @Put(':id/update-voter-hash')

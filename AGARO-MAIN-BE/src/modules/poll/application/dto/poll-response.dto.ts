@@ -40,9 +40,8 @@ export class PollResponseDto {
   hasEnded?: boolean;
 
   static fromEntity(
-    poll: Poll,
+    poll: Poll | (Poll & { voteCount?: number }),
     includeRelations = false,
-    voteCount = 0,
   ): PollResponseDto {
     const response = new PollResponseDto();
     response.id = poll.id;
@@ -53,7 +52,10 @@ export class PollResponseDto {
     response.endDate = poll.endDate;
     response.creatorWalletAddress = poll.creatorWalletAddress;
     response.poolHash = poll.poolHash;
-    response.voteCount = voteCount;
+
+    // Extract voteCount from entity if available (from JOIN query), default to 0
+    response.voteCount = 'voteCount' in poll ? (poll.voteCount ?? 0) : 0;
+
     response.transactionStatus = poll.transactionStatus;
     response.isActive = poll.isActive;
     response.createdAt = poll.createdAt;
