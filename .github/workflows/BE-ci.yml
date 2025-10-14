@@ -48,26 +48,35 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 92.113.145.8 >> ~/.ssh/known_hosts
 
+      - name: Create env file from secret
+        run: |
+          echo "${{ secrets.ENV_PROD }}" > ./AGARO-MAIN-BE/${{ env.ENV_FILE }}
+          echo "Environment file created"
+          cat ./AGARO-MAIN-BE/${{ env.ENV_FILE }}
+
       - name: Upload env file to server
         run: |
+          echo "Creating directory on remote server if not exists..."
+          ssh -o StrictHostKeyChecking=no ardial@92.113.145.8 "mkdir -p ${{ env.REMOTE_DIR }}"
+          echo "Uploading environment file..."
           scp -o StrictHostKeyChecking=no ./AGARO-MAIN-BE/${{ env.ENV_FILE }} ardial@92.113.145.8:${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}
 
       - name: Deploy to Server
         run: |
           ssh ardial@92.113.145.8 "
             sudo bash -c '
-              echo \"--- Pulling latest Docker image ---\"
+              echo \"Pulling latest Docker image\"
               docker pull ${{ env.DOCKER_IMAGE }}:latest
 
-              echo \"--- Stopping old container ---\"
+              echo \"Stopping old container\"
               docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
               docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null || true
 
-              echo \"--- Cleaning unused containers/images ---\"
+              echo \"Cleaning unused containers/images\"
               docker container prune -f
               docker image prune -f
 
-              echo \"--- Running new container ---\"
+              echo \"Running new container\"
               docker run -d \
                 --restart unless-stopped \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
