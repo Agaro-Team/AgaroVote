@@ -72,4 +72,19 @@ export class TypeORMPollAddressRepository implements IPollAddressRepository {
     const result = await this.repository.softDelete({ pollId });
     return (result.affected ?? 0) > 0;
   }
+
+  async save(
+    address: PollAddress | Partial<PollAddress>,
+  ): Promise<PollAddress> {
+    return await this.repository.save(address);
+  }
+
+  async findByPollAndAddress(
+    pollId: string,
+    walletAddress: string,
+  ): Promise<PollAddress | null> {
+    return await this.repository.findOne({
+      where: { pollId, walletAddress },
+    });
+  }
 }

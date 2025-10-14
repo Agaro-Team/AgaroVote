@@ -10,9 +10,10 @@ import { ValidationPipe } from '@shared/presentation/pipes/validation.pipe';
 import { HealthController } from '@shared/presentation/controllers/health.controller';
 import { UserModule } from '@modules/user/user.module';
 import { PollModule } from './modules/poll/poll.module';
+import { VoteModule } from './modules/vote/vote.module';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UserModule, PollModule],
+  imports: [ConfigModule, DatabaseModule, UserModule, PollModule, VoteModule],
   controllers: [AppController, HealthController],
   providers: [
     AppService,

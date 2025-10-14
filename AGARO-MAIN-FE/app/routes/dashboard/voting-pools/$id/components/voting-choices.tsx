@@ -26,7 +26,7 @@ export function VotingChoices() {
             index={index}
             isSelected={selectedChoiceIndex === index}
             isDisabled={!canVote}
-            onSelect={selectChoice}
+            onSelect={(choiceIndex) => selectChoice(choiceIndex, choice.id)}
           />
         ))}
       </CardContent>
