@@ -57,7 +57,8 @@ export class TypeORMPollRepository implements IPollRepository {
     const poll = rawAndEntities.entities[0];
     const voteCount = parseInt(rawAndEntities.raw[0].votecount) || 0;
 
-    return { ...poll, voteCount } as PollWithVoteCount;
+    // Preserve the Poll class instance and its methods by using Object.assign
+    return Object.assign(poll, { voteCount }) as PollWithVoteCount;
   }
 
   async findByPoolHash(poolHash: string): Promise<Poll | null> {
@@ -236,9 +237,10 @@ export class TypeORMPollRepository implements IPollRepository {
     }>();
 
     // Map results with vote counts
+    // Preserve the Poll class instance and its methods by using Object.assign
     const data = rawAndEntities.entities.map((poll, index) => {
       const voteCount = parseInt(rawAndEntities.raw[index].votecount) || 0;
-      return { ...poll, voteCount } as PollWithVoteCount;
+      return Object.assign(poll, { voteCount }) as PollWithVoteCount;
     });
 
     const totalPages = Math.ceil(total / limit);
