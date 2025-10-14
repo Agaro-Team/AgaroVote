@@ -233,16 +233,25 @@ export class TypeORMPollRepository implements IPollRepository {
     // Apply pagination to main query
     queryBuilder.skip(skip).take(limit);
 
-    const rawAndEntities = await queryBuilder.getRawAndEntities<{
+    // Define the shape of raw query results
+    type RawPollResult = {
+      poll_id: string;
       voteCount: string;
-    }>();
+      [key: string]: unknown; // Other columns from joins
+    };
 
-    // With subquery approach, entities and raw results are 1:1 aligned
-    // No need for complex mapping - simple index-based mapping works
-    const data = rawAndEntities.entities.map((poll, index) => {
-      // Try different possible column names that TypeORM might generate
-      const voteCount =
-        parseInt(rawAndEntities.raw[index]?.voteCount || '0') || 0;
+    const rawAndEntities =
+      await queryBuilder.getRawAndEntities<RawPollResult>();
+
+    // Map entities to include vote counts from raw results
+    // Note: When using leftJoinAndSelect, raw array contains duplicate rows for each joined relation
+    // but entities array contains unique entities with relations already mapped
+    // We need to match each entity to its corresponding raw row by poll.id
+    const data = rawAndEntities.entities.map((poll) => {
+      // Find the raw row that corresponds to this poll entity
+      // TypeORM prefixes columns with the alias name (e.g., 'poll_id')
+      const rawRow = rawAndEntities.raw.find((row) => row.poll_id === poll.id);
+      const voteCount = parseInt(rawRow?.voteCount ?? '0') || 0;
 
       return Object.assign(poll, { voteCount }) as PollWithVoteCount;
     });
