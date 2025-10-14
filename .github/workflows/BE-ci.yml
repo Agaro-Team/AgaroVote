@@ -10,7 +10,7 @@ on:
 env:
   DOCKER_IMAGE: ardialqlause/agaro-main-be
   CONTAINER_NAME: agaro-main-be
-  PORT: 4000
+  PORT: 3000
   ENV_FILE: .env
   REMOTE_DIR: /home/ardial/agaro-be
 
