@@ -7,6 +7,7 @@ import { PollMeta } from './poll-meta';
 import { PoolHashDisplay } from './pool-hash-display';
 import { VoteActions } from './vote-actions';
 import { VoteInfoCard } from './vote-info-card';
+import { VoteProgressTracker } from './vote-progress-tracker';
 import { VotingChoices } from './voting-choices';
 
 export function VotePageContent() {
@@ -18,6 +19,7 @@ export function VotePageContent() {
       <NonVotableAlert />
       <VotingChoices />
       <VoteActions />
+      <VoteProgressTracker />
       <VoteInfoCard />
     </>
   );
