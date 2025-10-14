@@ -2,7 +2,10 @@ import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { useWeb3Chain } from '~/hooks/use-web3';
 import { useWeb3Wallet } from '~/hooks/use-web3';
+import { queryClient, queryKeys } from '~/lib/query-client/config';
+import { pollQueryKeys } from '~/lib/query-client/poll/queries';
 import { castVoteMutationOptions } from '~/lib/query-client/vote/mutations';
+import { voteQueryKeys } from '~/lib/query-client/vote/queries';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
 import {
   useWatchEntryPointVoteSucceededEvent,
@@ -39,8 +42,21 @@ export function useVotePoll() {
 
   const castVoteMutation = useMutation({
     ...castVoteMutationOptions,
-    onSuccess: () => {
+    onSuccess: async () => {
       toast.success('Vote successfully recorded!');
+
+      await Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: voteQueryKeys.baseUserVote,
+        }),
+        queryClient.invalidateQueries({
+          queryKey: pollQueryKeys.baseVotingEligibility(),
+        }),
+        queryClient.invalidateQueries({
+          queryKey: pollQueryKeys.all,
+        }),
+      ]);
+
       // Reset states after successful submission
       setLog(null);
       setPoolId(null);
@@ -61,9 +77,6 @@ export function useVotePoll() {
     reset: resetWrite,
   } = useWriteEntryPointVote({
     mutation: {
-      onSuccess: () => {
-        toast.success('Transaction submitted to blockchain');
-      },
       onError: (error) => {
         toast.error(`Transaction failed: ${error.message}`);
         // Reset local states on transaction error

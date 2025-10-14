@@ -1,3 +1,4 @@
+import type { Address } from 'viem';
 import type { GetPollsRequest } from '~/lib/api/poll/poll.interface';
 import { pollService } from '~/lib/api/poll/poll.service';
 
@@ -9,6 +10,10 @@ export const pollQueryKeys = {
   activeListWithFilter: (params: Omit<GetPollsRequest, 'page'>) =>
     [...pollQueryKeys.activeList(), 'filters', params] as const,
   details: (poolHash: string) => [...pollQueryKeys.all, 'details', poolHash] as const,
+
+  baseVotingEligibility: () => [...pollQueryKeys.all, 'voting-eligibility'] as const,
+  votingEligibility: (pollId: string, walletAddress: Address) =>
+    [...pollQueryKeys.baseVotingEligibility(), { pollId, walletAddress }] as const,
 };
 
 export const pollInfiniteListQueryOptions = (params: Omit<GetPollsRequest, 'page'>) =>
@@ -32,4 +37,24 @@ export const pollDetailQueryOptions = (id: string) =>
     queryKey: pollQueryKeys.details(id),
     queryFn: () => pollService.getPollDetail(id),
     enabled: !!id,
+  });
+
+export const votingEligibilityQueryOptions = (pollId: string, walletAddress: Address) =>
+  queryOptions({
+    queryKey: pollQueryKeys.votingEligibility(pollId, walletAddress!),
+    queryFn: async () => {
+      if (!walletAddress) {
+        throw new Error('Wallet address is required');
+      }
+
+      return await pollService.checkVotingEligibility({
+        pollId,
+        walletAddress,
+      });
+    },
+    enabled: !!pollId && !!walletAddress,
+    // Refetch when window is focused to ensure eligibility is up to date
+    refetchOnWindowFocus: true,
+    // Cache for 30 seconds to avoid excessive API calls
+    staleTime: 30000,
   });

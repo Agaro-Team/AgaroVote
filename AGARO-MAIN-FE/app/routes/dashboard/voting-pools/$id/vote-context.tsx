@@ -4,9 +4,12 @@
 import { toast } from 'sonner';
 import { useWeb3Wallet } from '~/hooks/use-web3';
 import type { Poll } from '~/lib/api/poll/poll.interface';
-import { formatDate } from '~/lib/date-utils';
+import { votingEligibilityQueryOptions } from '~/lib/query-client/poll/queries';
+import { userVoteQueryOptions } from '~/lib/query-client/vote/queries';
 
-import { type ReactNode, createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { type ReactNode, createContext, useContext, useEffect, useMemo } from 'react';
+
+import { useQuery } from '@tanstack/react-query';
 
 import { useVotePoll } from './hooks/use-vote-poll';
 
@@ -16,6 +19,10 @@ interface VoteContextValue {
   isVoting: boolean;
   canVote: boolean;
   nonVotableReason: string | null;
+  isCheckingEligibility: boolean;
+  hasVoted: boolean;
+  userVotedChoiceId: string | null;
+  isLoadingUserVote: boolean;
   selectChoice: (choiceIndex: number, choiceId: string) => void;
   submitVote: () => Promise<void>;
 }
@@ -39,6 +46,35 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
   const { address: walletAddress } = useWeb3Wallet();
   const votePool = useVotePoll();
 
+  // Fetch voting eligibility from the backend
+  const { data: eligibilityData, isLoading: isCheckingEligibility } = useQuery(
+    votingEligibilityQueryOptions(poll.id, walletAddress!)
+  );
+
+  // Fetch user's vote for this poll
+  const {
+    data: userVoteData,
+    isLoading: isLoadingUserVote,
+    refetch: refetchUserVote,
+  } = useQuery(userVoteQueryOptions(poll.id, walletAddress!));
+
+  const hasVoted = !!userVoteData;
+  const userVotedChoiceId = userVoteData?.data?.choiceId ?? null;
+
+  // Determine if user can vote (eligible AND hasn't voted yet)
+  const canVote = useMemo(() => {
+    if (!eligibilityData) return false;
+    return eligibilityData.data?.eligible ?? false;
+  }, [eligibilityData?.data?.eligible]);
+
+  // Determine non-votable reason
+  const nonVotableReason = useMemo(() => {
+    if (hasVoted) {
+      return 'You have already voted in this poll.';
+    }
+    return eligibilityData?.data?.reason ?? null;
+  }, [hasVoted, eligibilityData?.data?.reason]);
+
   const handleSubmitVote = async () => {
     if (typeof votePool.choiceIndex !== 'number' || !canVote) return;
     if (!poll) return;
@@ -52,46 +88,23 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     });
   };
 
-  const invitedAddresses = poll.addresses?.map((address) => address.walletAddress) || [];
-
-  const canVote = useMemo(() => {
-    if (poll.hasEnded) return false;
-    if (!poll.hasStarted) return false;
-    if (!walletAddress) return false;
-
-    if (invitedAddresses.length > 0 && !invitedAddresses.includes(walletAddress)) {
-      return false;
-    }
-
-    return poll.isOngoing;
-  }, [poll, walletAddress, invitedAddresses]);
-
-  const nonVotableReason = useMemo(() => {
-    if (poll.hasEnded) {
-      return 'Voting has closed for this poll.';
-    }
-    if (!poll.hasStarted) {
-      return `Voting will start on ${formatDate(poll.startDate, 'DD MMM YYYY')}.`;
-    }
-
-    if (!walletAddress) {
-      return 'You are not connected to a wallet.';
-    }
-
-    if (invitedAddresses.length > 0 && !invitedAddresses.includes(walletAddress)) {
-      return 'You are not allowed to vote for this poll. Only invited addresses can vote.';
-    }
-
-    return null;
-  }, [poll, walletAddress, invitedAddresses]);
-
   const value: VoteContextValue = {
     poll,
     selectedChoiceIndex: votePool.choiceIndex,
     isVoting: votePool.isWritingEntryPointVote,
     canVote,
     nonVotableReason: nonVotableReason || null,
+    isCheckingEligibility,
+    hasVoted,
+    userVotedChoiceId,
+    isLoadingUserVote,
     selectChoice: (choiceIndex, choiceId) => {
+      // Prevent selection if user has already voted
+      if (hasVoted) {
+        toast.error('You have already voted in this poll');
+        return;
+      }
+
       if (choiceIndex === votePool.choiceIndex && choiceId === votePool.choiceId) {
         return;
       }
@@ -102,11 +115,15 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     submitVote: handleSubmitVote,
   };
 
+  // Refetch user vote after successful vote submission
   useEffect(() => {
     if (votePool.isTransactionReceiptSuccess) {
-      toast.success('Vote submitted successfully');
+      // Refetch user vote to update the UI
+      setTimeout(() => {
+        refetchUserVote();
+      }, 1000); // Small delay to ensure backend has processed the vote
     }
-  }, [votePool.isTransactionReceiptSuccess]);
+  }, [votePool.isTransactionReceiptSuccess, refetchUserVote]);
 
   return <VoteContext.Provider value={value}>{children}</VoteContext.Provider>;
 }

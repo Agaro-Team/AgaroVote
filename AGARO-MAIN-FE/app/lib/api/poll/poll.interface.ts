@@ -73,7 +73,6 @@ export type CreatePollRequest = {
   poolHash: string;
   addresses?: Omit<Address, 'id' | 'pollId' | 'createdAt'>[];
   creatorWalletAddress: string;
-  voteCount: number;
 };
 
 /**
@@ -98,3 +97,21 @@ export interface GetPollsResponse extends ApiResponse<ApiListResponse<Poll>> {}
 export interface GetPollResponse {
   data: Poll;
 }
+
+/**
+ * Check voting eligibility request - query parameters
+ */
+export interface CheckVotingEligibilityRequest {
+  pollId: string;
+  walletAddress: string;
+}
+
+export interface CheckVotingEligibility {
+  eligible: boolean;
+  reason?: string;
+}
+
+/**
+ * Check voting eligibility response
+ */
+export type CheckVotingEligibilityResponse = ApiResponse<CheckVotingEligibility>;

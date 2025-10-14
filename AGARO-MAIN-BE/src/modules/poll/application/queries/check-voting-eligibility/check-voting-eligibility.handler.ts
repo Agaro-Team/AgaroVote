@@ -37,58 +37,89 @@ export class CheckVotingEligibilityHandler
     if (!poll) {
       return {
         eligible: false,
-        reason: 'Poll not found',
+        reason: 'Poll not found.',
       };
     }
 
-    // 2. Check if poll is ongoing
-    if (!poll.isOngoing()) {
+    // 2. Check if poll has ended
+    if (poll.hasEnded()) {
       return {
         eligible: false,
-        reason: poll.hasEnded()
-          ? 'Poll has ended'
-          : 'Poll is not currently ongoing',
+        reason: 'Voting has closed for this poll.',
         poll,
       };
     }
 
-    // 3. Validate choice if provided
+    // 3. Check if poll has started
+    if (!poll.hasStarted()) {
+      const startDate = new Date(poll.startDate);
+      const formattedDate = startDate.toLocaleDateString('en-US', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+      });
+      return {
+        eligible: false,
+        reason: `Voting will start on ${formattedDate}.`,
+        poll,
+      };
+    }
+
+    // 4. Check if poll transaction is successful
+    if (!poll.isTransactionSuccessful()) {
+      return {
+        eligible: false,
+        reason: 'This poll is not yet active on the blockchain.',
+        poll,
+      };
+    }
+
+    // 5. Check if poll is active
+    if (!poll.isActive) {
+      return {
+        eligible: false,
+        reason: 'This poll is currently inactive.',
+        poll,
+      };
+    }
+
+    // 6. Validate choice if provided
     if (query.choiceId) {
       const choice = await this.pollChoiceRepository.findById(query.choiceId);
       if (!choice || choice.pollId !== query.pollId) {
         return {
           eligible: false,
-          reason: 'Invalid choice for this poll',
+          reason: 'Invalid choice for this poll.',
           poll,
         };
       }
     }
 
-    // 4. Check if wallet can vote
-    const canVote = poll.canVote(query.walletAddress);
-
-    if (!canVote) {
-      if (poll.isPrivate && !poll.isCreator(query.walletAddress)) {
+    // 7. Check if wallet address is in the allowed list (if restricted)
+    if (poll.addresses && poll.addresses.length > 0) {
+      const isAddressAllowed = poll.addresses.some(
+        (addr) => addr.walletAddress === query.walletAddress,
+      );
+      
+      if (!isAddressAllowed) {
         return {
           eligible: false,
-          reason: 'This is a private poll',
+          reason: 'You are not allowed to vote for this poll. Only invited addresses can vote.',
           poll,
         };
       }
+    }
 
-      if (poll.addresses && poll.addresses.length > 0) {
+    // 8. Check if poll is private and user is not creator (additional check)
+    if (poll.isPrivate && !poll.isCreator(query.walletAddress)) {
+      // If private and has no specific addresses, only creator can vote
+      if (!poll.addresses || poll.addresses.length === 0) {
         return {
           eligible: false,
-          reason: 'Your wallet address is not authorized to vote in this poll',
+          reason: 'This is a private poll and you are not authorized to vote.',
           poll,
         };
       }
-
-      return {
-        eligible: false,
-        reason: 'You are not eligible to vote in this poll',
-        poll,
-      };
     }
 
     return {

@@ -10,3 +10,4 @@ export { NonVotableAlert } from './non-votable-alert';
 export { VotingChoices } from './voting-choices';
 export { VoteActions } from './vote-actions';
 export { VoteInfoCard } from './vote-info-card';
+export { UserVotedChoice } from './user-voted-choice';
