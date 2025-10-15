@@ -9,6 +9,7 @@ export class CastVoteCommand implements ICommand {
     public readonly blockNumber?: number,
     public readonly signature?: string,
     public readonly voteWeight?: number,
+    public readonly commitToken?: number,
     public readonly ipAddress?: string,
     public readonly userAgent?: string,
   ) {}

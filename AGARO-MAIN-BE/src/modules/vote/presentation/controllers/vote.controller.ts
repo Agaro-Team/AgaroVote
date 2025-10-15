@@ -67,6 +67,7 @@ export class VoteController {
         dto.blockNumber,
         dto.signature,
         dto.voteWeight,
+        dto.commitToken,
         ipAddress,
         userAgent,
       ),
