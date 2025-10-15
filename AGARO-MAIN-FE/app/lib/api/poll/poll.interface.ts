@@ -51,6 +51,8 @@ export interface Poll {
   isActive: boolean;
   choices: Choice[];
   addresses: Address[];
+  rewardShare?: string;
+  isTokenRequired?: boolean;
   createdAt: string;
   updatedAt: string;
   // Computed properties
@@ -73,6 +75,8 @@ export type CreatePollRequest = {
   pollHash: string;
   addresses?: Omit<Address, 'id' | 'pollId' | 'createdAt'>[];
   creatorWalletAddress: string;
+  rewardShare?: string;
+  isTokenRequired?: boolean;
 };
 
 export type CreatePollResponse = ApiResponse<Poll>;

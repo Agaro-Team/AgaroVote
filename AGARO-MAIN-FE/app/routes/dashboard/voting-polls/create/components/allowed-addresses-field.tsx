@@ -52,84 +52,100 @@ export const AllowedAddressesField = withForm({
               }}
             >
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <FieldLabel htmlFor={field.name}>
+                {/* Header with actions */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <FieldLabel htmlFor={field.name} className="mb-0">
                     Allowed Addresses{' '}
-                    <span className="text-muted-foreground">
+                    <span className="text-muted-foreground font-normal">
                       ({field.state.value.length} total)
                     </span>
                   </FieldLabel>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => setIsCSVModalOpen(true)}
-                      className="gap-2"
+                      className="gap-2 flex-1 sm:flex-none"
                     >
                       <Upload className="h-4 w-4" />
-                      Upload CSV
+                      <span className="hidden sm:inline">Upload CSV</span>
+                      <span className="sm:hidden">CSV</span>
                     </Button>
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => field.pushValue('')}
-                      className="gap-2"
+                      className="gap-2 flex-1 sm:flex-none"
                     >
                       <Plus className="h-4 w-4" />
-                      Add Address
+                      <span className="hidden sm:inline">Add Address</span>
+                      <span className="sm:hidden">Add</span>
                     </Button>
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  {field.state.value.map((__, index) => (
-                    <form.Field
-                      key={index}
-                      name={`allowedAddresses[${index}]`}
-                      children={(subField) => {
-                        const hasError =
-                          subField.state.meta.isTouched &&
-                          !subField.state.meta.isValid &&
-                          subField.state.meta.errors.length > 0;
-                        const errorMessage = subField.state.meta.errors?.[index]?.message;
+                {/* Addresses Grid - Responsive layout */}
+                {field.state.value.length > 0 ? (
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    {field.state.value.map((__, index) => (
+                      <form.Field
+                        key={index}
+                        name={`allowedAddresses[${index}]`}
+                        children={(subField) => {
+                          const hasError =
+                            subField.state.meta.isTouched &&
+                            !subField.state.meta.isValid &&
+                            subField.state.meta.errors.length > 0;
+                          const errorMessage = subField.state.meta.errors?.[index]?.message;
 
-                        console.log({ hasError, errorMessage });
+                          return (
+                            <div className="flex gap-2 items-start">
+                              <Field className="flex-1">
+                                <div className="relative">
+                                  <Input
+                                    id={`allowedAddresses.${index}`}
+                                    name={`allowedAddresses.${index}`}
+                                    value={subField.state.value}
+                                    onChange={(e) => subField.handleChange(() => e.target.value)}
+                                    onBlur={subField.handleBlur}
+                                    aria-invalid={hasError}
+                                    placeholder="0x..."
+                                    className="font-mono text-sm"
+                                  />
+                                </div>
+                                {hasError && (
+                                  <FieldError className="text-xs mt-1">{errorMessage}</FieldError>
+                                )}
+                              </Field>
 
-                        return (
-                          <div className="flex gap-2 items-start">
-                            <Field>
-                              <Input
-                                id={`allowedAddresses.${index}`}
-                                name={`allowedAddresses.${index}`}
-                                value={subField.state.value}
-                                onChange={(e) => subField.handleChange(() => e.target.value)}
-                                onBlur={subField.handleBlur}
-                                aria-invalid={hasError}
-                                placeholder="0x..."
-                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={() => field.removeValue(index)}
+                                aria-label={`Remove address ${index + 1}`}
+                                className="shrink-0 hover:bg-destructive hover:text-destructive-foreground"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </div>
+                          );
+                        }}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed p-8 text-center">
+                    <p className="text-sm text-muted-foreground">
+                      No addresses added yet. Click "Add Address" or "Upload CSV" to get started.
+                    </p>
+                  </div>
+                )}
 
-                              {hasError && <FieldError>{errorMessage}</FieldError>}
-                            </Field>
-
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => field.removeValue(index)}
-                              aria-label={`Remove address ${index + 1}`}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        );
-                      }}
-                    />
-                  ))}
-                </div>
-
-                {!hasError && (
+                {/* Description and Errors */}
+                {!hasError && field.state.value.length > 0 && (
                   <FieldDescription>
                     Add wallet addresses that are allowed to vote in this private pool. All
                     addresses will be hashed off-chain to minimize gas fees.

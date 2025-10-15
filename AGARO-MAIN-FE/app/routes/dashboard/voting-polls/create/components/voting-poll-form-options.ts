@@ -35,6 +35,11 @@ const votingPoolSchema = z
       .refine((date) => date > new Date(), 'Expiry date must be in the future'),
     isPrivate: z.boolean(),
     allowedAddresses: z.array(z.string().min(1, 'Address cannot be empty')),
+    rewardShare: z.string().refine((val) => {
+      const number = Number(val);
+      return number >= 0;
+    }, 'Reward share cannot be negative'),
+    isTokenRequired: z.boolean(),
   })
   .superRefine((data, ctx) => {
     // Validate each address
@@ -77,6 +82,8 @@ const defaultValues: CreateVotingPollFormData = {
   expiryDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
   isPrivate: false,
   allowedAddresses: [],
+  rewardShare: '0',
+  isTokenRequired: false,
 };
 
 export const votingPollFormOptions = formOptions({
