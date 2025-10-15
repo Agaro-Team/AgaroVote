@@ -156,7 +156,7 @@ export function useCreatePoll() {
             })),
             creatorWalletAddress: walletAddress,
             pollHash: onChainHash,
-            rewardShare: pollData.rewardShare,
+            rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
             isTokenRequired: pollData.isTokenRequired,
           });
 
@@ -189,7 +189,7 @@ export function useCreatePoll() {
       })),
       creatorWalletAddress: walletAddress,
       pollHash: pollHash,
-      rewardShare: pollData.rewardShare,
+      rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
       isTokenRequired: pollData.isTokenRequired,
     });
   };
