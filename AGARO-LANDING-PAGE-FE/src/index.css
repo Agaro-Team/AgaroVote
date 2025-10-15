@@ -29,7 +29,7 @@ html {
     --primary-foreground: oklch(1 0 0);
     --background: oklch(0.994 0 0);
     --foreground: oklch(0 0 0);
-    --primary: oklch(0.5393 0.2713 286.7462);
+    --primary: oklch(0.6505 0.1175 220.4685);
     --sidebar: oklch(0.9777 0.0051 247.8763);
     --border: oklch(0.85 0 0);
     --background-blur-nav: oklch(0.994 0 0 / 0.8);
@@ -37,19 +37,63 @@ html {
     --gradient-via: oklch(0 0 0 / 0.05);
     --light-glow: oklch(0.2223 0.006 271.1393 / 0.8);
 
+  --card: oklch(0.97 0.015 265); /* sangat terang, sedikit biru keabu */
+  --card-foreground: oklch(0.22 0.015 270); /* teks gelap */
+
+  --muted: oklch(0.93 0.02 270); /* abu lembut untuk background bar/tab */
+  --muted-foreground: oklch(0.45 0.015 272); /* teks sekunder di tab */
+
+
+    --shadow-x: 0px;
+    --shadow-y: 2px;
+    --shadow-blur: 3px;
+    --shadow-spread: 0px;
+    --shadow-opacity: 0.16;
+    --shadow-color: hsl(0 0% 0%);
+    --shadow-2xs: 0px 2px 3px 0px hsl(0 0% 0% / 0.08);
+    --shadow-xs: 0px 2px 3px 0px hsl(0 0% 0% / 0.08);
+    --shadow-sm: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 1px 2px -1px hsl(0 0% 0% / 0.16);
+    --shadow: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 1px 2px -1px hsl(0 0% 0% / 0.16);
+    --shadow-md: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 2px 4px -1px hsl(0 0% 0% / 0.16);
+    --shadow-lg: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 4px 6px -1px hsl(0 0% 0% / 0.16);
+    --shadow-xl: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 8px 10px -1px hsl(0 0% 0% / 0.16);
+    --shadow-2xl: 0px 2px 3px 0px hsl(0 0% 0% / 0.4);
+
+ 
   }
 
   .dark {
     --background: oklch(0.2223 0.006 271.1393);
     --foreground: oklch(0.9551 0 0);
-    --primary: oklch(0.6132 0.2294 291.7437);
+    --primary: oklch(0.6505 0.1175 220.4685);
     --sidebar: oklch(0.2011 0.0039 286.0396);
     --background-blur-nav: oklch(0.2223 0.006 271.1393 / 0.8);
     --border: oklch(0.35 0 0);
     --gradient-from: oklch(0.2223 0.006 271.1393);
     --gradient-from: oklch(0.2223 0.006 271.1393); 
     --gradient-via: oklch(0.9551 0 0 / 0.05);
-    --light-glow: oklch(0.5393 0.2713 286.7462);
+    --light-glow: oklch(0.6505 0.1175 220.4685);
+
+    --card: oklch(0.2568 0.0076 274.6528);
+    --card-foreground: oklch(0.9551 0 0);
+
+    --muted: oklch(0.294 0.013 272.9312);
+    --muted-foreground: oklch(0.7058 0 0);
+
+    --shadow-x: 0px;
+    --shadow-y: 2px;
+    --shadow-blur: 3px;
+    --shadow-spread: 0px;
+    --shadow-opacity: 0.16;
+    --shadow-color: hsl(0 0% 0%);
+    --shadow-2xs: 0px 2px 3px 0px hsl(0 0% 0% / 0.08);
+    --shadow-xs: 0px 2px 3px 0px hsl(0 0% 0% / 0.08);
+    --shadow-sm: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 1px 2px -1px hsl(0 0% 0% / 0.16);
+    --shadow: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 1px 2px -1px hsl(0 0% 0% / 0.16);
+    --shadow-md: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 2px 4px -1px hsl(0 0% 0% / 0.16);
+    --shadow-lg: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 4px 6px -1px hsl(0 0% 0% / 0.16);
+    --shadow-xl: 0px 2px 3px 0px hsl(0 0% 0% / 0.16), 0px 8px 10px -1px hsl(0 0% 0% / 0.16);
+    --shadow-2xl: 0px 2px 3px 0px hsl(0 0% 0% / 0.4);
 
   }
 
@@ -58,4 +102,19 @@ html {
     color: var(--foreground);
     transition: background-color 0.3s ease, color 0.3s ease;
   }
+  
+}
+@keyframes slide-ltr {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Jalan 1x, tanpa loop */
+.animate-slide-ltr {
+  animation: slide-ltr 12s linear forwards;
+  -webkit-animation: slide-ltr 12s linear forwards;
 }

@@ -21,7 +21,11 @@ const MobileHeader = ({ isScrolled, NavMenu }: HeaderProps) => {
           : 'border-transparent '
       )}>
       <div className="w-full flex justify-between items-center">
-        <h1 className="font-bold text-xl ">AgaroVote</h1>
+        <img
+          src="/Logo.png"
+          alt="AgaroVote Logo"
+          className="h-10 md:h-16 w-32 object-cover object-center "
+        />
         <div className="flex gap-x-4 items-center">
           {/* Hamburger Button */}
           <button

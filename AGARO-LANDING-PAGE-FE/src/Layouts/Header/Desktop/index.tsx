@@ -20,7 +20,14 @@ const DesktopHeader = ({ isScrolled, NavMenu }: HeaderProps) => {
           : 'bg-transparent border-transparent'
       )}>
       <div className="w-full flex gap-x-5 items-center justify-between ">
-        <h1 className="font-bold text-xl ">AgaroVote</h1>
+        <div>
+          <img
+            src="/Logo.png"
+            alt="AgaroVote Logo"
+            className="h-40 w-full object-cover object-center"
+          />
+        </div>
+        {/* <h1 className="font-bold text-xl ">AgaroVote</h1> */}
         <nav className="flex gap-x-14 text-[16px] font-semibold">
           <>
             {NavMenu.map((menu) =>

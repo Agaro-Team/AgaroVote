@@ -1,9 +1,11 @@
 import { Element } from 'react-scroll';
-import MainContent from './Content/MainContent';
-import SecondContent from './Content/SecondContent';
-import Lenis from '@studio-freight/lenis';
 import { useEffect } from 'react';
+import Lenis from '@studio-freight/lenis';
+
+import MainContent from './Content/MainContent';
 import FAQ from './Content/FAQ';
+import HowItWorks from './Content/HowItWorks';
+import KeyOfFeature from './Content/KeyOfFeature';
 
 const MainPage = () => {
   // Smooth Scroll
@@ -27,9 +29,12 @@ const MainPage = () => {
         <MainContent />
       </Element>
       <Element name="second" className="relative z-10">
-        <SecondContent />
+        <HowItWorks />
       </Element>
       <Element name="third" className="relative z-10">
+        <KeyOfFeature />
+      </Element>
+      <Element name="fourth" className="relative z-10">
         <FAQ />
       </Element>
     </div>

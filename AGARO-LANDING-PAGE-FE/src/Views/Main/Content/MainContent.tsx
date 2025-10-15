@@ -42,7 +42,7 @@ const MainContent = () => {
           text="Your Voice, Verified with Web3 Transparency"
           delay={20}
           animateBy="words"
-          direction="bottom"
+          direction="top"
           className="text-3xl lg:text-4xl font-semibold mb-6 flex items-center justify-center text-center w-full 2xl:w-1/2"
         />
 
@@ -51,7 +51,7 @@ const MainContent = () => {
           text="Traditional voting systems often rely on central authorities, making them vulnerable to manipulation. AgaroVote redefines voting with blockchain - secure, transparent, and accessible to everyone."
           delay={20}
           animateBy="words"
-          direction="bottom"
+          direction="top"
           className="text-md font-light mb-6 xl:mx-64 flex items-center justify-center text-center"
         />
 
@@ -60,12 +60,13 @@ const MainContent = () => {
           initial={{ scale: 1, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{
-            duration: 0.8,
-            ease: 'backOut',
-            delay: 1,
+            duration: 1.5,
+            ease: 'backInOut',
+            delay: 0.6,
           }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}>
+          // whileHover={{ scale: 1.05 }}
+          // whileTap={{ scale: 0.7 }}
+        >
           <CustomButton label="Get Started" className="mb-5" />
         </motion.div>
 
@@ -89,7 +90,7 @@ const MainContent = () => {
           <motion.img
             initial={{ y: 200, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: 'easeOut', delay: 0.6 }}
+            transition={{ duration: 0.4, ease: 'circOut', delay: 0.8 }}
             className="relative z-10 rounded-2xl shadow-xl"
             style={{
               y: translateY,
