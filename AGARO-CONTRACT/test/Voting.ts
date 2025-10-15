@@ -11,13 +11,17 @@ const randomWallets = Array.from({ length: 999 }, () => ethers.Wallet.createRand
 
 describe("EntryPoint - Voting Functionality", function () {
     let entryPoint: any;
-    let merkleAllowListContract: any;
+    let merkleTreeAllowListContract: any;
+    let syntheticRewardContract: any;
+    let agaroERC20Contract: any;
     let voter1: any, voter2: any, voter3: any;
 
     beforeEach(async function () {
         [voter1, voter2, voter3] = await hardhatEthers.getSigners();
-        merkleAllowListContract = await hardhatEthers.deployContract("MerkleAllowlist");
-        entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleAllowListContract.getAddress()]);
+        merkleTreeAllowListContract = await hardhatEthers.deployContract("MerkleTreeAllowlist");
+        syntheticRewardContract = await hardhatEthers.deployContract("SyntheticReward");
+        agaroERC20Contract = await hardhatEthers.deployContract("AGARO");
+        entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleTreeAllowListContract.getAddress(), await syntheticRewardContract.getAddress(), await agaroERC20Contract.getAddress()]);
     });
 
     describe("Voting Poll Creation", function () {
@@ -35,6 +39,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -80,6 +86,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -97,9 +105,9 @@ describe("EntryPoint - Voting Functionality", function () {
             const pollHash = votingPollEvent?.topics[2];
             const pollInfo = await entryPoint.getPollData(pollHash);
 
-            expect(pollInfo.candidatesVotersCount[0]).to.equal(0);
-            expect(pollInfo.candidatesVotersCount[1]).to.equal(0);
-            expect(pollInfo.candidatesVotersCount[2]).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[0].count).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[1].count).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[2].count).to.equal(0);
         });
     });
 
@@ -120,6 +128,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -141,48 +151,53 @@ describe("EntryPoint - Voting Functionality", function () {
             const voteData = {
                 pollHash: pollHash,
                 candidateSelected: 0,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             expect(await entryPoint.connect(voter1).vote(voteData))
                 .to.not.be.revert;
 
             const pollInfo = await entryPoint.getPollData(pollHash);
-            expect(pollInfo.candidatesVotersCount[0]).to.equal(1);
-            expect(pollInfo.candidatesVotersCount[1]).to.equal(0);
-            expect(pollInfo.candidatesVotersCount[2]).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[0].count).to.equal(1);
+            expect(pollInfo.candidatesVotersCount[1].count).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[2].count).to.equal(0);
         });
 
         it("Should allow multiple voters to vote", async function () {
             await entryPoint.connect(voter1).vote({
                 pollHash: pollHash,
                 candidateSelected: 0,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             });
 
             await entryPoint.connect(voter2).vote({
                 pollHash: pollHash,
                 candidateSelected: 1,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             });
 
             await entryPoint.connect(voter3).vote({
                 pollHash: pollHash,
                 candidateSelected: 0,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             });
 
             const pollInfo = await entryPoint.getPollData(pollHash);
-            expect(pollInfo.candidatesVotersCount[0]).to.equal(2);
-            expect(pollInfo.candidatesVotersCount[1]).to.equal(1);
-            expect(pollInfo.candidatesVotersCount[2]).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[0].count).to.equal(2);
+            expect(pollInfo.candidatesVotersCount[1].count).to.equal(1);
+            expect(pollInfo.candidatesVotersCount[2].count).to.equal(0);
         });
 
         it("Should prevent voting for non-existent candidate", async function () {
             const voteData = {
                 pollHash: pollHash,
                 candidateSelected: 5,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -195,7 +210,8 @@ describe("EntryPoint - Voting Functionality", function () {
             const voteData = {
                 pollHash: nonExistentHash,
                 candidateSelected: 0,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -223,22 +239,24 @@ describe("EntryPoint - Voting Functionality", function () {
 
         //     const pollInfo = await entryPoint.getPollData(pollHash);
 
-        //     expect(pollInfo.candidatesVotersCount[0]).to.equal(0);
-        //     expect(pollInfo.candidatesVotersCount[1]).to.equal(1);
-        //     expect(pollInfo.candidatesVotersCount[2]).to.equal(0);
+        //     expect(pollInfo.candidatesVotersCount[0].count).to.equal(0);
+        //     expect(pollInfo.candidatesVotersCount[1].count).to.equal(1);
+        //     expect(pollInfo.candidatesVotersCount[2].count).to.equal(0);
         // });
 
         it("Should track individual voter choices in storage", async function () {
             await entryPoint.connect(voter1).vote({
                 pollHash: pollHash,
                 candidateSelected: 0,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             });
 
             await entryPoint.connect(voter2).vote({
                 pollHash: pollHash,
                 candidateSelected: 1,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             });
 
             const pollInfo = await entryPoint.getPollData(pollHash);
@@ -272,6 +290,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -296,7 +316,8 @@ describe("EntryPoint - Voting Functionality", function () {
                 entryPoint.connect(voter1).vote({
                     pollHash,
                     candidateSelected: 0,
-                    proofs: [ethers.ZeroHash]
+                    proofs: [ethers.ZeroHash],
+                    commitToken: 0
                 })
             ).to.not.be.revert;
 
@@ -304,7 +325,8 @@ describe("EntryPoint - Voting Functionality", function () {
                 entryPoint.connect(voter1).vote({
                     pollHash,
                     candidateSelected: 1,
-                    proofs: [ethers.ZeroHash]
+                    proofs: [ethers.ZeroHash],
+                    commitToken: 0
                 })
             )
                 .to.be.revertedWithCustomError(entryPoint, "AlreadyVoted")
@@ -334,6 +356,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const proofs = tree.getHexProof(keccak256(voter1.address));
@@ -357,6 +381,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 pollHash,
                 candidateSelected: 1,
                 proofs,
+                commitToken: 0
             };
 
             await expect(entryPoint.connect(voter2).vote(voteData))
@@ -381,6 +406,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const proofs = tree.getHexProof(keccak256(voter1.address));
@@ -404,6 +431,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 pollHash,
                 candidateSelected: 1,
                 proofs,
+                commitToken: 0
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -429,6 +457,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -450,14 +480,15 @@ describe("EntryPoint - Voting Functionality", function () {
             const voteData = {
                 pollHash: pollHash,
                 candidateSelected: 0,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             expect(await entryPoint.connect(voter1).vote(voteData))
                 .to.not.be.revert;
 
             const pollInfo = await entryPoint.getPollData(pollHash);
-            expect(pollInfo.candidatesVotersCount[0]).to.equal(1);
+            expect(pollInfo.candidatesVotersCount[0].count).to.equal(1);
         });
 
         it("Should handle maximum uint8 candidate selection", async function () {
@@ -475,6 +506,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -494,14 +527,15 @@ describe("EntryPoint - Voting Functionality", function () {
             const voteData = {
                 pollHash: maxPollHash,
                 candidateSelected: 254,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             expect(await entryPoint.connect(voter1).vote(voteData))
                 .to.not.be.revert;
 
             const pollInfo = await entryPoint.getPollData(maxPollHash);
-            expect(pollInfo.candidatesVotersCount[254]).to.equal(1);
+            expect(pollInfo.candidatesVotersCount[254].count).to.equal(1);
         });
 
         it("Should handle empty poll gracefully", async function () {
@@ -518,6 +552,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(emptyPollData);
@@ -537,7 +573,8 @@ describe("EntryPoint - Voting Functionality", function () {
             const voteData = {
                 pollHash: emptyPollHash,
                 candidateSelected: 0,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -561,6 +598,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx1 = await entryPoint.newVotingPoll(pollData);
@@ -580,7 +619,8 @@ describe("EntryPoint - Voting Functionality", function () {
             const voteData = {
                 pollHash: pollHash,
                 candidateSelected: 0,
-                proofs: [ethers.ZeroHash]
+                proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             const tx2 = await entryPoint.connect(voter1).vote(voteData);
@@ -603,6 +643,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now + 3600, // starts in 1 hour
                     endDate: now + 3600 * 24, // 1 day duration
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -624,6 +666,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -649,6 +692,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now - 7200, // started 2 hours ago
                     endDate: now - 3600,   // ended 1 hour ago
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -670,6 +715,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash],
+                commitToken: 0
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
@@ -694,6 +740,8 @@ describe("EntryPoint - Voting Functionality", function () {
                     startDate: now,
                     endDate: now + 3600,
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             await expect(entryPoint.newVotingPoll(pollData))

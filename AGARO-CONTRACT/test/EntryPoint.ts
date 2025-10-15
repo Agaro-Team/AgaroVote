@@ -6,13 +6,17 @@ const { ethers: hardhatEthers } = await network.connect();
 
 describe("EntryPoint - Voting Poll Creation", function () {
     let entryPoint: any;
-    let merkleAllowListContract: any;
+    let merkleTreeAllowListContract: any;
+    let syntheticRewardContract: any;
+    let agaroERC20Contract: any;
     let owner: any;
 
     beforeEach(async function () {
         [owner] = await hardhatEthers.getSigners();
-        merkleAllowListContract = await hardhatEthers.deployContract("MerkleAllowlist");
-        entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleAllowListContract.getAddress()]);
+        merkleTreeAllowListContract = await hardhatEthers.deployContract("MerkleTreeAllowlist");
+        syntheticRewardContract = await hardhatEthers.deployContract("SyntheticReward");
+        agaroERC20Contract = await hardhatEthers.deployContract("AGARO");
+        entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleTreeAllowListContract.getAddress(), await syntheticRewardContract.getAddress(), await agaroERC20Contract.getAddress()]);
     });
 
     describe("Deployment", function () {
@@ -39,7 +43,9 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 expiry: {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
-                },
+                }, 
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -72,6 +78,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const expectedPollHash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
@@ -107,6 +115,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             expect(await entryPoint.version()).to.equal(0);
@@ -127,7 +137,9 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 expiry: {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
-                },
+                }, 
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const pollData2 = {
@@ -142,6 +154,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             await entryPoint.newVotingPoll(pollData1);
@@ -165,6 +179,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             await expect(entryPoint.newVotingPoll(pollData))
@@ -185,6 +201,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             await expect(entryPoint.newVotingPoll(pollData))
@@ -206,6 +224,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             await expect(entryPoint.newVotingPoll(pollData))
@@ -227,6 +247,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             await expect(entryPoint.connect(voter).newVotingPoll(pollData))
@@ -247,6 +269,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -269,6 +293,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx = await entryPoint.newVotingPoll(pollData);
@@ -306,6 +332,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const pollData2 = {
@@ -320,6 +348,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
                 },
+                rewardShare: 0,
+                isTokenRequired: false
             };
 
             const tx1 = await entryPoint.newVotingPoll(pollData1);

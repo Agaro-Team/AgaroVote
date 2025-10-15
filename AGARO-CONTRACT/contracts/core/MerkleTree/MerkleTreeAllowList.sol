@@ -1,24 +1,25 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
 import "../../interfaces/MerkleTree/IMerkleTreeAllowList.sol";
 
-contract MerkleTreeAllowlist is Ownable, Initializable, IMerkleTreeAllowlist {
+contract MerkleTreeAllowlist is
+    Initializable,
+    OwnableUpgradeable,
+    IMerkleTreeAllowList
+{
     bytes32 public merkleRoot;
-
-    constructor() Ownable(msg.sender) {
-        _disableInitializers();
-    }
 
     function initialize(
         address _owner,
-        bytes32 initialRoot
+        bytes32 _initialRoot
     ) external initializer {
+        __Ownable_init(_owner);
         _transferOwnership(_owner);
-        merkleRoot = initialRoot;
+        merkleRoot = _initialRoot;
     }
 
     function isAllowed(

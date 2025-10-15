@@ -10,6 +10,8 @@ struct VotingPollDataArgument {
     string[] candidates;
     uint8 candidatesTotal;
     VotingPollExpiry expiry;
+    uint256 rewardShare;
+    bool isTokenRequired;
 }
 
 struct VotingPollExpiry {
@@ -21,6 +23,7 @@ struct VoteArgument {
     bytes32 pollHash;
     uint8 candidateSelected;
     bytes32[] proofs;
+    uint256 commitToken;
 }
 
 struct VoterData {
@@ -33,8 +36,15 @@ struct PollData {
     address owner;
     bool isPrivate;
     address merkleRootContract;
+    address syntheticRewardContract;
     bytes32 pollVoterHash;
-    uint256[] candidatesVotersCount;
+    CandidateData[] candidatesVotersCount;
     bytes32 voterStorageHashLocation;
     VotingPollExpiry expiry;
+    bool isTokenRequired;
+}
+
+struct CandidateData {
+    uint256 count;
+    uint256 commitToken;
 }

@@ -2,7 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "../../structs.sol";
-import "../../interfaces/voting/IVotingPoll.sol";
+import "../../interfaces/VotingPoll/IVotingPoll.sol";
 
 contract VotingPoll is IVotingPoll {
     uint256 public version;
@@ -16,7 +16,7 @@ contract VotingPoll is IVotingPoll {
         returns (
             uint256 ver,
             bytes32 voterStorageHashLocation,
-            uint256[] memory candidatesVotersCount,
+            CandidateData[] memory candidatesVotersCount,
             address owner
         )
     {
@@ -40,11 +40,13 @@ contract VotingPoll is IVotingPoll {
     function _incSelected(
         bytes32 _hashPoll,
         uint8 selected,
+        uint256 commitToken,
         address voter
     ) internal returns (bytes32) {
         PollData storage poll = polls[_hashPoll];
 
-        poll.candidatesVotersCount[selected]++;
+        poll.candidatesVotersCount[selected].count++;
+        poll.candidatesVotersCount[selected].count += commitToken;
         bytes32 newPollVoterHash = keccak256(
             abi.encode(
                 voter,
@@ -61,7 +63,9 @@ contract VotingPoll is IVotingPoll {
         bytes32 _pollHash,
         VotingPollDataArgument memory _pollData,
         bool isPrivate,
+        bool isTokenRequired,
         address merkleRootContract,
+        address syntheticRewardContract,
         address owner
     ) internal returns (bytes32, bytes32) {
         bytes32 voterStorageHashLocation = keccak256(abi.encode(_pollHash));
@@ -69,9 +73,13 @@ contract VotingPoll is IVotingPoll {
             version: version,
             owner: owner,
             isPrivate: isPrivate,
+            isTokenRequired: isTokenRequired,
             merkleRootContract: merkleRootContract,
+            syntheticRewardContract: syntheticRewardContract,
             voterStorageHashLocation: voterStorageHashLocation,
-            candidatesVotersCount: new uint256[](_pollData.candidatesTotal),
+            candidatesVotersCount: new CandidateData[](
+                _pollData.candidatesTotal
+            ),
             pollVoterHash: bytes32(0),
             expiry: _pollData.expiry
         });

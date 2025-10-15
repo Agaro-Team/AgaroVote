@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import entryPointABI from "../artifacts/contracts/core/voting/EntryPoint.sol/EntryPoint.json"
+import entryPointABI from "../artifacts/contracts/core/VotingPoll/EntryPoint.sol/EntryPoint.json"
 
 async function main() {
     const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");

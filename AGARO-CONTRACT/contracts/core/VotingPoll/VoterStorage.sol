@@ -2,7 +2,7 @@
 pragma solidity ^0.8.28;
 
 import "../../structs.sol";
-import "../../interfaces/voting/IVoterStorage.sol";
+import "../../interfaces/VotingPoll/IVoterStorage.sol";
 
 contract VoterStorage is IVoterStorage {
     mapping(bytes32 => mapping(address => VoterData)) public pollStorageVoters;
