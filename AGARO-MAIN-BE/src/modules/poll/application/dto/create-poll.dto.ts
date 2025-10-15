@@ -9,6 +9,7 @@ import {
   MaxLength,
   ValidateNested,
   ArrayMinSize,
+  IsNumber,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 import { TransactionStatus } from '@modules/poll/domain/entities/poll.entity';
@@ -40,6 +41,13 @@ export class CreatePollDto {
 
   @IsBoolean()
   isPrivate: boolean;
+
+  @IsBoolean()
+  isTokenRequired: boolean;
+
+  @IsNumber()
+  @IsOptional()
+  rewardShare?: number;
 
   @IsDateString()
   startDate: string;
