@@ -11,8 +11,6 @@ env:
   DOCKER_IMAGE: ardialqlause/agaro-landing-page-fe
   CONTAINER_NAME: agaro-landing-page-fe
   PORT: 3001
-  ENV_FILE: .env
-  REMOTE_DIR: /home/ardial/agaro-landing-page-fe
 
 jobs:
   build-and-deploy:
@@ -48,19 +46,6 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 92.113.145.8 >> ~/.ssh/known_hosts
 
-      - name: Create env file from secret
-        run: |
-          echo "${{ secrets.ENV_PROD }}" > ./AGARO-LANDING-PAGE-FE/${{ env.ENV_FILE }}
-          echo "Environment file created"
-          cat ./AGARO-LANDING-PAGE-FE/${{ env.ENV_FILE }}
-
-      - name: Upload env file to server
-        run: |
-          echo "Creating directory on remote server if not exists..."
-          ssh -o StrictHostKeyChecking=no ardial@92.113.145.8 "mkdir -p ${{ env.REMOTE_DIR }}"
-          echo "Uploading environment file..."
-          scp -o StrictHostKeyChecking=no ./AGARO-LANDING-PAGE-FE/${{ env.ENV_FILE }} ardial@92.113.145.8:${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}
-
       - name: Deploy to Server
         run: |
           ssh ardial@92.113.145.8 "
@@ -82,7 +67,6 @@ jobs:
                 --restart unless-stopped \
                 --network agaro-network \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
-                --env-file ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }} \
                 ${{ env.DOCKER_IMAGE }}:latest
             '
           "
