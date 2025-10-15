@@ -6,6 +6,7 @@ import {
   IsOptional,
   MinLength,
   MaxLength,
+  IsNumber,
 } from 'class-validator';
 import { TransactionStatus } from '@modules/poll/domain/entities/poll.entity';
 
@@ -40,4 +41,12 @@ export class UpdatePollDto {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  isTokenRequired?: boolean;
+
+  @IsOptional()
+  @IsNumber()
+  rewardShare?: number;
 }

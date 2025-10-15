@@ -23,6 +23,12 @@ export class Poll extends BaseEntity {
   @Column({ name: 'is_private', type: 'boolean', default: false })
   isPrivate: boolean;
 
+  @Column({ name: 'is_token_required', type: 'boolean', default: false })
+  isTokenRequired: boolean;
+
+  @Column({ name: 'reward_share', type: 'int', default: 0 })
+  rewardShare: number;
+
   @Column({ name: 'start_date', type: 'timestamp' })
   startDate: Date;
 

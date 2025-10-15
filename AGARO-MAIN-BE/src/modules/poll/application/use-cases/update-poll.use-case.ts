@@ -32,6 +32,8 @@ export class UpdatePollUseCase {
       isPrivate?: boolean;
       transactionStatus?: Poll['transactionStatus'];
       isActive?: boolean;
+      isTokenRequired?: boolean;
+      rewardShare?: number;
       startDate?: Date;
       endDate?: Date;
     } = {};
@@ -50,6 +52,12 @@ export class UpdatePollUseCase {
     }
     if (updatePollDto.isActive !== undefined) {
       updates.isActive = updatePollDto.isActive;
+    }
+    if (updatePollDto.isTokenRequired !== undefined) {
+      updates.isTokenRequired = updatePollDto.isTokenRequired;
+    }
+    if (updatePollDto.rewardShare !== undefined) {
+      updates.rewardShare = updatePollDto.rewardShare;
     }
     if (updatePollDto.startDate) {
       updates.startDate = new Date(updatePollDto.startDate);
