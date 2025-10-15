@@ -174,5 +174,11 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     }
   }, [votePoll.isTransactionReceiptSuccess, refetchUserVote]);
 
+  useEffect(() => {
+    if (userVoteData && userVoteData.data?.commitToken) {
+      votePoll.setCommitToken(userVoteData.data.commitToken.toString());
+    }
+  }, [userVoteData]);
+
   return <VoteContext.Provider value={value}>{children}</VoteContext.Provider>;
 }

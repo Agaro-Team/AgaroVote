@@ -40,6 +40,7 @@ export interface GetUserVote {
   id: string;
   pollId: string;
   choiceId: string;
+  commitToken: number | null;
   voterWalletAddress: string;
   voterHash: string;
   pollHash: string;

@@ -2,8 +2,8 @@ import { AlertCircle, Gift } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import { Field, FieldError, FieldLabel } from '~/components/ui/field';
 import { Input } from '~/components/ui/input';
-import { Label } from '~/components/ui/label';
 
 import { useVoteContext } from '../vote-context';
 
@@ -37,9 +37,13 @@ const getFormattedNumberInputProps = (
 };
 
 export function CommitTokenInput() {
-  const { poll, commitToken, setCommitToken } = useVoteContext();
+  const { poll, commitToken, setCommitToken, canVote, isVoting, hasVoted } = useVoteContext();
 
-  const hasRewardShare = poll.rewardShare && poll.rewardShare > 0;
+  const hasRewardShare = Boolean(poll.rewardShare && poll.rewardShare > 0);
+  const isRequiredToken = poll.isTokenRequired ?? false;
+
+  const isDisabled = !canVote || isVoting || hasVoted;
+  const hasError = !isDisabled && isRequiredToken && (!commitToken || commitToken.trim() === '');
 
   return (
     <Card>
@@ -72,13 +76,24 @@ export function CommitTokenInput() {
             </AlertDescription>
           </Alert>
         )}
-        <Label htmlFor="token-amount">Token Amount</Label>
-        <Input
-          id="token-amount"
-          placeholder="Enter your token amount"
-          type="text"
-          {...getFormattedNumberInputProps(commitToken ?? '', setCommitToken)}
-        />
+        <Field orientation="vertical" data-invalid={hasError}>
+          <FieldLabel aria-required={isRequiredToken} htmlFor="token-amount">
+            Token Amount {isRequiredToken && <span className="text-destructive">*</span>}
+          </FieldLabel>
+          <Input
+            aria-required={isRequiredToken}
+            aria-invalid={hasError}
+            data-invalid={hasError}
+            id="token-amount"
+            disabled={isDisabled}
+            placeholder="Enter your token amount"
+            type="text"
+            {...getFormattedNumberInputProps(commitToken ?? '', setCommitToken)}
+          />
+          {hasError && (
+            <FieldError>Token amount is required to cast your vote in this poll.</FieldError>
+          )}
+        </Field>
       </CardContent>
     </Card>
   );
