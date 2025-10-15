@@ -41,7 +41,7 @@ function mapPollStatus(poll: Poll): VotingPollCardProps['status'] {
 function transformPollToCard(poll: Poll): VotingPollCardProps {
   return {
     id: poll.id,
-    pollHash: poll.poolHash,
+    pollHash: poll.pollHash,
     title: poll.title,
     description: poll.description,
     choices: poll.choices.map((choice) => choice.choiceText),

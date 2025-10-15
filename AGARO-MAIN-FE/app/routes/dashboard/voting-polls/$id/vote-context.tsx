@@ -124,7 +124,7 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     if (!votePoll.choiceId) return;
 
     votePoll.vote({
-      pollHash: poll.poolHash,
+      pollHash: poll.pollHash,
       pollId: poll.id,
       candidateSelected: votePoll.choiceIndex,
       choiceId: votePoll.choiceId,

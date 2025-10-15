@@ -13,7 +13,7 @@ export function PollHashDisplay() {
   const [isCopied, setIsCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(poll.poolHash).then(() => {
+    navigator.clipboard.writeText(poll.pollHash).then(() => {
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000);
     });
@@ -23,7 +23,7 @@ export function PollHashDisplay() {
     <div className="flex items-center gap-2 p-3 bg-muted rounded-lg">
       <Hash className="h-4 w-4 text-muted-foreground" />
       <code className="text-xs font-mono flex-1">
-        {poll.poolHash.slice(0, 6)}...{poll.poolHash.slice(-4)}
+        {poll.pollHash.slice(0, 6)}...{poll.pollHash.slice(-4)}
       </code>
       <Button variant="ghost" size="sm" onClick={handleCopy}>
         {isCopied ? (
