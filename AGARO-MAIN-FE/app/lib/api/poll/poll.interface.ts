@@ -51,7 +51,7 @@ export interface Poll {
   isActive: boolean;
   choices: Choice[];
   addresses: Address[];
-  rewardShare?: string;
+  rewardShare?: number;
   isTokenRequired?: boolean;
   createdAt: string;
   updatedAt: string;
@@ -75,7 +75,7 @@ export type CreatePollRequest = {
   pollHash: string;
   addresses?: Omit<Address, 'id' | 'pollId' | 'createdAt'>[];
   creatorWalletAddress: string;
-  rewardShare?: string;
+  rewardShare?: number;
   isTokenRequired?: boolean;
 };
 
