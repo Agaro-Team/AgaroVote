@@ -6,6 +6,140 @@ import {
 } from 'wagmi/codegen'
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AGARO
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const agaroAbi = [
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'owner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'spender',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'value',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'Approval',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address', indexed: true },
+      { name: 'to', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'value',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'Transfer',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+    ],
+    name: 'allowance',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'pure',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'mint',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transfer',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_from', internalType: 'address', type: 'address' },
+      { name: '_to', internalType: 'address', type: 'address' },
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // EntryPoint
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -18,6 +152,12 @@ export const entryPointAbi = [
         internalType: 'address',
         type: 'address',
       },
+      {
+        name: '_syntheticRewardImplementation',
+        internalType: 'address',
+        type: 'address',
+      },
+      { name: '_token', internalType: 'address', type: 'address' },
     ],
     stateMutability: 'nonpayable',
   },
@@ -72,6 +212,14 @@ export const entryPointAbi = [
   },
   {
     type: 'error',
+    inputs: [
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'commitToken', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'PollNeedsCommitToken',
+  },
+  {
+    type: 'error',
     inputs: [{ name: 'version', internalType: 'uint256', type: 'uint256' }],
     name: 'VersioningError',
   },
@@ -83,6 +231,11 @@ export const entryPointAbi = [
       { name: 'endData', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'VotingIsNotActive',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'creator', internalType: 'address', type: 'address' }],
+    name: 'insufficientBalance',
   },
   {
     type: 'event',
@@ -178,8 +331,12 @@ export const entryPointAbi = [
       },
       {
         name: 'candidatesVotersCount',
-        internalType: 'uint256[]',
-        type: 'uint256[]',
+        internalType: 'struct CandidateData[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'count', internalType: 'uint256', type: 'uint256' },
+          { name: 'commitToken', internalType: 'uint256', type: 'uint256' },
+        ],
       },
       { name: 'owner', internalType: 'address', type: 'address' },
     ],
@@ -230,6 +387,8 @@ export const entryPointAbi = [
               { name: 'endDate', internalType: 'uint256', type: 'uint256' },
             ],
           },
+          { name: 'rewardShare', internalType: 'uint256', type: 'uint256' },
+          { name: 'isTokenRequired', internalType: 'bool', type: 'bool' },
         ],
       },
     ],
@@ -266,6 +425,11 @@ export const entryPointAbi = [
       { name: 'owner', internalType: 'address', type: 'address' },
       { name: 'isPrivate', internalType: 'bool', type: 'bool' },
       { name: 'merkleRootContract', internalType: 'address', type: 'address' },
+      {
+        name: 'syntheticRewardContract',
+        internalType: 'address',
+        type: 'address',
+      },
       { name: 'pollVoterHash', internalType: 'bytes32', type: 'bytes32' },
       {
         name: 'voterStorageHashLocation',
@@ -281,6 +445,7 @@ export const entryPointAbi = [
           { name: 'endDate', internalType: 'uint256', type: 'uint256' },
         ],
       },
+      { name: 'isTokenRequired', internalType: 'bool', type: 'bool' },
     ],
     stateMutability: 'view',
   },
@@ -289,6 +454,20 @@ export const entryPointAbi = [
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     name: 'storageHashToPoll',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'syntheticRewardImplementation',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'token',
+    outputs: [{ name: '', internalType: 'contract IAGARO', type: 'address' }],
     stateMutability: 'view',
   },
   {
@@ -309,11 +488,105 @@ export const entryPointAbi = [
           { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
           { name: 'candidateSelected', internalType: 'uint8', type: 'uint8' },
           { name: 'proofs', internalType: 'bytes32[]', type: 'bytes32[]' },
+          { name: 'commitToken', internalType: 'uint256', type: 'uint256' },
         ],
       },
     ],
     name: 'vote',
     outputs: [],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IAGARO
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iagaroAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'spender', internalType: 'address', type: 'address' },
+    ],
+    name: 'allowance',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'spender', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'approve',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'decimals',
+    outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'mint',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'name',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'symbol',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transfer',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'from', internalType: 'address', type: 'address' },
+      { name: 'to', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'transferFrom',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'nonpayable',
   },
 ] as const
@@ -333,6 +606,14 @@ export const iEntryPointAbi = [
   },
   {
     type: 'error',
+    inputs: [
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'commitToken', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'PollNeedsCommitToken',
+  },
+  {
+    type: 'error',
     inputs: [{ name: 'version', internalType: 'uint256', type: 'uint256' }],
     name: 'VersioningError',
   },
@@ -344,6 +625,11 @@ export const iEntryPointAbi = [
       { name: 'endData', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'VotingIsNotActive',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'creator', internalType: 'address', type: 'address' }],
+    name: 'insufficientBalance',
   },
   {
     type: 'event',
@@ -431,6 +717,8 @@ export const iEntryPointAbi = [
               { name: 'endDate', internalType: 'uint256', type: 'uint256' },
             ],
           },
+          { name: 'rewardShare', internalType: 'uint256', type: 'uint256' },
+          { name: 'isTokenRequired', internalType: 'bool', type: 'bool' },
         ],
       },
     ],
@@ -438,13 +726,65 @@ export const iEntryPointAbi = [
     outputs: [],
     stateMutability: 'nonpayable',
   },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_voteData',
+        internalType: 'struct VoteArgument',
+        type: 'tuple',
+        components: [
+          { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'candidateSelected', internalType: 'uint8', type: 'uint8' },
+          { name: 'proofs', internalType: 'bytes32[]', type: 'bytes32[]' },
+          { name: 'commitToken', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    name: 'vote',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// IMerkleTreeAllowlist
+// IMerkleTreeAllowList
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const iMerkleTreeAllowlistAbi = [
+export const iMerkleTreeAllowListAbi = [
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'InvalidProof',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'caller', internalType: 'address', type: 'address' }],
+    name: 'NotAuthorized',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'newRoot',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+    ],
+    name: 'MerkleRootUpdated',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_owner', internalType: 'address', type: 'address' },
+      { name: 'initialRoot', internalType: 'bytes32', type: 'bytes32' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
   {
     type: 'function',
     inputs: [
@@ -452,8 +792,145 @@ export const iMerkleTreeAllowlistAbi = [
       { name: 'proof', internalType: 'bytes32[]', type: 'bytes32[]' },
     ],
     name: 'isAllowed',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    outputs: [{ name: 'isValid', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'merkleRoot',
+    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ISyntheticReward
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iSyntheticRewardAbi = [
+  {
+    type: 'function',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+      { name: '_sender', internalType: 'address', type: 'address' },
+    ],
+    name: 'commit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'duration',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'earned',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'finishAt',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_owner', internalType: 'address', type: 'address' },
+      { name: '_token', internalType: 'address', type: 'address' },
+      { name: '_duration', internalType: 'uint256', type: 'uint256' },
+      { name: 'rewardShare', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lastTimeRewardApplicable',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'rewardPerToken',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'rewardPerTokenStored',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'rewardRate',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'rewards',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'token',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'updatedAt',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'userRewardPerTokenPaid',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+      { name: '_sender', internalType: 'address', type: 'address' },
+    ],
+    name: 'withdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
 ] as const
 
@@ -500,6 +977,13 @@ export const iVoterStorageAbi = [
     ],
     name: 'PollBinded',
   },
+  {
+    type: 'function',
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'isPollHaveVoterStorage',
+    outputs: [{ name: 'isBinded', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -523,6 +1007,30 @@ export const iVotingPollAbi = [
   {
     type: 'function',
     inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'getPollData',
+    outputs: [
+      { name: 'ver', internalType: 'uint256', type: 'uint256' },
+      {
+        name: 'voterStorageHashLocation',
+        internalType: 'bytes32',
+        type: 'bytes32',
+      },
+      {
+        name: 'candidatesVotersCount',
+        internalType: 'struct CandidateData[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'count', internalType: 'uint256', type: 'uint256' },
+          { name: 'commitToken', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+      { name: 'owner', internalType: 'address', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'isContractValid',
     outputs: [{ name: 'isExist', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
@@ -534,8 +1042,17 @@ export const iVotingPollAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const merkleTreeAllowlistAbi = [
-  { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
   { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'InvalidProof',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'caller', internalType: 'address', type: 'address' }],
+    name: 'NotAuthorized',
+  },
   { type: 'error', inputs: [], name: 'NotInitializing' },
   {
     type: 'error',
@@ -565,6 +1082,19 @@ export const merkleTreeAllowlistAbi = [
     anonymous: false,
     inputs: [
       {
+        name: 'newRoot',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+    ],
+    name: 'MerkleRootUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
         name: 'previousOwner',
         internalType: 'address',
         type: 'address',
@@ -583,7 +1113,7 @@ export const merkleTreeAllowlistAbi = [
     type: 'function',
     inputs: [
       { name: '_owner', internalType: 'address', type: 'address' },
-      { name: 'initialRoot', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_initialRoot', internalType: 'bytes32', type: 'bytes32' },
     ],
     name: 'initialize',
     outputs: [],
@@ -624,6 +1154,202 @@ export const merkleTreeAllowlistAbi = [
     type: 'function',
     inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
     name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// SyntheticReward
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const syntheticRewardAbi = [
+  { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  { type: 'error', inputs: [], name: 'NotInitializing' },
+  {
+    type: 'error',
+    inputs: [{ name: 'owner', internalType: 'address', type: 'address' }],
+    name: 'OwnableInvalidOwner',
+  },
+  {
+    type: 'error',
+    inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
+    name: 'OwnableUnauthorizedAccount',
+  },
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'version',
+        internalType: 'uint64',
+        type: 'uint64',
+        indexed: false,
+      },
+    ],
+    name: 'Initialized',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'previousOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'newOwner',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'OwnershipTransferred',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+      { name: '_sender', internalType: 'address', type: 'address' },
+    ],
+    name: 'commit',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'duration',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_account', internalType: 'address', type: 'address' }],
+    name: 'earned',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'finishAt',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_owner', internalType: 'address', type: 'address' },
+      { name: '_token', internalType: 'address', type: 'address' },
+      { name: '_duration', internalType: 'uint256', type: 'uint256' },
+      { name: '_rewardShare', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'initialize',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'lastTimeRewardApplicable',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'owner',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'renounceOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'rewardPerToken',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'rewardPerTokenStored',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'rewardRate',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'rewards',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'token',
+    outputs: [{ name: '', internalType: 'contract IERC20', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'totalSupply',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'newOwner', internalType: 'address', type: 'address' }],
+    name: 'transferOwnership',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'updatedAt',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'userRewardPerTokenPaid',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_amount', internalType: 'uint256', type: 'uint256' },
+      { name: '_sender', internalType: 'address', type: 'address' },
+    ],
+    name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -739,8 +1465,12 @@ export const votingPollAbi = [
       },
       {
         name: 'candidatesVotersCount',
-        internalType: 'uint256[]',
-        type: 'uint256[]',
+        internalType: 'struct CandidateData[]',
+        type: 'tuple[]',
+        components: [
+          { name: 'count', internalType: 'uint256', type: 'uint256' },
+          { name: 'commitToken', internalType: 'uint256', type: 'uint256' },
+        ],
       },
       { name: 'owner', internalType: 'address', type: 'address' },
     ],
@@ -762,6 +1492,11 @@ export const votingPollAbi = [
       { name: 'owner', internalType: 'address', type: 'address' },
       { name: 'isPrivate', internalType: 'bool', type: 'bool' },
       { name: 'merkleRootContract', internalType: 'address', type: 'address' },
+      {
+        name: 'syntheticRewardContract',
+        internalType: 'address',
+        type: 'address',
+      },
       { name: 'pollVoterHash', internalType: 'bytes32', type: 'bytes32' },
       {
         name: 'voterStorageHashLocation',
@@ -777,6 +1512,7 @@ export const votingPollAbi = [
           { name: 'endDate', internalType: 'uint256', type: 'uint256' },
         ],
       },
+      { name: 'isTokenRequired', internalType: 'bool', type: 'bool' },
     ],
     stateMutability: 'view',
   },
@@ -792,6 +1528,156 @@ export const votingPollAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroAbi}__
+ */
+export const useReadAgaro = /*#__PURE__*/ createUseReadContract({
+  abi: agaroAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"allowance"`
+ */
+export const useReadAgaroAllowance = /*#__PURE__*/ createUseReadContract({
+  abi: agaroAbi,
+  functionName: 'allowance',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"approve"`
+ */
+export const useReadAgaroApprove = /*#__PURE__*/ createUseReadContract({
+  abi: agaroAbi,
+  functionName: 'approve',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadAgaroBalanceOf = /*#__PURE__*/ createUseReadContract({
+  abi: agaroAbi,
+  functionName: 'balanceOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"decimals"`
+ */
+export const useReadAgaroDecimals = /*#__PURE__*/ createUseReadContract({
+  abi: agaroAbi,
+  functionName: 'decimals',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"name"`
+ */
+export const useReadAgaroName = /*#__PURE__*/ createUseReadContract({
+  abi: agaroAbi,
+  functionName: 'name',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"symbol"`
+ */
+export const useReadAgaroSymbol = /*#__PURE__*/ createUseReadContract({
+  abi: agaroAbi,
+  functionName: 'symbol',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"totalSupply"`
+ */
+export const useReadAgaroTotalSupply = /*#__PURE__*/ createUseReadContract({
+  abi: agaroAbi,
+  functionName: 'totalSupply',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link agaroAbi}__
+ */
+export const useWriteAgaro = /*#__PURE__*/ createUseWriteContract({
+  abi: agaroAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"mint"`
+ */
+export const useWriteAgaroMint = /*#__PURE__*/ createUseWriteContract({
+  abi: agaroAbi,
+  functionName: 'mint',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"transfer"`
+ */
+export const useWriteAgaroTransfer = /*#__PURE__*/ createUseWriteContract({
+  abi: agaroAbi,
+  functionName: 'transfer',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useWriteAgaroTransferFrom = /*#__PURE__*/ createUseWriteContract({
+  abi: agaroAbi,
+  functionName: 'transferFrom',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link agaroAbi}__
+ */
+export const useSimulateAgaro = /*#__PURE__*/ createUseSimulateContract({
+  abi: agaroAbi,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"mint"`
+ */
+export const useSimulateAgaroMint = /*#__PURE__*/ createUseSimulateContract({
+  abi: agaroAbi,
+  functionName: 'mint',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"transfer"`
+ */
+export const useSimulateAgaroTransfer = /*#__PURE__*/ createUseSimulateContract(
+  { abi: agaroAbi, functionName: 'transfer' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateAgaroTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: agaroAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link agaroAbi}__
+ */
+export const useWatchAgaroEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: agaroAbi,
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link agaroAbi}__ and `eventName` set to `"Approval"`
+ */
+export const useWatchAgaroApprovalEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: agaroAbi,
+    eventName: 'Approval',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link agaroAbi}__ and `eventName` set to `"Transfer"`
+ */
+export const useWatchAgaroTransferEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: agaroAbi,
+    eventName: 'Transfer',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__
@@ -868,6 +1754,23 @@ export const useReadEntryPointStorageHashToPoll =
     abi: entryPointAbi,
     functionName: 'storageHashToPoll',
   })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"syntheticRewardImplementation"`
+ */
+export const useReadEntryPointSyntheticRewardImplementation =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'syntheticRewardImplementation',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"token"`
+ */
+export const useReadEntryPointToken = /*#__PURE__*/ createUseReadContract({
+  abi: entryPointAbi,
+  functionName: 'token',
+})
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"version"`
@@ -960,6 +1863,140 @@ export const useWatchEntryPointVotingPollCreatedEvent =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iagaroAbi}__
+ */
+export const useReadIagaro = /*#__PURE__*/ createUseReadContract({
+  abi: iagaroAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"allowance"`
+ */
+export const useReadIagaroAllowance = /*#__PURE__*/ createUseReadContract({
+  abi: iagaroAbi,
+  functionName: 'allowance',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadIagaroBalanceOf = /*#__PURE__*/ createUseReadContract({
+  abi: iagaroAbi,
+  functionName: 'balanceOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"decimals"`
+ */
+export const useReadIagaroDecimals = /*#__PURE__*/ createUseReadContract({
+  abi: iagaroAbi,
+  functionName: 'decimals',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"name"`
+ */
+export const useReadIagaroName = /*#__PURE__*/ createUseReadContract({
+  abi: iagaroAbi,
+  functionName: 'name',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"symbol"`
+ */
+export const useReadIagaroSymbol = /*#__PURE__*/ createUseReadContract({
+  abi: iagaroAbi,
+  functionName: 'symbol',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"totalSupply"`
+ */
+export const useReadIagaroTotalSupply = /*#__PURE__*/ createUseReadContract({
+  abi: iagaroAbi,
+  functionName: 'totalSupply',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iagaroAbi}__
+ */
+export const useWriteIagaro = /*#__PURE__*/ createUseWriteContract({
+  abi: iagaroAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"approve"`
+ */
+export const useWriteIagaroApprove = /*#__PURE__*/ createUseWriteContract({
+  abi: iagaroAbi,
+  functionName: 'approve',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"mint"`
+ */
+export const useWriteIagaroMint = /*#__PURE__*/ createUseWriteContract({
+  abi: iagaroAbi,
+  functionName: 'mint',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"transfer"`
+ */
+export const useWriteIagaroTransfer = /*#__PURE__*/ createUseWriteContract({
+  abi: iagaroAbi,
+  functionName: 'transfer',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useWriteIagaroTransferFrom = /*#__PURE__*/ createUseWriteContract({
+  abi: iagaroAbi,
+  functionName: 'transferFrom',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iagaroAbi}__
+ */
+export const useSimulateIagaro = /*#__PURE__*/ createUseSimulateContract({
+  abi: iagaroAbi,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"approve"`
+ */
+export const useSimulateIagaroApprove = /*#__PURE__*/ createUseSimulateContract(
+  { abi: iagaroAbi, functionName: 'approve' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"mint"`
+ */
+export const useSimulateIagaroMint = /*#__PURE__*/ createUseSimulateContract({
+  abi: iagaroAbi,
+  functionName: 'mint',
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"transfer"`
+ */
+export const useSimulateIagaroTransfer =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iagaroAbi,
+    functionName: 'transfer',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"transferFrom"`
+ */
+export const useSimulateIagaroTransferFrom =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iagaroAbi,
+    functionName: 'transferFrom',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iEntryPointAbi}__
  */
 export const useWriteIEntryPoint = /*#__PURE__*/ createUseWriteContract({
@@ -976,6 +2013,14 @@ export const useWriteIEntryPointNewVotingPoll =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iEntryPointAbi}__ and `functionName` set to `"vote"`
+ */
+export const useWriteIEntryPointVote = /*#__PURE__*/ createUseWriteContract({
+  abi: iEntryPointAbi,
+  functionName: 'vote',
+})
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iEntryPointAbi}__
  */
 export const useSimulateIEntryPoint = /*#__PURE__*/ createUseSimulateContract({
@@ -989,6 +2034,15 @@ export const useSimulateIEntryPointNewVotingPoll =
   /*#__PURE__*/ createUseSimulateContract({
     abi: iEntryPointAbi,
     functionName: 'newVotingPoll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iEntryPointAbi}__ and `functionName` set to `"vote"`
+ */
+export const useSimulateIEntryPointVote =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iEntryPointAbi,
+    functionName: 'vote',
   })
 
 /**
@@ -1016,19 +2070,278 @@ export const useWatchIEntryPointVotingPollCreatedEvent =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleTreeAllowlistAbi}__
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__
  */
-export const useReadIMerkleTreeAllowlist = /*#__PURE__*/ createUseReadContract({
-  abi: iMerkleTreeAllowlistAbi,
+export const useReadIMerkleTreeAllowList = /*#__PURE__*/ createUseReadContract({
+  abi: iMerkleTreeAllowListAbi,
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleTreeAllowlistAbi}__ and `functionName` set to `"isAllowed"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__ and `functionName` set to `"isAllowed"`
  */
-export const useReadIMerkleTreeAllowlistIsAllowed =
+export const useReadIMerkleTreeAllowListIsAllowed =
   /*#__PURE__*/ createUseReadContract({
-    abi: iMerkleTreeAllowlistAbi,
+    abi: iMerkleTreeAllowListAbi,
     functionName: 'isAllowed',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__ and `functionName` set to `"merkleRoot"`
+ */
+export const useReadIMerkleTreeAllowListMerkleRoot =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iMerkleTreeAllowListAbi,
+    functionName: 'merkleRoot',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__
+ */
+export const useWriteIMerkleTreeAllowList =
+  /*#__PURE__*/ createUseWriteContract({ abi: iMerkleTreeAllowListAbi })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteIMerkleTreeAllowListInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iMerkleTreeAllowListAbi,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__
+ */
+export const useSimulateIMerkleTreeAllowList =
+  /*#__PURE__*/ createUseSimulateContract({ abi: iMerkleTreeAllowListAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateIMerkleTreeAllowListInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iMerkleTreeAllowListAbi,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__
+ */
+export const useWatchIMerkleTreeAllowListEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: iMerkleTreeAllowListAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iMerkleTreeAllowListAbi}__ and `eventName` set to `"MerkleRootUpdated"`
+ */
+export const useWatchIMerkleTreeAllowListMerkleRootUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iMerkleTreeAllowListAbi,
+    eventName: 'MerkleRootUpdated',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__
+ */
+export const useReadISyntheticReward = /*#__PURE__*/ createUseReadContract({
+  abi: iSyntheticRewardAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadISyntheticRewardBalanceOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'balanceOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"duration"`
+ */
+export const useReadISyntheticRewardDuration =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'duration',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"earned"`
+ */
+export const useReadISyntheticRewardEarned =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'earned',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"finishAt"`
+ */
+export const useReadISyntheticRewardFinishAt =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'finishAt',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"lastTimeRewardApplicable"`
+ */
+export const useReadISyntheticRewardLastTimeRewardApplicable =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'lastTimeRewardApplicable',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"rewardPerToken"`
+ */
+export const useReadISyntheticRewardRewardPerToken =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'rewardPerToken',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"rewardPerTokenStored"`
+ */
+export const useReadISyntheticRewardRewardPerTokenStored =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'rewardPerTokenStored',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"rewardRate"`
+ */
+export const useReadISyntheticRewardRewardRate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'rewardRate',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"rewards"`
+ */
+export const useReadISyntheticRewardRewards =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'rewards',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"token"`
+ */
+export const useReadISyntheticRewardToken = /*#__PURE__*/ createUseReadContract(
+  { abi: iSyntheticRewardAbi, functionName: 'token' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"totalSupply"`
+ */
+export const useReadISyntheticRewardTotalSupply =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'totalSupply',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"updatedAt"`
+ */
+export const useReadISyntheticRewardUpdatedAt =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'updatedAt',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"userRewardPerTokenPaid"`
+ */
+export const useReadISyntheticRewardUserRewardPerTokenPaid =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'userRewardPerTokenPaid',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__
+ */
+export const useWriteISyntheticReward = /*#__PURE__*/ createUseWriteContract({
+  abi: iSyntheticRewardAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"commit"`
+ */
+export const useWriteISyntheticRewardCommit =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'commit',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteISyntheticRewardInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useWriteISyntheticRewardWithdraw =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'withdraw',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__
+ */
+export const useSimulateISyntheticReward =
+  /*#__PURE__*/ createUseSimulateContract({ abi: iSyntheticRewardAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"commit"`
+ */
+export const useSimulateISyntheticRewardCommit =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'commit',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateISyntheticRewardInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useSimulateISyntheticRewardWithdraw =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iSyntheticRewardAbi,
+    functionName: 'withdraw',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iVoterStorageAbi}__
+ */
+export const useReadIVoterStorage = /*#__PURE__*/ createUseReadContract({
+  abi: iVoterStorageAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iVoterStorageAbi}__ and `functionName` set to `"isPollHaveVoterStorage"`
+ */
+export const useReadIVoterStorageIsPollHaveVoterStorage =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iVoterStorageAbi,
+    functionName: 'isPollHaveVoterStorage',
   })
 
 /**
@@ -1052,6 +2365,15 @@ export const useWatchIVoterStoragePollBindedEvent =
 export const useReadIVotingPoll = /*#__PURE__*/ createUseReadContract({
   abi: iVotingPollAbi,
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iVotingPollAbi}__ and `functionName` set to `"getPollData"`
+ */
+export const useReadIVotingPollGetPollData =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iVotingPollAbi,
+    functionName: 'getPollData',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link iVotingPollAbi}__ and `functionName` set to `"isContractValid"`
@@ -1179,11 +2501,276 @@ export const useWatchMerkleTreeAllowlistInitializedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `eventName` set to `"MerkleRootUpdated"`
+ */
+export const useWatchMerkleTreeAllowlistMerkleRootUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: merkleTreeAllowlistAbi,
+    eventName: 'MerkleRootUpdated',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `eventName` set to `"OwnershipTransferred"`
  */
 export const useWatchMerkleTreeAllowlistOwnershipTransferredEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: merkleTreeAllowlistAbi,
+    eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__
+ */
+export const useReadSyntheticReward = /*#__PURE__*/ createUseReadContract({
+  abi: syntheticRewardAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadSyntheticRewardBalanceOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'balanceOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"duration"`
+ */
+export const useReadSyntheticRewardDuration =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'duration',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"earned"`
+ */
+export const useReadSyntheticRewardEarned = /*#__PURE__*/ createUseReadContract(
+  { abi: syntheticRewardAbi, functionName: 'earned' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"finishAt"`
+ */
+export const useReadSyntheticRewardFinishAt =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'finishAt',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"lastTimeRewardApplicable"`
+ */
+export const useReadSyntheticRewardLastTimeRewardApplicable =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'lastTimeRewardApplicable',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"owner"`
+ */
+export const useReadSyntheticRewardOwner = /*#__PURE__*/ createUseReadContract({
+  abi: syntheticRewardAbi,
+  functionName: 'owner',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"rewardPerToken"`
+ */
+export const useReadSyntheticRewardRewardPerToken =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'rewardPerToken',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"rewardPerTokenStored"`
+ */
+export const useReadSyntheticRewardRewardPerTokenStored =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'rewardPerTokenStored',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"rewardRate"`
+ */
+export const useReadSyntheticRewardRewardRate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'rewardRate',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"rewards"`
+ */
+export const useReadSyntheticRewardRewards =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'rewards',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"token"`
+ */
+export const useReadSyntheticRewardToken = /*#__PURE__*/ createUseReadContract({
+  abi: syntheticRewardAbi,
+  functionName: 'token',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"totalSupply"`
+ */
+export const useReadSyntheticRewardTotalSupply =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'totalSupply',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"updatedAt"`
+ */
+export const useReadSyntheticRewardUpdatedAt =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'updatedAt',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"userRewardPerTokenPaid"`
+ */
+export const useReadSyntheticRewardUserRewardPerTokenPaid =
+  /*#__PURE__*/ createUseReadContract({
+    abi: syntheticRewardAbi,
+    functionName: 'userRewardPerTokenPaid',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link syntheticRewardAbi}__
+ */
+export const useWriteSyntheticReward = /*#__PURE__*/ createUseWriteContract({
+  abi: syntheticRewardAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"commit"`
+ */
+export const useWriteSyntheticRewardCommit =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: syntheticRewardAbi,
+    functionName: 'commit',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useWriteSyntheticRewardInitialize =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: syntheticRewardAbi,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"renounceOwnership"`
+ */
+export const useWriteSyntheticRewardRenounceOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: syntheticRewardAbi,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useWriteSyntheticRewardTransferOwnership =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: syntheticRewardAbi,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useWriteSyntheticRewardWithdraw =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: syntheticRewardAbi,
+    functionName: 'withdraw',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link syntheticRewardAbi}__
+ */
+export const useSimulateSyntheticReward =
+  /*#__PURE__*/ createUseSimulateContract({ abi: syntheticRewardAbi })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"commit"`
+ */
+export const useSimulateSyntheticRewardCommit =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: syntheticRewardAbi,
+    functionName: 'commit',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"initialize"`
+ */
+export const useSimulateSyntheticRewardInitialize =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: syntheticRewardAbi,
+    functionName: 'initialize',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"renounceOwnership"`
+ */
+export const useSimulateSyntheticRewardRenounceOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: syntheticRewardAbi,
+    functionName: 'renounceOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"transferOwnership"`
+ */
+export const useSimulateSyntheticRewardTransferOwnership =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: syntheticRewardAbi,
+    functionName: 'transferOwnership',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link syntheticRewardAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useSimulateSyntheticRewardWithdraw =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: syntheticRewardAbi,
+    functionName: 'withdraw',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link syntheticRewardAbi}__
+ */
+export const useWatchSyntheticRewardEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: syntheticRewardAbi })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link syntheticRewardAbi}__ and `eventName` set to `"Initialized"`
+ */
+export const useWatchSyntheticRewardInitializedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: syntheticRewardAbi,
+    eventName: 'Initialized',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link syntheticRewardAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ */
+export const useWatchSyntheticRewardOwnershipTransferredEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: syntheticRewardAbi,
     eventName: 'OwnershipTransferred',
   })
 
