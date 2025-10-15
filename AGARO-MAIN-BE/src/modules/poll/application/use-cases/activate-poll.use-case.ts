@@ -31,7 +31,6 @@ export class ActivatePollUseCase {
       throw new BadRequestException('Poll is already active');
     }
 
-    // Activate the poll and set transaction status to success
     return await this.pollRepository.updateByPollHash(pollHash, {
       isActive: true,
       transactionStatus: TransactionStatus.SUCCESS,
