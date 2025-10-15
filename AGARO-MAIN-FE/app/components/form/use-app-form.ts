@@ -10,6 +10,7 @@ import { createFormHook } from '@tanstack/react-form';
 
 import { SubmitButton } from './components/submit-button';
 import { DatePickerField } from './fields/date-picker-field';
+import { DatePickerRangeField } from './fields/date-picker-range-field';
 import { NumberField } from './fields/number-field';
 import { SwitchField } from './fields/switch-field';
 import { TextField } from './fields/text-field';
@@ -40,6 +41,7 @@ export const { useAppForm, withForm, withFieldGroup } = createFormHook({
     NumberField,
     TextareaField,
     DatePickerField,
+    DatePickerRangeField,
     SwitchField,
   },
   formComponents: {

@@ -28,7 +28,8 @@ export interface PollData {
   description: string;
   candidates: string[];
   candidatesTotal: number;
-  expiryDate: Date;
+  startDate: Date;
+  endDate: Date;
   isPrivate: boolean;
   allowedAddresses: string[];
   rewardShare: string;
@@ -147,8 +148,8 @@ export function useCreatePoll() {
             title: pollData.title,
             description: pollData.description,
             choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
-            startDate: new Date(), // For now using now
-            endDate: pollData.expiryDate,
+            startDate: pollData.startDate,
+            endDate: pollData.endDate,
             isPrivate: pollData.isPrivate,
             addresses: pollData.allowedAddresses.map((address) => ({
               walletAddress: address,
@@ -180,8 +181,8 @@ export function useCreatePoll() {
       title: pollData.title,
       description: pollData.description,
       choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
-      startDate: new Date(), // For now using now
-      endDate: pollData.expiryDate,
+      startDate: pollData.startDate,
+      endDate: pollData.endDate,
       isPrivate: pollData.isPrivate,
       addresses: pollData.allowedAddresses.map((address) => ({
         walletAddress: address,
@@ -195,7 +196,7 @@ export function useCreatePoll() {
 
   /**
    * Create a new voting poll
-   * @param pollData - The voting poll data containing title, description, candidates, expiry, privacy settings, and allowed addresses
+   * @param pollData - The voting poll data containing title, description, candidates, start/end dates, privacy settings, and allowed addresses
    */
   const createPoll = async (pollData: PollData) => {
     if (!chainId) {
@@ -222,9 +223,9 @@ export function useCreatePoll() {
     setPollData(pollData);
 
     try {
-      // Calculate expiry timestamps
-      const now = Math.floor(Date.now() / 1000); // Current time in Unix timestamp
-      const endDate = Math.floor(pollData.expiryDate.getTime() / 1000); // Convert to Unix timestamp
+      // Calculate timestamps for voting period
+      const startDate = Math.floor(pollData.startDate.getTime() / 1000); // Convert to Unix timestamp
+      const endDate = Math.floor(pollData.endDate.getTime() / 1000); // Convert to Unix timestamp
 
       // Generate Merkle root hash if private poll, otherwise use zero hash
       let merkleRootHash: `0x${string}` =
@@ -252,7 +253,7 @@ export function useCreatePoll() {
         candidates: pollData.candidates,
         candidatesTotal: candidatesTotalUint8,
         expiry: {
-          startDate: BigInt(now),
+          startDate: BigInt(startDate),
           endDate: BigInt(endDate),
         },
         isTokenRequired: pollData.isTokenRequired,

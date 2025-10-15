@@ -54,6 +54,12 @@ export function CreateVotingPollForm() {
         // Step 1: Saving poll data
         setProgressStep('saving');
 
+        // Validate voting period
+        if (!value.votingPeriod?.from || !value.votingPeriod?.to) {
+          toast.error('Please select both start and end dates for the voting period');
+          return;
+        }
+
         // Create the pool with all required data
         // Note: Smart contract still uses "candidates" terminology
         await createPoll({
@@ -61,7 +67,8 @@ export function CreateVotingPollForm() {
           description: value.description,
           candidates: validChoices, // Map "choices" to "candidates" for contract
           candidatesTotal: validChoices.length,
-          expiryDate: value.expiryDate!,
+          startDate: value.votingPeriod.from,
+          endDate: value.votingPeriod.to,
           isPrivate: value.isPrivate,
           allowedAddresses: value.allowedAddresses.filter((addr) => addr.trim() !== ''),
           rewardShare: value.rewardShare,
@@ -221,17 +228,18 @@ export function CreateVotingPollForm() {
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
-                  {/* Expiry Date Field */}
-                  <div className="col-span-1 sm:col-span-2 lg:col-span-1">
+                  {/* Voting Period Field */}
+                  <div className="col-span-1 sm:col-span-2">
                     <form.AppField
-                      name="expiryDate"
+                      name="votingPeriod"
                       children={(field) => (
-                        <field.DatePickerField
-                          label="Expiry Date"
-                          placeholder="Select when voting ends"
-                          description="Choose the date and time when voting will close"
+                        <field.DatePickerRangeField
+                          label="Voting Period"
+                          placeholder="Select voting start and end dates"
+                          description="Choose when voting starts and when it ends"
                           disabled={isSubmitting}
                           fromDate={new Date()} // Can't select past dates
+                          numberOfMonths={2}
                         />
                       )}
                     />

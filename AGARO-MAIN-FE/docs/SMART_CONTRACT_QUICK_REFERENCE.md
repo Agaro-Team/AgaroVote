@@ -522,7 +522,8 @@ function HashPreview() {
     description: 'Description',
     candidates: ['A', 'B', 'C'],
     candidatesTotal: 3,
-    expiryDate: new Date(),
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
     isPrivate: false,
     allowedAddresses: [],
   };
