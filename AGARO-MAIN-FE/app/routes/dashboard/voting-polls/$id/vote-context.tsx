@@ -47,7 +47,7 @@ interface VoteProviderProps {
 
 export function VoteProvider({ poll, children }: VoteProviderProps) {
   const { address: walletAddress } = useWeb3Wallet();
-  const votePool = useVotePoll();
+  const votePoll = useVotePoll();
 
   // Fetch voting eligibility from the backend
   const { data: eligibilityData, isLoading: isCheckingEligibility } = useQuery(
@@ -73,27 +73,27 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
   // Determine current voting step based on transaction state
   const currentVoteStep = useMemo<VoteStep>(() => {
     // If wallet confirmation is pending
-    if (votePool.isWritingEntryPointVote) {
+    if (votePoll.isWritingEntryPointVote) {
       return 'wallet-confirmation';
     }
 
     // If transaction hash exists but not confirmed yet
-    if (votePool.voteTxHash && !votePool.isTransactionReceiptSuccess) {
-      if (votePool.isTransactionReceiptLoading) {
+    if (votePoll.voteTxHash && !votePoll.isTransactionReceiptSuccess) {
+      if (votePoll.isTransactionReceiptLoading) {
         return 'blockchain-confirmation';
       }
       return 'blockchain-submission';
     }
 
     // If transaction is confirmed and submitting to backend
-    if (votePool.isTransactionReceiptSuccess && votePool.isSubmittingToBackend) {
+    if (votePoll.isTransactionReceiptSuccess && votePoll.isSubmittingToBackend) {
       return 'database-storage';
     }
 
     // If transaction is confirmed but backend submission pending
-    if (votePool.isTransactionReceiptSuccess && !votePool.isSubmittingToBackend) {
+    if (votePoll.isTransactionReceiptSuccess && !votePoll.isSubmittingToBackend) {
       // Check if we have a vote recorded
-      if (hasVoted && votePool.voteTxHash) {
+      if (hasVoted && votePoll.voteTxHash) {
         return 'complete';
       }
       return 'verification';
@@ -102,11 +102,11 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     // Default: idle state
     return 'idle';
   }, [
-    votePool.isWritingEntryPointVote,
-    votePool.voteTxHash,
-    votePool.isTransactionReceiptSuccess,
-    votePool.isTransactionReceiptLoading,
-    votePool.isSubmittingToBackend,
+    votePoll.isWritingEntryPointVote,
+    votePoll.voteTxHash,
+    votePoll.isTransactionReceiptSuccess,
+    votePoll.isTransactionReceiptLoading,
+    votePoll.isSubmittingToBackend,
     hasVoted,
   ]);
 
@@ -119,22 +119,22 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
   }, [hasVoted, eligibilityData?.data?.reason]);
 
   const handleSubmitVote = async () => {
-    if (typeof votePool.choiceIndex !== 'number' || !canVote) return;
+    if (typeof votePoll.choiceIndex !== 'number' || !canVote) return;
     if (!poll) return;
-    if (!votePool.choiceId) return;
+    if (!votePoll.choiceId) return;
 
-    votePool.vote({
-      poolHash: poll.poolHash,
-      poolId: poll.id,
-      candidateSelected: votePool.choiceIndex,
-      choiceId: votePool.choiceId,
+    votePoll.vote({
+      pollHash: poll.poolHash,
+      pollId: poll.id,
+      candidateSelected: votePoll.choiceIndex,
+      choiceId: votePoll.choiceId,
     });
   };
 
   const value: VoteContextValue = {
     poll,
-    selectedChoiceIndex: votePool.choiceIndex,
-    isVoting: votePool.isWritingEntryPointVote,
+    selectedChoiceIndex: votePoll.choiceIndex,
+    isVoting: votePoll.isWritingEntryPointVote,
     canVote,
     nonVotableReason: nonVotableReason || null,
     isCheckingEligibility,
@@ -142,7 +142,7 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     userVotedChoiceId,
     isLoadingUserVote,
     currentVoteStep,
-    voteTxHash: votePool.voteTxHash,
+    voteTxHash: votePoll.voteTxHash,
     selectChoice: (choiceIndex, choiceId) => {
       // Prevent selection if user has already voted
       if (hasVoted) {
@@ -150,25 +150,25 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
         return;
       }
 
-      if (choiceIndex === votePool.choiceIndex && choiceId === votePool.choiceId) {
+      if (choiceIndex === votePoll.choiceIndex && choiceId === votePoll.choiceId) {
         return;
       }
 
-      votePool.setChoiceIndex(choiceIndex);
-      votePool.setChoiceId(choiceId);
+      votePoll.setChoiceIndex(choiceIndex);
+      votePoll.setChoiceId(choiceId);
     },
     submitVote: handleSubmitVote,
   };
 
   // Refetch user vote after successful vote submission
   useEffect(() => {
-    if (votePool.isTransactionReceiptSuccess) {
+    if (votePoll.isTransactionReceiptSuccess) {
       // Refetch user vote to update the UI
       setTimeout(() => {
         refetchUserVote();
       }, 1000); // Small delay to ensure backend has processed the vote
     }
-  }, [votePool.isTransactionReceiptSuccess, refetchUserVote]);
+  }, [votePoll.isTransactionReceiptSuccess, refetchUserVote]);
 
   return <VoteContext.Provider value={value}>{children}</VoteContext.Provider>;
 }

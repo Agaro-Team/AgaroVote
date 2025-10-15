@@ -12,33 +12,90 @@ import {
   useWriteEntryPointVote,
 } from '~/lib/web3/contracts/generated';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useReducer } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 
 interface VoteParams {
-  poolId: string;
-  poolHash: `0x${string}`;
+  pollId: string;
+  pollHash: `0x${string}`;
   candidateSelected: number;
   choiceId: string;
 }
 
 interface LogArgs {
-  poolHash?: `0x${string}`;
+  pollHash?: `0x${string}`;
   voter?: `0x${string}`;
   selected?: number;
-  newPoolVoterHash?: `0x${string}`;
+  newPollVoterHash?: `0x${string}`;
+}
+
+// State interface
+interface VotePollState {
+  log: LogArgs | null;
+  pollId: string | null;
+  choiceId: string | null;
+  choiceIndex: number | null;
+  hasSubmittedToBackend: boolean;
+}
+
+// Action types
+type VotePollAction =
+  | { type: 'SET_LOG'; payload: LogArgs }
+  | { type: 'SET_POLL_ID'; payload: string }
+  | { type: 'SET_CHOICE_ID'; payload: string }
+  | { type: 'SET_CHOICE_INDEX'; payload: number }
+  | { type: 'SET_HAS_SUBMITTED_TO_BACKEND'; payload: boolean }
+  | { type: 'RESET_VOTE_STATE' }
+  | { type: 'RESET_TRANSACTION_STATE' };
+
+// Initial state
+const initialState: VotePollState = {
+  log: null,
+  pollId: null,
+  choiceId: null,
+  choiceIndex: null,
+  hasSubmittedToBackend: false,
+};
+
+// Reducer function
+function votePollReducer(state: VotePollState, action: VotePollAction): VotePollState {
+  switch (action.type) {
+    case 'SET_LOG':
+      return { ...state, log: action.payload };
+    case 'SET_POLL_ID':
+      return { ...state, pollId: action.payload };
+    case 'SET_CHOICE_ID':
+      return { ...state, choiceId: action.payload };
+    case 'SET_CHOICE_INDEX':
+      return { ...state, choiceIndex: action.payload };
+    case 'SET_HAS_SUBMITTED_TO_BACKEND':
+      return { ...state, hasSubmittedToBackend: action.payload };
+    case 'RESET_VOTE_STATE':
+      return {
+        ...state,
+        log: null,
+        pollId: null,
+        choiceId: null,
+        hasSubmittedToBackend: false,
+      };
+    case 'RESET_TRANSACTION_STATE':
+      return {
+        ...state,
+        pollId: null,
+        choiceId: null,
+        log: null,
+      };
+    default:
+      return state;
+  }
 }
 
 export function useVotePoll() {
   const { chainId } = useWeb3Chain();
   const { address: walletAddress } = useWeb3Wallet();
 
-  const [log, setLog] = useState<LogArgs | null>(null);
-  const [poolId, setPoolId] = useState<string | null>(null);
-  const [choiceId, setChoiceId] = useState<string | null>(null);
-  const [choiceIndex, setChoiceIndex] = useState<number | null>(null);
-  const [hasSubmittedToBackend, setHasSubmittedToBackend] = useState(false);
+  const [state, dispatch] = useReducer(votePollReducer, initialState);
 
   const castVoteMutation = useMutation({
     ...castVoteMutationOptions,
@@ -58,14 +115,11 @@ export function useVotePoll() {
       ]);
 
       // Reset states after successful submission
-      setLog(null);
-      setPoolId(null);
-      setChoiceId(null);
-      setHasSubmittedToBackend(false);
+      dispatch({ type: 'RESET_VOTE_STATE' });
     },
     onError: (error: Error) => {
       toast.error(`Failed to record vote: ${error.message}`);
-      setHasSubmittedToBackend(false);
+      dispatch({ type: 'SET_HAS_SUBMITTED_TO_BACKEND', payload: false });
     },
   });
 
@@ -80,8 +134,7 @@ export function useVotePoll() {
       onError: (error) => {
         toast.error(`Transaction failed: ${error.message}`);
         // Reset local states on transaction error
-        setPoolId(null);
-        setChoiceId(null);
+        dispatch({ type: 'RESET_TRANSACTION_STATE' });
       },
     },
   });
@@ -95,24 +148,12 @@ export function useVotePoll() {
     hash: voteTxHash,
   });
 
-  // Handle receipt error
-  useEffect(() => {
-    if (receiptError) {
-      toast.error(`Transaction receipt error: ${receiptError.message}`);
-      setPoolId(null);
-      setChoiceId(null);
-      setLog(null);
-    }
-  }, [receiptError]);
-
   useWatchEntryPointVoteSucceededEvent({
     address: getEntryPointAddress(chainId),
-    enabled: isTransactionReceiptSuccess && !hasSubmittedToBackend,
+    enabled: isTransactionReceiptSuccess && !state.hasSubmittedToBackend,
     onError: (error) => {
       toast.error(`Event watch error: ${error.message}`);
-      setPoolId(null);
-      setChoiceId(null);
-      setLog(null);
+      dispatch({ type: 'RESET_TRANSACTION_STATE' });
     },
     onLogs: (logs) => {
       if (logs.length === 0) return;
@@ -120,12 +161,12 @@ export function useVotePoll() {
       // Only set the log on the last log
       const lastLog = logs[logs.length - 1];
       if (lastLog.args) {
-        setLog(lastLog.args);
+        dispatch({ type: 'SET_LOG', payload: lastLog.args });
       }
     },
   });
 
-  const vote = ({ poolHash, candidateSelected, choiceId, poolId }: VoteParams) => {
+  const vote = ({ pollHash, candidateSelected, choiceId, pollId }: VoteParams) => {
     const address = getEntryPointAddress(chainId);
 
     if (!address) {
@@ -138,14 +179,14 @@ export function useVotePoll() {
       return;
     }
 
-    setChoiceId(choiceId);
-    setPoolId(poolId);
+    dispatch({ type: 'SET_CHOICE_ID', payload: choiceId });
+    dispatch({ type: 'SET_POLL_ID', payload: pollId });
 
     const args = {
-      pollHash: poolHash,
+      pollHash: pollHash,
       candidateSelected,
       proofs: [], // Empty for now
-    };
+    } as const;
 
     writeContract({
       address,
@@ -155,43 +196,51 @@ export function useVotePoll() {
 
   useEffect(() => {
     // Prevent duplicate submissions
-    if (hasSubmittedToBackend || castVoteMutation.isPending) {
+    if (state.hasSubmittedToBackend || castVoteMutation.isPending) {
       return;
     }
 
     // Validate all required data is present
-    if (!log || !log.poolHash || !log.voter || !walletAddress) {
+    if (!state.log || !state.log.pollHash || !state.log.voter || !walletAddress) {
       return;
     }
 
-    if (!choiceId || !poolId || !voteTxHash || !isTransactionReceiptSuccess) {
+    if (!state.choiceId || !state.pollId || !voteTxHash || !isTransactionReceiptSuccess) {
       return;
     }
 
     // Verify the voter matches the wallet
-    if (log.voter.toLowerCase() !== walletAddress.toLowerCase()) {
+    if (state.log.voter.toLowerCase() !== walletAddress.toLowerCase()) {
       toast.error('Voter address mismatch');
       return;
     }
 
     // Submit to backend
-    setHasSubmittedToBackend(true);
+    dispatch({ type: 'SET_HAS_SUBMITTED_TO_BACKEND', payload: true });
     castVoteMutation.mutate({
-      pollId: poolId,
-      choiceId,
+      pollId: state.pollId,
+      choiceId: state.choiceId,
       voterWalletAddress: walletAddress,
       transactionHash: voteTxHash,
     });
   }, [
     isTransactionReceiptSuccess,
-    poolId,
-    choiceId,
+    state.pollId,
+    state.choiceId,
+    state.log,
+    state.hasSubmittedToBackend,
     voteTxHash,
-    log,
     walletAddress,
-    hasSubmittedToBackend,
     castVoteMutation,
   ]);
+
+  // Handle receipt error
+  useEffect(() => {
+    if (receiptError) {
+      toast.error(`Transaction receipt error: ${receiptError.message}`);
+      dispatch({ type: 'RESET_TRANSACTION_STATE' });
+    }
+  }, [receiptError]);
 
   return {
     vote,
@@ -204,11 +253,12 @@ export function useVotePoll() {
     writeError,
     receiptError,
     resetWrite,
-    choiceId,
-    choiceIndex,
-    poolId,
-    setChoiceIndex,
-    setPoolId,
-    setChoiceId,
+    choiceId: state.choiceId,
+    choiceIndex: state.choiceIndex,
+    pollId: state.pollId,
+    onChainLog: state.log,
+    setChoiceIndex: (index: number) => dispatch({ type: 'SET_CHOICE_INDEX', payload: index }),
+    setPollId: (id: string) => dispatch({ type: 'SET_POLL_ID', payload: id }),
+    setChoiceId: (id: string) => dispatch({ type: 'SET_CHOICE_ID', payload: id }),
   };
 }
