@@ -21,6 +21,8 @@ interface NumberFieldProps extends React.ComponentProps<'input'> {
   max?: number;
   step?: number;
   orientation?: 'vertical' | 'horizontal' | 'responsive';
+  formatValue?: (value: string) => string;
+  formatValueOnChange?: (value: string) => string;
 }
 
 export function NumberField({
@@ -33,6 +35,8 @@ export function NumberField({
   max,
   step,
   orientation = 'vertical',
+  formatValue,
+  formatValueOnChange,
   ...props
 }: NumberFieldProps) {
   const field = useFieldContext<string>();
@@ -48,8 +52,12 @@ export function NumberField({
         id={field.name}
         type="text"
         name={field.name}
-        value={field.state.value}
-        onChange={(e) => field.handleChange(e.target.value)}
+        value={formatValue ? formatValue(field.state.value) : field.state.value}
+        onChange={(e) =>
+          field.handleChange(
+            formatValueOnChange ? formatValueOnChange(e.target.value) : e.target.value
+          )
+        }
         onBlur={field.handleBlur}
         placeholder={placeholder}
         disabled={disabled}

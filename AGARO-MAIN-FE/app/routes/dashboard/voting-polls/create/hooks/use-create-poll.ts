@@ -31,6 +31,8 @@ export interface PollData {
   expiryDate: Date;
   isPrivate: boolean;
   allowedAddresses: string[];
+  rewardShare: string;
+  isTokenRequired: boolean;
 }
 
 /**
@@ -153,6 +155,8 @@ export function useCreatePoll() {
             })),
             creatorWalletAddress: walletAddress,
             pollHash: onChainHash,
+            rewardShare: pollData.rewardShare,
+            isTokenRequired: pollData.isTokenRequired,
           });
 
           // Clear the reference (but keep state for UI to show success)
@@ -184,6 +188,8 @@ export function useCreatePoll() {
       })),
       creatorWalletAddress: walletAddress,
       pollHash: pollHash,
+      rewardShare: pollData.rewardShare,
+      isTokenRequired: pollData.isTokenRequired,
     });
   };
 
@@ -231,6 +237,12 @@ export function useCreatePoll() {
       // Convert candidatesTotal to uint8 format
       const candidatesTotalUint8 = pollData.candidatesTotal as unknown as number;
 
+      // Convert rewardShare string to BigInt (handle empty or invalid values)
+      const rewardShareBigInt =
+        pollData.rewardShare && pollData.rewardShare.trim() !== ''
+          ? BigInt(pollData.rewardShare)
+          : BigInt(0);
+
       const args = {
         versioning: version,
         title: pollData.title,
@@ -243,8 +255,8 @@ export function useCreatePoll() {
           startDate: BigInt(now),
           endDate: BigInt(endDate),
         },
-        isTokenRequired: true,
-        rewardShare: BigInt(0),
+        isTokenRequired: pollData.isTokenRequired,
+        rewardShare: rewardShareBigInt,
       } as const;
 
       const targetHashedPayload = {
