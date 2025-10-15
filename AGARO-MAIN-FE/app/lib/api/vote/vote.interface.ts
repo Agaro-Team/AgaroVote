@@ -3,6 +3,7 @@ import type { ApiResponse } from '../api.interface';
 export interface CastVoteRequest {
   pollId: string;
   choiceId: string;
+  commitToken?: number;
   voterWalletAddress: string;
   transactionHash?: string;
   blockNumber?: number;

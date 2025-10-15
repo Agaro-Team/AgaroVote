@@ -26,7 +26,9 @@ interface VoteContextValue {
   isLoadingUserVote: boolean;
   currentVoteStep: VoteStep;
   voteTxHash: `0x${string}` | undefined;
+  commitToken: string | null;
   selectChoice: (choiceIndex: number, choiceId: string) => void;
+  setCommitToken: (token: string) => void;
   submitVote: () => Promise<void>;
 }
 
@@ -158,6 +160,8 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
       votePoll.setChoiceId(choiceId);
     },
     submitVote: handleSubmitVote,
+    commitToken: votePoll.commitToken,
+    setCommitToken: votePoll.setCommitToken,
   };
 
   // Refetch user vote after successful vote submission

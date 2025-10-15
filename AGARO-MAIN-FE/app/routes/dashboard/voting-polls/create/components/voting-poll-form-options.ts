@@ -49,15 +49,6 @@ const votingPoolSchema = z
         {
           message: 'End date must be after start date',
         }
-      )
-      .refine(
-        (period) => {
-          if (!period.from) return true; // Skip if start date is missing
-          return period.from >= new Date();
-        },
-        {
-          message: 'Start date must be in the future or today',
-        }
       ),
     isPrivate: z.boolean(),
     allowedAddresses: z.array(z.string().min(1, 'Address cannot be empty')),

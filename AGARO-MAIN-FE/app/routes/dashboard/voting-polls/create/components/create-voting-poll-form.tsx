@@ -83,6 +83,8 @@ export function CreateVotingPollForm() {
     },
   });
 
+  console.log(form.state.errors);
+
   // Track progress based on submission state
   useEffect(() => {
     if (isPending && progressStep === 'saving') {

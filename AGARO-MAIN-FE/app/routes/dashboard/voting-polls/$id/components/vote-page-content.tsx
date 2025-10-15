@@ -1,6 +1,7 @@
 /**
  * Vote Page Content - Composed voting page sections
  */
+import { CommitTokenInput } from './commit-token-input';
 import { NonVotableAlert } from './non-votable-alert';
 import { PollHashDisplay } from './poll-hash-display';
 import { PollHeader } from './poll-header';
@@ -18,6 +19,7 @@ export function VotePageContent() {
       <PollHashDisplay />
       <NonVotableAlert />
       <VotingChoices />
+      <CommitTokenInput />
       <VoteActions />
       <VoteProgressTracker />
       <VoteInfoCard />

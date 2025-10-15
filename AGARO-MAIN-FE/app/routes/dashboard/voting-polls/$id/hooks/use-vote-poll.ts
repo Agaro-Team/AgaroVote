@@ -33,6 +33,7 @@ interface LogArgs {
 // State interface
 interface VotePollState {
   log: LogArgs | null;
+  commitToken: string | null;
   pollId: string | null;
   choiceId: string | null;
   choiceIndex: number | null;
@@ -42,6 +43,7 @@ interface VotePollState {
 // Action types
 type VotePollAction =
   | { type: 'SET_LOG'; payload: LogArgs }
+  | { type: 'SET_COMMIT_TOKEN'; payload: string }
   | { type: 'SET_POLL_ID'; payload: string }
   | { type: 'SET_CHOICE_ID'; payload: string }
   | { type: 'SET_CHOICE_INDEX'; payload: number }
@@ -56,6 +58,7 @@ const initialState: VotePollState = {
   choiceId: null,
   choiceIndex: null,
   hasSubmittedToBackend: false,
+  commitToken: null,
 };
 
 // Reducer function
@@ -63,6 +66,8 @@ function votePollReducer(state: VotePollState, action: VotePollAction): VotePoll
   switch (action.type) {
     case 'SET_LOG':
       return { ...state, log: action.payload };
+    case 'SET_COMMIT_TOKEN':
+      return { ...state, commitToken: action.payload };
     case 'SET_POLL_ID':
       return { ...state, pollId: action.payload };
     case 'SET_CHOICE_ID':
@@ -75,6 +80,7 @@ function votePollReducer(state: VotePollState, action: VotePollAction): VotePoll
       return {
         ...state,
         log: null,
+        commitToken: null,
         pollId: null,
         choiceId: null,
         hasSubmittedToBackend: false,
@@ -82,6 +88,7 @@ function votePollReducer(state: VotePollState, action: VotePollAction): VotePoll
     case 'RESET_TRANSACTION_STATE':
       return {
         ...state,
+        commitToken: null,
         pollId: null,
         choiceId: null,
         log: null,
@@ -185,7 +192,7 @@ export function useVotePoll() {
     const args = {
       pollHash: pollHash,
       candidateSelected,
-      commitToken: BigInt(0),
+      commitToken: BigInt(state.commitToken ?? 0),
       proofs: [], // Empty for now
     } as const;
 
@@ -223,6 +230,7 @@ export function useVotePoll() {
       choiceId: state.choiceId,
       voterWalletAddress: walletAddress,
       transactionHash: voteTxHash,
+      commitToken: isNaN(Number(state.commitToken ?? 0)) ? undefined : Number(state.commitToken),
     });
   }, [
     isTransactionReceiptSuccess,
@@ -261,5 +269,7 @@ export function useVotePoll() {
     setChoiceIndex: (index: number) => dispatch({ type: 'SET_CHOICE_INDEX', payload: index }),
     setPollId: (id: string) => dispatch({ type: 'SET_POLL_ID', payload: id }),
     setChoiceId: (id: string) => dispatch({ type: 'SET_CHOICE_ID', payload: id }),
+    setCommitToken: (token: string) => dispatch({ type: 'SET_COMMIT_TOKEN', payload: token }),
+    commitToken: state.commitToken,
   };
 }
