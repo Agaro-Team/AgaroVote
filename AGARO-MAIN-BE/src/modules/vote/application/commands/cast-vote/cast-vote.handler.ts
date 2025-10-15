@@ -95,7 +95,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
       command.pollId,
       command.voterWalletAddress,
     );
-    const poolHash = PoolHash.fromPoll(poll.poolHash);
+    const poolHash = PoolHash.fromPoll(poll.pollHash);
     const signature = command.signature
       ? VoteSignature.createOptional(command.signature)
       : null;

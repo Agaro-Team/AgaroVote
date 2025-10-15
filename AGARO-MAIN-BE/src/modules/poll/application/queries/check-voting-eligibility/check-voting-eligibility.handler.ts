@@ -100,11 +100,12 @@ export class CheckVotingEligibilityHandler
       const isAddressAllowed = poll.addresses.some(
         (addr) => addr.walletAddress === query.walletAddress,
       );
-      
+
       if (!isAddressAllowed) {
         return {
           eligible: false,
-          reason: 'You are not allowed to vote for this poll. Only invited addresses can vote.',
+          reason:
+            'You are not allowed to vote for this poll. Only invited addresses can vote.',
           poll,
         };
       }

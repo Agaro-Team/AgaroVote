@@ -25,7 +25,7 @@ export class PollResponseDto {
   startDate: Date;
   endDate: Date;
   creatorWalletAddress: string;
-  poolHash: string;
+  pollHash: string;
   voteCount: number;
   transactionStatus: TransactionStatus;
   isActive: boolean;
@@ -51,7 +51,7 @@ export class PollResponseDto {
     response.startDate = poll.startDate;
     response.endDate = poll.endDate;
     response.creatorWalletAddress = poll.creatorWalletAddress;
-    response.poolHash = poll.poolHash;
+    response.pollHash = poll.pollHash;
 
     // Extract voteCount from entity if available (from JOIN query), default to 0
     response.voteCount = 'voteCount' in poll ? (poll.voteCount ?? 0) : 0;

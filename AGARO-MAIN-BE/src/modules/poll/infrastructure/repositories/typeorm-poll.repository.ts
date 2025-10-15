@@ -61,8 +61,8 @@ export class TypeORMPollRepository implements IPollRepository {
     return Object.assign(poll, { voteCount }) as PollWithVoteCount;
   }
 
-  async findByPoolHash(poolHash: string): Promise<Poll | null> {
-    return await this.repository.findOne({ where: { poolHash } });
+  async findByPoolHash(pollHash: string): Promise<Poll | null> {
+    return await this.repository.findOne({ where: { pollHash } });
   }
 
   async findByCreatorWallet(walletAddress: string): Promise<Poll[]> {
@@ -317,11 +317,11 @@ export class TypeORMPollRepository implements IPollRepository {
   }
 
   async updateByPoolHash(
-    poolHash: string,
+    pollHash: string,
     entity: Partial<Poll>,
   ): Promise<Poll> {
-    await this.repository.update({ poolHash }, entity);
-    const poll = await this.findByPoolHash(poolHash);
+    await this.repository.update({ pollHash }, entity);
+    const poll = await this.findByPoolHash(pollHash);
     if (!poll) {
       throw new Error('Poll not found after update');
     }

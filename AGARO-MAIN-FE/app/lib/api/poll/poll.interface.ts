@@ -46,7 +46,7 @@ export interface Poll {
   startDate: string;
   endDate: string;
   creatorWalletAddress: string;
-  poolHash: `0x${string}`;
+  pollHash: `0x${string}`;
   transactionStatus: TransactionStatus;
   isActive: boolean;
   choices: Choice[];
@@ -70,7 +70,7 @@ export type CreatePollRequest = {
   startDate: Date;
   endDate: Date;
   isPrivate: boolean;
-  poolHash: string;
+  pollHash: string;
   addresses?: Omit<Address, 'id' | 'pollId' | 'createdAt'>[];
   creatorWalletAddress: string;
 };

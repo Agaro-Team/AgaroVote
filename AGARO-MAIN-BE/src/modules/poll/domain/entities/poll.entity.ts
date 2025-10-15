@@ -32,8 +32,8 @@ export class Poll extends BaseEntity {
   @Column({ name: 'creator_wallet_address', type: 'varchar', length: 255 })
   creatorWalletAddress: string;
 
-  @Column({ name: 'pool_hash', type: 'varchar', length: 255, unique: true })
-  poolHash: string;
+  @Column({ name: 'poll_hash', type: 'varchar', length: 255, unique: true })
+  pollHash: string;
 
   @Column({
     name: 'voter_hash',
