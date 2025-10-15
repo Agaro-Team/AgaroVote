@@ -4,9 +4,9 @@ pragma solidity ^0.8.28;
 import "../../structs.sol";
 
 interface IVoterStorage {
-    event PoolBinded(bytes32 indexed poolHash, bytes32 poolStorageHash);
+    event PollBinded(bytes32 indexed pollHash, bytes32 pollStorageLocationHash);
 
-    error PoolAlreadyExists(bytes32 poolHash);
-    error PoolDoesNotHaveVoterStorage(bytes32 poolHash);
-    error AlreadyVoted(bytes32 poolHash, bytes32 storageHash, address voter);
+    error PollAlreadyExists(bytes32 pollHash);
+    error PollDoesNotHaveVoterStorage(bytes32 pollHash);
+    error AlreadyVoted(bytes32 pollHash, bytes32 storageHash, address voter);
 }

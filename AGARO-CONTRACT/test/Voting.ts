@@ -20,13 +20,13 @@ describe("EntryPoint - Voting Functionality", function () {
         entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleAllowListContract.getAddress()]);
     });
 
-    describe("Voting Pool Creation", function () {
-        it("Should create a voting pool and bind voter storage", async function () {
+    describe("Voting Poll Creation", function () {
+        it("Should create a voting poll and bind voter storage", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Test Voting Pool",
-                description: "A test voting pool for voting",
+                title: "Test Voting Poll",
+                description: "A test voting poll for voting",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Alice", "Bob", "Charlie"],
@@ -37,13 +37,13 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt?.logs.find((log: any) => {
+            const votingPollEvent = receipt?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
@@ -52,23 +52,23 @@ describe("EntryPoint - Voting Functionality", function () {
             const bindedEvent = receipt?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "PoolBinded";
+                    return decoded?.name === "PollBinded";
                 } catch {
                     return false;
                 }
             });
 
-            expect(votingPoolEvent).to.not.be.undefined;
+            expect(votingPollEvent).to.not.be.undefined;
             expect(bindedEvent).to.not.be.undefined;
 
-            const poolHash = votingPoolEvent?.topics[2];
+            const pollHash = votingPollEvent?.topics[2];
 
-            expect(await entryPoint.isPoolHaveVoterStorage(poolHash)).to.be.true;
+            expect(await entryPoint.isPollHaveVoterStorage(pollHash)).to.be.true;
         });
 
         it("Should initialize candidate vote counts to zero", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
                 title: "Vote Count Test",
                 description: "Testing initial vote counts",
@@ -82,36 +82,36 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt?.logs.find((log: any) => {
+            const votingPollEvent = receipt?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const poolHash = votingPoolEvent?.topics[2];
-            const poolInfo = await entryPoint.getPoolData(poolHash);
+            const pollHash = votingPollEvent?.topics[2];
+            const pollInfo = await entryPoint.getPollData(pollHash);
 
-            expect(poolInfo.candidatesVotersCount[0]).to.equal(0);
-            expect(poolInfo.candidatesVotersCount[1]).to.equal(0);
-            expect(poolInfo.candidatesVotersCount[2]).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[0]).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[1]).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[2]).to.equal(0);
         });
     });
 
     describe("Voting Process", function () {
-        let poolHash: string;
+        let pollHash: string;
 
         beforeEach(async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Voting Test Pool",
-                description: "Pool for testing voting",
+                title: "Voting Test Poll",
+                description: "Poll for testing voting",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Yes", "No", "Maybe"],
@@ -122,24 +122,24 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt?.logs.find((log: any) => {
+            const votingPollEvent = receipt?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            poolHash = votingPoolEvent?.topics[2];
+            pollHash = votingPollEvent?.topics[2];
         });
 
         it("Should allow a voter to vote for a candidate", async function () {
             const voteData = {
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash]
             };
@@ -147,66 +147,66 @@ describe("EntryPoint - Voting Functionality", function () {
             expect(await entryPoint.connect(voter1).vote(voteData))
                 .to.not.be.revert;
 
-            const poolInfo = await entryPoint.getPoolData(poolHash);
-            expect(poolInfo.candidatesVotersCount[0]).to.equal(1);
-            expect(poolInfo.candidatesVotersCount[1]).to.equal(0);
-            expect(poolInfo.candidatesVotersCount[2]).to.equal(0);
+            const pollInfo = await entryPoint.getPollData(pollHash);
+            expect(pollInfo.candidatesVotersCount[0]).to.equal(1);
+            expect(pollInfo.candidatesVotersCount[1]).to.equal(0);
+            expect(pollInfo.candidatesVotersCount[2]).to.equal(0);
         });
 
         it("Should allow multiple voters to vote", async function () {
             await entryPoint.connect(voter1).vote({
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash]
             });
 
             await entryPoint.connect(voter2).vote({
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 1,
                 proofs: [ethers.ZeroHash]
             });
 
             await entryPoint.connect(voter3).vote({
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash]
             });
 
-            const poolInfo = await entryPoint.getPoolData(poolHash);
-            expect(poolInfo.candidatesVotersCount[0]).to.equal(2);
-            expect(poolInfo.candidatesVotersCount[1]).to.equal(1);
-            expect(poolInfo.candidatesVotersCount[2]).to.equal(0);
+            const pollInfo = await entryPoint.getPollData(pollHash);
+            expect(pollInfo.candidatesVotersCount[0]).to.equal(2);
+            expect(pollInfo.candidatesVotersCount[1]).to.equal(1);
+            expect(pollInfo.candidatesVotersCount[2]).to.equal(0);
         });
 
         it("Should prevent voting for non-existent candidate", async function () {
             const voteData = {
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 5,
                 proofs: [ethers.ZeroHash]
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
                 .to.be.revertedWithCustomError(entryPoint, "CandidateDoesNotExist")
-                .withArgs(poolHash, 5);
+                .withArgs(pollHash, 5);
         });
 
-        it("Should prevent voting on non-existent pool", async function () {
+        it("Should prevent voting on non-existent poll", async function () {
             const nonExistentHash = ethers.keccak256(ethers.toUtf8Bytes("non-existent"));
             const voteData = {
-                poolHash: nonExistentHash,
+                pollHash: nonExistentHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash]
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
-                .to.be.revertedWithCustomError(entryPoint, "PoolHashDoesNotExist")
+                .to.be.revertedWithCustomError(entryPoint, "PollHashDoesNotExist")
                 .withArgs(nonExistentHash);
         });
 
         // it("Should allow voter to change their vote", async function () {
 
         //     await entryPoint.connect(voter1).vote({
-        //         poolHash: poolHash,
+        //         pollHash: pollHash,
         //         candidateSelected: 0,
         //         proofs: [ethers.ZeroHash]     
         //     });
@@ -214,39 +214,39 @@ describe("EntryPoint - Voting Functionality", function () {
 
 
         //     await entryPoint.connect(voter1).vote({
-        //         poolHash: poolHash,
+        //         pollHash: pollHash,
         //         candidateSelected: 1,
         //         proofs: [ethers.ZeroHash]     
         //     });
         // 
 
 
-        //     const poolInfo = await entryPoint.getPoolData(poolHash);
+        //     const pollInfo = await entryPoint.getPollData(pollHash);
 
-        //     expect(poolInfo.candidatesVotersCount[0]).to.equal(0);
-        //     expect(poolInfo.candidatesVotersCount[1]).to.equal(1);
-        //     expect(poolInfo.candidatesVotersCount[2]).to.equal(0);
+        //     expect(pollInfo.candidatesVotersCount[0]).to.equal(0);
+        //     expect(pollInfo.candidatesVotersCount[1]).to.equal(1);
+        //     expect(pollInfo.candidatesVotersCount[2]).to.equal(0);
         // });
 
         it("Should track individual voter choices in storage", async function () {
             await entryPoint.connect(voter1).vote({
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash]
             });
 
             await entryPoint.connect(voter2).vote({
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 1,
                 proofs: [ethers.ZeroHash]
             });
 
-            const poolInfo = await entryPoint.getPoolData(poolHash);
-            const storageLocation = poolInfo.voterStorageHashLocation;
+            const pollInfo = await entryPoint.getPollData(pollHash);
+            const storageLocation = pollInfo.voterStorageHashLocation;
 
-            const voter1Data = await entryPoint.poolStorageVoters(storageLocation, voter1.address);
-            const voter2Data = await entryPoint.poolStorageVoters(storageLocation, voter2.address);
-            const voter3Data = await entryPoint.poolStorageVoters(storageLocation, voter3.address);
+            const voter1Data = await entryPoint.pollStorageVoters(storageLocation, voter1.address);
+            const voter2Data = await entryPoint.pollStorageVoters(storageLocation, voter2.address);
+            const voter3Data = await entryPoint.pollStorageVoters(storageLocation, voter3.address);
 
             expect(voter1Data.selected).to.equal(0);
             expect(voter1Data.isVoted).to.be.true;
@@ -257,10 +257,10 @@ describe("EntryPoint - Voting Functionality", function () {
             expect(voter3Data.selected).to.equal(0);
             expect(voter3Data.isVoted).to.be.false;
         });
-        it("Should prevent a voter from voting twice in the same pool", async function () {
+        it("Should prevent a voter from voting twice in the same poll", async function () {
             const now = Math.floor(Date.now() / 1000);
 
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
                 title: "Double Vote Test",
                 description: "Ensure voters cannot vote twice",
@@ -274,27 +274,27 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt.logs.find((log: any) => {
+            const votingPollEvent = receipt.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const poolHash = votingPoolEvent?.topics[2];
-            expect(poolHash).to.not.be.undefined;
+            const pollHash = votingPollEvent?.topics[2];
+            expect(pollHash).to.not.be.undefined;
 
-            const poolInfo = await entryPoint.getPoolData(poolHash);
-            const storageLocation = poolInfo.voterStorageHashLocation;
+            const pollInfo = await entryPoint.getPollData(pollHash);
+            const storageLocation = pollInfo.voterStorageHashLocation;
 
             expect(await
                 entryPoint.connect(voter1).vote({
-                    poolHash,
+                    pollHash,
                     candidateSelected: 0,
                     proofs: [ethers.ZeroHash]
                 })
@@ -302,15 +302,15 @@ describe("EntryPoint - Voting Functionality", function () {
 
             await expect(
                 entryPoint.connect(voter1).vote({
-                    poolHash,
+                    pollHash,
                     candidateSelected: 1,
                     proofs: [ethers.ZeroHash]
                 })
             )
                 .to.be.revertedWithCustomError(entryPoint, "AlreadyVoted")
-                .withArgs(poolHash, storageLocation, voter1.address);
+                .withArgs(pollHash, storageLocation, voter1.address);
 
-            const voterData = await entryPoint.poolStorageVoters(storageLocation, voter1.address);
+            const voterData = await entryPoint.pollStorageVoters(storageLocation, voter1.address);
 
             expect(voterData.selected).to.equal(0);
             expect(voterData.isVoted).to.be.true;
@@ -322,9 +322,9 @@ describe("EntryPoint - Voting Functionality", function () {
             const root = tree.getHexRoot();
             const now = Math.floor(Date.now() / 1000);
 
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Private Pool",
+                title: "Private Poll",
                 description: "Merkle-based voting",
                 merkleRootHash: root,
                 isPrivate: false,
@@ -338,23 +338,23 @@ describe("EntryPoint - Voting Functionality", function () {
 
             const proofs = tree.getHexProof(keccak256(voter1.address));
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
-            const votingPoolEvent = receipt.logs.find((log: any) => {
+            const votingPollEvent = receipt.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const poolHash = votingPoolEvent?.topics[2];
-            expect(poolHash).to.not.be.undefined;
+            const pollHash = votingPollEvent?.topics[2];
+            expect(pollHash).to.not.be.undefined;
 
 
             const voteData = {
-                poolHash,
+                pollHash,
                 candidateSelected: 1,
                 proofs,
             };
@@ -369,9 +369,9 @@ describe("EntryPoint - Voting Functionality", function () {
             const root = tree.getHexRoot();
             const now = Math.floor(Date.now() / 1000);
 
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Private Pool",
+                title: "Private Poll",
                 description: "Merkle-based voting",
                 merkleRootHash: root,
                 isPrivate: false,
@@ -385,23 +385,23 @@ describe("EntryPoint - Voting Functionality", function () {
 
             const proofs = tree.getHexProof(keccak256(voter1.address));
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
-            const votingPoolEvent = receipt.logs.find((log: any) => {
+            const votingPollEvent = receipt.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const poolHash = votingPoolEvent?.topics[2];
-            expect(poolHash).to.not.be.undefined;
+            const pollHash = votingPollEvent?.topics[2];
+            expect(pollHash).to.not.be.undefined;
 
 
             const voteData = {
-                poolHash,
+                pollHash,
                 candidateSelected: 1,
                 proofs,
             };
@@ -413,14 +413,14 @@ describe("EntryPoint - Voting Functionality", function () {
 
 
     describe("Edge Cases and Error Handling", function () {
-        let poolHash: string;
+        let pollHash: string;
 
         beforeEach(async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Edge Case Pool",
-                description: "Pool for testing edge cases",
+                title: "Edge Case Poll",
+                description: "Poll for testing edge cases",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Single Option"],
@@ -431,24 +431,24 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt?.logs.find((log: any) => {
+            const votingPollEvent = receipt?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            poolHash = votingPoolEvent?.topics[2];
+            pollHash = votingPollEvent?.topics[2];
         });
 
         it("Should handle voting with minimum candidates (1)", async function () {
             const voteData = {
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash]
             };
@@ -456,17 +456,17 @@ describe("EntryPoint - Voting Functionality", function () {
             expect(await entryPoint.connect(voter1).vote(voteData))
                 .to.not.be.revert;
 
-            const poolInfo = await entryPoint.getPoolData(poolHash);
-            expect(poolInfo.candidatesVotersCount[0]).to.equal(1);
+            const pollInfo = await entryPoint.getPollData(pollHash);
+            expect(pollInfo.candidatesVotersCount[0]).to.equal(1);
         });
 
         it("Should handle maximum uint8 candidate selection", async function () {
             const manyCandidates = Array.from({ length: 255 }, (_, i) => `Candidate ${i + 1}`);
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Max Candidates Pool",
-                description: "Pool with maximum candidates",
+                title: "Max Candidates Poll",
+                description: "Poll with maximum candidates",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: manyCandidates,
@@ -477,22 +477,22 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt?.logs.find((log: any) => {
+            const votingPollEvent = receipt?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const maxPoolHash = votingPoolEvent?.topics[2];
+            const maxPollHash = votingPollEvent?.topics[2];
 
             const voteData = {
-                poolHash: maxPoolHash,
+                pollHash: maxPollHash,
                 candidateSelected: 254,
                 proofs: [ethers.ZeroHash]
             };
@@ -500,16 +500,16 @@ describe("EntryPoint - Voting Functionality", function () {
             expect(await entryPoint.connect(voter1).vote(voteData))
                 .to.not.be.revert;
 
-            const poolInfo = await entryPoint.getPoolData(maxPoolHash);
-            expect(poolInfo.candidatesVotersCount[254]).to.equal(1);
+            const pollInfo = await entryPoint.getPollData(maxPollHash);
+            expect(pollInfo.candidatesVotersCount[254]).to.equal(1);
         });
 
-        it("Should handle empty pool gracefully", async function () {
+        it("Should handle empty poll gracefully", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const emptyPoolData = {
+            const emptyPollData = {
                 versioning: await entryPoint.version(),
-                title: "Empty Pool",
-                description: "Pool with no candidates",
+                title: "Empty Poll",
+                description: "Poll with no candidates",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: [],
@@ -520,38 +520,38 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(emptyPoolData);
+            const tx = await entryPoint.newVotingPoll(emptyPollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt?.logs.find((log: any) => {
+            const votingPollEvent = receipt?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const emptyPoolHash = votingPoolEvent?.topics[2];
+            const emptyPollHash = votingPollEvent?.topics[2];
 
             const voteData = {
-                poolHash: emptyPoolHash,
+                pollHash: emptyPollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash]
             };
 
             await expect(entryPoint.connect(voter1).vote(voteData))
                 .to.be.revertedWithCustomError(entryPoint, "CandidateDoesNotExist")
-                .withArgs(emptyPoolHash, 0);
+                .withArgs(emptyPollHash, 0);
         });
     });
 
     describe("Gas Usage", function () {
         it("Should vote within reasonable gas limits", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Gas Test Pool",
+                title: "Gas Test Poll",
                 description: "Testing gas consumption for voting",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
@@ -563,22 +563,22 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx1 = await entryPoint.newVotingPool(poolData);
+            const tx1 = await entryPoint.newVotingPoll(pollData);
             const receipt1 = await tx1.wait();
 
-            const votingPoolEvent = receipt1?.logs.find((log: any) => {
+            const votingPollEvent = receipt1?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const poolHash = votingPoolEvent?.topics[2];
+            const pollHash = votingPollEvent?.topics[2];
 
             const voteData = {
-                poolHash: poolHash,
+                pollHash: pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash]
             };
@@ -591,9 +591,9 @@ describe("EntryPoint - Voting Functionality", function () {
         });
         it("Should revert if voting before startDate", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Early Voting Pool",
+                title: "Early Voting Poll",
                 description: "Voting should not be active yet",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
@@ -605,23 +605,23 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt.logs.find((log: any) => {
+            const votingPollEvent = receipt.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const poolHash = votingPoolEvent?.topics[2];
-            expect(poolHash).to.not.be.undefined;
+            const pollHash = votingPollEvent?.topics[2];
+            expect(pollHash).to.not.be.undefined;
 
             const voteData = {
-                poolHash,
+                pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash],
             };
@@ -629,17 +629,17 @@ describe("EntryPoint - Voting Functionality", function () {
             await expect(entryPoint.connect(voter1).vote(voteData))
                 .to.be.revertedWithCustomError(entryPoint, "VotingIsNotActive")
                 .withArgs(
-                    poolHash,
-                    poolData.expiry.startDate,
-                    poolData.expiry.endDate
+                    pollHash,
+                    pollData.expiry.startDate,
+                    pollData.expiry.endDate
                 );
         });
 
         it("Should revert if voting after endDate", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Expired Voting Pool",
+                title: "Expired Voting Poll",
                 description: "Voting period has ended",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
@@ -651,23 +651,23 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
-            const votingPoolEvent = receipt.logs.find((log: any) => {
+            const votingPollEvent = receipt.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const poolHash = votingPoolEvent?.topics[2];
-            expect(poolHash).to.not.be.undefined;
+            const pollHash = votingPollEvent?.topics[2];
+            expect(pollHash).to.not.be.undefined;
 
             const voteData = {
-                poolHash,
+                pollHash,
                 candidateSelected: 0,
                 proofs: [ethers.ZeroHash],
             };
@@ -675,16 +675,16 @@ describe("EntryPoint - Voting Functionality", function () {
             await expect(entryPoint.connect(voter1).vote(voteData))
                 .to.be.revertedWithCustomError(entryPoint, "VotingIsNotActive")
                 .withArgs(
-                    poolHash,
-                    poolData.expiry.startDate,
-                    poolData.expiry.endDate
+                    pollHash,
+                    pollData.expiry.startDate,
+                    pollData.expiry.endDate
                 );
         });
         it("Should revert if version does not match", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version() + 1n,
-                title: "Expired Voting Pool",
+                title: "Expired Voting Poll",
                 description: "Voting period has ended",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
@@ -696,7 +696,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 },
             };
 
-            await expect(entryPoint.newVotingPool(poolData))
+            await expect(entryPoint.newVotingPoll(pollData))
                 .to.be.revertedWithCustomError(entryPoint, "VersioningError")
                 .withArgs(
                     1

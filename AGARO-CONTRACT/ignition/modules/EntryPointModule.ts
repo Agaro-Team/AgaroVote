@@ -1,5 +1,5 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
-import MerkleAllowListModule from "./MerkleAllowListModule.js";
+import MerkleAllowListModule from "./MerkleTreeAllowListModule.js";
 
 export default buildModule("EntryPointModule", (m) => {
   const { merkleAllowList } = m.useModule(MerkleAllowListModule);

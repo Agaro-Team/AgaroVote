@@ -3,16 +3,16 @@ pragma solidity ^0.8.28;
 
 import "../structs.sol";
 
-library VotingPoolDataLib {
+library VotingPollDataLib {
     function encode(
-        VotingPoolDataArgument calldata _poolData,
+        VotingPollDataArgument calldata _pollData,
         uint256 version,
         address owner
     ) internal pure returns (bytes memory ret) {
-        string memory title = _poolData.title;
-        string memory description = _poolData.description;
-        string[] memory candidates = _poolData.candidates;
-        uint8 candidatesTotal = _poolData.candidatesTotal;
+        string memory title = _pollData.title;
+        string memory description = _pollData.description;
+        string[] memory candidates = _pollData.candidates;
+        uint8 candidatesTotal = _pollData.candidatesTotal;
         return
             abi.encode(
                 title,
@@ -25,10 +25,10 @@ library VotingPoolDataLib {
     }
 
     function getHash(
-        VotingPoolDataArgument calldata _poolData,
+        VotingPollDataArgument calldata _pollData,
         uint256 version,
         address owner
     ) internal pure returns (bytes32) {
-        return keccak256(encode(_poolData, version, owner));
+        return keccak256(encode(_pollData, version, owner));
     }
 }

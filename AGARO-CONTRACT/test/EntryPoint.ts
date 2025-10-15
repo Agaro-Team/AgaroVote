@@ -4,7 +4,7 @@ import { ethers } from "ethers";
 
 const { ethers: hardhatEthers } = await network.connect();
 
-describe("EntryPoint - Voting Pool Creation", function () {
+describe("EntryPoint - Voting Poll Creation", function () {
     let entryPoint: any;
     let merkleAllowListContract: any;
     let owner: any;
@@ -25,12 +25,12 @@ describe("EntryPoint - Voting Pool Creation", function () {
         });
     });
 
-    describe("Voting Pool Creation", function () {
-        it("Should create a private voting pool without emitting VotingPoolCreated event", async function () {
+    describe("Voting Poll Creation", function () {
+        it("Should create a private voting poll without emitting VotingPollCreated event", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Private Voting Pool",
+                title: "Private Voting Poll",
                 description: "Only whitelisted voters can participate",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: true,
@@ -42,13 +42,13 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const hasEvent = receipt.logs.some((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
@@ -58,12 +58,12 @@ describe("EntryPoint - Voting Pool Creation", function () {
 
             expect(await entryPoint.version()).to.equal(1);
         });
-        it("Should create a voting pool with specified candidates", async function () {
+        it("Should create a voting poll with specified candidates", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Test Voting Pool",
-                description: "A test voting pool for testing purposes",
+                title: "Test Voting Poll",
+                description: "A test voting poll for testing purposes",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Alice", "Bob", "Charlie"],
@@ -74,30 +74,30 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            const expectedPoolHash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
+            const expectedPollHash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
                 ["string", "string", "string[]", "uint8", "uint256", "address"],
-                [poolData.title, poolData.description, poolData.candidates, poolData.candidatesTotal, 0, owner.address]
+                [pollData.title, pollData.description, pollData.candidates, pollData.candidatesTotal, 0, owner.address]
             ));
 
             const expectedVoterStorageHash = ethers.keccak256(
                 ethers.AbiCoder.defaultAbiCoder().encode(
                     ["bytes32"],
-                    [expectedPoolHash]
+                    [expectedPollHash]
                 )
             );
 
-            const expectedVotesArray = Array(poolData.candidatesTotal).fill(ethers.toBigInt(0));
+            const expectedVotesArray = Array(pollData.candidatesTotal).fill(ethers.toBigInt(0));
 
-            await expect(entryPoint.newVotingPool(poolData))
-                .to.emit(entryPoint, "VotingPoolCreated")
-                .withArgs(1, expectedPoolHash, expectedVoterStorageHash, expectedVotesArray);
+            await expect(entryPoint.newVotingPoll(pollData))
+                .to.emit(entryPoint, "VotingPollCreated")
+                .withArgs(1, expectedPollHash, expectedVoterStorageHash, expectedVotesArray);
         });
 
-        it("Should increment version after creating a pool", async function () {
+        it("Should increment version after creating a poll", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Test Pool",
+                title: "Test Poll",
                 description: "Test Description",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
@@ -110,16 +110,16 @@ describe("EntryPoint - Voting Pool Creation", function () {
             };
 
             expect(await entryPoint.version()).to.equal(0);
-            await entryPoint.newVotingPool(poolData);
+            await entryPoint.newVotingPoll(pollData);
             expect(await entryPoint.version()).to.equal(1);
         });
 
-        it("Should create multiple pools with different candidate counts", async function () {
+        it("Should create multiple polls with different candidate counts", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData1 = {
+            const pollData1 = {
                 versioning: await entryPoint.version(),
-                title: "Pool 1",
-                description: "First pool with 2 candidates",
+                title: "Poll 1",
+                description: "First poll with 2 candidates",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Yes", "No"],
@@ -130,10 +130,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            const poolData2 = {
+            const pollData2 = {
                 versioning: await entryPoint.version() + 1n,
-                title: "Pool 2",
-                description: "Second pool with 5 candidates",
+                title: "Poll 2",
+                description: "Second poll with 5 candidates",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
@@ -144,19 +144,19 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            await entryPoint.newVotingPool(poolData1);
-            await entryPoint.newVotingPool(poolData2);
+            await entryPoint.newVotingPoll(pollData1);
+            await entryPoint.newVotingPoll(pollData2);
 
             expect(await entryPoint.version()).to.equal(2);
         });
 
-        it("Should create pool with many candidates", async function () {
+        it("Should create poll with many candidates", async function () {
             const candidates = Array.from({ length: 10 }, (_, i) => `Candidate ${i + 1}`);
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Many Candidates Pool",
-                description: "Pool with many candidates",
+                title: "Many Candidates Poll",
+                description: "Poll with many candidates",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: candidates,
@@ -167,16 +167,16 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            await expect(entryPoint.newVotingPool(poolData))
-                .to.emit(entryPoint, "VotingPoolCreated");
+            await expect(entryPoint.newVotingPoll(pollData))
+                .to.emit(entryPoint, "VotingPollCreated");
         });
 
-        it("Should create pool with zero candidates", async function () {
+        it("Should create poll with zero candidates", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Zero Candidates Pool",
-                description: "Pool with no candidates",
+                title: "Zero Candidates Poll",
+                description: "Poll with no candidates",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: [],
@@ -187,17 +187,17 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            await expect(entryPoint.newVotingPool(poolData))
-                .to.emit(entryPoint, "VotingPoolCreated");
+            await expect(entryPoint.newVotingPoll(pollData))
+                .to.emit(entryPoint, "VotingPollCreated");
         });
 
-        it("Should create pool with maximum uint8 candidates", async function () {
+        it("Should create poll with maximum uint8 candidates", async function () {
             const candidates = Array.from({ length: 255 }, (_, i) => `Candidate ${i + 1}`);
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Max Candidates Pool",
-                description: "Pool with maximum candidates",
+                title: "Max Candidates Poll",
+                description: "Poll with maximum candidates",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: candidates,
@@ -208,17 +208,17 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            await expect(entryPoint.newVotingPool(poolData))
-                .to.emit(entryPoint, "VotingPoolCreated");
+            await expect(entryPoint.newVotingPoll(pollData))
+                .to.emit(entryPoint, "VotingPollCreated");
         });
 
-        it("Should allow anyone to create voting pools", async function () {
+        it("Should allow anyone to create voting polls", async function () {
             const [voter] = await hardhatEthers.getSigners();
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Public Pool",
-                description: "Anyone can create pools",
+                title: "Public Poll",
+                description: "Anyone can create polls",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Choice A", "Choice B", "Choice C"],
@@ -229,15 +229,15 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            await expect(entryPoint.connect(voter).newVotingPool(poolData))
-                .to.emit(entryPoint, "VotingPoolCreated");
+            await expect(entryPoint.connect(voter).newVotingPoll(pollData))
+                .to.emit(entryPoint, "VotingPollCreated");
         });
 
-        it("Should create pool within reasonable gas limits", async function () {
+        it("Should create poll within reasonable gas limits", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Gas Test Pool",
+                title: "Gas Test Poll",
                 description: "Testing gas consumption",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
@@ -249,7 +249,7 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             expect(receipt?.gasUsed).to.be.lessThan(500000);
@@ -257,9 +257,9 @@ describe("EntryPoint - Voting Pool Creation", function () {
 
         it("Should validate contract existence correctly", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData = {
+            const pollData = {
                 versioning: await entryPoint.version(),
-                title: "Validation Test Pool",
+                title: "Validation Test Poll",
                 description: "Testing contract validation",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
@@ -271,33 +271,33 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            const tx = await entryPoint.newVotingPool(poolData);
+            const tx = await entryPoint.newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const event = receipt?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
             expect(event).to.not.be.undefined;
-            const poolHash = event?.topics[2];
+            const pollHash = event?.topics[2];
 
-            expect(await entryPoint.isContractValid(poolHash)).to.be.true;
+            expect(await entryPoint.isContractValid(pollHash)).to.be.true;
 
             const nonExistentHash = ethers.keccak256(ethers.toUtf8Bytes("non-existent"));
             expect(await entryPoint.isContractValid(nonExistentHash)).to.be.false;
         });
 
-        it("Should validate multiple pools correctly", async function () {
+        it("Should validate multiple polls correctly", async function () {
             const now = Math.floor(Date.now() / 1000);
-            const poolData1 = {
+            const pollData1 = {
                 versioning: await entryPoint.version(),
-                title: "Pool 1",
-                description: "First pool for validation",
+                title: "Poll 1",
+                description: "First poll for validation",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Yes", "No"],
@@ -308,10 +308,10 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            const poolData2 = {
+            const pollData2 = {
                 versioning: await entryPoint.version() + 1n,
-                title: "Pool 2",
-                description: "Second pool for validation",
+                title: "Poll 2",
+                description: "Second poll for validation",
                 merkleRootHash: ethers.ZeroHash,
                 isPrivate: false,
                 candidates: ["Option A", "Option B", "Option C", "Option D"],
@@ -322,16 +322,16 @@ describe("EntryPoint - Voting Pool Creation", function () {
                 },
             };
 
-            const tx1 = await entryPoint.newVotingPool(poolData1);
+            const tx1 = await entryPoint.newVotingPoll(pollData1);
             const receipt1 = await tx1.wait();
 
-            const tx2 = await entryPoint.newVotingPool(poolData2);
+            const tx2 = await entryPoint.newVotingPoll(pollData2);
             const receipt2 = await tx2.wait();
 
             const event1 = receipt1?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
@@ -340,19 +340,19 @@ describe("EntryPoint - Voting Pool Creation", function () {
             const event2 = receipt2?.logs.find((log: any) => {
                 try {
                     const decoded = entryPoint.interface.parseLog(log);
-                    return decoded?.name === "VotingPoolCreated";
+                    return decoded?.name === "VotingPollCreated";
                 } catch {
                     return false;
                 }
             });
 
-            const poolHash1 = event1?.topics[2];
-            const poolHash2 = event2?.topics[2];
+            const pollHash1 = event1?.topics[2];
+            const pollHash2 = event2?.topics[2];
 
-            expect(await entryPoint.isContractValid(poolHash1)).to.be.true;
-            expect(await entryPoint.isContractValid(poolHash2)).to.be.true;
+            expect(await entryPoint.isContractValid(pollHash1)).to.be.true;
+            expect(await entryPoint.isContractValid(pollHash2)).to.be.true;
 
-            expect(poolHash1).to.not.equal(poolHash2);
+            expect(pollHash1).to.not.equal(pollHash2);
         });
     });
 });

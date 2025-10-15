@@ -4,9 +4,9 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/proxy/utils/Initializable.sol";
-import "../../interfaces/MerkleRootStructure/IMerkleAllowList.sol";
+import "../../interfaces/MerkleTree/IMerkleTreeAllowList.sol";
 
-contract MerkleAllowlist is Ownable, Initializable, IMerkleAllowlist {
+contract MerkleTreeAllowlist is Ownable, Initializable, IMerkleTreeAllowlist {
     bytes32 public merkleRoot;
 
     constructor() Ownable(msg.sender) {

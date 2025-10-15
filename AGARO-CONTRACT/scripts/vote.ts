@@ -138,16 +138,12 @@ async function main() {
 
   const entryPoint = new ethers.Contract(entryPointAddress, abi, signer);
 
-  // Replace this with the actual pool hash from VotingPoolCreated event
-  // You can get this by running createPool.ts first and listening to the event
   const poolHash =
     process.env.POOL_HASH ||
     "0x0000000000000000000000000000000000000000000000000000000000000000";
 
-  // Select candidate index (0 for "Alice", 1 for "Bob" based on createPool.ts example)
   const candidateSelected = 0;
 
-  // Proofs array - empty for public pools, provide merkle proofs for private pools
   const proofs: string[] = [];
 
   const voteData = {
@@ -173,7 +169,6 @@ async function main() {
     console.log("Transaction confirmed!");
     console.log("Tx hash:", receipt.hash);
 
-    // Parse the VoteSucceeded event
     const voteEvent = receipt.logs
       .map((log: any) => {
         try {

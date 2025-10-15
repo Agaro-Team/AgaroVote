@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-struct VotingPoolDataArgument {
+struct VotingPollDataArgument {
     uint256 versioning;
     string title;
     string description;
@@ -9,16 +9,16 @@ struct VotingPoolDataArgument {
     bool isPrivate;
     string[] candidates;
     uint8 candidatesTotal;
-    VotingPoolExpiry expiry;
+    VotingPollExpiry expiry;
 }
 
-struct VotingPoolExpiry {
+struct VotingPollExpiry {
     uint256 startDate;
     uint256 endDate;
 }
 
 struct VoteArgument {
-    bytes32 poolHash;
+    bytes32 pollHash;
     uint8 candidateSelected;
     bytes32[] proofs;
 }
@@ -28,13 +28,13 @@ struct VoterData {
     bool isVoted;
 }
 
-struct PoolData {
+struct PollData {
     uint256 version;
     address owner;
     bool isPrivate;
     address merkleRootContract;
-    bytes32 poolVoterHash;
+    bytes32 pollVoterHash;
     uint256[] candidatesVotersCount;
     bytes32 voterStorageHashLocation;
-    VotingPoolExpiry expiry;
+    VotingPollExpiry expiry;
 }
