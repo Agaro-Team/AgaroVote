@@ -12,7 +12,7 @@ export interface PollWithVoteCount extends Poll {
 }
 
 export interface IPollRepository extends IRepository<Poll> {
-  findByPoolHash(poolHash: string): Promise<Poll | null>;
+  findByPollHash(pollHash: string): Promise<Poll | null>;
   findByCreatorWallet(walletAddress: string): Promise<Poll[]>;
   findActivePolls(): Promise<Poll[]>;
   findOngoingPolls(): Promise<Poll[]>;
@@ -41,7 +41,7 @@ export interface IPollRepository extends IRepository<Poll> {
     filters: PollFilterDto,
   ): Promise<IPaginatedResult<PollWithVoteCount>>;
 
-  updateByPoolHash(poolHash: string, entity: Partial<Poll>): Promise<Poll>;
+  updateByPollHash(pollHash: string, entity: Partial<Poll>): Promise<Poll>;
 }
 
 export const POLL_REPOSITORY = Symbol('POLL_REPOSITORY');

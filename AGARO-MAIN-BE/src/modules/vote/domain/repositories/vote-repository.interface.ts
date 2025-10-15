@@ -35,7 +35,7 @@ export interface IVoteRepository extends IRepository<Vote> {
   /**
    * Find votes by pool hash (blockchain reference)
    */
-  findByPoolHash(poolHash: string): Promise<Vote[]>;
+  findByPollHash(pollHash: string): Promise<Vote[]>;
 
   /**
    * Find votes by transaction hash (blockchain transaction)
@@ -61,7 +61,7 @@ export interface IVoteRepository extends IRepository<Vote> {
     filters?: {
       pollId?: string;
       voterWalletAddress?: string;
-      poolHash?: string;
+      pollHash?: string;
     },
   ): Promise<{ votes: Vote[]; total: number }>;
 

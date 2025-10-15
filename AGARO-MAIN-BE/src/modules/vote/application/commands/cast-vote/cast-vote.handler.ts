@@ -95,7 +95,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
       command.pollId,
       command.voterWalletAddress,
     );
-    const poolHash = PoolHash.fromPoll(poll.pollHash);
+    const pollHash = PoolHash.fromPoll(poll.pollHash);
     const signature = command.signature
       ? VoteSignature.createOptional(command.signature)
       : null;
@@ -106,7 +106,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     vote.choiceId = command.choiceId;
     vote.voterWalletAddress = command.voterWalletAddress;
     vote.voterHash = voterHash.value;
-    vote.poolHash = poolHash.value;
+    vote.pollHash = pollHash.value;
     vote.transactionHash = command.transactionHash;
     vote.blockNumber = command.blockNumber;
     vote.signature = signature?.value;
@@ -123,7 +123,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
         pollId: savedVote.pollId,
         choiceId: savedVote.choiceId,
         voterHash: savedVote.voterHash,
-        poolHash: savedVote.poolHash,
+        pollHash: savedVote.pollHash,
       },
       command.ipAddress,
       command.userAgent,
@@ -138,7 +138,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
         savedVote.choiceId,
         savedVote.voterWalletAddress,
         savedVote.voterHash,
-        savedVote.poolHash,
+        savedVote.pollHash,
         savedVote.votedAt,
         savedVote.transactionHash,
         savedVote.blockNumber,

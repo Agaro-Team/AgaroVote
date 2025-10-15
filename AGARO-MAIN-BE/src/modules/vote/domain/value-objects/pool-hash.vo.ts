@@ -12,12 +12,12 @@ export class PoolHash {
   /**
    * Create a pool hash from a string value
    */
-  static create(poolHash: string): PoolHash {
-    if (!poolHash) {
+  static create(pollHash: string): PoolHash {
+    if (!pollHash) {
       throw new Error('Pool hash is required');
     }
 
-    const trimmed = poolHash.trim();
+    const trimmed = pollHash.trim();
 
     if (trimmed.length === 0) {
       throw new Error('Pool hash cannot be empty');
@@ -27,10 +27,10 @@ export class PoolHash {
   }
 
   /**
-   * Create from Poll entity's poolHash field
+   * Create from Poll entity's pollHash field
    */
-  static fromPoll(poolHash: string): PoolHash {
-    return this.create(poolHash);
+  static fromPoll(pollHash: string): PoolHash {
+    return this.create(pollHash);
   }
 
   get value(): string {

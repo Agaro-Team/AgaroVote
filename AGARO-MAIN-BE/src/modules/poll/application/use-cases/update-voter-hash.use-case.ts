@@ -12,11 +12,11 @@ export class UpdateVoterHashUseCase {
     private readonly pollRepository: IPollRepository,
   ) {}
 
-  async execute(poolHash: string, voterHash: string): Promise<Poll> {
-    const poll = await this.pollRepository.findByPoolHash(poolHash);
+  async execute(pollHash: string, voterHash: string): Promise<Poll> {
+    const poll = await this.pollRepository.findByPollHash(pollHash);
     if (!poll) {
-      throw new NotFoundException(`Poll with pool hash ${poolHash} not found`);
+      throw new NotFoundException(`Poll with pool hash ${pollHash} not found`);
     }
-    return await this.pollRepository.updateByPoolHash(poolHash, { voterHash });
+    return await this.pollRepository.updateByPollHash(pollHash, { voterHash });
   }
 }

@@ -7,7 +7,7 @@ export class GetVotesPaginatedQuery implements IQuery {
     public readonly filters?: {
       pollId?: string;
       voterWalletAddress?: string;
-      poolHash?: string;
+      pollHash?: string;
     },
   ) {}
 }

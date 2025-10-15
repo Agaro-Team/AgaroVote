@@ -20,11 +20,11 @@ export class ActivatePollUseCase {
     private readonly pollRepository: IPollRepository,
   ) {}
 
-  async execute(poolHash: string): Promise<Poll> {
-    const poll = await this.pollRepository.findByPoolHash(poolHash);
+  async execute(pollHash: string): Promise<Poll> {
+    const poll = await this.pollRepository.findByPollHash(pollHash);
 
     if (!poll) {
-      throw new NotFoundException(`Poll with hash ${poolHash} not found`);
+      throw new NotFoundException(`Poll with hash ${pollHash} not found`);
     }
 
     if (poll.isActive) {
@@ -32,7 +32,7 @@ export class ActivatePollUseCase {
     }
 
     // Activate the poll and set transaction status to success
-    return await this.pollRepository.updateByPoolHash(poolHash, {
+    return await this.pollRepository.updateByPollHash(pollHash, {
       isActive: true,
       transactionStatus: TransactionStatus.SUCCESS,
     });

@@ -145,11 +145,11 @@ export class PollController {
 
   @Put(':id/update-voter-hash')
   async updateVoterHash(
-    @Param('id') poolHash: string,
+    @Param('id') pollHash: string,
     @Body() updateVoterHashDto: UpdateVoterHashDto,
   ): Promise<PollResponseDto> {
     const poll = await this.updateVoterHashUseCase.execute(
-      poolHash,
+      pollHash,
       updateVoterHashDto.voterHash,
     );
     return PollResponseDto.fromEntity(poll, true);

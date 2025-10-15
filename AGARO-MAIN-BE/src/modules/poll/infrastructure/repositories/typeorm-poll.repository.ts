@@ -61,7 +61,7 @@ export class TypeORMPollRepository implements IPollRepository {
     return Object.assign(poll, { voteCount }) as PollWithVoteCount;
   }
 
-  async findByPoolHash(pollHash: string): Promise<Poll | null> {
+  async findByPollHash(pollHash: string): Promise<Poll | null> {
     return await this.repository.findOne({ where: { pollHash } });
   }
 
@@ -316,12 +316,12 @@ export class TypeORMPollRepository implements IPollRepository {
     queryBuilder.orderBy(`poll.${sortBy}`, order);
   }
 
-  async updateByPoolHash(
+  async updateByPollHash(
     pollHash: string,
     entity: Partial<Poll>,
   ): Promise<Poll> {
     await this.repository.update({ pollHash }, entity);
-    const poll = await this.findByPoolHash(pollHash);
+    const poll = await this.findByPollHash(pollHash);
     if (!poll) {
       throw new Error('Poll not found after update');
     }

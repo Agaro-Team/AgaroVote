@@ -98,12 +98,12 @@ export class VoteController {
     const filters: {
       pollId?: string;
       voterWalletAddress?: string;
-      poolHash?: string;
+      pollHash?: string;
     } = {};
     if (query.pollId) filters.pollId = query.pollId;
     if (query.voterWalletAddress)
       filters.voterWalletAddress = query.voterWalletAddress;
-    if (query.poolHash) filters.poolHash = query.poolHash;
+    if (query.pollHash) filters.pollHash = query.pollHash;
 
     const result = await this.queryBus.execute<
       GetVotesPaginatedQuery,

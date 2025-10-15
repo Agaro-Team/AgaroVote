@@ -61,9 +61,9 @@ export class TypeORMVoteRepository implements IVoteRepository {
     });
   }
 
-  async findByPoolHash(poolHash: string): Promise<Vote[]> {
+  async findByPollHash(pollHash: string): Promise<Vote[]> {
     return await this.repository.find({
-      where: { poolHash },
+      where: { pollHash },
       order: { votedAt: 'DESC' },
     });
   }
@@ -89,7 +89,7 @@ export class TypeORMVoteRepository implements IVoteRepository {
     filters?: {
       pollId?: string;
       voterWalletAddress?: string;
-      poolHash?: string;
+      pollHash?: string;
     },
   ): Promise<{ votes: Vote[]; total: number }> {
     const query = this.repository.createQueryBuilder('vote');
@@ -104,9 +104,9 @@ export class TypeORMVoteRepository implements IVoteRepository {
       });
     }
 
-    if (filters?.poolHash) {
-      query.andWhere('vote.poolHash = :poolHash', {
-        poolHash: filters.poolHash,
+    if (filters?.pollHash) {
+      query.andWhere('vote.pollHash = :pollHash', {
+        pollHash: filters.pollHash,
       });
     }
 

@@ -35,8 +35,8 @@ export class CreatePollUseCase {
 
   async execute(createPollDto: CreatePollDto): Promise<Poll> {
     // Check if pool hash already exists
-    const existingPoll = await this.pollRepository.findByPoolHash(
-      createPollDto.poolHash,
+    const existingPoll = await this.pollRepository.findByPollHash(
+      createPollDto.pollHash,
     );
 
     if (existingPoll) {

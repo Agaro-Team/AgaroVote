@@ -55,7 +55,7 @@ export class CreatePollDto {
   @IsString()
   @MinLength(1)
   @MaxLength(255)
-  poolHash: string;
+  pollHash: string;
 
   @IsOptional()
   @IsEnum(TransactionStatus)

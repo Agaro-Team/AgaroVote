@@ -8,7 +8,7 @@ import type { PollChoice } from '@modules/poll/domain/entities/poll-choice.entit
 @Index(['choiceId'])
 @Index(['voterWalletAddress'])
 @Index(['voterHash'], { unique: true })
-@Index(['poolHash'])
+@Index(['pollHash'])
 @Index(['votedAt'])
 export class Vote extends BaseEntity {
   @Column({ name: 'poll_id', type: 'uuid' })
@@ -23,8 +23,8 @@ export class Vote extends BaseEntity {
   @Column({ name: 'voter_hash', type: 'varchar', length: 255, unique: true })
   voterHash: string;
 
-  @Column({ name: 'pool_hash', type: 'varchar', length: 255 })
-  poolHash: string;
+  @Column({ name: 'poll_hash', type: 'varchar', length: 255 })
+  pollHash: string;
 
   @Column({
     name: 'transaction_hash',

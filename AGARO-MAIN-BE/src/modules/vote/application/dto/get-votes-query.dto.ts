@@ -12,7 +12,7 @@ export class GetVotesQueryDto {
 
   @IsOptional()
   @IsString()
-  poolHash?: string;
+  pollHash?: string;
 
   @IsOptional()
   @Type(() => Number)
