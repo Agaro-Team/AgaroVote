@@ -16,7 +16,7 @@ export interface CastVoteResponse {
   choiceId: string;
   voterWalletAddress: string;
   voterHash: string;
-  poolHash: string;
+  pollHash: string;
   transactionHash: string | null;
   blockNumber: number | null;
   signature: string | null;
@@ -41,7 +41,7 @@ export interface GetUserVote {
   choiceId: string;
   voterWalletAddress: string;
   voterHash: string;
-  poolHash: string;
+  pollHash: string;
   transactionHash: string | null;
   blockNumber: number | null;
   signature: string | null;

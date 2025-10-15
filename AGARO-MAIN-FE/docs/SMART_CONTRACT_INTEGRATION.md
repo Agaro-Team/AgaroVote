@@ -434,7 +434,7 @@ import {
   useWatchEntryPointVotingPoolCreatedEvent,
   useWriteEntryPointNewVotingPool,
 } from '~/lib/web3/contracts/generated';
-import { createVotingPoolData, getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
+import { createVotingPoolData, getVotingPollHash } from '~/lib/web3/voting-pool-utils';
 import { useWeb3Chain, useWeb3Wallet } from '../use-web3';
 
 export interface VotingPoolData {
@@ -467,7 +467,7 @@ export function useCreateVotingPool() {
     address: getEntryPointAddress(chainId),
     onLogs: (logs) => {
       logs.forEach((log) => {
-        const { poolHash: onChainHash } = log.args;
+        const { pollHash: onChainHash } = log.args;
 
         if (!offChainHash || !onChainHash) return;
 
@@ -500,7 +500,7 @@ export function useCreateVotingPool() {
       candidates: poolData.candidates,
     });
 
-    const computedHash = getVotingPoolHash(fullPoolData, version, walletAddress);
+    const computedHash = getVotingPollHash(fullPoolData, version, walletAddress);
     setOffChainHash(computedHash);
 
     // Submit to blockchain
@@ -786,7 +786,7 @@ export function encodeVotingPoolData(
 }
 
 // Compute hash (matches Solidity hash)
-export function getVotingPoolHash(
+export function getVotingPollHash(
   poolData: VotingPoolData,
   version: bigint,
   owner: Address

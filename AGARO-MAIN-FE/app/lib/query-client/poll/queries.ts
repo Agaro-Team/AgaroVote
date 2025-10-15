@@ -9,7 +9,7 @@ export const pollQueryKeys = {
   activeList: () => [...pollQueryKeys.all, 'active-list'] as const,
   activeListWithFilter: (params: Omit<GetPollsRequest, 'page'>) =>
     [...pollQueryKeys.activeList(), 'filters', params] as const,
-  details: (poolHash: string) => [...pollQueryKeys.all, 'details', poolHash] as const,
+  details: (pollHash: string) => [...pollQueryKeys.all, 'details', pollHash] as const,
 
   baseVotingEligibility: () => [...pollQueryKeys.all, 'voting-eligibility'] as const,
   votingEligibility: (pollId: string, walletAddress: Address) =>
