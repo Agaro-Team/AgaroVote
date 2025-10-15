@@ -7,7 +7,8 @@
     "test": "hardhat test",
     "ignition:entrypoint": "hardhat ignition deploy ignition/modules/EntryPointModule.ts --network localhost",
     "compile": "hardhat compile",
-    "node": "hardhat node"
+    "node": "hardhat node",
+    "script:mint": "hardhat run scripts/mintERC20.ts --network localhost"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.0.3",
