@@ -515,19 +515,23 @@ function CreatePollButton() {
 import { useVotingPollHash } from '~/lib/web3/voting-poll-utils';
 
 function HashPreview() {
-  const { computePoolHash, validateAndHash } = useVotingPoolHash();
+  const { computePollHash, validateAndHash } = useVotingPollHash();
 
-  const poolData = {
+  const pollData = {
     title: 'Test Pool',
     description: 'Description',
     candidates: ['A', 'B', 'C'],
+    candidatesTotal: 3,
+    expiryDate: new Date(),
+    isPrivate: false,
+    allowedAddresses: [],
   };
 
   // Simple hash computation
-  const hash = computePoolHash(poolData, 1n); // version 1
+  const hash = computePollHash(pollData, 1n); // version 1
 
   // With validation
-  const result = validateAndHash(poolData, 1n);
+  const result = validateAndHash(pollData, 1n);
   if (result.isValid) {
     console.log('Hash:', result.offChainHash);
   } else {
@@ -551,8 +555,8 @@ function VotingPoolListener() {
     address: getEntryPointAddress(chainId),
     onLogs: (logs) => {
       logs.forEach((log) => {
-        const { poolHash, owner, version } = log.args;
-        console.log('New pool created:', { poolHash, owner, version });
+        const { pollHash, owner, version } = log.args;
+        console.log('New pool created:', { pollHash, owner, version });
         // Refetch pools or update UI
       });
     },
@@ -580,11 +584,11 @@ function PoolCreationFlow() {
 
   const handleCreate = async () => {
     // 1. Compute hash
-    const hash = computePoolHash(poolData, version);
+    const hash = computePollHash(pollData, version);
     setOffChainHash(hash);
 
     // 2. Submit transaction
-    const tx = await writeContract({ args: [poolData] });
+    const tx = await writeContract({ args: [pollData] });
     setTxHash(tx);
   };
 

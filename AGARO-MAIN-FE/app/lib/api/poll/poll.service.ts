@@ -19,8 +19,8 @@ export const pollService = {
     const response = await agaroApi.get<GetPollsResponse | undefined>('/v1/polls', { params });
     return response;
   },
-  getPollDetail: async (poolHash: string) => {
-    const response = await agaroApi.get<GetPollResponse>(`/v1/polls/${poolHash}`);
+  getPollDetail: async (pollHash: string) => {
+    const response = await agaroApi.get<GetPollResponse>(`/v1/polls/${pollHash}`);
     return response.data;
   },
   checkVotingEligibility: async ({ pollId, walletAddress }: CheckVotingEligibilityRequest) => {
