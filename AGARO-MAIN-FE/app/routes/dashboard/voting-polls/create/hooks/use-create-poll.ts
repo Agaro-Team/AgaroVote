@@ -152,7 +152,7 @@ export function useCreatePoll() {
               walletAddress: address,
             })),
             creatorWalletAddress: walletAddress,
-            poolHash: onChainHash,
+            pollHash: onChainHash,
           });
 
           // Clear the reference (but keep state for UI to show success)
@@ -183,7 +183,7 @@ export function useCreatePoll() {
         walletAddress: address,
       })),
       creatorWalletAddress: walletAddress,
-      poolHash: pollHash,
+      pollHash: pollHash,
     });
   };
 
@@ -243,7 +243,9 @@ export function useCreatePoll() {
           startDate: BigInt(now),
           endDate: BigInt(endDate),
         },
-      };
+        isTokenRequired: true,
+        rewardShare: BigInt(0),
+      } as const;
 
       const targetHashedPayload = {
         title: pollData.title,

@@ -185,6 +185,7 @@ export function useVotePoll() {
     const args = {
       pollHash: pollHash,
       candidateSelected,
+      commitToken: BigInt(0),
       proofs: [], // Empty for now
     } as const;
 
