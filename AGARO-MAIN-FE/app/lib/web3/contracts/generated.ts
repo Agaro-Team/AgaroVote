@@ -14,7 +14,7 @@ export const entryPointAbi = [
     type: 'constructor',
     inputs: [
       {
-        name: '_merkleAllowListImplementation',
+        name: '_merkleTreeAllowListImplementation',
         internalType: 'address',
         type: 'address',
       },
@@ -25,14 +25,14 @@ export const entryPointAbi = [
     type: 'error',
     inputs: [
       { name: 'voter', internalType: 'address', type: 'address' },
-      { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
     ],
     name: 'AddressIsNotAllowed',
   },
   {
     type: 'error',
     inputs: [
-      { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'storageHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'voter', internalType: 'address', type: 'address' },
     ],
@@ -41,7 +41,7 @@ export const entryPointAbi = [
   {
     type: 'error',
     inputs: [
-      { name: '_poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_pollHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'candidate', internalType: 'uint8', type: 'uint8' },
     ],
     name: 'CandidateDoesNotExist',
@@ -57,18 +57,18 @@ export const entryPointAbi = [
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolAlreadyExists',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollAlreadyExists',
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolDoesNotHaveVoterStorage',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollDoesNotHaveVoterStorage',
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolHashDoesNotExist',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollHashDoesNotExist',
   },
   {
     type: 'error',
@@ -78,7 +78,7 @@ export const entryPointAbi = [
   {
     type: 'error',
     inputs: [
-      { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'startDate', internalType: 'uint256', type: 'uint256' },
       { name: 'endData', internalType: 'uint256', type: 'uint256' },
     ],
@@ -89,26 +89,26 @@ export const entryPointAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'poolHash',
+        name: 'pollHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: true,
       },
       {
-        name: 'poolStorageHash',
+        name: 'pollStorageLocationHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: false,
       },
     ],
-    name: 'PoolBinded',
+    name: 'PollBinded',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
       {
-        name: 'poolHash',
+        name: 'pollHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: true,
@@ -126,7 +126,7 @@ export const entryPointAbi = [
         indexed: false,
       },
       {
-        name: 'newPoolVoterHash',
+        name: 'newPollVoterHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: false,
@@ -145,7 +145,7 @@ export const entryPointAbi = [
         indexed: true,
       },
       {
-        name: 'poolHash',
+        name: 'pollHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: true,
@@ -163,12 +163,12 @@ export const entryPointAbi = [
         indexed: false,
       },
     ],
-    name: 'VotingPoolCreated',
+    name: 'VotingPollCreated',
   },
   {
     type: 'function',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'getPoolData',
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'getPollData',
     outputs: [
       { name: 'ver', internalType: 'uint256', type: 'uint256' },
       {
@@ -187,22 +187,22 @@ export const entryPointAbi = [
   },
   {
     type: 'function',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'isContractValid',
     outputs: [{ name: 'isExist', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'isPoolHaveVoterStorage',
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'isPollHaveVoterStorage',
     outputs: [{ name: 'isBinded', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [],
-    name: 'merkleAllowListImplementation',
+    name: 'merkleTreeAllowListImplementation',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
@@ -210,8 +210,8 @@ export const entryPointAbi = [
     type: 'function',
     inputs: [
       {
-        name: '_poolData',
-        internalType: 'struct VotingPoolDataArgument',
+        name: '_pollData',
+        internalType: 'struct VotingPollDataArgument',
         type: 'tuple',
         components: [
           { name: 'versioning', internalType: 'uint256', type: 'uint256' },
@@ -223,7 +223,7 @@ export const entryPointAbi = [
           { name: 'candidatesTotal', internalType: 'uint8', type: 'uint8' },
           {
             name: 'expiry',
-            internalType: 'struct VotingPoolExpiry',
+            internalType: 'struct VotingPollExpiry',
             type: 'tuple',
             components: [
               { name: 'startDate', internalType: 'uint256', type: 'uint256' },
@@ -233,14 +233,14 @@ export const entryPointAbi = [
         ],
       },
     ],
-    name: 'newVotingPool',
+    name: 'newVotingPoll',
     outputs: [],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'poolHashToStorage',
+    name: 'pollHashToStorage',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
@@ -250,7 +250,7 @@ export const entryPointAbi = [
       { name: '', internalType: 'bytes32', type: 'bytes32' },
       { name: '', internalType: 'address', type: 'address' },
     ],
-    name: 'poolStorageVoters',
+    name: 'pollStorageVoters',
     outputs: [
       { name: 'selected', internalType: 'uint8', type: 'uint8' },
       { name: 'isVoted', internalType: 'bool', type: 'bool' },
@@ -260,13 +260,13 @@ export const entryPointAbi = [
   {
     type: 'function',
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'pools',
+    name: 'polls',
     outputs: [
       { name: 'version', internalType: 'uint256', type: 'uint256' },
       { name: 'owner', internalType: 'address', type: 'address' },
       { name: 'isPrivate', internalType: 'bool', type: 'bool' },
       { name: 'merkleRootContract', internalType: 'address', type: 'address' },
-      { name: 'poolVoterHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollVoterHash', internalType: 'bytes32', type: 'bytes32' },
       {
         name: 'voterStorageHashLocation',
         internalType: 'bytes32',
@@ -274,7 +274,7 @@ export const entryPointAbi = [
       },
       {
         name: 'expiry',
-        internalType: 'struct VotingPoolExpiry',
+        internalType: 'struct VotingPollExpiry',
         type: 'tuple',
         components: [
           { name: 'startDate', internalType: 'uint256', type: 'uint256' },
@@ -287,7 +287,7 @@ export const entryPointAbi = [
   {
     type: 'function',
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'storageHashToPool',
+    name: 'storageHashToPoll',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
@@ -306,7 +306,7 @@ export const entryPointAbi = [
         internalType: 'struct VoteArgument',
         type: 'tuple',
         components: [
-          { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
+          { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
           { name: 'candidateSelected', internalType: 'uint8', type: 'uint8' },
           { name: 'proofs', internalType: 'bytes32[]', type: 'bytes32[]' },
         ],
@@ -327,7 +327,7 @@ export const iEntryPointAbi = [
     type: 'error',
     inputs: [
       { name: 'voter', internalType: 'address', type: 'address' },
-      { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
     ],
     name: 'AddressIsNotAllowed',
   },
@@ -339,7 +339,7 @@ export const iEntryPointAbi = [
   {
     type: 'error',
     inputs: [
-      { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'startDate', internalType: 'uint256', type: 'uint256' },
       { name: 'endData', internalType: 'uint256', type: 'uint256' },
     ],
@@ -350,7 +350,7 @@ export const iEntryPointAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'poolHash',
+        name: 'pollHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: true,
@@ -368,7 +368,7 @@ export const iEntryPointAbi = [
         indexed: false,
       },
       {
-        name: 'newPoolVoterHash',
+        name: 'newPollVoterHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: false,
@@ -387,7 +387,7 @@ export const iEntryPointAbi = [
         indexed: true,
       },
       {
-        name: 'poolHash',
+        name: 'pollHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: true,
@@ -405,14 +405,14 @@ export const iEntryPointAbi = [
         indexed: false,
       },
     ],
-    name: 'VotingPoolCreated',
+    name: 'VotingPollCreated',
   },
   {
     type: 'function',
     inputs: [
       {
-        name: '_poolData',
-        internalType: 'struct VotingPoolDataArgument',
+        name: '_pollData',
+        internalType: 'struct VotingPollDataArgument',
         type: 'tuple',
         components: [
           { name: 'versioning', internalType: 'uint256', type: 'uint256' },
@@ -424,7 +424,7 @@ export const iEntryPointAbi = [
           { name: 'candidatesTotal', internalType: 'uint8', type: 'uint8' },
           {
             name: 'expiry',
-            internalType: 'struct VotingPoolExpiry',
+            internalType: 'struct VotingPollExpiry',
             type: 'tuple',
             components: [
               { name: 'startDate', internalType: 'uint256', type: 'uint256' },
@@ -434,17 +434,17 @@ export const iEntryPointAbi = [
         ],
       },
     ],
-    name: 'newVotingPool',
+    name: 'newVotingPoll',
     outputs: [],
     stateMutability: 'nonpayable',
   },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// IMerkleAllowlist
+// IMerkleTreeAllowlist
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const iMerkleAllowlistAbi = [
+export const iMerkleTreeAllowlistAbi = [
   {
     type: 'function',
     inputs: [
@@ -465,7 +465,7 @@ export const iVoterStorageAbi = [
   {
     type: 'error',
     inputs: [
-      { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'storageHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'voter', internalType: 'address', type: 'address' },
     ],
@@ -473,56 +473,56 @@ export const iVoterStorageAbi = [
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolAlreadyExists',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollAlreadyExists',
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolDoesNotHaveVoterStorage',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollDoesNotHaveVoterStorage',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
       {
-        name: 'poolHash',
+        name: 'pollHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: true,
       },
       {
-        name: 'poolStorageHash',
+        name: 'pollStorageLocationHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: false,
       },
     ],
-    name: 'PoolBinded',
+    name: 'PollBinded',
   },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// IVotingPool
+// IVotingPoll
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const iVotingPoolAbi = [
+export const iVotingPollAbi = [
   {
     type: 'error',
     inputs: [
-      { name: '_poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_pollHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'candidate', internalType: 'uint8', type: 'uint8' },
     ],
     name: 'CandidateDoesNotExist',
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolHashDoesNotExist',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollHashDoesNotExist',
   },
   {
     type: 'function',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'isContractValid',
     outputs: [{ name: 'isExist', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
@@ -530,10 +530,10 @@ export const iVotingPoolAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// MerkleAllowlist
+// MerkleTreeAllowlist
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const merkleAllowlistAbi = [
+export const merkleTreeAllowlistAbi = [
   { type: 'constructor', inputs: [], stateMutability: 'nonpayable' },
   { type: 'error', inputs: [], name: 'InvalidInitialization' },
   { type: 'error', inputs: [], name: 'NotInitializing' },
@@ -637,7 +637,7 @@ export const voterStorageAbi = [
   {
     type: 'error',
     inputs: [
-      { name: 'poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'storageHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'voter', internalType: 'address', type: 'address' },
     ],
@@ -645,44 +645,44 @@ export const voterStorageAbi = [
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolAlreadyExists',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollAlreadyExists',
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolDoesNotHaveVoterStorage',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollDoesNotHaveVoterStorage',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
       {
-        name: 'poolHash',
+        name: 'pollHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: true,
       },
       {
-        name: 'poolStorageHash',
+        name: 'pollStorageLocationHash',
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: false,
       },
     ],
-    name: 'PoolBinded',
+    name: 'PollBinded',
   },
   {
     type: 'function',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'isPoolHaveVoterStorage',
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'isPollHaveVoterStorage',
     outputs: [{ name: 'isBinded', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'poolHashToStorage',
+    name: 'pollHashToStorage',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
@@ -692,7 +692,7 @@ export const voterStorageAbi = [
       { name: '', internalType: 'bytes32', type: 'bytes32' },
       { name: '', internalType: 'address', type: 'address' },
     ],
-    name: 'poolStorageVoters',
+    name: 'pollStorageVoters',
     outputs: [
       { name: 'selected', internalType: 'uint8', type: 'uint8' },
       { name: 'isVoted', internalType: 'bool', type: 'bool' },
@@ -702,34 +702,34 @@ export const voterStorageAbi = [
   {
     type: 'function',
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'storageHashToPool',
+    name: 'storageHashToPoll',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// VotingPool
+// VotingPoll
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-export const votingPoolAbi = [
+export const votingPollAbi = [
   {
     type: 'error',
     inputs: [
-      { name: '_poolHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: '_pollHash', internalType: 'bytes32', type: 'bytes32' },
       { name: 'candidate', internalType: 'uint8', type: 'uint8' },
     ],
     name: 'CandidateDoesNotExist',
   },
   {
     type: 'error',
-    inputs: [{ name: 'poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'PoolHashDoesNotExist',
+    inputs: [{ name: 'pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'PollHashDoesNotExist',
   },
   {
     type: 'function',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'getPoolData',
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'getPollData',
     outputs: [
       { name: 'ver', internalType: 'uint256', type: 'uint256' },
       {
@@ -748,7 +748,7 @@ export const votingPoolAbi = [
   },
   {
     type: 'function',
-    inputs: [{ name: '_poolHash', internalType: 'bytes32', type: 'bytes32' }],
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'isContractValid',
     outputs: [{ name: 'isExist', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
@@ -756,13 +756,13 @@ export const votingPoolAbi = [
   {
     type: 'function',
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'pools',
+    name: 'polls',
     outputs: [
       { name: 'version', internalType: 'uint256', type: 'uint256' },
       { name: 'owner', internalType: 'address', type: 'address' },
       { name: 'isPrivate', internalType: 'bool', type: 'bool' },
       { name: 'merkleRootContract', internalType: 'address', type: 'address' },
-      { name: 'poolVoterHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'pollVoterHash', internalType: 'bytes32', type: 'bytes32' },
       {
         name: 'voterStorageHashLocation',
         internalType: 'bytes32',
@@ -770,7 +770,7 @@ export const votingPoolAbi = [
       },
       {
         name: 'expiry',
-        internalType: 'struct VotingPoolExpiry',
+        internalType: 'struct VotingPollExpiry',
         type: 'tuple',
         components: [
           { name: 'startDate', internalType: 'uint256', type: 'uint256' },
@@ -801,10 +801,10 @@ export const useReadEntryPoint = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"getPoolData"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"getPollData"`
  */
-export const useReadEntryPointGetPoolData = /*#__PURE__*/ createUseReadContract(
-  { abi: entryPointAbi, functionName: 'getPoolData' },
+export const useReadEntryPointGetPollData = /*#__PURE__*/ createUseReadContract(
+  { abi: entryPointAbi, functionName: 'getPollData' },
 )
 
 /**
@@ -817,56 +817,56 @@ export const useReadEntryPointIsContractValid =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"isPoolHaveVoterStorage"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"isPollHaveVoterStorage"`
  */
-export const useReadEntryPointIsPoolHaveVoterStorage =
+export const useReadEntryPointIsPollHaveVoterStorage =
   /*#__PURE__*/ createUseReadContract({
     abi: entryPointAbi,
-    functionName: 'isPoolHaveVoterStorage',
+    functionName: 'isPollHaveVoterStorage',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"merkleAllowListImplementation"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"merkleTreeAllowListImplementation"`
  */
-export const useReadEntryPointMerkleAllowListImplementation =
+export const useReadEntryPointMerkleTreeAllowListImplementation =
   /*#__PURE__*/ createUseReadContract({
     abi: entryPointAbi,
-    functionName: 'merkleAllowListImplementation',
+    functionName: 'merkleTreeAllowListImplementation',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"poolHashToStorage"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"pollHashToStorage"`
  */
-export const useReadEntryPointPoolHashToStorage =
+export const useReadEntryPointPollHashToStorage =
   /*#__PURE__*/ createUseReadContract({
     abi: entryPointAbi,
-    functionName: 'poolHashToStorage',
+    functionName: 'pollHashToStorage',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"poolStorageVoters"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"pollStorageVoters"`
  */
-export const useReadEntryPointPoolStorageVoters =
+export const useReadEntryPointPollStorageVoters =
   /*#__PURE__*/ createUseReadContract({
     abi: entryPointAbi,
-    functionName: 'poolStorageVoters',
+    functionName: 'pollStorageVoters',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"pools"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"polls"`
  */
-export const useReadEntryPointPools = /*#__PURE__*/ createUseReadContract({
+export const useReadEntryPointPolls = /*#__PURE__*/ createUseReadContract({
   abi: entryPointAbi,
-  functionName: 'pools',
+  functionName: 'polls',
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"storageHashToPool"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"storageHashToPoll"`
  */
-export const useReadEntryPointStorageHashToPool =
+export const useReadEntryPointStorageHashToPoll =
   /*#__PURE__*/ createUseReadContract({
     abi: entryPointAbi,
-    functionName: 'storageHashToPool',
+    functionName: 'storageHashToPoll',
   })
 
 /**
@@ -885,12 +885,12 @@ export const useWriteEntryPoint = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"newVotingPool"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"newVotingPoll"`
  */
-export const useWriteEntryPointNewVotingPool =
+export const useWriteEntryPointNewVotingPoll =
   /*#__PURE__*/ createUseWriteContract({
     abi: entryPointAbi,
-    functionName: 'newVotingPool',
+    functionName: 'newVotingPoll',
   })
 
 /**
@@ -909,12 +909,12 @@ export const useSimulateEntryPoint = /*#__PURE__*/ createUseSimulateContract({
 })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"newVotingPool"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"newVotingPoll"`
  */
-export const useSimulateEntryPointNewVotingPool =
+export const useSimulateEntryPointNewVotingPoll =
   /*#__PURE__*/ createUseSimulateContract({
     abi: entryPointAbi,
-    functionName: 'newVotingPool',
+    functionName: 'newVotingPoll',
   })
 
 /**
@@ -933,12 +933,12 @@ export const useWatchEntryPointEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: entryPointAbi })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"PoolBinded"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"PollBinded"`
  */
-export const useWatchEntryPointPoolBindedEvent =
+export const useWatchEntryPointPollBindedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: entryPointAbi,
-    eventName: 'PoolBinded',
+    eventName: 'PollBinded',
   })
 
 /**
@@ -951,12 +951,12 @@ export const useWatchEntryPointVoteSucceededEvent =
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"VotingPoolCreated"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"VotingPollCreated"`
  */
-export const useWatchEntryPointVotingPoolCreatedEvent =
+export const useWatchEntryPointVotingPollCreatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: entryPointAbi,
-    eventName: 'VotingPoolCreated',
+    eventName: 'VotingPollCreated',
   })
 
 /**
@@ -967,12 +967,12 @@ export const useWriteIEntryPoint = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iEntryPointAbi}__ and `functionName` set to `"newVotingPool"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iEntryPointAbi}__ and `functionName` set to `"newVotingPoll"`
  */
-export const useWriteIEntryPointNewVotingPool =
+export const useWriteIEntryPointNewVotingPoll =
   /*#__PURE__*/ createUseWriteContract({
     abi: iEntryPointAbi,
-    functionName: 'newVotingPool',
+    functionName: 'newVotingPoll',
   })
 
 /**
@@ -983,12 +983,12 @@ export const useSimulateIEntryPoint = /*#__PURE__*/ createUseSimulateContract({
 })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iEntryPointAbi}__ and `functionName` set to `"newVotingPool"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iEntryPointAbi}__ and `functionName` set to `"newVotingPoll"`
  */
-export const useSimulateIEntryPointNewVotingPool =
+export const useSimulateIEntryPointNewVotingPoll =
   /*#__PURE__*/ createUseSimulateContract({
     abi: iEntryPointAbi,
-    functionName: 'newVotingPool',
+    functionName: 'newVotingPoll',
   })
 
 /**
@@ -1007,27 +1007,27 @@ export const useWatchIEntryPointVoteSucceededEvent =
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iEntryPointAbi}__ and `eventName` set to `"VotingPoolCreated"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iEntryPointAbi}__ and `eventName` set to `"VotingPollCreated"`
  */
-export const useWatchIEntryPointVotingPoolCreatedEvent =
+export const useWatchIEntryPointVotingPollCreatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: iEntryPointAbi,
-    eventName: 'VotingPoolCreated',
+    eventName: 'VotingPollCreated',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleAllowlistAbi}__
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleTreeAllowlistAbi}__
  */
-export const useReadIMerkleAllowlist = /*#__PURE__*/ createUseReadContract({
-  abi: iMerkleAllowlistAbi,
+export const useReadIMerkleTreeAllowlist = /*#__PURE__*/ createUseReadContract({
+  abi: iMerkleTreeAllowlistAbi,
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleAllowlistAbi}__ and `functionName` set to `"isAllowed"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iMerkleTreeAllowlistAbi}__ and `functionName` set to `"isAllowed"`
  */
-export const useReadIMerkleAllowlistIsAllowed =
+export const useReadIMerkleTreeAllowlistIsAllowed =
   /*#__PURE__*/ createUseReadContract({
-    abi: iMerkleAllowlistAbi,
+    abi: iMerkleTreeAllowlistAbi,
     functionName: 'isAllowed',
   })
 
@@ -1038,151 +1038,152 @@ export const useWatchIVoterStorageEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: iVoterStorageAbi })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iVoterStorageAbi}__ and `eventName` set to `"PoolBinded"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iVoterStorageAbi}__ and `eventName` set to `"PollBinded"`
  */
-export const useWatchIVoterStoragePoolBindedEvent =
+export const useWatchIVoterStoragePollBindedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: iVoterStorageAbi,
-    eventName: 'PoolBinded',
+    eventName: 'PollBinded',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link iVotingPoolAbi}__
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iVotingPollAbi}__
  */
-export const useReadIVotingPool = /*#__PURE__*/ createUseReadContract({
-  abi: iVotingPoolAbi,
+export const useReadIVotingPoll = /*#__PURE__*/ createUseReadContract({
+  abi: iVotingPollAbi,
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link iVotingPoolAbi}__ and `functionName` set to `"isContractValid"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iVotingPollAbi}__ and `functionName` set to `"isContractValid"`
  */
-export const useReadIVotingPoolIsContractValid =
+export const useReadIVotingPollIsContractValid =
   /*#__PURE__*/ createUseReadContract({
-    abi: iVotingPoolAbi,
+    abi: iVotingPollAbi,
     functionName: 'isContractValid',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link merkleAllowlistAbi}__
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__
  */
-export const useReadMerkleAllowlist = /*#__PURE__*/ createUseReadContract({
-  abi: merkleAllowlistAbi,
+export const useReadMerkleTreeAllowlist = /*#__PURE__*/ createUseReadContract({
+  abi: merkleTreeAllowlistAbi,
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"isAllowed"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"isAllowed"`
  */
-export const useReadMerkleAllowlistIsAllowed =
+export const useReadMerkleTreeAllowlistIsAllowed =
   /*#__PURE__*/ createUseReadContract({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     functionName: 'isAllowed',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"merkleRoot"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"merkleRoot"`
  */
-export const useReadMerkleAllowlistMerkleRoot =
+export const useReadMerkleTreeAllowlistMerkleRoot =
   /*#__PURE__*/ createUseReadContract({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     functionName: 'merkleRoot',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"owner"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"owner"`
  */
-export const useReadMerkleAllowlistOwner = /*#__PURE__*/ createUseReadContract({
-  abi: merkleAllowlistAbi,
-  functionName: 'owner',
-})
+export const useReadMerkleTreeAllowlistOwner =
+  /*#__PURE__*/ createUseReadContract({
+    abi: merkleTreeAllowlistAbi,
+    functionName: 'owner',
+  })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link merkleAllowlistAbi}__
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__
  */
-export const useWriteMerkleAllowlist = /*#__PURE__*/ createUseWriteContract({
-  abi: merkleAllowlistAbi,
-})
+export const useWriteMerkleTreeAllowlist = /*#__PURE__*/ createUseWriteContract(
+  { abi: merkleTreeAllowlistAbi },
+)
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"initialize"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"initialize"`
  */
-export const useWriteMerkleAllowlistInitialize =
+export const useWriteMerkleTreeAllowlistInitialize =
   /*#__PURE__*/ createUseWriteContract({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     functionName: 'initialize',
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"renounceOwnership"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"renounceOwnership"`
  */
-export const useWriteMerkleAllowlistRenounceOwnership =
+export const useWriteMerkleTreeAllowlistRenounceOwnership =
   /*#__PURE__*/ createUseWriteContract({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     functionName: 'renounceOwnership',
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"transferOwnership"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"transferOwnership"`
  */
-export const useWriteMerkleAllowlistTransferOwnership =
+export const useWriteMerkleTreeAllowlistTransferOwnership =
   /*#__PURE__*/ createUseWriteContract({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     functionName: 'transferOwnership',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link merkleAllowlistAbi}__
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__
  */
-export const useSimulateMerkleAllowlist =
-  /*#__PURE__*/ createUseSimulateContract({ abi: merkleAllowlistAbi })
+export const useSimulateMerkleTreeAllowlist =
+  /*#__PURE__*/ createUseSimulateContract({ abi: merkleTreeAllowlistAbi })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"initialize"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"initialize"`
  */
-export const useSimulateMerkleAllowlistInitialize =
+export const useSimulateMerkleTreeAllowlistInitialize =
   /*#__PURE__*/ createUseSimulateContract({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     functionName: 'initialize',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"renounceOwnership"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"renounceOwnership"`
  */
-export const useSimulateMerkleAllowlistRenounceOwnership =
+export const useSimulateMerkleTreeAllowlistRenounceOwnership =
   /*#__PURE__*/ createUseSimulateContract({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     functionName: 'renounceOwnership',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `functionName` set to `"transferOwnership"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `functionName` set to `"transferOwnership"`
  */
-export const useSimulateMerkleAllowlistTransferOwnership =
+export const useSimulateMerkleTreeAllowlistTransferOwnership =
   /*#__PURE__*/ createUseSimulateContract({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     functionName: 'transferOwnership',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link merkleAllowlistAbi}__
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__
  */
-export const useWatchMerkleAllowlistEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({ abi: merkleAllowlistAbi })
+export const useWatchMerkleTreeAllowlistEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: merkleTreeAllowlistAbi })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `eventName` set to `"Initialized"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `eventName` set to `"Initialized"`
  */
-export const useWatchMerkleAllowlistInitializedEvent =
+export const useWatchMerkleTreeAllowlistInitializedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     eventName: 'Initialized',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link merkleAllowlistAbi}__ and `eventName` set to `"OwnershipTransferred"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link merkleTreeAllowlistAbi}__ and `eventName` set to `"OwnershipTransferred"`
  */
-export const useWatchMerkleAllowlistOwnershipTransferredEvent =
+export const useWatchMerkleTreeAllowlistOwnershipTransferredEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
-    abi: merkleAllowlistAbi,
+    abi: merkleTreeAllowlistAbi,
     eventName: 'OwnershipTransferred',
   })
 
@@ -1194,39 +1195,39 @@ export const useReadVoterStorage = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link voterStorageAbi}__ and `functionName` set to `"isPoolHaveVoterStorage"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link voterStorageAbi}__ and `functionName` set to `"isPollHaveVoterStorage"`
  */
-export const useReadVoterStorageIsPoolHaveVoterStorage =
+export const useReadVoterStorageIsPollHaveVoterStorage =
   /*#__PURE__*/ createUseReadContract({
     abi: voterStorageAbi,
-    functionName: 'isPoolHaveVoterStorage',
+    functionName: 'isPollHaveVoterStorage',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link voterStorageAbi}__ and `functionName` set to `"poolHashToStorage"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link voterStorageAbi}__ and `functionName` set to `"pollHashToStorage"`
  */
-export const useReadVoterStoragePoolHashToStorage =
+export const useReadVoterStoragePollHashToStorage =
   /*#__PURE__*/ createUseReadContract({
     abi: voterStorageAbi,
-    functionName: 'poolHashToStorage',
+    functionName: 'pollHashToStorage',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link voterStorageAbi}__ and `functionName` set to `"poolStorageVoters"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link voterStorageAbi}__ and `functionName` set to `"pollStorageVoters"`
  */
-export const useReadVoterStoragePoolStorageVoters =
+export const useReadVoterStoragePollStorageVoters =
   /*#__PURE__*/ createUseReadContract({
     abi: voterStorageAbi,
-    functionName: 'poolStorageVoters',
+    functionName: 'pollStorageVoters',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link voterStorageAbi}__ and `functionName` set to `"storageHashToPool"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link voterStorageAbi}__ and `functionName` set to `"storageHashToPoll"`
  */
-export const useReadVoterStorageStorageHashToPool =
+export const useReadVoterStorageStorageHashToPoll =
   /*#__PURE__*/ createUseReadContract({
     abi: voterStorageAbi,
-    functionName: 'storageHashToPool',
+    functionName: 'storageHashToPoll',
   })
 
 /**
@@ -1236,49 +1237,49 @@ export const useWatchVoterStorageEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: voterStorageAbi })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link voterStorageAbi}__ and `eventName` set to `"PoolBinded"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link voterStorageAbi}__ and `eventName` set to `"PollBinded"`
  */
-export const useWatchVoterStoragePoolBindedEvent =
+export const useWatchVoterStoragePollBindedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: voterStorageAbi,
-    eventName: 'PoolBinded',
+    eventName: 'PollBinded',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPoolAbi}__
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPollAbi}__
  */
-export const useReadVotingPool = /*#__PURE__*/ createUseReadContract({
-  abi: votingPoolAbi,
+export const useReadVotingPoll = /*#__PURE__*/ createUseReadContract({
+  abi: votingPollAbi,
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPoolAbi}__ and `functionName` set to `"getPoolData"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPollAbi}__ and `functionName` set to `"getPollData"`
  */
-export const useReadVotingPoolGetPoolData = /*#__PURE__*/ createUseReadContract(
-  { abi: votingPoolAbi, functionName: 'getPoolData' },
+export const useReadVotingPollGetPollData = /*#__PURE__*/ createUseReadContract(
+  { abi: votingPollAbi, functionName: 'getPollData' },
 )
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPoolAbi}__ and `functionName` set to `"isContractValid"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPollAbi}__ and `functionName` set to `"isContractValid"`
  */
-export const useReadVotingPoolIsContractValid =
+export const useReadVotingPollIsContractValid =
   /*#__PURE__*/ createUseReadContract({
-    abi: votingPoolAbi,
+    abi: votingPollAbi,
     functionName: 'isContractValid',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPoolAbi}__ and `functionName` set to `"pools"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPollAbi}__ and `functionName` set to `"polls"`
  */
-export const useReadVotingPoolPools = /*#__PURE__*/ createUseReadContract({
-  abi: votingPoolAbi,
-  functionName: 'pools',
+export const useReadVotingPollPolls = /*#__PURE__*/ createUseReadContract({
+  abi: votingPollAbi,
+  functionName: 'polls',
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPoolAbi}__ and `functionName` set to `"version"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link votingPollAbi}__ and `functionName` set to `"version"`
  */
-export const useReadVotingPoolVersion = /*#__PURE__*/ createUseReadContract({
-  abi: votingPoolAbi,
+export const useReadVotingPollVersion = /*#__PURE__*/ createUseReadContract({
+  abi: votingPollAbi,
   functionName: 'version',
 })
