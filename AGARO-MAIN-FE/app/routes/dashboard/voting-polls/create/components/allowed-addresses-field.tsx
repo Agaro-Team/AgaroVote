@@ -15,10 +15,10 @@ import { Input } from '~/components/ui/input';
 import { useState } from 'react';
 
 import { CSVUploadModal } from './csv-upload-modal';
-import { votingPoolFormOptions } from './voting-pool-form-options';
+import { votingPollFormOptions } from './voting-poll-form-options';
 
 export const AllowedAddressesField = withForm({
-  ...votingPoolFormOptions,
+  ...votingPollFormOptions,
   render: ({ form }) => {
     const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
 

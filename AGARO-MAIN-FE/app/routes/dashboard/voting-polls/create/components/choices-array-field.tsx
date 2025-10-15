@@ -9,10 +9,10 @@ import { FieldError, FieldLabel, withForm } from '~/components/form';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 
-import { votingPoolFormOptions } from './voting-pool-form-options';
+import { votingPollFormOptions } from './voting-poll-form-options';
 
 export const ChoicesArrayField = withForm({
-  ...votingPoolFormOptions,
+  ...votingPollFormOptions,
   render: ({ form }) => {
     return (
       <form.AppField name="choices" mode="array">

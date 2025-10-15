@@ -2,9 +2,9 @@
  * Vote Page Content - Composed voting page sections
  */
 import { NonVotableAlert } from './non-votable-alert';
+import { PollHashDisplay } from './poll-hash-display';
 import { PollHeader } from './poll-header';
 import { PollMeta } from './poll-meta';
-import { PoolHashDisplay } from './pool-hash-display';
 import { VoteActions } from './vote-actions';
 import { VoteInfoCard } from './vote-info-card';
 import { VoteProgressTracker } from './vote-progress-tracker';
@@ -15,7 +15,7 @@ export function VotePageContent() {
     <>
       <PollHeader />
       <PollMeta />
-      <PoolHashDisplay />
+      <PollHashDisplay />
       <NonVotableAlert />
       <VotingChoices />
       <VoteActions />

@@ -484,9 +484,9 @@ if (error?.message.includes('User rejected')) {
 ### Create Voting Pool with Hash Verification
 
 ```typescript
-import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
+import { useCreatePoll } from '~/routes/dashboard/voting-polls/create/hooks/use-create-poll';
 
-function CreatePoolButton() {
+function CreatePollButton() {
   const { createPool, isPending, isConfirming, offChainHash } = useCreateVotingPool();
 
   const handleCreate = () => {
@@ -512,7 +512,7 @@ function CreatePoolButton() {
 ### Compute Hash Off-Chain
 
 ```typescript
-import { useVotingPoolHash } from '~/hooks/voting-pools/use-voting-pool';
+import { useVotingPollHash } from '~/lib/web3/voting-poll-utils';
 
 function HashPreview() {
   const { computePoolHash, validateAndHash } = useVotingPoolHash();
@@ -575,7 +575,7 @@ function PoolCreationFlow() {
   useWaitForTransactionReceiptEffect(txHash, (receipt) => {
     console.log('Transaction confirmed:', receipt.blockNumber);
     // Refetch data after confirmation
-    queryClient.invalidateQueries({ queryKey: ['voting-pools'] });
+    queryClient.invalidateQueries({ queryKey: ['voting-polls'] });
   });
 
   const handleCreate = async () => {
@@ -603,7 +603,6 @@ function PoolCreationFlow() {
 
 - `app/lib/web3/contracts/entry-point-config.ts` - Contract addresses
 - `app/lib/web3/contracts/generated.ts` - Auto-generated hooks
-- `app/lib/web3/voting-pool-utils.ts` - Hash utilities
-- `app/hooks/voting-pools/use-create-voting-pool.ts` - Pool creation
-- `app/hooks/voting-pools/use-voting-pool.ts` - Hash computation
-- `app/components/voting-pools/create-voting-pool-form.tsx` - UI component
+- `app/lib/web3/voting-poll-utils.ts` - Hash utilities
+- `app/routes/dashboard/voting-polls/create/hooks/use-create-poll.ts` - Poll creation
+- `app/routes/dashboard/voting-polls/create/components/create-voting-poll-form.tsx` - UI component

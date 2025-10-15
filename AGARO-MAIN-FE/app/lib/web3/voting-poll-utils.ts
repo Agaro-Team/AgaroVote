@@ -3,7 +3,7 @@ import { type Address, encodeAbiParameters, keccak256, parseAbiParameters } from
 /**
  * Voting Pool Data structure matching Solidity's VotingPoolDataArgument
  */
-export interface VotingData {
+export interface PollData {
   title: string;
   description: string;
   candidates: string[];
@@ -29,8 +29,8 @@ export interface VotingData {
  * @param owner - The owner's address
  * @returns Encoded bytes as hex string
  */
-export function encodeVotingPoolData(
-  poolData: VotingData,
+export function encodeVotingPollData(
+  poolData: PollData,
   version: bigint,
   owner: Address
 ): `0x${string}` {
@@ -63,40 +63,40 @@ export function encodeVotingPoolData(
 }
 
 /**
- * Computes the keccak256 hash of voting pool data
+ * Computes the keccak256 hash of voting poll data
  *
  * This replicates the Solidity function:
  * ```solidity
  * function getHash(
- *   VotingPoolDataArgument calldata _poolData,
+ *   VotingPollDataArgument calldata _pollData,
  *   uint256 version,
  *   address owner
  * ) internal pure returns (bytes32)
  * ```
  *
- * @param poolData - The voting pool data to hash
+ * @param pollData - The voting poll data to hash
  * @param version - The pool version (uint256)
  * @param owner - The owner's address
  * @returns The keccak256 hash as bytes32
  *
  * @example
  * ```ts
- * const poolData = {
+ * const pollData = {
  *   title: "Best Programming Language",
  *   description: "Vote for your favorite language",
  *   candidates: ["TypeScript", "Rust", "Go"],
  *   candidatesTotal: 3
  * };
  *
- * const hash = getVotingPoolHash(poolData, 1n, "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb");
+ * const hash = getVotingPollHash(pollData, 1n, "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb");
  * // Returns: "0x..." (bytes32 hash)
  * ```
  */
-export function getVotingPoolHash(
-  poolData: VotingData,
+export function getVotingPollHash(
+  poolData: PollData,
   version: bigint,
   owner: Address
 ): `0x${string}` {
-  const encoded = encodeVotingPoolData(poolData, version, owner);
+  const encoded = encodeVotingPollData(poolData, version, owner);
   return keccak256(encoded);
 }

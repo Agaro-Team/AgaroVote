@@ -1,10 +1,10 @@
 /**
- * Create Voting Pool Hook
+ * Create Voting poll Hook
  *
- * Custom hook for creating new voting pools on the blockchain.
+ * Custom hook for creating new voting polls on the blockchain.
  * Integrates with the EntryPoint smart contract.
  * Includes off-chain hash computation and on-chain verification.
- * Handles Merkle root generation for private pools.
+ * Handles Merkle root generation for private polls.
  */
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
@@ -13,17 +13,17 @@ import { createPollMutationOptions } from '~/lib/query-client/poll/mutations';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
 import {
   useReadEntryPointVersion,
-  useWatchEntryPointVotingPoolCreatedEvent,
-  useWriteEntryPointNewVotingPool,
+  useWatchEntryPointVotingPollCreatedEvent,
+  useWriteEntryPointNewVotingPoll,
 } from '~/lib/web3/contracts/generated';
 import { generateMerkleRoot } from '~/lib/web3/utils';
-import { getVotingPoolHash } from '~/lib/web3/voting-pool-utils';
+import { getVotingPollHash } from '~/lib/web3/voting-poll-utils';
 
 import { useEffect, useRef, useState } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 
-export interface VotingPoolData {
+export interface PollData {
   title: string;
   description: string;
   candidates: string[];
@@ -34,20 +34,20 @@ export interface VotingPoolData {
 }
 
 /**
- * useCreateVotingPool Hook
+ * useCreatePoll Hook
  *
- * Creates a new voting pool on the blockchain
+ * Creates a new voting poll on the blockchain
  *
  * @example
  * ```tsx
- * const { createPool, isPending, isSuccess } = useCreateVotingPool();
+ * const { createPoll, isPending, isSuccess } = useCreatePoll();
  *
- * const handleSubmit = (data: VotingPoolData) => {
- *   createPool(data);
+ * const handleSubmit = (data: PollData) => {
+ *   createPoll(data);
  * };
  * ```
  */
-export function useCreateVotingPool() {
+export function useCreatePoll() {
   const { chainId } = useWeb3Chain();
   const { address: walletAddress } = useWeb3Wallet();
   const [shouldRedirect, setShouldRedirect] = useState(false);
@@ -55,7 +55,7 @@ export function useCreateVotingPool() {
   const [onChainHash, setOnChainHash] = useState<`0x${string}` | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
-  const [votingPoolData, setVotingPoolData] = useState<VotingPoolData | null>(null);
+  const [pollData, setPollData] = useState<PollData | null>(null);
   const offChainHashRef = useRef<`0x${string}` | null>(null);
   const verificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -72,7 +72,7 @@ export function useCreateVotingPool() {
     isPending,
     isError,
     error,
-  } = useWriteEntryPointNewVotingPool();
+  } = useWriteEntryPointNewVotingPoll();
 
   const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
     address: getEntryPointAddress(chainId),
@@ -83,8 +83,8 @@ export function useCreateVotingPool() {
     hash: txHash,
   });
 
-  // Watch for VotingPoolCreated event to verify hash
-  useWatchEntryPointVotingPoolCreatedEvent({
+  // Watch for VotingpollCreated event to verify hash
+  useWatchEntryPointVotingPollCreatedEvent({
     address: getEntryPointAddress(chainId),
     enabled: isVerifying,
     onError: (error) => {
@@ -101,7 +101,7 @@ export function useCreateVotingPool() {
     },
     onLogs: (logs) => {
       logs.forEach((log, index) => {
-        const { poolHash: onChainHash, version: eventVersion } = log.args;
+        const { pollHash: onChainHash } = log.args;
 
         // Only proceed for the last log in the array
         if (index !== logs.length - 1) {
@@ -136,19 +136,19 @@ export function useCreateVotingPool() {
           setIsVerifying(false);
           setShouldRedirect(true);
 
-          if (!votingPoolData || !walletAddress || !onChainHash) {
+          if (!pollData || !walletAddress || !onChainHash) {
             return;
           }
 
           // Store to web 2 DB
           storePoll({
-            title: votingPoolData.title,
-            description: votingPoolData.description,
-            choices: votingPoolData.candidates.map((choice) => ({ choiceText: choice })),
+            title: pollData.title,
+            description: pollData.description,
+            choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
             startDate: new Date(), // For now using now
-            endDate: votingPoolData.expiryDate,
-            isPrivate: votingPoolData.isPrivate,
-            addresses: votingPoolData.allowedAddresses.map((address) => ({
+            endDate: pollData.expiryDate,
+            isPrivate: pollData.isPrivate,
+            addresses: pollData.allowedAddresses.map((address) => ({
               walletAddress: address,
             })),
             creatorWalletAddress: walletAddress,
@@ -163,35 +163,35 @@ export function useCreateVotingPool() {
     },
   });
 
-  const storePollDataImmediately = (poolData: VotingPoolData, poolHash: `0x${string}`) => {
+  const storePollDataImmediately = (pollData: PollData, pollHash: `0x${string}`) => {
     if (!walletAddress) return;
 
     // Hashes match - success!
-    setOnChainHash(poolHash);
+    setOnChainHash(pollHash);
     setIsVerifying(false);
     setShouldRedirect(true);
 
     // Store immediately to backend
     storePoll({
-      title: poolData.title,
-      description: poolData.description,
-      choices: poolData.candidates.map((choice) => ({ choiceText: choice })),
+      title: pollData.title,
+      description: pollData.description,
+      choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
       startDate: new Date(), // For now using now
-      endDate: poolData.expiryDate,
-      isPrivate: poolData.isPrivate,
-      addresses: poolData.allowedAddresses.map((address) => ({
+      endDate: pollData.expiryDate,
+      isPrivate: pollData.isPrivate,
+      addresses: pollData.allowedAddresses.map((address) => ({
         walletAddress: address,
       })),
       creatorWalletAddress: walletAddress,
-      poolHash,
+      poolHash: pollHash,
     });
   };
 
   /**
-   * Create a new voting pool
-   * @param poolData - The voting pool data containing title, description, candidates, expiry, privacy settings, and allowed addresses
+   * Create a new voting poll
+   * @param pollData - The voting poll data containing title, description, candidates, expiry, privacy settings, and allowed addresses
    */
-  const createPool = async (poolData: VotingPoolData) => {
+  const createPoll = async (pollData: PollData) => {
     if (!chainId) {
       toast.error('No chain connected');
       return;
@@ -213,31 +213,31 @@ export function useCreateVotingPool() {
       return;
     }
 
-    setVotingPoolData(poolData);
+    setPollData(pollData);
 
     try {
       // Calculate expiry timestamps
       const now = Math.floor(Date.now() / 1000); // Current time in Unix timestamp
-      const endDate = Math.floor(poolData.expiryDate.getTime() / 1000); // Convert to Unix timestamp
+      const endDate = Math.floor(pollData.expiryDate.getTime() / 1000); // Convert to Unix timestamp
 
-      // Generate Merkle root hash if private pool, otherwise use zero hash
+      // Generate Merkle root hash if private poll, otherwise use zero hash
       let merkleRootHash: `0x${string}` =
         '0x0000000000000000000000000000000000000000000000000000000000000000';
 
-      if (poolData.allowedAddresses.length > 0) {
-        merkleRootHash = generateMerkleRoot(poolData.allowedAddresses);
+      if (pollData.allowedAddresses.length > 0) {
+        merkleRootHash = generateMerkleRoot(pollData.allowedAddresses);
       }
 
       // Convert candidatesTotal to uint8 format
-      const candidatesTotalUint8 = poolData.candidatesTotal as unknown as number;
+      const candidatesTotalUint8 = pollData.candidatesTotal as unknown as number;
 
       const args = {
         versioning: version,
-        title: poolData.title,
-        description: poolData.description,
+        title: pollData.title,
+        description: pollData.description,
         merkleRootHash,
-        isPrivate: poolData.isPrivate,
-        candidates: poolData.candidates,
+        isPrivate: pollData.isPrivate,
+        candidates: pollData.candidates,
         candidatesTotal: candidatesTotalUint8,
         expiry: {
           startDate: BigInt(now),
@@ -246,20 +246,20 @@ export function useCreateVotingPool() {
       };
 
       const targetHashedPayload = {
-        title: poolData.title,
-        description: poolData.description,
-        candidates: poolData.candidates,
+        title: pollData.title,
+        description: pollData.description,
+        candidates: pollData.candidates,
         candidatesTotal: candidatesTotalUint8,
         version,
         owner: walletAddress,
       };
 
       // Compute off-chain hash before submission
-      const poolHash = getVotingPoolHash(targetHashedPayload, version, walletAddress);
+      const pollHash = getVotingPollHash(targetHashedPayload, version, walletAddress);
 
       // Store hash for later verification
-      setOffChainHash(poolHash);
-      offChainHashRef.current = poolHash;
+      setOffChainHash(pollHash);
+      offChainHashRef.current = pollHash;
 
       // Submit to blockchain
       await writeContractAsync({
@@ -267,11 +267,11 @@ export function useCreateVotingPool() {
         args: [args],
       });
 
-      if (poolData.isPrivate) {
-        storePollDataImmediately(poolData, poolHash);
+      if (pollData.isPrivate) {
+        storePollDataImmediately(pollData, pollHash);
       }
     } catch (error) {
-      toast.error('Failed to create pool', {
+      toast.error('Failed to create poll', {
         description: error instanceof Error ? error.message : 'Unknown error',
       });
     }
@@ -297,8 +297,8 @@ export function useCreateVotingPool() {
     }
   }, [isSuccess]);
 
-  // Refetch version after successful pool creation
-  // This is critical for replay attack prevention - version increments with each pool
+  // Refetch version after successful poll creation
+  // This is critical for replay attack prevention - version increments with each poll
   useEffect(() => {
     if (isSuccess) {
       refetchVersion();
@@ -315,7 +315,7 @@ export function useCreateVotingPool() {
   }, []);
 
   return {
-    createPool,
+    createPoll,
     isPending: isCreatePollWeb2Pending || isPending,
     isConfirming,
     isSuccess,

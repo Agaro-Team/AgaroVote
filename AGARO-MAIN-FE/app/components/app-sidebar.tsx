@@ -57,17 +57,17 @@ const data = {
       ],
     },
     {
-      title: 'Voting Pools',
-      url: '/dashboard/voting-pools',
+      title: 'Voting Polls',
+      url: '/dashboard/voting-polls',
       icon: Vote,
       items: [
         {
           title: 'Create New',
-          url: '/dashboard/voting-pools/create',
+          url: '/dashboard/voting-polls/create',
         },
         {
           title: 'Browse All',
-          url: '/dashboard/voting-pools',
+          url: '/dashboard/voting-polls',
         },
       ],
     },

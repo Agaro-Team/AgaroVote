@@ -1,7 +1,7 @@
 /**
- * Share Voting Pool Modal Component
+ * Share Voting Poll Modal Component
  *
- * Displays a modal with a shareable link to the newly created voting pool.
+ * Displays a modal with a shareable link to the newly created voting poll.
  * Includes copy-to-clipboard functionality.
  */
 import { CheckIcon, CopyIcon } from 'lucide-react';
@@ -19,23 +19,23 @@ import { Input } from '~/components/ui/input';
 
 import { useState } from 'react';
 
-interface ShareVotingPoolModalProps {
+interface ShareVotingPollModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   id: string;
   onClose: () => void;
 }
 
-export function ShareVotingPoolModal({
+export function ShareVotingPollModal({
   open,
   onOpenChange,
   id,
   onClose,
-}: ShareVotingPoolModalProps) {
+}: ShareVotingPollModalProps) {
   const [copied, setCopied] = useState(false);
 
   // Generate the full URL
-  const shareUrl = `${window.location.origin}/dashboard/voting-pools/${id}`;
+  const shareUrl = `${window.location.origin}/dashboard/voting-polls/${id}`;
 
   const handleCopyLink = async () => {
     try {
@@ -62,9 +62,9 @@ export function ShareVotingPoolModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Share Voting Pool</DialogTitle>
+          <DialogTitle>Share Voting Poll</DialogTitle>
           <DialogDescription>
-            Your voting pool has been created successfully! Share this link with others to let them
+            Your voting poll has been created successfully! Share this link with others to let them
             participate.
           </DialogDescription>
         </DialogHeader>
@@ -102,7 +102,7 @@ export function ShareVotingPoolModal({
 
         <DialogFooter className="sm:justify-start">
           <Button type="button" variant="secondary" onClick={handleClose} className="w-full">
-            Close and View Pools
+            Close and View Polls
           </Button>
         </DialogFooter>
       </DialogContent>

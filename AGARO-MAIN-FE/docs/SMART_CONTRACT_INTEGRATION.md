@@ -425,7 +425,7 @@ export function useVotingContract() {
 Here's the actual implementation from AgaroVote:
 
 ```typescript
-// app/hooks/voting-pools/use-create-voting-pool.ts
+// app/routes/dashboard/voting-polls/create/hooks/use-create-poll.ts
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
@@ -538,8 +538,8 @@ export function useCreateVotingPool() {
 ### Usage in Component:
 
 ```typescript
-// app/components/voting-pools/create-voting-pool-form.tsx
-import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
+// app/routes/dashboard/voting-polls/create/components/create-voting-poll-form.tsx
+import { useCreatePoll } from '~/routes/dashboard/voting-polls/create/hooks/use-create-poll';
 import { Button } from '~/components/ui/button';
 
 export function CreateVotingPoolForm() {

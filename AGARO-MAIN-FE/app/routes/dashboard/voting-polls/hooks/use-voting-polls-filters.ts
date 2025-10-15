@@ -1,7 +1,7 @@
 /**
- * useVotingPoolsFilters Hook
+ * useVotingPollsFilters Hook
  *
- * Reusable hook for managing voting pools filter state via URL parameters.
+ * Reusable hook for managing voting polls filter state via URL parameters.
  * Provides centralized filter state management for search, sort, and active status.
  *
  * Features:
@@ -47,7 +47,7 @@ const filterParsers = {
 /**
  * Hook options
  */
-interface UseVotingPoolsFiltersOptions {
+interface UseVotingPollsFiltersOptions {
   /**
    * Whether to use push or replace for history navigation
    * @default 'push'
@@ -63,7 +63,7 @@ interface UseVotingPoolsFiltersOptions {
 /**
  * Hook return type
  */
-export interface UseVotingPoolsFiltersReturn {
+export interface UseVotingPollsFiltersReturn {
   /** Current filter values */
   filters: {
     limit: number;
@@ -91,11 +91,11 @@ export interface UseVotingPoolsFiltersReturn {
 }
 
 /**
- * Reusable hook for managing voting pools filter state
+ * Reusable hook for managing voting polls filter state
  *
  * @example
  * ```tsx
- * const { filters, setFilters, resetFilters, hasActiveFilters } = useVotingPoolsFilters();
+ * const { filters, setFilters, resetFilters, hasActiveFilters } = useVotingPollsFilters();
  *
  * // Update search
  * setFilters({ q: 'governance' });
@@ -107,9 +107,9 @@ export interface UseVotingPoolsFiltersReturn {
  * resetFilters();
  * ```
  */
-export function useVotingPoolsFilters(
-  options: UseVotingPoolsFiltersOptions = {}
-): UseVotingPoolsFiltersReturn {
+export function useVotingPollsFilters(
+  options: UseVotingPollsFiltersOptions = {}
+): UseVotingPollsFiltersReturn {
   const { history = 'push', shallow = false } = options;
 
   const [filters, setFilters] = useQueryStates(filterParsers, {

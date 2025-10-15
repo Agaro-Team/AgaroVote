@@ -48,12 +48,12 @@ export default function DashboardPage() {
           </Card>
           <Card className="p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium">Active Voting Pools</h3>
+              <h3 className="text-sm font-medium">Active Voting Polls</h3>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </div>
             <div>
               <div className="text-2xl font-bold">24</div>
-              <p className="text-xs text-muted-foreground">+3 new pools today</p>
+              <p className="text-xs text-muted-foreground">+3 new polls today</p>
             </div>
           </Card>
           <Card className="p-6">
@@ -78,20 +78,20 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Create Pool CTA */}
+        {/* Create Poll CTA */}
         <Card className="p-6 bg-gradient-to-r from-primary/10 via-primary/5 to-background border-primary/20">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h3 className="text-lg font-semibold">Create Your Own Voting Pool</h3>
+              <h3 className="text-lg font-semibold">Create Your Own Voting Poll</h3>
               <p className="text-sm text-muted-foreground">
-                Launch a decentralized voting pool on the blockchain in minutes. Perfect for
+                Launch a decentralized voting poll on the blockchain in minutes. Perfect for
                 communities, DAOs, and organizations.
               </p>
             </div>
             <Button asChild size="lg" className="shrink-0">
-              <Link to="/dashboard/voting-pools/create">
+              <Link to="/dashboard/voting-polls/create">
                 <Plus className="h-5 w-5 mr-2" />
-                Create Pool
+                Create Poll
               </Link>
             </Button>
           </div>
@@ -102,13 +102,13 @@ export default function DashboardPage() {
           <Card className="col-span-4 p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold">Active Voting Pools</h3>
+                <h3 className="text-lg font-semibold">Active Voting Polls</h3>
                 <p className="text-sm text-muted-foreground">
-                  3 pools you can participate in right now
+                  3 polls you can participate in right now
                 </p>
               </div>
               <a
-                href="/voting-pools/active"
+                href="/voting-polls/active"
                 className="text-sm font-medium text-primary hover:underline inline-flex items-center gap-1"
               >
                 View all

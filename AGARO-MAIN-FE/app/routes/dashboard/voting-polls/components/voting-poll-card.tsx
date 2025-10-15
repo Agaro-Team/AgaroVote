@@ -1,7 +1,7 @@
 /**
- * Voting Pool Card Component
+ * Voting Poll Card Component
  *
- * Displays a single voting pool with its details and actions.
+ * Displays a single voting poll with its details and actions.
  * Fully responsive with text truncation and tooltips.
  */
 import { Calendar, CheckCircle2, TrendingUp, Users, Vote } from 'lucide-react';
@@ -11,9 +11,9 @@ import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
 
-export interface VotingPoolCardProps {
+export interface VotingPollCardProps {
   id: string;
-  poolHash: string;
+  pollHash: string;
   title: string;
   description: string;
   choices: string[];
@@ -23,9 +23,9 @@ export interface VotingPoolCardProps {
   endsAt?: Date;
 }
 
-export function VotingPoolCard({
+export function VotingPollCard({
   id,
-  poolHash,
+  pollHash,
   title,
   description,
   choices,
@@ -33,7 +33,7 @@ export function VotingPoolCard({
   status,
   createdAt,
   endsAt,
-}: VotingPoolCardProps) {
+}: VotingPollCardProps) {
   const statusConfig = {
     active: { label: 'Active', variant: 'default' as const, icon: Vote },
     completed: { label: 'Completed', variant: 'secondary' as const, icon: CheckCircle2 },
@@ -159,23 +159,23 @@ export function VotingPoolCard({
           {/* Actions - Full width button on mobile */}
           <div className="flex items-center gap-2 pt-2">
             <Button asChild className="w-full sm:flex-1" size="default">
-              <Link to={`/dashboard/voting-pools/${id}`}>
+              <Link to={`/dashboard/voting-polls/${id}`}>
                 {status === 'active' ? 'Vote Now' : 'View Results'}
               </Link>
             </Button>
           </div>
 
-          {/* Pool Hash - Responsive with tooltip */}
+          {/* Poll Hash - Responsive with tooltip */}
           <div className="pt-2 border-t">
             <Tooltip>
               <TooltipTrigger asChild>
                 <p className="text-xs text-muted-foreground font-mono truncate cursor-help">
                   <span className="hidden sm:inline">Hash: </span>
-                  {poolHash.slice(0, 6)}...{poolHash.slice(-6)}
+                  {pollHash.slice(0, 6)}...{pollHash.slice(-6)}
                 </p>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-xs font-mono break-all max-w-xs">{poolHash}</p>
+                <p className="text-xs font-mono break-all max-w-xs">{pollHash}</p>
               </TooltipContent>
             </Tooltip>
           </div>

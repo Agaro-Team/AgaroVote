@@ -1,16 +1,16 @@
 /**
- * Voting Pools List Component
+ * Voting Polls List Component
  *
- * Displays a list of voting pools with loading and empty states.
+ * Displays a list of voting polls with loading and empty states.
  */
 import { FileQuestion, Loader2 } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Skeleton } from '~/components/ui/skeleton';
-import { useVotingPools } from '~/routes/dashboard/voting-pools/hooks/use-voting-pools';
+import { useVotingPolls } from '~/routes/dashboard/voting-polls/hooks/use-voting-polls';
 
-import { VotingPoolCard } from './voting-pool-card';
+import { VotingPollCard } from './voting-poll-card';
 
-export function VotingPoolsList() {
+export function VotingPollsList() {
   const {
     polls,
     isLoading,
@@ -20,7 +20,7 @@ export function VotingPoolsList() {
     fetchNextPage,
     isFetchingNextPage,
     totalPolls,
-  } = useVotingPools();
+  } = useVotingPolls();
 
   // Initial loading state
   if (isLoading) {
@@ -49,9 +49,9 @@ export function VotingPoolsList() {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <FileQuestion className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold">Failed to load voting pools</h3>
+        <h3 className="text-lg font-semibold">Failed to load voting polls</h3>
         <p className="text-sm text-muted-foreground">
-          {error instanceof Error ? error.message : 'There was an error loading the voting pools.'}
+          {error instanceof Error ? error.message : 'There was an error loading the voting polls.'}
         </p>
         <Button variant="outline" className="mt-4" onClick={() => window.location.reload()}>
           Try Again
@@ -65,9 +65,9 @@ export function VotingPoolsList() {
     return (
       <div className="flex flex-col items-center justify-center py-12 text-center">
         <FileQuestion className="h-12 w-12 text-muted-foreground mb-4" />
-        <h3 className="text-lg font-semibold">No voting pools found</h3>
+        <h3 className="text-lg font-semibold">No voting polls found</h3>
         <p className="text-sm text-muted-foreground">
-          Be the first to create a voting pool and start voting!
+          Be the first to create a voting poll and start voting!
         </p>
       </div>
     );
@@ -78,14 +78,14 @@ export function VotingPoolsList() {
       {/* Polls count */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {polls.length} of {totalPolls} voting pools
+          Showing {polls.length} of {totalPolls} voting polls
         </p>
       </div>
 
       {/* Polls grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {polls.map((pool) => (
-          <VotingPoolCard key={pool.poolHash} {...pool} />
+        {polls.map((poll) => (
+          <VotingPollCard key={poll.pollHash} {...poll} />
         ))}
       </div>
 

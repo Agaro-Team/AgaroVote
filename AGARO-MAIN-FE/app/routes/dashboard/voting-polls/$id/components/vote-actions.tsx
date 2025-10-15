@@ -31,7 +31,7 @@ export function VoteActions() {
         )}
       </Button>
       <Button variant="outline" size="lg" asChild>
-        <Link to="/dashboard/voting-pools">Cancel</Link>
+        <Link to="/dashboard/voting-polls">Cancel</Link>
       </Button>
     </div>
   );

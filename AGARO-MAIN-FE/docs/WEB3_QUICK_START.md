@@ -131,9 +131,9 @@ return <ProtectedContent />;
 ### Create Voting Pool
 
 ```tsx
-import { useCreateVotingPool } from '~/hooks/voting-pools/use-create-voting-pool';
+import { useCreatePoll } from '~/routes/dashboard/voting-polls/create/hooks/use-create-poll';
 
-const { createPool, isPending, isConfirming } = useCreateVotingPool();
+const { createPoll, isPending, isConfirming } = useCreatePoll();
 
 const handleCreate = () => {
   createPool({
@@ -182,8 +182,8 @@ if (chainId !== 1 && chainId !== 11155111) {
 ## 🚀 Demo Pages
 
 - `/dashboard` - Main dashboard with wallet integration
-- `/dashboard/voting-pools` - View voting pools
-- `/dashboard/voting-pools/create` - Create new voting pool
+- `/dashboard/voting-polls` - View voting polls
+- `/dashboard/voting-polls/create` - Create new voting poll
 - `/wallet` - Wallet connection demo (if available)
 
 ---

@@ -68,9 +68,9 @@ const votingPoolSchema = z
     }
   });
 
-type CreateVotingPoolFormData = z.infer<typeof votingPoolSchema>;
+type CreateVotingPollFormData = z.infer<typeof votingPoolSchema>;
 
-const defaultValues: CreateVotingPoolFormData = {
+const defaultValues: CreateVotingPollFormData = {
   title: '',
   description: '',
   choices: ['', ''],
@@ -79,7 +79,7 @@ const defaultValues: CreateVotingPoolFormData = {
   allowedAddresses: [],
 };
 
-export const votingPoolFormOptions = formOptions({
+export const votingPollFormOptions = formOptions({
   defaultValues,
   validators: {
     onChange: votingPoolSchema,

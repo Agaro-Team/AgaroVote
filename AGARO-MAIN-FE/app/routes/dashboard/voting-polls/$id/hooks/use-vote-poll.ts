@@ -142,7 +142,7 @@ export function useVotePoll() {
     setPoolId(poolId);
 
     const args = {
-      poolHash,
+      pollHash: poolHash,
       candidateSelected,
       proofs: [], // Empty for now
     };

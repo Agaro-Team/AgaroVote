@@ -1,7 +1,7 @@
 /**
- * Create Voting Pool Form Component
+ * Create Voting Poll Form Component
  *
- * A complete form for creating new voting pools with validation,
+ * A complete form for creating new voting polls with validation,
  * smart contract integration, and user feedback.
  */
 import { useNavigate } from 'react-router';
@@ -12,22 +12,22 @@ import { Card } from '~/components/ui/card';
 
 import { useEffect, useState } from 'react';
 
-import { useCreateVotingPool } from '../hooks/use-create-voting-pool';
+import { useCreatePoll } from '../hooks/use-create-poll';
 import { AllowedAddressesField } from './allowed-addresses-field';
 import { ChoicesArrayField } from './choices-array-field';
-import { ShareVotingPoolModal } from './share-voting-pool-modal';
+import { ShareVotingPollModal } from './share-voting-poll-modal';
 import { TransactionProgressDialog } from './transaction-progress';
-import { votingPoolFormOptions } from './voting-pool-form-options';
+import { votingPollFormOptions } from './voting-poll-form-options';
 
 type ProgressStep = 'idle' | 'saving' | 'wallet' | 'confirming' | 'verifying' | 'success' | 'error';
 
-export function CreateVotingPoolForm() {
+export function CreateVotingPollForm() {
   const navigate = useNavigate();
   const [openConfirmationDialog, setOpenConfirmationDialog] = useState(false);
   const [openShareModal, setOpenShareModal] = useState(false);
   const [progressStep, setProgressStep] = useState<ProgressStep>('idle');
   const {
-    createPool,
+    createPoll,
     isPending,
     isConfirming,
     isVerifying,
@@ -37,10 +37,10 @@ export function CreateVotingPoolForm() {
     onChainHash,
     offChainHash,
     storePollData,
-  } = useCreateVotingPool();
+  } = useCreatePoll();
 
   const form = useAppForm({
-    ...votingPoolFormOptions,
+    ...votingPollFormOptions,
     onSubmit: async ({ value }) => {
       // Validate choices
       const validChoices = value.choices.filter((c) => c.trim() !== '');
@@ -56,7 +56,7 @@ export function CreateVotingPoolForm() {
 
         // Create the pool with all required data
         // Note: Smart contract still uses "candidates" terminology
-        await createPool({
+        await createPoll({
           title: value.title,
           description: value.description,
           candidates: validChoices, // Map "choices" to "candidates" for contract
@@ -147,7 +147,7 @@ export function CreateVotingPoolForm() {
     <Card className="p-6">
       <form.AppForm>
         <form
-          id="create-voting-pool-form"
+          id="create-voting-poll-form"
           onSubmit={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -267,13 +267,13 @@ export function CreateVotingPoolForm() {
 
         {/* Share Modal - Shows after successful creation */}
         {onChainHash && (
-          <ShareVotingPoolModal
+          <ShareVotingPollModal
             open={openShareModal}
             onOpenChange={setOpenShareModal}
             id={storePollData?.data?.id ?? ''}
             onClose={() => {
               form.reset();
-              navigate('/dashboard/voting-pools');
+              navigate('/dashboard/voting-polls');
             }}
           />
         )}

@@ -1,21 +1,21 @@
 /**
- * useVotingPools Hook
+ * useVotingPolls Hook
  *
- * Hook for fetching voting pools with infinite scroll support
- * Uses centralized filter state management via useVotingPoolsFilters
+ * Hook for fetching voting polls with infinite scroll support
+ * Uses centralized filter state management via useVotingPollsFilters
  */
 import type { Poll } from '~/lib/api/poll/poll.interface';
 import { pollInfiniteListQueryOptions } from '~/lib/query-client/poll/queries';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
 
-import type { VotingPoolCardProps } from '../components/voting-pool-card';
-import { useVotingPoolsFilters } from './use-voting-pools-filters';
+import type { VotingPollCardProps } from '../components/voting-poll-card';
+import { useVotingPollsFilters } from './use-voting-polls-filters';
 
 /**
  * Maps Poll status to card status
  */
-function mapPollStatus(poll: Poll): VotingPoolCardProps['status'] {
+function mapPollStatus(poll: Poll): VotingPollCardProps['status'] {
   // Pending: hasn't started yet
   if (!poll.hasStarted) {
     return 'pending';
@@ -36,12 +36,12 @@ function mapPollStatus(poll: Poll): VotingPoolCardProps['status'] {
 }
 
 /**
- * Transform API Poll to VotingPoolCardProps
+ * Transform API Poll to VotingPollCardProps
  */
-function transformPollToCard(poll: Poll): VotingPoolCardProps {
+function transformPollToCard(poll: Poll): VotingPollCardProps {
   return {
     id: poll.id,
-    poolHash: poll.poolHash,
+    pollHash: poll.poolHash,
     title: poll.title,
     description: poll.description,
     choices: poll.choices.map((choice) => choice.choiceText),
@@ -52,9 +52,9 @@ function transformPollToCard(poll: Poll): VotingPoolCardProps {
   };
 }
 
-export function useVotingPools() {
+export function useVotingPolls() {
   // Use centralized filter state management
-  const { filters } = useVotingPoolsFilters();
+  const { filters } = useVotingPollsFilters();
 
   const queryResult = useInfiniteQuery(
     pollInfiniteListQueryOptions({

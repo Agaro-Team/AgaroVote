@@ -1,5 +1,5 @@
 /**
- * Pool Hash Display - Shows pool hash with copy functionality
+ * Poll Hash Display - Shows poll hash with copy functionality
  */
 import { CheckCircle2, Copy, CopyCheckIcon, Hash } from 'lucide-react';
 import { Button } from '~/components/ui/button';
@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 import { useVoteContext } from '../vote-context';
 
-export function PoolHashDisplay() {
+export function PollHashDisplay() {
   const { poll } = useVoteContext();
   const [isCopied, setIsCopied] = useState(false);
 

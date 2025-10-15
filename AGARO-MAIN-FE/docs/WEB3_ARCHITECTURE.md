@@ -44,18 +44,17 @@ app/
 │   │   ├── useWalletDisplay()           # Formatting utils
 │   │   └── useWaitForTransactionReceiptEffect()  # Transaction confirmation
 │   ├── use-optimistic-mutation.ts       # Optimistic updates
-│   └── voting-pools/
-│       ├── use-create-voting-pool.ts    # Create pools with hash verification
-│       └── use-voting-pool.ts           # Compute and verify pool hashes
+│   └── voting-polls/
+│       └── use-create-poll.ts           # Create polls with hash verification
 │
 └── components/
     ├── wallet-connect-button.tsx        # Connect UI
     ├── wallet-info-card.tsx             # Info display
     ├── chain-switcher.tsx               # Network switcher
-    └── voting-pools/
-        ├── create-voting-pool-form.tsx  # Pool creation form
-        ├── voting-pool-card.tsx         # Pool display card
-        └── voting-pools-list.tsx        # List of pools
+    └── voting-polls/
+        ├── create-voting-poll-form.tsx  # Poll creation form
+        ├── voting-poll-card.tsx         # Poll display card
+        └── voting-polls-list.tsx        # List of polls
 ```
 
 ---
@@ -441,7 +440,7 @@ connectors: [
 ### 3. Add Custom Contract Hooks
 
 ```typescript
-// hooks/voting-pools/use-vote.ts
+// hooks/voting-polls/use-vote.ts
 import { useWriteEntryPointVote } from '~/lib/web3/contracts/generated';
 
 export function useVote() {
@@ -452,8 +451,8 @@ export function useVote() {
 ### 4. Add New Voting Pool Features
 
 ```typescript
-// hooks/voting-pools/use-voting-results.ts
-export function useVotingResults(poolId: bigint) {
+// hooks/voting-polls/use-voting-results.ts
+export function useVotingResults(pollId: bigint) {
   // Fetch and display voting results
 }
 ```

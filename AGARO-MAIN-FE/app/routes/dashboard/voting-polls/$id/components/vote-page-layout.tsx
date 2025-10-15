@@ -50,7 +50,7 @@ function VotePageBreadcrumbs() {
         </BreadcrumbItem>
         <BreadcrumbSeparator className="hidden md:block" />
         <BreadcrumbItem className="hidden md:block">
-          <BreadcrumbLink href="/dashboard/voting-pools">Voting Pools</BreadcrumbLink>
+          <BreadcrumbLink href="/dashboard/voting-polls">Voting Polls</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator className="hidden md:block" />
         <BreadcrumbItem>

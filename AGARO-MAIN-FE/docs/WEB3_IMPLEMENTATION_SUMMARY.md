@@ -45,8 +45,8 @@
   - `useWalletDisplay()` - Display utilities (shorten address, etc.)
   - `useWaitForTransactionReceiptEffect()` - Transaction confirmation with callback
 - `app/hooks/use-optimistic-mutation.ts` - Optimistic UI updates for transactions
-- `app/hooks/voting-pools/use-create-voting-pool.ts` - Create voting pools with hash verification
-- `app/hooks/voting-pools/use-voting-pool.ts` - Compute and verify voting pool hashes
+- `app/routes/dashboard/voting-polls/create/hooks/use-create-poll.ts` - Create voting polls with hash verification
+- `app/lib/web3/voting-poll-utils.ts` - Compute and verify voting poll hashes
 
 ### UI Components
 

@@ -1,13 +1,13 @@
 /**
- * Voting Pools Filters Component
+ * Voting Polls Filters Component
  *
- * Provides filtering capabilities for voting pools:
+ * Provides filtering capabilities for voting polls:
  * - Search by title/description (with debouncing)
  * - Sort by multiple fields
  * - Sort order (ASC/DESC)
  * - Filter by active status
  *
- * Uses centralized filter state management via useVotingPoolsFilters
+ * Uses centralized filter state management via useVotingPollsFilters
  */
 import { ArrowDownAZ, ArrowUpAZ, Search, X } from 'lucide-react';
 import { useDebounce } from 'rooks';
@@ -28,7 +28,7 @@ import { PollSortBy } from '~/lib/api/poll/poll.interface';
 
 import { useEffect, useState } from 'react';
 
-import { useVotingPoolsFilters } from '../hooks/use-voting-pools-filters';
+import { useVotingPollsFilters } from '../hooks/use-voting-polls-filters';
 
 /**
  * Sort options with user-friendly labels
@@ -40,10 +40,10 @@ const SORT_OPTIONS = [
   { value: PollSortBy.END_DATE, label: 'End Date' },
 ] as const;
 
-export function VotingPoolsFilters() {
+export function VotingPollsFilters() {
   // Use centralized filter state management
   const { filters, setFilters, resetFilters, toggleSortOrder, hasActiveFilters } =
-    useVotingPoolsFilters();
+    useVotingPollsFilters();
 
   // Local state for search input with debouncing
   const [searchInput, setSearchInput] = useState(filters.q);
@@ -166,10 +166,10 @@ export function VotingPoolsFilters() {
         <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
           <div className="space-y-0.5">
             <Label htmlFor="isActive" className="text-base font-medium cursor-pointer">
-              Active Pools Only
+              Active Polls Only
             </Label>
             <p className="text-sm text-muted-foreground">
-              Show only voting pools that are currently active
+              Show only voting polls that are currently active
             </p>
           </div>
           <Switch
