@@ -13,6 +13,7 @@ export { TextField } from './fields/text-field';
 export { NumberField } from './fields/number-field';
 export { SwitchField } from './fields/switch-field';
 export { DatePickerField } from './fields/date-picker-field';
+export { DatePickerRangeField } from './fields/date-picker-range-field';
 export { TextareaField } from './fields/textarea-field';
 
 // Form components
