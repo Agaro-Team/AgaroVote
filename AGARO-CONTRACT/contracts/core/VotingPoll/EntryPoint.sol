@@ -7,10 +7,10 @@ import "./VotingPoll.sol";
 import "./VoterStorage.sol";
 import "../MerkleTree/MerkleTreeAllowList.sol";
 import "../SyntheticReward/SyntheticReward.sol";
+import "../../lib/VotingPollDataArgumentLib.sol";
 import "../../interfaces/ERC20-AGR/IAGR.sol";
 import "../../interfaces/MerkleTree/IMerkleTreeAllowList.sol";
 import "../../interfaces/SyntheticReward/ISyntheticReward.sol";
-import "../../lib/VotingPollDataArgumentLib.sol";
 import "../../interfaces/VotingPoll/IEntryPoint.sol";
 
 contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
@@ -218,7 +218,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
 
         uint256 total = reward + bonus;
         if (total > 0) {
-            rewardContract = _createSyntheticReward(reward + bonus, expiry);
+            rewardContract = _createSyntheticReward(total, expiry);
 
             token.transferFrom(creator, rewardContract, rewardShare);
             if (bonus > 0) {
