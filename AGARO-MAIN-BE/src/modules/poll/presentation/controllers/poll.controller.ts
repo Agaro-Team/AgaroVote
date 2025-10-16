@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -10,6 +11,8 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
+import { Public } from '@modules/auth/presentation/decorators/public.decorator';
+import { Wallet } from '@modules/auth/presentation/decorators/wallet.decorator';
 import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
 import { CreatePollDto } from '../../application/dto/create-poll.dto';
 import { PollFilterDto } from '../../application/dto/poll-filter.dto';
@@ -49,11 +52,24 @@ export class PollController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(@Body() createPollDto: CreatePollDto): Promise<PollResponseDto> {
+  async create(
+    @Wallet() walletAddress: string,
+    @Body() createPollDto: CreatePollDto,
+  ): Promise<PollResponseDto> {
+    // Verify the creator wallet matches the authenticated wallet
+    if (
+      createPollDto.creatorWalletAddress.toLowerCase() !==
+      walletAddress.toLowerCase()
+    ) {
+      throw new ForbiddenException(
+        'You can only create polls with your own wallet address',
+      );
+    }
     const poll = await this.createPollUseCase.execute(createPollDto);
     return PollResponseDto.fromEntity(poll, true);
   }
 
+  @Public()
   @Get()
   async findAll(
     @Query() filters: PollFilterDto,
@@ -65,6 +81,7 @@ export class PollController {
     };
   }
 
+  @Public()
   @Get('active')
   async findActive(
     @Query() filters: PollFilterDto,
@@ -76,6 +93,7 @@ export class PollController {
     };
   }
 
+  @Public()
   @Get('ongoing')
   async findOngoing(
     @Query() filters: PollFilterDto,
@@ -87,6 +105,7 @@ export class PollController {
     };
   }
 
+  @Public()
   @Get('creator/:walletAddress')
   async findByCreator(
     @Param('walletAddress') walletAddress: string,
@@ -102,12 +121,14 @@ export class PollController {
     };
   }
 
+  @Public()
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<PollResponseDto> {
     const poll = await this.getPollByIdUseCase.execute(id);
     return PollResponseDto.fromEntity(poll, true);
   }
 
+  @Public()
   @Get(':id/eligibility')
   async checkEligibility(
     @Param('id') id: string,
@@ -118,9 +139,11 @@ export class PollController {
 
   @Put(':id')
   async update(
+    @Wallet() walletAddress: string,
     @Param('id') id: string,
     @Body() updatePollDto: UpdatePollDto,
   ): Promise<PollResponseDto> {
+    // TODO: Add authorization check - only poll creator can update
     const poll = await this.updatePollUseCase.execute(id, updatePollDto);
     return PollResponseDto.fromEntity(poll, true);
   }
@@ -157,7 +180,11 @@ export class PollController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param('id') id: string): Promise<void> {
+  async remove(
+    @Wallet() walletAddress: string,
+    @Param('id') id: string,
+  ): Promise<void> {
+    // TODO: Add authorization check - only poll creator can delete
     await this.deletePollUseCase.execute(id);
   }
 }

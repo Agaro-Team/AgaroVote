@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
-import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_INTERCEPTOR, APP_PIPE, APP_GUARD } from '@nestjs/core';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { ConfigModule } from '@config/config.module';
@@ -11,9 +12,26 @@ import { HealthController } from '@shared/presentation/controllers/health.contro
 import { UserModule } from '@modules/user/user.module';
 import { PollModule } from './modules/poll/poll.module';
 import { VoteModule } from './modules/vote/vote.module';
+import { AuthModule } from './modules/auth/auth.module';
+import { JwtAuthGuard } from './modules/auth/presentation/guards/jwt-auth.guard';
 
 @Module({
-  imports: [ConfigModule, DatabaseModule, UserModule, PollModule, VoteModule],
+  imports: [
+    ConfigModule,
+    DatabaseModule,
+    // Rate limiting - prevent spam and DDoS attacks
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // Time window in milliseconds (1 minute)
+        limit: 100, // Max requests per time window
+      },
+    ]),
+    // Feature modules
+    AuthModule,
+    UserModule,
+    PollModule,
+    VoteModule,
+  ],
   controllers: [AppController, HealthController],
   providers: [
     AppService,
@@ -28,6 +46,16 @@ import { VoteModule } from './modules/vote/vote.module';
     {
       provide: APP_PIPE,
       useClass: ValidationPipe,
+    },
+    // Global rate limiting
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+    // Global JWT authentication (use @Public() decorator to bypass)
+    {
+      provide: APP_GUARD,
+      useClass: JwtAuthGuard,
     },
   ],
 })
