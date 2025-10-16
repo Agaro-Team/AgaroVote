@@ -9,7 +9,7 @@ import { useVoteContext } from '../vote-context';
 
 const getFormattedNumberInputProps = (
   value: string,
-  setCommitToken: (token: string) => void
+  onCommitTokenChange: (token: string) => void
 ): React.ComponentProps<typeof Input> => {
   const formatValue = (value: string) => {
     //     // Format for display: add thousand separators
@@ -32,7 +32,9 @@ const getFormattedNumberInputProps = (
   return {
     value: formatValue(value),
     onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
-      setCommitToken(formatValueOnChange(e.target.value)),
+      onCommitTokenChange
+        ? onCommitTokenChange(formatValueOnChange(e.target.value))
+        : formatValueOnChange(e.target.value),
   };
 };
 
@@ -81,6 +83,7 @@ export function CommitTokenInput() {
             Token Amount {isRequiredToken && <span className="text-destructive">*</span>}
           </FieldLabel>
           <Input
+            {...getFormattedNumberInputProps(commitToken ?? '', setCommitToken)}
             aria-required={isRequiredToken}
             aria-invalid={hasError}
             data-invalid={hasError}
@@ -88,7 +91,6 @@ export function CommitTokenInput() {
             disabled={isDisabled}
             placeholder="Enter your token amount"
             type="text"
-            {...getFormattedNumberInputProps(commitToken ?? '', setCommitToken)}
           />
           {hasError && (
             <FieldError>Token amount is required to cast your vote in this poll.</FieldError>

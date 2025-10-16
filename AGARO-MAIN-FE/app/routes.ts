@@ -13,8 +13,14 @@ const walletRoutes = prefix('wallet', [
   layout('routes/wallet/layout.tsx', [index('routes/wallet/page.tsx')]),
 ]);
 
+const authRoutes = prefix('auth', [
+  route('siwe', 'routes/auth.siwe.tsx'),
+  route('signout', 'routes/auth.signout.tsx'),
+]);
+
 export default [
   index('routes/home.tsx'),
+  ...authRoutes,
   ...dashboardRoutes,
   ...walletRoutes,
 ] satisfies RouteConfig;

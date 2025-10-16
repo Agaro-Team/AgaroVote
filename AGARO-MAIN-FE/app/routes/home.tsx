@@ -3,8 +3,8 @@
  *
  * Main landing page with Web3 wallet connection interface
  */
+import { WalletConnectAuthButton } from '~/components/auth/wallet-connect-auth-button';
 import { ChainSwitcher } from '~/components/chain-switcher';
-import { WalletConnectButton } from '~/components/wallet-connect-button';
 import { WalletInfoCard } from '~/components/wallet-info-card';
 import { useWeb3Wallet } from '~/hooks/use-web3';
 
@@ -35,7 +35,7 @@ export default function Home() {
 
       {/* Connection Controls */}
       <div className="flex flex-wrap justify-center gap-4">
-        <WalletConnectButton />
+        <WalletConnectAuthButton />
         {isConnected && <ChainSwitcher />}
       </div>
 

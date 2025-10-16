@@ -92,3 +92,8 @@ export const optionalWalletMiddleware: MiddlewareFunction = async (args) => {
     address,
   });
 };
+
+// Export SIWE auth middleware
+export { siweAuthMiddleware, optionalSiweAuthMiddleware } from './siwe-auth-middleware';
+export { authContext } from './auth-context';
+export type { AuthState } from './auth-context';
