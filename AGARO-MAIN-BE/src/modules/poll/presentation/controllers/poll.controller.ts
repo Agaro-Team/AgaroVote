@@ -1,3 +1,5 @@
+import { Public } from '@modules/auth/presentation/decorators/public.decorator';
+import { Wallet } from '@modules/auth/presentation/decorators/wallet.decorator';
 import {
   Body,
   Controller,
@@ -11,8 +13,6 @@ import {
   Put,
   Query,
 } from '@nestjs/common';
-import { Public } from '@modules/auth/presentation/decorators/public.decorator';
-import { Wallet } from '@modules/auth/presentation/decorators/wallet.decorator';
 import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
 import { CreatePollDto } from '../../application/dto/create-poll.dto';
 import { PollFilterDto } from '../../application/dto/poll-filter.dto';
@@ -56,7 +56,6 @@ export class PollController {
     @Wallet() walletAddress: string,
     @Body() createPollDto: CreatePollDto,
   ): Promise<PollResponseDto> {
-    // Verify the creator wallet matches the authenticated wallet
     if (
       createPollDto.creatorWalletAddress.toLowerCase() !==
       walletAddress.toLowerCase()
@@ -160,6 +159,7 @@ export class PollController {
     return PollResponseDto.fromEntity(poll, true);
   }
 
+  @Public()
   @Post(':id/activate')
   async activate(@Param('id') id: string): Promise<PollResponseDto> {
     const poll = await this.activatePollUseCase.execute(id);

@@ -6,6 +6,8 @@
  */
 import axios, { type AxiosError } from 'axios';
 
+import { getAuthToken } from '../utils/cookie.client';
+
 const API_BASE_URL = process.env.VITE_AGARO_VOTE_API_ENTRYPOINT || 'http://localhost:3000/api';
 
 // Create full API URL with version
@@ -28,21 +30,20 @@ export const authenticatedApi = axios.create({
  */
 authenticatedApi.interceptors.request.use(
   (config) => {
-    // Read token from cookie (client-side)
-    if (typeof document !== 'undefined') {
-      const token = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('agaro_auth_token='))
-        ?.split('=')[1];
+    // Read token from cookie (client-side with proper URL decoding)
+    const token = getAuthToken();
+    console.log({ token });
 
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     // Log request in development
     if (process.env.NODE_ENV === 'development') {
       console.log(`🔐 Auth API Request: ${config.method?.toUpperCase()} ${config.url}`);
+      if (token) {
+        console.log(`🔑 Token: ${token.substring(0, 20)}...`);
+      }
     }
 
     return config;

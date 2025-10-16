@@ -1,5 +1,6 @@
 import type { AxiosError, AxiosRequestConfig } from 'axios';
 
+import { getAuthToken } from '../utils/cookie.client';
 import { createApiClient } from './api';
 
 const agaroApiClient = createApiClient({
@@ -11,21 +12,19 @@ const agaroApiClient = createApiClient({
  */
 agaroApiClient.interceptors.request.use(
   (config) => {
-    // Read token from cookie (client-side)
-    if (typeof document !== 'undefined') {
-      const token = document.cookie
-        .split('; ')
-        .find((row) => row.startsWith('agaro_auth_token='))
-        ?.split('=')[1];
+    // Read token from cookie (client-side with proper URL decoding)
+    const token = getAuthToken();
 
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     // Log request in development
     if (process.env.NODE_ENV === 'development') {
       console.log(`🔐 Auth API Request: ${config.method?.toUpperCase()} ${config.url}`);
+      if (token) {
+        console.log(`🔑 Token: ${token.substring(0, 20)}...`);
+      }
     }
 
     return config;

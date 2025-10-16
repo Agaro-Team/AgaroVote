@@ -12,5 +12,6 @@ export const authCookie = createCookie('agaro_auth_token', {
   sameSite: 'lax',
   httpOnly: false, // Must be false for client-side access (API calls)
   secure: process.env.NODE_ENV === 'production', // HTTPS only in production
-  secrets: [process.env.COOKIE_SECRET || 'dev-secret-change-in-production'],
+  // Note: No 'secrets' here because JWT is already signed
+  // Adding secrets would double-encode the token
 });
