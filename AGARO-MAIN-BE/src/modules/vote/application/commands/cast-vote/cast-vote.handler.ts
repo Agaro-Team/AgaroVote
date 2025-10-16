@@ -111,6 +111,7 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     vote.blockNumber = command.blockNumber;
     vote.signature = signature?.value;
     vote.voteWeight = command.voteWeight || 1;
+    vote.commitToken = command.commitToken;
     vote.votedAt = new Date();
 
     const savedVote = await this.voteRepository.save(vote);

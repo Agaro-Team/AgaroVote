@@ -8,16 +8,17 @@ import { Button } from '~/components/ui/button';
 import { useVoteContext } from '../vote-context';
 
 export function VoteActions() {
-  const { selectedChoiceIndex, canVote, isVoting, submitVote } = useVoteContext();
+  const { selectedChoiceIndex, canVote, isVoting, submitVote, poll, commitToken } =
+    useVoteContext();
+
+  const isRequiredToken = poll.isTokenRequired ?? false;
+  const isTokenMissing = isRequiredToken && (!commitToken || commitToken.trim() === '');
+  const isDisabled =
+    typeof selectedChoiceIndex !== 'number' || !canVote || isVoting || isTokenMissing;
 
   return (
     <div className="flex gap-3">
-      <Button
-        size="lg"
-        className="flex-1"
-        disabled={typeof selectedChoiceIndex !== 'number' || !canVote || isVoting}
-        onClick={submitVote}
-      >
+      <Button size="lg" className="flex-1" disabled={isDisabled} onClick={submitVote}>
         {isVoting ? (
           <>
             <Spinner />

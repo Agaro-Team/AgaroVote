@@ -26,7 +26,9 @@ interface VoteContextValue {
   isLoadingUserVote: boolean;
   currentVoteStep: VoteStep;
   voteTxHash: `0x${string}` | undefined;
+  commitToken: string | null;
   selectChoice: (choiceIndex: number, choiceId: string) => void;
+  setCommitToken: (token: string) => void;
   submitVote: () => Promise<void>;
 }
 
@@ -124,7 +126,7 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     if (!votePoll.choiceId) return;
 
     votePoll.vote({
-      pollHash: poll.poolHash,
+      pollHash: poll.pollHash,
       pollId: poll.id,
       candidateSelected: votePoll.choiceIndex,
       choiceId: votePoll.choiceId,
@@ -158,6 +160,8 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
       votePoll.setChoiceId(choiceId);
     },
     submitVote: handleSubmitVote,
+    commitToken: votePoll.commitToken,
+    setCommitToken: votePoll.setCommitToken,
   };
 
   // Refetch user vote after successful vote submission
@@ -169,6 +173,12 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
       }, 1000); // Small delay to ensure backend has processed the vote
     }
   }, [votePoll.isTransactionReceiptSuccess, refetchUserVote]);
+
+  useEffect(() => {
+    if (userVoteData && userVoteData.data?.commitToken) {
+      votePoll.setCommitToken(userVoteData.data.commitToken.toString());
+    }
+  }, [userVoteData]);
 
   return <VoteContext.Provider value={value}>{children}</VoteContext.Provider>;
 }

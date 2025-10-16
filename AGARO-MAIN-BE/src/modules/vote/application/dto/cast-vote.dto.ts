@@ -16,6 +16,10 @@ export class CastVoteDto {
   @IsNotEmpty()
   choiceId: string;
 
+  @IsNumber()
+  @IsOptional()
+  commitToken?: number;
+
   @IsString()
   @IsNotEmpty()
   @IsEthereumAddress()

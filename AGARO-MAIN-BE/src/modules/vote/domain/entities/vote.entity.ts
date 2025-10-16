@@ -50,6 +50,9 @@ export class Vote extends BaseEntity {
   })
   votedAt: Date;
 
+  @Column({ name: 'commit_token', type: 'int', nullable: true })
+  commitToken?: number;
+
   // Relations (lazy loaded to avoid circular dependencies)
   @ManyToOne('Poll', { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'poll_id' })

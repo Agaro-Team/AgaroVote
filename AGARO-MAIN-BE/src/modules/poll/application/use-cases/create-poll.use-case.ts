@@ -60,6 +60,9 @@ export class CreatePollUseCase {
       transactionStatus:
         createPollDto.transactionStatus ?? TransactionStatus.PENDING,
       isActive: createPollDto.isActive ?? false,
+      isPrivate: createPollDto.isPrivate ?? false,
+      isTokenRequired: createPollDto.isTokenRequired ?? false,
+      rewardShare: createPollDto.rewardShare ?? 0,
     });
 
     // Create choices
