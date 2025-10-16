@@ -79,7 +79,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
             msg.sender
         );
 
-        _vote(storageLocation, msg.sender, _voteData.candidateSelected);
+        _vote(storageLocation, msg.sender, _voteData);
 
         emit VoteSucceeded(
             _voteData.pollHash,
@@ -87,6 +87,18 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
             _voteData.candidateSelected,
             newPollVoterHash
         );
+    }
+
+    function withdraw(bytes32 _pollHash) external {
+        PollData memory pollData = polls[_pollHash];
+        if (
+            !pollStorageVoters[pollData.voterStorageHashLocation][msg.sender]
+                .isVoted
+        ) {
+            revert SenderIsNotVoterOf(_pollHash, msg.sender);
+        }
+
+        ISyntheticReward(pollData.syntheticRewardContract).withdraw(msg.sender);
     }
 
     function _verifyVoteData(

@@ -27,7 +27,8 @@ interface IVotingPoll {
             uint256 ver,
             bytes32 voterStorageHashLocation,
             CandidateData[] memory candidatesVotersCount,
-            address owner
+            address owner,
+            address syntheticRewardContract
         );
 
     /**

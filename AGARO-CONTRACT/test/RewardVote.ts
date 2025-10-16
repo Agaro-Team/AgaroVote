@@ -25,7 +25,7 @@ describe("EntryPoint - Extended Functionality", function () {
         ]);
 
         await agaroERC20Contract.mint(deployer.address, ethers.parseEther("10000"));
-        await agaroERC20Contract.mint(voter1.address, ethers.parseEther("10"));
+        await agaroERC20Contract.mint(voter1.address, ethers.parseEther("10000"));
     });
 
     it("Should initialize candidatesVotersCount with zeroed structs", async function () {
@@ -190,5 +190,147 @@ describe("EntryPoint - Extended Functionality", function () {
 
         await expect(entryPoint.connect(voter1).vote(voteData))
             .to.emit(entryPoint, "VoteSucceeded");
+    });
+    describe("SyntheticReward Integration via EntryPoint", function () {
+        it("Should allow staking and reward distribution via EntryPoint (commit through vote and withdraw)", async function () {
+            const now = Math.floor(Date.now() / 1000);
+            const rewardShare = ethers.parseEther("1000");
+
+            const pollData = {
+                versioning: await entryPoint.version(),
+                title: "Integrated Reward Distribution Poll",
+                description: "Users stake and withdraw via EntryPoint only",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
+                candidates: ["X", "Y"],
+                candidatesTotal: 2,
+                expiry: {
+                    startDate: now,
+                    endDate: now + 86400, // 1 day duration
+                },
+                rewardShare,
+                isTokenRequired: true, // Require commit tokens
+            };
+
+            const tx = await entryPoint.newVotingPoll(pollData);
+            const receipt = await tx.wait();
+
+            const event = receipt.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPollCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const pollHash = event?.topics[2];
+            const pollInfo = await entryPoint.getPollData(pollHash);
+            const syntheticRewardAddr = pollInfo[4];
+            expect(syntheticRewardAddr).to.not.equal(ethers.ZeroAddress);
+
+            // 🗳️ 3. Voter1 commits tokens via vote() (this internally calls SyntheticReward.commit)
+            const voteData = {
+                pollHash,
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash],
+                commitToken: ethers.parseEther("1000"),
+            };
+
+            await expect(entryPoint.connect(voter1).vote(voteData))
+                .to.emit(entryPoint, "VoteSucceeded");
+
+            const SyntheticReward = await hardhatEthers.getContractFactory("SyntheticReward");
+            const syntheticReward = SyntheticReward.attach(syntheticRewardAddr);
+
+            const staked = await syntheticReward.balanceOf(voter1.address);
+            expect(staked).to.equal(ethers.parseEther("1000"));
+
+            await hardhatEthers.provider.send("evm_increaseTime", [86400]);
+            await hardhatEthers.provider.send("evm_mine");
+
+            const earnedBefore = await syntheticReward.earned(voter1.address);
+            expect(earnedBefore).to.be.gt(0n);
+
+            await entryPoint.connect(voter1).withdraw(pollHash);
+
+            const afterStake = await syntheticReward.balanceOf(voter1.address);
+            expect(afterStake).to.equal(0n);
+
+            const earnedAfter = await syntheticReward.earned(voter1.address);
+            expect(earnedAfter).to.equal(0n);
+        });
+        it("Should restrict direct SyntheticReward access but allow commit/withdraw via EntryPoint", async function () {
+            const now = Math.floor(Date.now() / 1000);
+            const rewardShare = ethers.parseEther("1000");
+
+            // 1️⃣ Create a poll with rewardShare > 0
+            const pollData = {
+                versioning: await entryPoint.version(),
+                title: "Access Control Poll",
+                description: "SyntheticReward can only be used by EntryPoint",
+                merkleRootHash: ethers.ZeroHash,
+                isPrivate: false,
+                candidates: ["X", "Y"],
+                candidatesTotal: 2,
+                expiry: {
+                    startDate: now + 86400,
+                    endDate: now + 86400 * 2,
+                },
+                rewardShare,
+                isTokenRequired: true,
+            };
+
+            const tx = await entryPoint.newVotingPoll(pollData);
+            const receipt = await tx.wait();
+
+            const event = receipt.logs.find((log: any) => {
+                try {
+                    const decoded = entryPoint.interface.parseLog(log);
+                    return decoded?.name === "VotingPollCreated";
+                } catch {
+                    return false;
+                }
+            });
+
+            const pollHash = event?.topics[2];
+            const pollInfo = await entryPoint.getPollData(pollHash);
+            const syntheticRewardAddr = pollInfo[4];
+
+            // 2️⃣ Attach SyntheticReward contract for verification (read-only)
+            const SyntheticReward = await hardhatEthers.getContractFactory("SyntheticReward");
+            const syntheticReward = SyntheticReward.attach(syntheticRewardAddr);
+
+            // 3️⃣ Direct user interaction should fail (EntryPoint is the only owner)
+            await expect(
+                syntheticReward.connect(voter1).commit(ethers.parseEther("100"), voter1.address)
+            ).to.be.revertedWithCustomError(syntheticReward, "OwnableUnauthorizedAccount");
+
+            await expect(
+                syntheticReward.connect(voter1).withdraw(voter1.address)
+            ).to.be.revertedWithCustomError(syntheticReward, "OwnableUnauthorizedAccount");
+
+
+            // 5️⃣ Commit tokens through EntryPoint.vote() — should succeed
+            const voteData = {
+                pollHash,
+                candidateSelected: 0,
+                proofs: [ethers.ZeroHash],
+                commitToken: ethers.parseEther("100"),
+            };
+
+            await expect(entryPoint.connect(voter1).vote(voteData))
+                .to.emit(entryPoint, "VoteSucceeded");
+
+            // 6️⃣ Verify staking succeeded
+            const staked = await syntheticReward.balanceOf(voter1.address);
+            expect(staked).to.equal(ethers.parseEther("100"));
+
+            // 7️⃣ Withdraw via EntryPoint — should succeed
+            await entryPoint.connect(voter1).withdraw(pollHash);
+
+            const afterStake = await syntheticReward.balanceOf(voter1.address);
+            expect(afterStake).to.equal(0n);
+        });
     });
 });

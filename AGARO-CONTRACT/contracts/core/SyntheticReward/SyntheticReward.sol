@@ -5,11 +5,12 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
+import "../../interfaces/ERC20-AGR/IAGR.sol";
 
 contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     // using SafeERC20 for IERC20;
 
-    IERC20 public token;
+    IAGARO public token;
 
     uint256 public duration;
     uint256 public finishAt;
@@ -45,7 +46,7 @@ contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         __ReentrancyGuard_init();
         _transferOwnership(_owner);
 
-        token = IERC20(_token);
+        token = IAGARO(_token);
         _setRewardsDuration(_duration);
         _notifyRewardAmount(_rewardShare);
     }
@@ -77,12 +78,13 @@ contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     function withdraw(
-        uint256 _amount,
         address _sender
     ) external nonReentrant onlyOwner updateReward(_sender) {
-        require(_amount > 0, "amount = 0");
-        balanceOf[_sender] -= _amount;
-        totalSupply -= _amount;
+        require(balanceOf[_sender] > 0, "amount = 0");
+        uint256 _amount = balanceOf[_sender];
+        balanceOf[_sender] = 0;
+
+        totalSupply -= balanceOf[_sender];
         token.transfer(_sender, _amount);
         _getReward(_sender);
     }

@@ -18,7 +18,7 @@ contract VoterStorage is IVoterStorage {
     function _vote(
         bytes32 storageLocation,
         address voter,
-        uint8 selected
+        VoteArgument memory _voteArgument
     ) internal {
         if (pollStorageVoters[storageLocation][voter].isVoted)
             revert AlreadyVoted(
@@ -28,7 +28,8 @@ contract VoterStorage is IVoterStorage {
             );
 
         pollStorageVoters[storageLocation][voter] = VoterData({
-            selected: selected,
+            selected: _voteArgument.candidateSelected,
+            commitedToken: _voteArgument.commitToken,
             isVoted: true
         });
     }

@@ -21,6 +21,7 @@ interface IEntryPoint {
     // --- Errors ---
     error AddressIsNotAllowed(address voter, bytes32 pollHash);
     error VersioningError(uint256 version);
+    error SenderIsNotVoterOf(bytes32 pollHash, address sender);
     error insufficientBalance(address creator);
     error PollNeedsCommitToken(bytes32 pollHash, uint256 commitToken);
     error VotingIsNotActive(
@@ -43,6 +44,11 @@ interface IEntryPoint {
      */
     function vote(VoteArgument calldata _voteData) external;
 
+    /**
+     * @notice Withdraw commited and reward tokens.
+     * @param _pollHash hash of voting poll.
+     */
+    function withdraw(bytes32 _pollHash) external;
     // --- View Helpers (optional) ---
 
     /**

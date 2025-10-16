@@ -17,7 +17,8 @@ contract VotingPoll is IVotingPoll {
             uint256 ver,
             bytes32 voterStorageHashLocation,
             CandidateData[] memory candidatesVotersCount,
-            address owner
+            address owner,
+            address syntheticRewardContract
         )
     {
         if (!isContractValid(_pollHash)) revert PollHashDoesNotExist(_pollHash);
@@ -27,7 +28,8 @@ contract VotingPoll is IVotingPoll {
             poll.version,
             poll.voterStorageHashLocation,
             poll.candidatesVotersCount,
-            poll.owner
+            poll.owner,
+            poll.syntheticRewardContract
         );
     }
 

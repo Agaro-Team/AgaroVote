@@ -35,9 +35,6 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
         );
 
         await token.transfer(await syntheticReward.getAddress(), ethers.parseEther("2000"));
-
-        await token.connect(user).approve(await syntheticReward.getAddress(), ethers.parseEther("10000"));
-        await token.connect(owner).approve(await syntheticReward.getAddress(), ethers.parseEther("10000"));
     });
 
     describe("Deployment", function () {
@@ -75,22 +72,22 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
     });
 
     describe("Withdraw", function () {
-        it("Should allow owner to withdraw user tokens", async function () {
+        it("Should allow owner to withdraw all user tokens", async function () {
             const amount = ethers.parseEther("1000");
             await syntheticReward.commit(amount, user.address);
 
             const before = await syntheticReward.balanceOf(user.address);
             expect(before).to.equal(amount);
 
-            await syntheticReward.withdraw(amount, user.address);
+            await syntheticReward.withdraw(user.address);
 
             const after = await syntheticReward.balanceOf(user.address);
-            expect(after).to.equal(0);
+            expect(after).to.equal(0n);
         });
 
-        it("Should revert if withdraw amount is zero", async function () {
+        it("Should revert if user has no tokens to withdraw", async function () {
             await expect(
-                syntheticReward.withdraw(0, user.address)
+                syntheticReward.withdraw(user.address)
             ).to.be.revertedWith("amount = 0");
         });
     });
@@ -176,7 +173,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
             const amount = ethers.parseEther("1000");
             await syntheticReward.commit(amount, user.address);
             await expect(
-                syntheticReward.connect(user).withdraw(amount, user.address)
+                syntheticReward.connect(user).withdraw(user.address)
             ).to.be.revertedWithCustomError(syntheticReward, "OwnableUnauthorizedAccount");
         });
     });
@@ -192,7 +189,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
             const earnedBefore = await syntheticReward.earned(user.address);
             expect(earnedBefore).to.be.gt(0n);
 
-            await syntheticReward.withdraw(amount, user.address);
+            await syntheticReward.withdraw(user.address);
 
             const earnedAfter = await syntheticReward.earned(user.address);
             expect(earnedAfter).to.equal(0n);

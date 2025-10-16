@@ -28,6 +28,7 @@ struct VoteArgument {
 
 struct VoterData {
     uint8 selected;
+    uint256 commitedToken;
     bool isVoted;
 }
 
