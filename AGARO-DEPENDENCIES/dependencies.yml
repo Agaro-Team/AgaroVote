@@ -40,7 +40,7 @@ services:
     entrypoint: ["anvil"]
     command: >
       --host 0.0.0.0
-      --chain-id 1337
+      --chain-id 13377
       --block-time 5
       --gas-limit 30000000
       --base-fee 1000000000
@@ -52,8 +52,7 @@ services:
 networks:
   agaro-network:
     name: agaro-network
-    driver: bridge
-
+    external: true
 volumes:
   agaro_postgres_data:
     name: agaro_postgres_data
