@@ -1,0 +1,59 @@
+services:
+  agaro-postgres:
+    image: postgres:17
+    container_name: agaro-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - agaro_postgres_data:/var/lib/postgresql/data
+    networks:
+      - agaro-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  agaro-adminer:
+    image: adminer:latest
+    container_name: agaro-adminer
+    restart: unless-stopped
+    environment:
+      ADMINER_DEFAULT_SERVER: agaro-postgres
+    ports:
+      - "8080:8080"
+    depends_on:
+      - agaro-postgres
+    networks:
+      - agaro-network
+
+  agaro-anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    container_name: agaro-anvil
+    entrypoint: ["anvil"]
+    command: >
+      --host 0.0.0.0
+      --chain-id 1337
+      --block-time 5
+      --gas-limit 30000000
+      --base-fee 1000000000
+    ports:
+      - "8545:8545"
+    networks:
+      - agaro-network
+
+networks:
+  agaro-network:
+    name: agaro-network
+    driver: bridge
+
+volumes:
+  agaro_postgres_data:
+    name: agaro_postgres_data
