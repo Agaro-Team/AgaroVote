@@ -67,7 +67,7 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     refetch: refetchUserVote,
   } = useQuery({
     ...userVoteQueryOptions(poll.id, walletAddress!),
-    enabled: !!walletAddress && hasVotedData?.data?.hasVoted,
+    enabled: !!poll.id && !!walletAddress && !!hasVotedData?.data?.hasVoted,
   });
 
   const hasVoted = !!userVoteData || hasVotedData?.data?.hasVoted;

@@ -19,7 +19,7 @@ import {
 import { useAuthStatus } from '~/lib/auth';
 import { parseAuthError, signInWithEthereum } from '~/lib/auth/siwe-client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 export function WalletConnectAuthButton() {
   const { address, isConnected, chain } = useAccount();
@@ -31,36 +31,13 @@ export function WalletConnectAuthButton() {
 
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [hasAttemptedAuth, setHasAttemptedAuth] = useState(false);
   const [copied, setCopied] = useState(false);
-
-  // Auto-authenticate after wallet connection (only if not already authenticated)
-  useEffect(() => {
-    // Check if already authenticated (has valid cookie)
-
-    if (isAuthenticated) {
-      console.log('User already has auth cookie, skipping SIWE authentication');
-      return;
-    }
-
-    // Only authenticate if:
-    // 1. Wallet is connected
-    // 2. We have wallet client
-    // 3. Not currently authenticating
-    // 4. Haven't attempted auth yet
-    // 5. No existing auth cookie
-    if (isConnected && address && walletClient && chain && !isAuthenticating && !hasAttemptedAuth) {
-      console.log('Wallet connected but no auth cookie found, triggering SIWE authentication');
-      handleAuth();
-    }
-  }, [isConnected, address, walletClient, chain, isAuthenticated]);
 
   const handleAuth = async () => {
     if (!address || !walletClient || !chain) return;
 
     setIsAuthenticating(true);
     setAuthError(null);
-    setHasAttemptedAuth(true);
 
     try {
       await signInWithEthereum(address, walletClient, chain.id);
@@ -73,7 +50,6 @@ export function WalletConnectAuthButton() {
       // Disconnect wallet on auth failure
       setTimeout(() => {
         disconnect();
-        setHasAttemptedAuth(false);
       }, 3000);
     } finally {
       setIsAuthenticating(false);
@@ -90,7 +66,6 @@ export function WalletConnectAuthButton() {
 
   const handleDisconnect = async () => {
     disconnect();
-    setHasAttemptedAuth(false);
     setAuthError(null);
 
     // Sign out and redirect
@@ -126,8 +101,18 @@ export function WalletConnectAuthButton() {
     );
   }
 
+  // Connected but not authenticated - show sign in button
+  if (isConnected && address && !isAuthenticated) {
+    return (
+      <Button onClick={handleAuth} className="gap-2" variant="default">
+        <Wallet className="h-4 w-4" />
+        Sign In with Ethereum
+      </Button>
+    );
+  }
+
   // Connected and authenticated - show wallet menu
-  if (isConnected && address) {
+  if (isConnected && address && isAuthenticated) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

@@ -72,7 +72,7 @@ export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
     <ThemeProvider initialTheme={loaderData?.theme || 'system'}>
       <Web3Provider>
         <QueryClientProvider>
-          <AuthProvider autoAuth={true} reAuthOnWalletChange={true}>
+          <AuthProvider autoAuth={false} reAuthOnWalletChange={true}>
             <NuqsAdapter>
               <Outlet />
             </NuqsAdapter>

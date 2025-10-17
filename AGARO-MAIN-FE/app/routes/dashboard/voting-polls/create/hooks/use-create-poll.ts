@@ -98,7 +98,6 @@ export function useCreatePoll() {
   // Watch for VotingpollCreated event to verify hash
   useWatchEntryPointVotingPollCreatedEvent({
     address: getEntryPointAddress(chainId),
-    enabled: isVerifying && hasConnected,
     onError: (error) => {
       if (isVerifying) {
         setVerificationError(error instanceof Error ? error.message : 'Unknown error');

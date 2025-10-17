@@ -27,12 +27,6 @@ export const userVoteQueryOptions = (pollId: string, walletAddress: Address) =>
       });
     },
     enabled: !!pollId && !!walletAddress,
-    // Refetch when window is focused to ensure vote is up to date
-    refetchOnWindowFocus: true,
-    // Cache for 1 minute since votes don't change once cast
-    staleTime: 60000,
-    // Retry once on failure (in case of network issues)
-    retry: 1,
   });
 
 export const checkHasVotedQueryOptions = (pollId: string, walletAddress: Address) =>
@@ -44,4 +38,5 @@ export const checkHasVotedQueryOptions = (pollId: string, walletAddress: Address
         voterWalletAddress: walletAddress,
       });
     },
+    enabled: !!pollId && !!walletAddress,
   });
