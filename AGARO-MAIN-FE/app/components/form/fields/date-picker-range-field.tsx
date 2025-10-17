@@ -67,10 +67,11 @@ export function DatePickerRangeField({
   dateRangePickerProps,
 }: DatePickerRangeFieldProps) {
   const field = useFieldContext<DateRange | undefined>();
-  const { errors, hasError } = useStore(field.store, (state) => ({
-    errors: state.meta.errors.map((error) => ({ message: error.message })),
-    hasError: state.meta.isTouched && !state.meta.isValid && state.meta.errors.length > 0,
-  }));
+
+  const errors = useStore(field.store, (state) =>
+    state.meta.errors.map((error) => ({ message: error.message }))
+  );
+  const hasError = useStore(field.store, (state) => state.meta.isTouched && !state.meta.isValid);
 
   return (
     <Field orientation={orientation} data-invalid={hasError}>

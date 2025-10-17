@@ -1,4 +1,5 @@
 import { ChevronsUpDown, LogOut, Monitor, Moon, Sun } from 'lucide-react';
+import { useNavigate } from 'react-router';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import {
   DropdownMenu,
@@ -18,16 +19,25 @@ import {
   useSidebar,
 } from '~/components/ui/sidebar';
 import { useWalletDisplay, useWeb3Wallet } from '~/hooks/use-web3';
+import { useAuth } from '~/lib/auth';
 import { useTheme } from '~/lib/theme-provider';
 
 export function NavUser() {
   const { isMobile } = useSidebar();
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
 
   const { address, disconnect } = useWeb3Wallet();
+  const { signOut } = useAuth();
   const { shortenAddress } = useWalletDisplay();
 
   const shortenedAddress = shortenAddress(address);
+
+  const handleSignOut = async () => {
+    await signOut();
+    disconnect();
+    navigate('/');
+  };
 
   return (
     <SidebarMenu>
@@ -98,7 +108,7 @@ export function NavUser() {
               </DropdownMenuSubContent>
             </DropdownMenuSub>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => disconnect()}>
+            <DropdownMenuItem onClick={handleSignOut}>
               <LogOut />
               Log out
             </DropdownMenuItem>
