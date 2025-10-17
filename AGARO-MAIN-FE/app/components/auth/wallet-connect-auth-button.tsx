@@ -1,12 +1,12 @@
 /**
  * Authenticated Wallet Connect Button
  *
- * Extends wallet connection with automatic SIWE authentication
- * After wallet connects, automatically triggers sign-in flow
+ * Simplified wallet connection button that leverages AuthContext
+ * for all authentication state and logic.
  */
-import { AlertCircle, CheckCircle2, Copy, LogOut, Wallet } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Copy, LayoutDashboard, LogOut, Wallet } from 'lucide-react';
 import { useNavigate } from 'react-router';
-import { useAccount, useConnect, useDisconnect, useWalletClient } from 'wagmi';
+import { useAccount, useConnect, useDisconnect } from 'wagmi';
 import { Button } from '~/components/ui/button';
 import {
   DropdownMenu,
@@ -16,45 +16,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import { useAuthStatus } from '~/lib/auth';
-import { parseAuthError, signInWithEthereum } from '~/lib/auth/siwe-client';
+import { useAuth } from '~/lib/auth';
 
 import { useState } from 'react';
 
 export function WalletConnectAuthButton() {
+  // Wallet state from wagmi
   const { address, isConnected, chain } = useAccount();
-  const { data: walletClient } = useWalletClient();
   const { disconnect } = useDisconnect();
   const { connectors, connect } = useConnect();
-  const { isAuthenticated } = useAuthStatus();
+
+  // Auth state from AuthContext - single source of truth
+  const { isAuthenticated, isAuthenticating, error: authError, authenticate, signOut } = useAuth();
+
+  // Navigation
   const navigate = useNavigate();
 
-  const [isAuthenticating, setIsAuthenticating] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  // Local UI state only
   const [copied, setCopied] = useState(false);
-
-  const handleAuth = async () => {
-    if (!address || !walletClient || !chain) return;
-
-    setIsAuthenticating(true);
-    setAuthError(null);
-
-    try {
-      await signInWithEthereum(address, walletClient, chain.id);
-      // Redirect happens in signInWithEthereum
-    } catch (error) {
-      const errorMessage = parseAuthError(error);
-      setAuthError(errorMessage);
-      console.error('Authentication failed:', error);
-
-      // Disconnect wallet on auth failure
-      setTimeout(() => {
-        disconnect();
-      }, 3000);
-    } finally {
-      setIsAuthenticating(false);
-    }
-  };
 
   const handleCopyAddress = async () => {
     if (address) {
@@ -65,16 +44,10 @@ export function WalletConnectAuthButton() {
   };
 
   const handleDisconnect = async () => {
+    // Disconnect wallet first
     disconnect();
-    setAuthError(null);
-
-    // Sign out and redirect
-    try {
-      await fetch('/auth/signout', { method: 'POST' });
-      navigate('/');
-    } catch (error) {
-      console.error('Sign out error:', error);
-    }
+    // Sign out from AuthContext (handles cookie clearing and redirect)
+    await signOut();
   };
 
   const shortenAddress = (addr: string) => {
@@ -91,12 +64,12 @@ export function WalletConnectAuthButton() {
     );
   }
 
-  // Show auth error
-  if (authError) {
+  // Show auth error (AuthContext handles toast, but we can show in button too)
+  if (authError && isConnected && !isAuthenticated) {
     return (
-      <Button variant="destructive" disabled className="gap-2">
+      <Button onClick={authenticate} variant="destructive" className="gap-2" title={authError}>
         <AlertCircle className="h-4 w-4" />
-        {authError}
+        Retry Authentication
       </Button>
     );
   }
@@ -104,7 +77,7 @@ export function WalletConnectAuthButton() {
   // Connected but not authenticated - show sign in button
   if (isConnected && address && !isAuthenticated) {
     return (
-      <Button onClick={handleAuth} className="gap-2" variant="default">
+      <Button onClick={authenticate} className="gap-2" variant="default">
         <Wallet className="h-4 w-4" />
         Sign In with Ethereum
       </Button>
@@ -123,6 +96,14 @@ export function WalletConnectAuthButton() {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel>My Wallet</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => navigate('/dashboard')}
+            className="cursor-pointer font-medium"
+          >
+            <LayoutDashboard className="mr-2 h-4 w-4" />
+            Go to Dashboard
+          </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleCopyAddress} className="cursor-pointer">
             {copied ? (
