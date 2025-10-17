@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-// import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "../../interfaces/ERC20-AGR/IAGR.sol";
+import "../../interfaces/SyntheticReward/ISyntheticReward.sol";
 
-contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
-    // using SafeERC20 for IERC20;
-
+contract SyntheticReward is
+    OwnableUpgradeable,
+    ReentrancyGuardUpgradeable,
+    ISyntheticReward
+{
     IAGARO public token;
 
     uint256 public duration;
@@ -39,8 +41,7 @@ contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 _duration,
         uint256 _rewardShare
     ) external initializer {
-        require(_rewardShare > 0, "Invalid Init");
-        require(_duration > 0, "Invalid Init");
+        if (_rewardShare == 0 || _duration == 0) revert InvalidInitialization();
 
         __Ownable_init(_owner);
         __ReentrancyGuard_init();
@@ -71,7 +72,8 @@ contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 _amount,
         address _sender
     ) external nonReentrant onlyOwner updateReward(_sender) {
-        require(_amount > 0, "amount = 0");
+        if (_amount == 0) revert AmountZero();
+
         token.transferFrom(_sender, address(this), _amount);
         balanceOf[_sender] += _amount;
         totalSupply += _amount;
@@ -80,11 +82,13 @@ contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     function withdraw(
         address _sender
     ) external nonReentrant onlyOwner updateReward(_sender) {
-        require(balanceOf[_sender] > 0, "amount = 0");
+        if (balanceOf[_sender] == 0) revert AmountZero();
+        if (block.timestamp <= finishAt) revert ContractNotFinished();
+
         uint256 _amount = balanceOf[_sender];
         balanceOf[_sender] = 0;
 
-        totalSupply -= balanceOf[_sender];
+        totalSupply -= _amount;
         token.transfer(_sender, _amount);
         _getReward(_sender);
     }
@@ -103,7 +107,7 @@ contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
     }
 
     function _setRewardsDuration(uint256 _duration) private {
-        require(finishAt < block.timestamp);
+        if (finishAt >= block.timestamp) revert DurationNotElapsed();
         duration = _duration;
     }
 
@@ -117,7 +121,8 @@ contract SyntheticReward is OwnableUpgradeable, ReentrancyGuardUpgradeable {
                 (finishAt - block.timestamp);
             rewardRate = (_amount + remainingRewards) / duration;
         }
-        require(rewardRate > 0);
+        if (rewardRate == 0) revert InvalidRewardRate();
+
         updatedAt = block.timestamp;
         finishAt = block.timestamp + duration;
     }

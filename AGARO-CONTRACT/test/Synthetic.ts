@@ -67,7 +67,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
         it("Should revert if amount is zero", async function () {
             await expect(
                 syntheticReward.commit(0, user.address)
-            ).to.be.revertedWith("amount = 0");
+            ).to.be.revertedWithCustomError(syntheticReward, "Amount Zero");
         });
     });
 
@@ -88,7 +88,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
         it("Should revert if user has no tokens to withdraw", async function () {
             await expect(
                 syntheticReward.withdraw(user.address)
-            ).to.be.revertedWith("amount = 0");
+            ).to.be.revertedWithCustomError(syntheticReward, "Amount Zero");
         });
     });
 
@@ -147,7 +147,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
 
             await expect(
                 newContract.initialize(owner.address, await token.getAddress(), 0, REWARD_SHARE)
-            ).to.be.revertedWith("Invalid Init");
+            ).to.be.revertedWithCustomError(newContract, "InvalidInitialization");
         });
 
         it("Should update reward parameters correctly", async function () {
