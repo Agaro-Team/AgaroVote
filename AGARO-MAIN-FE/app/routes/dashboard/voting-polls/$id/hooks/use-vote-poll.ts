@@ -11,6 +11,7 @@ import {
   useWatchEntryPointVoteSucceededEvent,
   useWriteEntryPointVote,
 } from '~/lib/web3/contracts/generated';
+import { parseWagmiErrorForToast } from '~/lib/web3/error-parser';
 
 import { useEffect, useReducer } from 'react';
 
@@ -119,6 +120,9 @@ export function useVotePoll() {
         queryClient.invalidateQueries({
           queryKey: pollQueryKeys.all,
         }),
+        queryClient.invalidateQueries({
+          queryKey: voteQueryKeys.baseCheckHasVoted(),
+        }),
       ]);
 
       // Reset states after successful submission
@@ -139,7 +143,9 @@ export function useVotePoll() {
   } = useWriteEntryPointVote({
     mutation: {
       onError: (error) => {
-        toast.error(`Transaction failed: ${error.message}`);
+        // Parse the error and show user-friendly message
+        const { title, description } = parseWagmiErrorForToast(error);
+        toast.error(title, { description });
         // Reset local states on transaction error
         dispatch({ type: 'RESET_TRANSACTION_STATE' });
       },
@@ -246,7 +252,8 @@ export function useVotePoll() {
   // Handle receipt error
   useEffect(() => {
     if (receiptError) {
-      toast.error(`Transaction receipt error: ${receiptError.message}`);
+      const { title, description } = parseWagmiErrorForToast(receiptError);
+      toast.error(title, { description });
       dispatch({ type: 'RESET_TRANSACTION_STATE' });
     }
   }, [receiptError]);

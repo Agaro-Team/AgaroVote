@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useWeb3Wallet } from '~/hooks/use-web3';
 import type { Poll } from '~/lib/api/poll/poll.interface';
 import { votingEligibilityQueryOptions } from '~/lib/query-client/poll/queries';
-import { userVoteQueryOptions } from '~/lib/query-client/vote/queries';
+import { checkHasVotedQueryOptions, userVoteQueryOptions } from '~/lib/query-client/vote/queries';
 
 import { type ReactNode, createContext, useContext, useEffect, useMemo } from 'react';
 
@@ -56,14 +56,21 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     votingEligibilityQueryOptions(poll.id, walletAddress!)
   );
 
+  const { data: hasVotedData, isLoading: isCheckingHasVoted } = useQuery(
+    checkHasVotedQueryOptions(poll.id, walletAddress!)
+  );
+
   // Fetch user's vote for this poll
   const {
     data: userVoteData,
     isLoading: isLoadingUserVote,
     refetch: refetchUserVote,
-  } = useQuery(userVoteQueryOptions(poll.id, walletAddress!));
+  } = useQuery({
+    ...userVoteQueryOptions(poll.id, walletAddress!),
+    enabled: !!walletAddress && hasVotedData?.data?.hasVoted,
+  });
 
-  const hasVoted = !!userVoteData;
+  const hasVoted = !!userVoteData || hasVotedData?.data?.hasVoted;
   const userVotedChoiceId = userVoteData?.data?.choiceId ?? null;
 
   // Determine if user can vote (eligible AND hasn't voted yet)
@@ -140,7 +147,7 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     canVote,
     nonVotableReason: nonVotableReason || null,
     isCheckingEligibility,
-    hasVoted,
+    hasVoted: hasVoted || false,
     userVotedChoiceId,
     isLoadingUserVote,
     currentVoteStep,

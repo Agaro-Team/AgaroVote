@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { useAppForm } from '~/components/form/use-app-form';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
+import { parseWagmiErrorForToast } from '~/lib/web3/error-parser';
 
 import { useEffect, useState } from 'react';
 
@@ -137,11 +138,6 @@ export function CreateVotingPollForm() {
   useEffect(() => {
     if (error) {
       setProgressStep('error');
-
-      toast.error('Failed to create voting pool', {
-        description: error.message || 'Please try again',
-      });
-
       // Close dialog after error
       setTimeout(() => {
         setOpenConfirmationDialog(false);

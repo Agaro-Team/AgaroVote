@@ -64,6 +64,4 @@ export interface CheckHasVotedRequest {
   voterWalletAddress: string;
 }
 
-export interface CheckHasVotedResponse {
-  hasVoted: boolean;
-}
+export interface CheckHasVotedResponse extends ApiResponse<{ hasVoted: boolean }> {}

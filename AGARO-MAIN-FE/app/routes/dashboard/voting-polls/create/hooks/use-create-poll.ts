@@ -16,6 +16,7 @@ import {
   useWatchEntryPointVotingPollCreatedEvent,
   useWriteEntryPointNewVotingPoll,
 } from '~/lib/web3/contracts/generated';
+import { parseWagmiErrorForToast } from '~/lib/web3/error-parser';
 import { generateMerkleRoot } from '~/lib/web3/utils';
 import { getVotingPollHash } from '~/lib/web3/voting-poll-utils';
 
@@ -286,8 +287,10 @@ export function useCreatePoll() {
         storePollDataImmediately(pollData, pollHash);
       }
     } catch (error) {
-      toast.error('Failed to create poll', {
-        description: error instanceof Error ? error.message : 'Unknown error',
+      // Parse the error and show user-friendly message
+      const { title, description } = parseWagmiErrorForToast(error);
+      toast.error(title, {
+        description,
       });
     }
   };

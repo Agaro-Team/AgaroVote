@@ -220,6 +220,14 @@ export const entryPointAbi = [
   },
   {
     type: 'error',
+    inputs: [
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'sender', internalType: 'address', type: 'address' },
+    ],
+    name: 'SenderIsNotVoterOf',
+  },
+  {
+    type: 'error',
     inputs: [{ name: 'version', internalType: 'uint256', type: 'uint256' }],
     name: 'VersioningError',
   },
@@ -339,6 +347,11 @@ export const entryPointAbi = [
         ],
       },
       { name: 'owner', internalType: 'address', type: 'address' },
+      {
+        name: 'syntheticRewardContract',
+        internalType: 'address',
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
   },
@@ -412,6 +425,7 @@ export const entryPointAbi = [
     name: 'pollStorageVoters',
     outputs: [
       { name: 'selected', internalType: 'uint8', type: 'uint8' },
+      { name: 'commitedToken', internalType: 'uint256', type: 'uint256' },
       { name: 'isVoted', internalType: 'bool', type: 'bool' },
     ],
     stateMutability: 'view',
@@ -493,6 +507,13 @@ export const entryPointAbi = [
       },
     ],
     name: 'vote',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -614,6 +635,14 @@ export const iEntryPointAbi = [
   },
   {
     type: 'error',
+    inputs: [
+      { name: 'pollHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'sender', internalType: 'address', type: 'address' },
+    ],
+    name: 'SenderIsNotVoterOf',
+  },
+  {
+    type: 'error',
     inputs: [{ name: 'version', internalType: 'uint256', type: 'uint256' }],
     name: 'VersioningError',
   },
@@ -742,6 +771,13 @@ export const iEntryPointAbi = [
       },
     ],
     name: 'vote',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -924,10 +960,7 @@ export const iSyntheticRewardAbi = [
   },
   {
     type: 'function',
-    inputs: [
-      { name: '_amount', internalType: 'uint256', type: 'uint256' },
-      { name: '_sender', internalType: 'address', type: 'address' },
-    ],
+    inputs: [{ name: '_sender', internalType: 'address', type: 'address' }],
     name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -1025,6 +1058,11 @@ export const iVotingPollAbi = [
         ],
       },
       { name: 'owner', internalType: 'address', type: 'address' },
+      {
+        name: 'syntheticRewardContract',
+        internalType: 'address',
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
   },
@@ -1312,7 +1350,7 @@ export const syntheticRewardAbi = [
     type: 'function',
     inputs: [],
     name: 'token',
-    outputs: [{ name: '', internalType: 'contract IERC20', type: 'address' }],
+    outputs: [{ name: '', internalType: 'contract IAGARO', type: 'address' }],
     stateMutability: 'view',
   },
   {
@@ -1345,10 +1383,7 @@ export const syntheticRewardAbi = [
   },
   {
     type: 'function',
-    inputs: [
-      { name: '_amount', internalType: 'uint256', type: 'uint256' },
-      { name: '_sender', internalType: 'address', type: 'address' },
-    ],
+    inputs: [{ name: '_sender', internalType: 'address', type: 'address' }],
     name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
@@ -1421,6 +1456,7 @@ export const voterStorageAbi = [
     name: 'pollStorageVoters',
     outputs: [
       { name: 'selected', internalType: 'uint8', type: 'uint8' },
+      { name: 'commitedToken', internalType: 'uint256', type: 'uint256' },
       { name: 'isVoted', internalType: 'bool', type: 'bool' },
     ],
     stateMutability: 'view',
@@ -1473,6 +1509,11 @@ export const votingPollAbi = [
         ],
       },
       { name: 'owner', internalType: 'address', type: 'address' },
+      {
+        name: 'syntheticRewardContract',
+        internalType: 'address',
+        type: 'address',
+      },
     ],
     stateMutability: 'view',
   },
@@ -1805,6 +1846,14 @@ export const useWriteEntryPointVote = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useWriteEntryPointWithdraw = /*#__PURE__*/ createUseWriteContract({
+  abi: entryPointAbi,
+  functionName: 'withdraw',
+})
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__
  */
 export const useSimulateEntryPoint = /*#__PURE__*/ createUseSimulateContract({
@@ -1827,6 +1876,15 @@ export const useSimulateEntryPointVote =
   /*#__PURE__*/ createUseSimulateContract({
     abi: entryPointAbi,
     functionName: 'vote',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useSimulateEntryPointWithdraw =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'withdraw',
   })
 
 /**
@@ -2021,6 +2079,13 @@ export const useWriteIEntryPointVote = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iEntryPointAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useWriteIEntryPointWithdraw = /*#__PURE__*/ createUseWriteContract(
+  { abi: iEntryPointAbi, functionName: 'withdraw' },
+)
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iEntryPointAbi}__
  */
 export const useSimulateIEntryPoint = /*#__PURE__*/ createUseSimulateContract({
@@ -2043,6 +2108,15 @@ export const useSimulateIEntryPointVote =
   /*#__PURE__*/ createUseSimulateContract({
     abi: iEntryPointAbi,
     functionName: 'vote',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iEntryPointAbi}__ and `functionName` set to `"withdraw"`
+ */
+export const useSimulateIEntryPointWithdraw =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: iEntryPointAbi,
+    functionName: 'withdraw',
   })
 
 /**

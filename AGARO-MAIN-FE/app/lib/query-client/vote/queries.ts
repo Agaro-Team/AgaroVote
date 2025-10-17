@@ -8,6 +8,9 @@ export const voteQueryKeys = {
   baseUserVote: ['user-vote'] as const,
   userVote: (pollId: string, walletAddress: Address) =>
     [...voteQueryKeys.baseUserVote, { pollId, walletAddress }] as const,
+  baseCheckHasVoted: () => [...voteQueryKeys.baseUserVote, 'check-has-voted'] as const,
+  checkHasVoted: (pollId: string, walletAddress: Address) =>
+    [...voteQueryKeys.baseCheckHasVoted(), { pollId, walletAddress }] as const,
 };
 
 export const userVoteQueryOptions = (pollId: string, walletAddress: Address) =>
@@ -30,4 +33,15 @@ export const userVoteQueryOptions = (pollId: string, walletAddress: Address) =>
     staleTime: 60000,
     // Retry once on failure (in case of network issues)
     retry: 1,
+  });
+
+export const checkHasVotedQueryOptions = (pollId: string, walletAddress: Address) =>
+  queryOptions({
+    queryKey: voteQueryKeys.checkHasVoted(pollId, walletAddress!),
+    queryFn: async () => {
+      return await voteService.checkHasVoted({
+        pollId,
+        voterWalletAddress: walletAddress,
+      });
+    },
   });
