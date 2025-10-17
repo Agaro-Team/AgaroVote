@@ -5,7 +5,8 @@
   "scripts": {
     "build": "hardhat compile",
     "test": "hardhat test",
-    "ignition:entrypoint": "hardhat ignition deploy ignition/modules/EntryPointModule.ts --network localhost",
+    "ignition:entrypoint:local": "hardhat ignition deploy ignition/modules/EntryPointModule.ts --network localhost",
+    "ignition:entrypoint:agaro": "hardhat ignition deploy ignition/modules/EntryPointModule.ts --network agaro --reset",
     "compile": "hardhat compile",
     "node": "hardhat node",
     "script:mint": "hardhat run scripts/mintERC20.ts --network localhost"
