@@ -11,6 +11,9 @@ import {
 } from '~/components/ui/breadcrumb';
 import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
+import { Spinner } from '~/components/ui/spinner';
+
+import { useVoteContext } from './vote-context';
 
 interface VotePageLayoutProps {
   children: React.ReactNode;
@@ -22,6 +25,26 @@ export function VotePageLayout({ children }: VotePageLayoutProps) {
       <VotePageHeader />
       <div className="flex flex-1 flex-col gap-6 p-4 pt-0 max-w-4xl">{children}</div>
     </>
+  );
+}
+
+export function VoteLoading() {
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 py-12">
+      <Spinner />
+      <p className="text-muted-foreground">Loading poll details...</p>
+    </div>
+  );
+}
+
+export function VoteError() {
+  const { errorPoll } = useVoteContext();
+  if (!errorPoll) return null;
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-4 py-12">
+      <p className="text-destructive">Failed to load poll details</p>
+    </div>
   );
 }
 

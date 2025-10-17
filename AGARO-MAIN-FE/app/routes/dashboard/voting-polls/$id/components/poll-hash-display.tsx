@@ -6,7 +6,7 @@ import { Button } from '~/components/ui/button';
 
 import { useState } from 'react';
 
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 export function PollHashDisplay() {
   const { poll } = useVoteContext();

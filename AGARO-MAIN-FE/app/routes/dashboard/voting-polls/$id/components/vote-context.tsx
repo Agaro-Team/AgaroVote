@@ -1,18 +1,22 @@
 /**
  * Vote Context - Manages voting state and logic
  */
+import { useParams } from 'react-router';
 import { toast } from 'sonner';
 import { useWeb3Wallet } from '~/hooks/use-web3';
 import type { Poll } from '~/lib/api/poll/poll.interface';
-import { votingEligibilityQueryOptions } from '~/lib/query-client/poll/queries';
+import {
+  pollDetailQueryOptions,
+  votingEligibilityQueryOptions,
+} from '~/lib/query-client/poll/queries';
 import { checkHasVotedQueryOptions, userVoteQueryOptions } from '~/lib/query-client/vote/queries';
 
 import { type ReactNode, createContext, useContext, useEffect, useMemo } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 
-import type { VoteStep } from './components/vote-progress-tracker';
-import { useVotePoll } from './hooks/use-vote-poll';
+import { useVotePoll } from '../hooks/use-vote-poll';
+import type { VoteStep } from './vote-progress-tracker';
 
 interface VoteContextValue {
   poll: Poll;
@@ -27,6 +31,8 @@ interface VoteContextValue {
   currentVoteStep: VoteStep;
   voteTxHash: `0x${string}` | undefined;
   commitToken: string | null;
+  errorPoll: Error | null;
+  isLoadingPoll: boolean;
   selectChoice: (choiceIndex: number, choiceId: string) => void;
   setCommitToken: (token: string) => void;
   submitVote: () => Promise<void>;
@@ -43,11 +49,17 @@ export function useVoteContext() {
 }
 
 interface VoteProviderProps {
-  poll: Poll;
   children: ReactNode;
 }
 
-export function VoteProvider({ poll, children }: VoteProviderProps) {
+export function VoteProvider({ children }: VoteProviderProps) {
+  const { id } = useParams<{ id: string }>();
+  const {
+    data: poll,
+    isLoading: isLoadingPoll,
+    error: errorPoll,
+  } = useSuspenseQuery(pollDetailQueryOptions(id!));
+
   const { address: walletAddress } = useWeb3Wallet();
   const votePoll = useVotePoll();
 
@@ -152,6 +164,8 @@ export function VoteProvider({ poll, children }: VoteProviderProps) {
     isLoadingUserVote,
     currentVoteStep,
     voteTxHash: votePoll.voteTxHash,
+    errorPoll,
+    isLoadingPoll,
     selectChoice: (choiceIndex, choiceId) => {
       // Prevent selection if user has already voted
       if (hasVoted) {

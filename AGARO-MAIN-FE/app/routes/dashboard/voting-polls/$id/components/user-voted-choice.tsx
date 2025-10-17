@@ -7,7 +7,7 @@ import { formatDate } from '~/lib/date-utils';
 
 import { useMemo } from 'react';
 
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 export function UserVotedChoice() {
   const { poll, hasVoted, userVotedChoiceId, isLoadingUserVote } = useVoteContext();

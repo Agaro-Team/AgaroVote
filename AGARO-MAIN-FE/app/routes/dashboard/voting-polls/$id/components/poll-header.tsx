@@ -4,7 +4,7 @@
 import { Badge } from '~/components/ui/badge';
 
 import { usePollStatus } from '../hooks/use-poll-status';
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 export function PollHeader() {
   const { poll } = useVoteContext();

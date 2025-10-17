@@ -5,7 +5,7 @@ import { Vote } from 'lucide-react';
 import { Link } from 'react-router';
 import { Button } from '~/components/ui/button';
 
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 export function VoteActions() {
   const { selectedChoiceIndex, canVote, isVoting, submitVote, poll, commitToken } =

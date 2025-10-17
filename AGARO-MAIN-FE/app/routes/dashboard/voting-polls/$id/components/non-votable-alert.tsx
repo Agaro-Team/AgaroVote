@@ -6,7 +6,7 @@ import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { formatDate } from '~/lib/date-utils';
 
 import { usePollStatus } from '../hooks/use-poll-status';
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 export function NonVotableAlert() {
   const { canVote, nonVotableReason } = useVoteContext();

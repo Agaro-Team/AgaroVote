@@ -1,7 +1,7 @@
 /**
  * Hook to calculate time remaining for a poll
  */
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from '../components/vote-context';
 
 export function useTimeRemaining(): string {
   const { poll } = useVoteContext();

@@ -6,7 +6,7 @@ import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { cn } from '~/lib/utils';
 
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 export function VotingChoices() {
   const { poll, selectedChoiceIndex, canVote, selectChoice, hasVoted, userVotedChoiceId } =

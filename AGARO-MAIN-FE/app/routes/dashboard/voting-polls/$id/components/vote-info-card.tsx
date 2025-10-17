@@ -3,7 +3,7 @@
  */
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 export function VoteInfoCard() {
   const { poll } = useVoteContext();

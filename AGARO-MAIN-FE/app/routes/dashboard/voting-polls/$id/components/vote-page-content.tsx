@@ -7,11 +7,15 @@ import { PollHashDisplay } from './poll-hash-display';
 import { PollHeader } from './poll-header';
 import { PollMeta } from './poll-meta';
 import { VoteActions } from './vote-actions';
+import { useVoteContext } from './vote-context';
 import { VoteInfoCard } from './vote-info-card';
 import { VoteProgressTracker } from './vote-progress-tracker';
 import { VotingChoices } from './voting-choices';
 
 export function VotePageContent() {
+  const { errorPoll } = useVoteContext();
+  if (errorPoll) return null;
+
   return (
     <>
       <PollHeader />

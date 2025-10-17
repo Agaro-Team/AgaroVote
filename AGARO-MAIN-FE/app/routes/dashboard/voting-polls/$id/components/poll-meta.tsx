@@ -5,7 +5,7 @@ import { Calendar, Clock, Lock, Users } from 'lucide-react';
 import { formatDate } from '~/lib/date-utils';
 
 import { useTimeRemaining } from '../hooks/use-time-remaining';
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 export function PollMeta() {
   const { poll } = useVoteContext();

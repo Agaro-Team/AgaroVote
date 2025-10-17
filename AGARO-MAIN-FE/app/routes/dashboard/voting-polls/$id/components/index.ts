@@ -12,3 +12,6 @@ export { VoteActions } from './vote-actions';
 export { VoteInfoCard } from './vote-info-card';
 export { UserVotedChoice } from './user-voted-choice';
 export { VoteProgressTracker } from './vote-progress-tracker';
+export { VoteLoading } from './vote-page-layout';
+export { VoteError } from './vote-page-layout';
+export { VoteProvider } from './vote-context';

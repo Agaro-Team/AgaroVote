@@ -3,7 +3,7 @@
  */
 import { CheckCircle2, Clock, TrendingUp, Vote } from 'lucide-react';
 
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from '../components/vote-context';
 
 type StatusVariant = 'default' | 'secondary' | 'outline';
 

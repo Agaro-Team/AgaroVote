@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/com
 import { Field, FieldError, FieldLabel } from '~/components/ui/field';
 import { Input } from '~/components/ui/input';
 
-import { useVoteContext } from '../vote-context';
+import { useVoteContext } from './vote-context';
 
 const getFormattedNumberInputProps = (
   value: string,
