@@ -4,8 +4,19 @@
  * This file contains the Web3/Ethereum configuration for the AgaroVote application.
  * It sets up the supported chains and wallet connectors using wagmi and viem.
  */
+import { defineChain } from 'viem';
 import { cookieStorage, createConfig, createStorage, http } from 'wagmi';
-import { hardhat, mainnet, sepolia } from 'wagmi/chains';
+
+// import { hardhat, mainnet, sepolia } from 'wagmi/chains';
+
+const agaroNet = defineChain({
+  id: 13377,
+  name: 'Agaro',
+  nativeCurrency: { name: 'Agaro', symbol: 'AGR', decimals: 18 },
+  rpcUrls: {
+    default: { http: [import.meta.env.VITE_AGARO_RPC_URL as string] },
+  },
+});
 
 /**
  * WalletConnect Project ID
@@ -18,11 +29,12 @@ import { hardhat, mainnet, sepolia } from 'wagmi/chains';
  * Customize this based on your deployment needs
  */
 export const supportedChains = [
-  mainnet, // Ethereum Mainnet
-  sepolia, // Ethereum Sepolia Testnet
+  // mainnet, // Ethereum Mainnet
+  // sepolia, // Ethereum Sepolia Testnet
   // polygon, // Polygon Mainnet
   // polygonAmoy, // Polygon Amoy Testnet
-  hardhat,
+  // hardhat,
+  agaroNet,
 ] as const;
 
 /**
@@ -59,11 +71,12 @@ export const config = createConfig({
 
   // Transport configuration for each chain
   transports: {
-    [mainnet.id]: http(),
-    [sepolia.id]: http(),
+    // [mainnet.id]: http(),
+    // [sepolia.id]: http(),
     // [polygon.id]: http(),
     // [polygonAmoy.id]: http(),
-    [hardhat.id]: http(),
+    // [hardhat.id]: http(),
+    [agaroNet.id]: http(),
   },
 
   // Enable SSR mode for React Router

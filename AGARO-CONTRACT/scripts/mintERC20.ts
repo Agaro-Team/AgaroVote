@@ -1,13 +1,13 @@
 import { ethers } from "ethers";
 
 async function main() {
-  const provider = new ethers.JsonRpcProvider("http://127.0.0.1:8545");
+  const provider = new ethers.JsonRpcProvider("https://agaro-rpc.ardial.tech");
   const signer = await provider.getSigner(0);
   // Address of deployed AGARO contract
-  const tokenAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  const tokenAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
   // Address to mint to
-  const recipient = "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC";
+  const recipient = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
 
   // Amount to mint (example: 1000 AGR tokens)
   const amount = ethers.parseEther("1000");

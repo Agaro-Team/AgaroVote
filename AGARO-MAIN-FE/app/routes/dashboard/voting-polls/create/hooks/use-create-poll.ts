@@ -69,6 +69,8 @@ export function useCreatePoll() {
     data: storePollData,
   } = useMutation(createPollMutationOptions);
 
+  const hasConnected = !!chainId && !!walletAddress;
+
   // Prepare the contract write
   const {
     writeContractAsync,
@@ -80,17 +82,23 @@ export function useCreatePoll() {
 
   const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
     address: getEntryPointAddress(chainId),
+    query: {
+      enabled: hasConnected,
+    },
   });
 
   // Wait for transaction confirmation
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
+    query: {
+      enabled: hasConnected,
+    },
   });
 
   // Watch for VotingpollCreated event to verify hash
   useWatchEntryPointVotingPollCreatedEvent({
     address: getEntryPointAddress(chainId),
-    enabled: isVerifying,
+    enabled: isVerifying && hasConnected,
     onError: (error) => {
       if (isVerifying) {
         setVerificationError(error instanceof Error ? error.message : 'Unknown error');

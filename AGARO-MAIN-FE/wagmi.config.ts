@@ -20,6 +20,7 @@ export default defineConfig(async () => {
             1: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET as Address,
             11155111: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA as Address,
             31337: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT as Address,
+            13377: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_AGARO as Address,
           },
         },
       }),
