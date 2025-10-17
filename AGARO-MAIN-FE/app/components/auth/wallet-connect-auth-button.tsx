@@ -20,6 +20,17 @@ import { parseAuthError, signInWithEthereum } from '~/lib/auth/siwe-client';
 
 import { useEffect, useState } from 'react';
 
+/**
+ * Check if user has a valid authentication cookie
+ */
+function hasAuthCookie(): boolean {
+  if (typeof document === 'undefined') return false;
+
+  const cookie = document.cookie.split('; ').find((row) => row.startsWith('agaro_auth_token='));
+
+  return !!cookie;
+}
+
 export function WalletConnectAuthButton() {
   const { address, isConnected, chain } = useAccount();
   const { data: walletClient } = useWalletClient();
@@ -32,9 +43,24 @@ export function WalletConnectAuthButton() {
   const [hasAttemptedAuth, setHasAttemptedAuth] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  // Auto-authenticate after wallet connection
+  // Auto-authenticate after wallet connection (only if not already authenticated)
   useEffect(() => {
+    // Check if already authenticated (has valid cookie)
+    const alreadyAuthenticated = hasAuthCookie();
+
+    if (alreadyAuthenticated) {
+      console.log('User already has auth cookie, skipping SIWE authentication');
+      return;
+    }
+
+    // Only authenticate if:
+    // 1. Wallet is connected
+    // 2. We have wallet client
+    // 3. Not currently authenticating
+    // 4. Haven't attempted auth yet
+    // 5. No existing auth cookie
     if (isConnected && address && walletClient && chain && !isAuthenticating && !hasAttemptedAuth) {
+      console.log('Wallet connected but no auth cookie found, triggering SIWE authentication');
       handleAuth();
     }
   }, [isConnected, address, walletClient, chain]);
