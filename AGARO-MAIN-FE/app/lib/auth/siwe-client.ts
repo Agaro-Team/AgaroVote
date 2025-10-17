@@ -76,7 +76,7 @@ export async function signInWithEthereum(
     if (verifyResponse.redirected) {
       window.location.href = verifyResponse.url;
     } else {
-      window.location.href = '/dashboard/voting-polls';
+      window.location.href = '/dashboard';
     }
   } catch (error) {
     console.error('SIWE authentication error:', error);

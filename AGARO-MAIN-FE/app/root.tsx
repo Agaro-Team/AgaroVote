@@ -11,6 +11,7 @@ import {
 import type { Route } from './+types/root';
 import './app.css';
 import { Toaster } from './components/ui/sonner';
+import { AuthProvider } from './lib/auth';
 import { QueryClientProvider } from './lib/query-client/provider';
 import { ThemeProvider } from './lib/theme-provider';
 import { getTheme } from './lib/theme.server';
@@ -71,10 +72,12 @@ export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
     <ThemeProvider initialTheme={loaderData?.theme || 'system'}>
       <Web3Provider>
         <QueryClientProvider>
-          <NuqsAdapter>
-            <Outlet />
-          </NuqsAdapter>
-          <Toaster />
+          <AuthProvider autoAuth={true} reAuthOnWalletChange={true}>
+            <NuqsAdapter>
+              <Outlet />
+            </NuqsAdapter>
+            <Toaster />
+          </AuthProvider>
         </QueryClientProvider>
       </Web3Provider>
     </ThemeProvider>

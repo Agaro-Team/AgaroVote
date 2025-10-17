@@ -1,8 +1,7 @@
 import { toast } from 'sonner';
 import { useWaitForTransactionReceipt } from 'wagmi';
-import { useWeb3Chain } from '~/hooks/use-web3';
-import { useWeb3Wallet } from '~/hooks/use-web3';
-import { queryClient, queryKeys } from '~/lib/query-client/config';
+import { useWeb3Chain, useWeb3Wallet } from '~/hooks/use-web3';
+import { queryClient } from '~/lib/query-client/config';
 import { pollQueryKeys } from '~/lib/query-client/poll/queries';
 import { castVoteMutationOptions } from '~/lib/query-client/vote/mutations';
 import { voteQueryKeys } from '~/lib/query-client/vote/queries';

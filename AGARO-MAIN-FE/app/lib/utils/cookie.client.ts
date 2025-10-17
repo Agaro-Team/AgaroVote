@@ -49,11 +49,6 @@ export function getAuthToken(): string | null {
   // TEMPORARY: Handle legacy base64-encoded tokens from old cookie encryption
   // Check if token looks like base64 (doesn't start with 'eyJ' which is JWT header)
   if (!rawToken.startsWith('eyJ')) {
-    console.warn('⚠️ Legacy encrypted cookie detected! Please sign out and sign in again.');
-    console.warn(
-      'Run this in console to clear: document.cookie = "agaro_auth_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";'
-    );
-
     // Try to decode base64 -> JSON string -> JWT
     try {
       const decoded = atob(rawToken);
@@ -62,7 +57,6 @@ export function getAuthToken(): string | null {
         decoded.startsWith('"') && decoded.endsWith('"') ? decoded.slice(1, -1) : decoded;
 
       if (unquoted.startsWith('eyJ')) {
-        console.log('✅ Successfully decoded legacy token');
         return unquoted;
       }
     } catch (error) {
