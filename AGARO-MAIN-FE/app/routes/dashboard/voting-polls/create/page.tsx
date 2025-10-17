@@ -14,9 +14,8 @@ import {
 } from '~/components/ui/breadcrumb';
 import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
-import { authContext, siweAuthMiddleware } from '~/lib/middleware/auth';
+import { siweAuthMiddleware } from '~/lib/middleware/auth';
 
-import type { Route } from './+types/page';
 import { CreateVotingPollForm } from './components/create-voting-poll-form';
 
 /**
@@ -25,22 +24,7 @@ import { CreateVotingPollForm } from './components/create-voting-poll-form';
  */
 export const middleware = [siweAuthMiddleware];
 
-/**
- * Loader - Access authenticated user's wallet address
- */
-export async function loader({ context }: Route.LoaderArgs) {
-  const auth = context.get(authContext);
-
-  // auth.isAuthenticated is guaranteed true (middleware redirects if not)
-  // auth.walletAddress contains authenticated wallet
-  console.log('Authenticated user:', auth.walletAddress);
-
-  return {
-    walletAddress: auth.walletAddress,
-  };
-}
-
-export default function CreateVotingPollPage({ loaderData }: Route.ComponentProps) {
+export default function CreateVotingPollPage() {
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
