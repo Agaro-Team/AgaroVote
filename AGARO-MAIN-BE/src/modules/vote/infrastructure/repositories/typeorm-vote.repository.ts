@@ -21,10 +21,6 @@ export class TypeORMVoteRepository implements IVoteRepository {
     return await this.repository.findOne({ where: { id } });
   }
 
-  async findByVoterHash(voterHash: string): Promise<Vote | null> {
-    return await this.repository.findOne({ where: { voterHash } });
-  }
-
   async findByPollId(pollId: string): Promise<Vote[]> {
     return await this.repository.find({
       where: { pollId },

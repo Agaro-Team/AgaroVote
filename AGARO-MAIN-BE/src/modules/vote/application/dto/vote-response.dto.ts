@@ -6,7 +6,6 @@ export class VoteResponseDto {
   choiceId: string;
   commitToken?: number;
   voterWalletAddress: string;
-  voterHash: string;
   pollHash: string;
   transactionHash?: string;
   blockNumber?: number;
@@ -24,7 +23,6 @@ export class VoteResponseDto {
     dto.choiceId = vote.choiceId;
     dto.commitToken = vote.commitToken;
     dto.voterWalletAddress = vote.voterWalletAddress;
-    dto.voterHash = vote.voterHash;
     dto.pollHash = vote.pollHash;
     dto.transactionHash = vote.transactionHash;
     dto.blockNumber = vote.blockNumber;

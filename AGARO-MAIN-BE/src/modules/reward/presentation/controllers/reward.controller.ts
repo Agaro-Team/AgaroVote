@@ -21,6 +21,9 @@ export class RewardController {
     @Wallet() walletAddress: string,
     @Query() query: GetRewardsQueryDto,
   ): Promise<IPaginatedResult<RewardResponseDto>> {
+    console.log({
+      walletAddress: walletAddress,
+    });
     return await this.getRewardsUseCase.execute(walletAddress, query);
   }
 }

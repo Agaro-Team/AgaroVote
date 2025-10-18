@@ -5,11 +5,6 @@ export const VOTE_REPOSITORY = Symbol('VOTE_REPOSITORY');
 
 export interface IVoteRepository extends IRepository<Vote> {
   /**
-   * Find vote by voter hash (unique identifier for voter in a poll)
-   */
-  findByVoterHash(voterHash: string): Promise<Vote | null>;
-
-  /**
    * Find all votes for a specific poll
    */
   findByPollId(pollId: string): Promise<Vote[]>;

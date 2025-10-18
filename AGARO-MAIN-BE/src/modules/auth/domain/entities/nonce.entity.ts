@@ -57,7 +57,7 @@ export class Nonce extends BaseEntity {
     expiryMinutes: number = 5,
   ): Nonce {
     const nonce = new Nonce();
-    nonce.walletAddress = walletAddress.toLowerCase();
+    nonce.walletAddress = walletAddress;
     nonce.nonce = this.generateNonce();
     nonce.expiresAt = new Date(Date.now() + expiryMinutes * 60 * 1000);
     nonce.used = false;

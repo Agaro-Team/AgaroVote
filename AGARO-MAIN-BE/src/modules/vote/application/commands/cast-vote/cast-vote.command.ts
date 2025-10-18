@@ -1,16 +1,17 @@
 import { ICommand } from '@nestjs/cqrs';
 
+type CastVoteCommandProps = {
+  pollId: string;
+  choiceId: string;
+  voterWalletAddress: string;
+  transactionHash?: string;
+  blockNumber?: number;
+  signature?: string;
+  voteWeight?: number;
+  commitToken?: number;
+  ipAddress?: string;
+  userAgent?: string;
+};
 export class CastVoteCommand implements ICommand {
-  constructor(
-    public readonly pollId: string,
-    public readonly choiceId: string,
-    public readonly voterWalletAddress: string,
-    public readonly transactionHash?: string,
-    public readonly blockNumber?: number,
-    public readonly signature?: string,
-    public readonly voteWeight?: number,
-    public readonly commitToken?: number,
-    public readonly ipAddress?: string,
-    public readonly userAgent?: string,
-  ) {}
+  constructor(public readonly props: CastVoteCommandProps) {}
 }
