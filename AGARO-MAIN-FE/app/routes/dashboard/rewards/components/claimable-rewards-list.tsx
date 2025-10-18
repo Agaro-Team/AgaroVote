@@ -21,16 +21,12 @@ import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/querie
 
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
+import { ClaimRewardConfirmationModal } from './claim-confirmation-modal';
+
 export function ClaimableRewardsList() {
   const rewardsQuery = useSuspenseInfiniteQuery(
     infiniteRewardListQueryOptions({ claimableOnly: true })
   );
-
-  const handleClaim = (pollTitle: string, amount: string) => {
-    toast.success('Claiming reward...', {
-      description: `Claiming ${amount} AGR from "${pollTitle}"`,
-    });
-  };
 
   const handleViewPoll = (pollId: string) => {
     toast.info('Redirecting to poll...', {
@@ -160,13 +156,12 @@ export function ClaimableRewardsList() {
 
             {/* Actions */}
             <div className="flex flex-wrap gap-2">
-              <Button
-                onClick={() => handleClaim(reward.poll_title, reward.reward_amount.toString())}
-                className="gap-2"
-              >
-                <Sparkles className="h-4 w-4" />
-                Claim Now
-              </Button>
+              <ClaimRewardConfirmationModal reward={reward}>
+                <Button className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Claim Now
+                </Button>
+              </ClaimRewardConfirmationModal>
               <Button
                 onClick={() => handleViewPoll(reward.poll_id)}
                 variant="outline"

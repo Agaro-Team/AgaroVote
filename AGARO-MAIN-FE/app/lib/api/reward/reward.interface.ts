@@ -1,3 +1,5 @@
+import type { Address } from 'viem';
+
 import type { ApiListResponse, ApiRequest, ApiResponse } from '../api.interface';
 
 export interface Reward {
@@ -14,6 +16,7 @@ export interface Reward {
   poll_title: string;
   poll_total_votes: number;
   choice_total_votes: number;
+  synthetic_reward_contract_address: Address;
   created_at: string;
   updated_at: string;
 }

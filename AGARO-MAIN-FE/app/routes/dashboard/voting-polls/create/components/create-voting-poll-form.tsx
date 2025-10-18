@@ -4,6 +4,7 @@
  * A complete form for creating new voting polls with validation,
  * smart contract integration, and user feedback.
  */
+import { startOfDay } from 'date-fns';
 import { useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import z from 'zod';
@@ -64,13 +65,18 @@ export function CreateVotingPollForm() {
 
         // Create the pool with all required data
         // Note: Smart contract still uses "candidates" terminology
+
+        // FOR TESTING: Set end date to today at 20:45 WIB (UTC+7)
+        const testEndDate = new Date();
+        testEndDate.setHours(22, 20, 0, 0); // Set to 22:05:00 local time
+
         await createPoll({
           title: value.title,
           description: value.description,
           candidates: validChoices, // Map "choices" to "candidates" for contract
           candidatesTotal: validChoices.length,
-          startDate: value.votingPeriod.from,
-          endDate: value.votingPeriod.to,
+          startDate: startOfDay(new Date()),
+          endDate: testEndDate, // Using test date: today at 20:45 WIB
           isPrivate: value.isPrivate,
           allowedAddresses: value.allowedAddresses.filter((addr) => addr.trim() !== ''),
           rewardShare: value.rewardShare,
