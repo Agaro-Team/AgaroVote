@@ -1,4 +1,4 @@
-import { agaroApi } from '../agaro.api';
+import { agaroApi } from '../agaro.api.client';
 import type {
   CheckVotingEligibilityRequest,
   CheckVotingEligibilityResponse,
