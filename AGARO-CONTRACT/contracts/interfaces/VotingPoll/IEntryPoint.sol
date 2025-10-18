@@ -9,6 +9,7 @@ interface IEntryPoint {
         uint256 indexed version,
         bytes32 indexed pollHash,
         bytes32 voterStorageHashLocation,
+        address syntheticRewardContract,
         uint256[] candidateCount
     );
     event VoteSucceeded(

@@ -36,17 +36,18 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
         if (_pollData.versioning != version)
             revert VersioningError(_pollData.versioning);
 
+        address syntheticRewardContract = _initSyntheticRewardContract(
+            _pollData.rewardShare,
+            _pollData.expiry,
+            msg.sender
+        );
         (bytes32 pollHash, bytes32 voterStorageHashLocation) = _new(
             _pollData.getHash(version, msg.sender),
             _pollData,
             _pollData.isPrivate,
             _pollData.isTokenRequired,
             _initMerkleRootContract(_pollData.merkleRootHash),
-            _initSyntheticRewardContract(
-                _pollData.rewardShare,
-                _pollData.expiry,
-                msg.sender
-            ),
+            syntheticRewardContract,
             msg.sender
         );
 
@@ -57,6 +58,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
                 version,
                 pollHash,
                 voterStorageHashLocation,
+                syntheticRewardContract,
                 new uint256[](_pollData.candidatesTotal)
             );
     }

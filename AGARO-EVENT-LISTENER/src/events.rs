@@ -4,12 +4,13 @@ use ethers::types::{Address, H256, U256};
 #[derive(Debug, Clone, EthEvent)]
 #[ethevent(
     name = "VotingPollCreated",
-    abi = "VotingPollCreated(uint256 indexed version, bytes32 indexed pollHash, bytes32 voterStorageHashLocation, uint256[] candidateCount)"
+    abi = "VotingPollCreated(uint256 indexed version, bytes32 indexed pollHash, bytes32 voterStorageHashLocation, address syntheticRewardContract, uint256[] candidateCount)"
 )]
 pub struct VotingPollCreated {
     pub version: U256,
     pub poll_hash: H256,
     pub voter_storage_hash_location: H256,
+    pub synthetic_reward_contract: Address,
     pub candidate_count: Vec<U256>,
 }
 
