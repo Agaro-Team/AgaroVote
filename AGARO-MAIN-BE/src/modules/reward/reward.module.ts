@@ -5,12 +5,12 @@ import { REWARD_REPOSITORY } from './domain/repositories/reward-repository.inter
 import { TypeORMRewardRepository } from './infrastructure/repositories/typeorm-reward.repository';
 import { RewardController } from './presentation/controllers/reward.controller';
 import { Reward } from './domain/entities/reward.entity';
-import { CreateVoteRewardsHandler } from './application/commands/create-vote-rewards.handler';
 import { GetRewardsPaginatedHandler } from './application/queries/get-rewards-paginated/get-rewards-paginated.handler';
 import { GetRewardsUseCase } from './application/use-cases/get-rewards.usecase';
+import { RewardableVoteCastedHandler } from './application/event-handlers/rewardable-vote-casted.handler';
 
-const CommandHandlers = [CreateVoteRewardsHandler];
 const QueryHandlers = [GetRewardsPaginatedHandler];
+const EventHandlers = [RewardableVoteCastedHandler];
 const UseCases = [GetRewardsUseCase];
 
 @Module({
@@ -22,8 +22,8 @@ const UseCases = [GetRewardsUseCase];
       useClass: TypeORMRewardRepository,
     },
 
-    ...CommandHandlers,
     ...QueryHandlers,
+    ...EventHandlers,
     ...UseCases,
   ],
   exports: [REWARD_REPOSITORY],

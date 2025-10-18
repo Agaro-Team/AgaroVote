@@ -1,4 +1,3 @@
-import { CreateVoteRewardsCommand } from '@/modules/reward/application/commands/create-vote-rewards.command';
 import {
   CheckVotingEligibilityQuery,
   VotingEligibilityResult,
@@ -8,6 +7,7 @@ import { Vote } from '@modules/vote/domain/entities/vote.entity';
 import {
   IllegalVoteAttemptedEvent,
   VoteCastedEvent,
+  RewardableVoteCastedEvent,
 } from '@modules/vote/domain/events';
 import {
   VOTE_AUDIT_LOG_REPOSITORY,
@@ -26,7 +26,6 @@ import {
   Logger,
 } from '@nestjs/common';
 import {
-  CommandBus,
   CommandHandler,
   EventBus,
   ICommandHandler,
@@ -46,12 +45,14 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     private readonly auditLogRepository: IVoteAuditLogRepository,
     private readonly queryBus: QueryBus,
     private readonly eventBus: EventBus,
-    private readonly commandBus: CommandBus,
     private readonly dataSource: DataSource,
   ) {}
 
   async execute(props: CastVoteCommand): Promise<Vote> {
     const command = props.props;
+    console.log({
+      command,
+    });
     // 1. Validate vote eligibility via QueryBus (no tight coupling with Poll module!)
     const eligibility = await this.queryBus.execute<
       CheckVotingEligibilityQuery,
@@ -138,24 +139,11 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
       );
       await queryRunner.manager.save(VoteAuditLog, auditLog);
 
-      // Create vote rewards if poll supports rewards
-      if (poll.isSupportRewards()) {
-        await this.commandBus.execute<CreateVoteRewardsCommand, void>(
-          new CreateVoteRewardsCommand(
-            savedVote.id,
-            savedVote.voterWalletAddress,
-            savedVote.pollId,
-            savedVote.commitToken || 0, // principalAmount is commitToken
-            0, // rewardAmount is from poll.rewardShare keep 0 because the estimation real is when user withdraw/claim
-            poll.endDate, // claimableAt is poll.endDate
-          ),
-        );
-      }
-
       // Commit transaction
       await queryRunner.commitTransaction();
 
-      // 5. Publish domain event (for async stats update) - AFTER transaction commits
+      // 5. Publish domain events (for async processing) - AFTER transaction commits
+      // Publish vote casted event (for stats update, etc.)
       this.eventBus.publish(
         new VoteCastedEvent(
           savedVote.id,
@@ -169,6 +157,20 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
           savedVote.signature,
         ),
       );
+
+      // If poll supports rewards, publish event for reward creation
+      // This maintains DDD boundaries - no direct dependency on Reward module
+      if (poll.isSupportRewards()) {
+        this.eventBus.publish(
+          new RewardableVoteCastedEvent(
+            savedVote.id,
+            savedVote.voterWalletAddress,
+            savedVote.pollId,
+            savedVote.commitToken || 0,
+            poll.endDate,
+          ),
+        );
+      }
 
       this.logger.log(
         `Vote cast successfully for pollId: ${savedVote.pollId}, voteId: ${savedVote.id}`,
