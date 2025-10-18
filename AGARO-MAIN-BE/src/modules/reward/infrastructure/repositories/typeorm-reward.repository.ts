@@ -42,5 +42,26 @@ export class TypeORMRewardRepository implements IRewardRepository {
     return (result.affected ?? 0) > 0;
   }
 
-  // Add custom repository methods here
+  async findByVoteId(voteId: string): Promise<Reward | null> {
+    return await this.repository.findOne({ where: { voteId } });
+  }
+
+  async findByPollId(pollId: string): Promise<Reward[]> {
+    return await this.repository.find({
+      where: { pollId },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async findByVoterWalletAddress(walletAddress: string): Promise<Reward[]> {
+    return await this.repository.find({
+      where: { voterWalletAddress: walletAddress },
+      order: { createdAt: 'DESC' },
+    });
+  }
+
+  async existsByVoteId(voteId: string): Promise<boolean> {
+    const count = await this.repository.count({ where: { voteId } });
+    return count > 0;
+  }
 }
