@@ -81,7 +81,13 @@ contract SyntheticReward is
 
     function withdraw(
         address _sender
-    ) external nonReentrant onlyOwner updateReward(_sender) {
+    )
+        external
+        nonReentrant
+        onlyOwner
+        updateReward(_sender)
+        returns (uint256, uint256)
+    {
         if (balanceOf[_sender] == 0) revert AmountZero();
         if (block.timestamp <= finishAt) revert ContractNotFinished();
 
@@ -90,7 +96,8 @@ contract SyntheticReward is
 
         totalSupply -= _amount;
         token.transfer(_sender, _amount);
-        _getReward(_sender);
+
+        return (_getReward(_sender), _amount);
     }
 
     function earned(address _account) public view returns (uint256) {
@@ -100,10 +107,13 @@ contract SyntheticReward is
             rewards[_account];
     }
 
-    function _getReward(address _sender) private updateReward(_sender) {
+    function _getReward(
+        address _sender
+    ) private updateReward(_sender) returns (uint256) {
         uint256 amount = rewards[_sender];
         rewards[_sender] = 0;
         token.transfer(_sender, amount);
+        return amount;
     }
 
     function _setRewardsDuration(uint256 _duration) private {

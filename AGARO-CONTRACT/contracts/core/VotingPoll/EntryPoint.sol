@@ -83,9 +83,10 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
 
         emit VoteSucceeded(
             _voteData.pollHash,
-            msg.sender,
             _voteData.candidateSelected,
-            newPollVoterHash
+            _voteData.commitToken,
+            newPollVoterHash,
+            msg.sender
         );
     }
 
@@ -98,7 +99,11 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
             revert SenderIsNotVoterOf(_pollHash, msg.sender);
         }
 
-        ISyntheticReward(pollData.syntheticRewardContract).withdraw(msg.sender);
+        (uint256 rewards, uint256 principalToken) = ISyntheticReward(
+            pollData.syntheticRewardContract
+        ).withdraw(msg.sender);
+
+        emit WithdrawSucceeded(_pollHash, principalToken, rewards, msg.sender);
     }
 
     function _verifyVoteData(

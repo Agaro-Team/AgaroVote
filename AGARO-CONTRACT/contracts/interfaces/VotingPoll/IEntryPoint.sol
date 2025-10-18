@@ -13,9 +13,16 @@ interface IEntryPoint {
     );
     event VoteSucceeded(
         bytes32 indexed pollHash,
-        address indexed voter,
         uint8 selected,
-        bytes32 newPollVoterHash
+        uint256 commitToken,
+        bytes32 newPollVoterHash,
+        address indexed voter
+    );
+    event WithdrawSucceeded(
+        bytes32 indexed pollHash,
+        uint256 withdrawedToken,
+        uint256 withdrawedReward,
+        address indexed voter
     );
 
     // --- Errors ---
