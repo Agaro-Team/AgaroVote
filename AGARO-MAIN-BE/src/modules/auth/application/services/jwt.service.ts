@@ -20,7 +20,7 @@ export class AuthJwtService {
    */
   generateAccessToken(walletAddress: string): string {
     const payload: JwtPayload = {
-      walletAddress: walletAddress.toLowerCase(),
+      walletAddress,
     };
 
     return this.jwtService.sign(payload);
