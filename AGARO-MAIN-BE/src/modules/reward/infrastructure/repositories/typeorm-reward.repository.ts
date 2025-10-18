@@ -111,6 +111,8 @@ export class TypeORMRewardRepository implements IRewardRepository {
 
     if (filters?.claimableOnly) {
       query.andWhere('reward.claimableAt <= :now', { now: new Date() });
+    } else {
+      query.andWhere('reward.claimableAt > :now', { now: new Date() });
     }
 
     query.orderBy('reward.createdAt', 'DESC');
