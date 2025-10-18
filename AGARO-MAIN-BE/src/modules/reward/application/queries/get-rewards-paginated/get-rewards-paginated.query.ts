@@ -5,6 +5,7 @@ export interface GetRewardsPaginatedFilters {
   voterWalletAddress?: string;
   claimableOnly?: boolean;
   claimedOnly?: boolean;
+  pendingOnly?: boolean;
 }
 
 export class GetRewardsPaginatedQuery implements IQuery {

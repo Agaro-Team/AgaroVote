@@ -25,6 +25,11 @@ export class GetRewardsQueryDto {
   claimedOnly?: boolean;
 
   @IsOptional()
+  @IsBoolean()
+  @Type(() => Boolean)
+  pendingOnly?: boolean;
+
+  @IsOptional()
   @IsNumber()
   @Min(1)
   @Type(() => Number)

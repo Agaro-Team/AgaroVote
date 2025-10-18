@@ -21,8 +21,12 @@ export class GetRewardsUseCase {
 
     filters.claimableOnly = Boolean(query.claimableOnly);
     filters.claimedOnly = Boolean(query.claimedOnly);
+    filters.pendingOnly = Boolean(query.pendingOnly);
     filters.claimableOnly = filters.claimableOnly && !filters.claimedOnly;
     filters.claimedOnly = filters.claimedOnly && !filters.claimableOnly;
+    filters.pendingOnly =
+      filters.pendingOnly && !filters.claimableOnly && !filters.claimedOnly;
+
     if (query.pollId) filters.pollId = query.pollId;
     if (walletAddress) filters.voterWalletAddress = walletAddress;
 
