@@ -68,9 +68,7 @@ export function VoteProvider({ children }: VoteProviderProps) {
     votingEligibilityQueryOptions(poll.id, walletAddress!)
   );
 
-  const { data: hasVotedData, isLoading: isCheckingHasVoted } = useQuery(
-    checkHasVotedQueryOptions(poll.id, walletAddress!)
-  );
+  const { data: hasVotedData } = useQuery(checkHasVotedQueryOptions(poll.id, walletAddress!));
 
   // Fetch user's vote for this poll
   const {

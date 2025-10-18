@@ -64,7 +64,7 @@ export function useCreatePoll() {
   const verificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
-    mutate: storePoll,
+    mutateAsync: storePoll,
     isPending: isCreatePollWeb2Pending,
     data: storePollData,
   } = useMutation(createPollMutationOptions);
@@ -82,6 +82,7 @@ export function useCreatePoll() {
 
   const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
     address: getEntryPointAddress(chainId),
+    chainId,
     query: {
       enabled: hasConnected,
     },
@@ -90,9 +91,7 @@ export function useCreatePoll() {
   // Wait for transaction confirmation
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
-    query: {
-      enabled: hasConnected,
-    },
+    chainId,
   });
 
   // Watch for VotingpollCreated event to verify hash
@@ -151,23 +150,6 @@ export function useCreatePoll() {
             return;
           }
 
-          // Store to web 2 DB
-          storePoll({
-            title: pollData.title,
-            description: pollData.description,
-            choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
-            startDate: pollData.startDate,
-            endDate: pollData.endDate,
-            isPrivate: pollData.isPrivate,
-            addresses: pollData.allowedAddresses.map((address) => ({
-              walletAddress: address,
-            })),
-            creatorWalletAddress: walletAddress,
-            pollHash: onChainHash,
-            rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
-            isTokenRequired: pollData.isTokenRequired,
-          });
-
           // Clear the reference (but keep state for UI to show success)
           offChainHashRef.current = null;
           // DON'T clear offChainHash state - form needs it to detect success!
@@ -176,7 +158,7 @@ export function useCreatePoll() {
     },
   });
 
-  const storePollDataImmediately = (pollData: PollData, pollHash: `0x${string}`) => {
+  const storePollDataImmediately = async (pollData: PollData, pollHash: `0x${string}`) => {
     if (!walletAddress) return;
 
     // Hashes match - success!
@@ -185,7 +167,7 @@ export function useCreatePoll() {
     setShouldRedirect(true);
 
     // Store immediately to backend
-    storePoll({
+    await storePoll({
       title: pollData.title,
       description: pollData.description,
       choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
@@ -284,15 +266,40 @@ export function useCreatePoll() {
       setOffChainHash(pollHash);
       offChainHashRef.current = pollHash;
 
+      if (pollData.isPrivate) {
+        await storePollDataImmediately(pollData, pollHash);
+
+        // Submit to blockchain
+        await writeContractAsync({
+          address: contractAddress,
+          args: [args],
+        });
+
+        return;
+      }
+
+      // Store to web 2 DB
+      await storePoll({
+        title: pollData.title,
+        description: pollData.description,
+        choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
+        startDate: pollData.startDate,
+        endDate: pollData.endDate,
+        isPrivate: pollData.isPrivate,
+        addresses: pollData.allowedAddresses.map((address) => ({
+          walletAddress: address,
+        })),
+        creatorWalletAddress: walletAddress,
+        pollHash,
+        rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
+        isTokenRequired: pollData.isTokenRequired,
+      });
+
       // Submit to blockchain
       await writeContractAsync({
         address: contractAddress,
         args: [args],
       });
-
-      if (pollData.isPrivate) {
-        storePollDataImmediately(pollData, pollHash);
-      }
     } catch (error) {
       // Parse the error and show user-friendly message
       const { title, description } = parseWagmiErrorForToast(error);

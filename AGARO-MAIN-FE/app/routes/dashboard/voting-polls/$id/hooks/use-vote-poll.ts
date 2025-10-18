@@ -158,11 +158,12 @@ export function useVotePoll() {
     error: receiptError,
   } = useWaitForTransactionReceipt({
     hash: voteTxHash,
+    chainId,
   });
 
   useWatchEntryPointVoteSucceededEvent({
     address: getEntryPointAddress(chainId),
-    enabled: isTransactionReceiptSuccess && !state.hasSubmittedToBackend,
+    chainId,
     onError: (error) => {
       toast.error(`Event watch error: ${error.message}`);
       dispatch({ type: 'RESET_TRANSACTION_STATE' });

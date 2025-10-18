@@ -53,8 +53,4 @@ export const votingEligibilityQueryOptions = (pollId: string, walletAddress: Add
       });
     },
     enabled: !!pollId && !!walletAddress,
-    // Refetch when window is focused to ensure eligibility is up to date
-    refetchOnWindowFocus: true,
-    // Cache for 30 seconds to avoid excessive API calls
-    staleTime: 30000,
   });
