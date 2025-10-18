@@ -7,6 +7,7 @@
  * Handles Merkle root generation for private polls.
  */
 import { toast } from 'sonner';
+import { parseEther } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { useWeb3Chain, useWeb3Wallet } from '~/hooks/use-web3';
 import { createPollMutationOptions } from '~/lib/query-client/poll/mutations';
@@ -231,8 +232,8 @@ export function useCreatePoll() {
       // Convert rewardShare string to BigInt (handle empty or invalid values)
       const rewardShareBigInt =
         pollData.rewardShare && pollData.rewardShare.trim() !== ''
-          ? BigInt(pollData.rewardShare)
-          : BigInt(0);
+          ? parseEther(pollData.rewardShare)
+          : parseEther('0');
 
       const args = {
         versioning: version,

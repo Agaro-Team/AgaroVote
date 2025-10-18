@@ -34,6 +34,23 @@ export interface IRewardRepository extends IRepository<Reward> {
       claimableOnly?: boolean;
     },
   ): Promise<{ rewards: Reward[]; total: number }>;
+
+  /**
+   * Find reward by poll hash and voter wallet address
+   */
+  findByPollHashAndVoterWallet(
+    pollHash: string,
+    voterWalletAddress: string,
+  ): Promise<Reward | null>;
+
+  /**
+   * Update reward by poll hash and voter wallet address
+   */
+  updateByPollHashAndVoterWallet(
+    pollHash: string,
+    voterWalletAddress: string,
+    entity: Partial<Reward>,
+  ): Promise<Reward | null>;
 }
 
 export const REWARD_REPOSITORY = Symbol('REWARD_REPOSITORY');

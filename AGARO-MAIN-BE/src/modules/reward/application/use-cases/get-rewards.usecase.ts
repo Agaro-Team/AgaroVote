@@ -1,33 +1,31 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
-import {
-  type IRewardRepository,
-  REWARD_REPOSITORY,
-} from '../../domain/repositories/reward-repository.interface';
+import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
 import { GetRewardsQueryDto } from '../dto/get-rewards-query.dto';
 import { RewardResponseDto } from '../dto/reward-response.dto';
-import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
-import { GetRewardsPaginatedQuery, PaginatedRewardsResult } from '../queries';
+import {
+  GetRewardsPaginatedFilters,
+  GetRewardsPaginatedQuery,
+  PaginatedRewardsResult,
+} from '../queries';
 
 @Injectable()
 export class GetRewardsUseCase {
-  constructor(
-    @Inject(REWARD_REPOSITORY)
-    private readonly rewardRepository: IRewardRepository,
-    private readonly queryBus: QueryBus,
-  ) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
   async execute(
     walletAddress: string,
     query: GetRewardsQueryDto,
   ): Promise<IPaginatedResult<RewardResponseDto>> {
-    const filters: {
-      pollId?: string;
-      claimableOnly?: boolean;
-      voterWalletAddress?: string;
-    } = {};
+    const filters: GetRewardsPaginatedFilters = {};
 
     filters.claimableOnly = Boolean(query.claimableOnly);
+    filters.claimedOnly = Boolean(query.claimedOnly);
+    filters.pendingOnly = Boolean(query.pendingOnly);
+    filters.claimableOnly = filters.claimableOnly && !filters.claimedOnly;
+    filters.claimedOnly = filters.claimedOnly && !filters.claimableOnly;
+    filters.pendingOnly =
+      filters.pendingOnly && !filters.claimableOnly && !filters.claimedOnly;
 
     if (query.pollId) filters.pollId = query.pollId;
     if (walletAddress) filters.voterWalletAddress = walletAddress;

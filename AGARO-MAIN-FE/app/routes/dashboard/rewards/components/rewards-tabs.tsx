@@ -19,12 +19,17 @@ interface RewardsTabsProps {
 }
 
 const useRewardsTabsCountsQuery = () => {
-  const { claimableRewardsCount, pendingRewardsCount } = useSuspenseQueries({
-    queries: [rewardListQueryOptions({ claimableOnly: true }), rewardListQueryOptions({})],
-    combine([claimableRewardsQuery, pendingRewardsQuery]) {
+  const { claimableRewardsCount, pendingRewardsCount, claimedRewardsCount } = useSuspenseQueries({
+    queries: [
+      rewardListQueryOptions({ claimableOnly: true }),
+      rewardListQueryOptions({ pendingOnly: true }),
+      rewardListQueryOptions({ claimedOnly: true }),
+    ],
+    combine([claimableRewardsQuery, pendingRewardsQuery, claimedRewardsQuery]) {
       return {
         claimableRewardsCount: claimableRewardsQuery.data?.data?.meta.total || 0,
         pendingRewardsCount: pendingRewardsQuery.data?.data?.meta.total || 0,
+        claimedRewardsCount: claimedRewardsQuery.data?.data?.meta.total || 0,
       };
     },
   });
@@ -32,6 +37,7 @@ const useRewardsTabsCountsQuery = () => {
   return {
     claimableRewardsCount,
     pendingRewardsCount,
+    claimedRewardsCount,
   };
 };
 
@@ -76,7 +82,8 @@ const TabsButton = ({
   activeTab: ActiveTab;
   setActiveTab: (tab: ActiveTab) => void;
 }) => {
-  const { claimableRewardsCount, pendingRewardsCount } = useRewardsTabsCountsQuery();
+  const { claimableRewardsCount, pendingRewardsCount, claimedRewardsCount } =
+    useRewardsTabsCountsQuery();
 
   const tabs = [
     {
@@ -85,7 +92,7 @@ const TabsButton = ({
       badge: claimableRewardsCount?.toString() || '0',
     },
     { id: 'pending' as const, label: '⏳ Pending', badge: pendingRewardsCount?.toString() || '0' },
-    { id: 'history' as const, label: '📜 History', badge: '89' },
+    { id: 'history' as const, label: '📜 History', badge: claimedRewardsCount?.toString() || '0' },
   ];
 
   return tabs.map((tab) => (

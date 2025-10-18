@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Reward } from '../../domain/entities/reward.entity';
 import { IRewardRepository } from '../../domain/repositories/reward-repository.interface';
+import type { GetRewardsPaginatedFilters } from '../../application/queries';
 
 @Injectable()
 export class TypeORMRewardRepository implements IRewardRepository {
@@ -73,11 +74,7 @@ export class TypeORMRewardRepository implements IRewardRepository {
   async findWithPagination(
     page: number,
     limit: number,
-    filters?: {
-      pollId?: string;
-      voterWalletAddress?: string;
-      claimableOnly?: boolean;
-    },
+    filters?: GetRewardsPaginatedFilters,
   ): Promise<{ rewards: Reward[]; total: number }> {
     const query = this.repository
       .createQueryBuilder('reward')
@@ -120,11 +117,17 @@ export class TypeORMRewardRepository implements IRewardRepository {
         },
       );
     }
+    if (filters?.pendingOnly) {
+      query.andWhere('reward.claimableAt >= :now', { now: new Date() });
+    }
 
     if (filters?.claimableOnly) {
       query.andWhere('reward.claimableAt <= :now', { now: new Date() });
-    } else {
-      query.andWhere('reward.claimableAt > :now', { now: new Date() });
+      query.andWhere('reward.claimedAt IS NULL');
+    }
+
+    if (filters?.claimedOnly) {
+      query.andWhere('reward.claimedAt IS NOT NULL');
     }
 
     query.orderBy('reward.createdAt', 'DESC');
@@ -156,5 +159,40 @@ export class TypeORMRewardRepository implements IRewardRepository {
     });
 
     return { rewards, total };
+  }
+
+  async findByPollHashAndVoterWallet(
+    pollHash: string,
+    voterWalletAddress: string,
+  ): Promise<Reward | null> {
+    return await this.repository
+      .createQueryBuilder('reward')
+      .leftJoinAndSelect('reward.poll', 'poll')
+      .where('poll.pollHash = :pollHash', { pollHash })
+      .andWhere(
+        'LOWER(reward.voterWalletAddress) = LOWER(:voterWalletAddress)',
+        {
+          voterWalletAddress,
+        },
+      )
+      .getOne();
+  }
+
+  async updateByPollHashAndVoterWallet(
+    pollHash: string,
+    voterWalletAddress: string,
+    entity: Partial<Reward>,
+  ): Promise<Reward | null> {
+    const reward = await this.findByPollHashAndVoterWallet(
+      pollHash,
+      voterWalletAddress,
+    );
+
+    if (!reward) {
+      throw new NotFoundException('Reward not found');
+    }
+
+    await this.repository.update(reward.id, entity);
+    return await this.findById(reward.id);
   }
 }

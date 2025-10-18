@@ -46,6 +46,9 @@ export class Reward extends BaseEntity {
   @Column({ name: 'claimable_at', type: 'timestamp', default: null })
   claimableAt: Date;
 
+  @Column({ name: 'claimed_at', type: 'timestamp', default: null })
+  claimedAt?: Date;
+
   @OneToMany(() => RewardClaims, (rewardClaim) => rewardClaim.reward)
   rewardClaims: RewardClaims[];
 
@@ -60,6 +63,10 @@ export class Reward extends BaseEntity {
 
   isClaimable(): boolean {
     return this.claimableAt && this.claimableAt <= new Date();
+  }
+
+  isClaimed(): boolean {
+    return !!this.claimedAt;
   }
 
   // Transient properties (not persisted, populated by queries)
