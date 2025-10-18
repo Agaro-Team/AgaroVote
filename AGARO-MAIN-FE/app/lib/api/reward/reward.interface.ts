@@ -14,6 +14,7 @@ export interface Reward {
   choice_id: string;
   choice_name: string;
   poll_title: string;
+  poll_hash: Address;
   poll_total_votes: number;
   choice_total_votes: number;
   synthetic_reward_contract_address: Address;
