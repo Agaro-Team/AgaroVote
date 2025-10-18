@@ -845,6 +845,10 @@ export const iMerkleTreeAllowListAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const iSyntheticRewardAbi = [
+  { type: 'error', inputs: [], name: 'AmountZero' },
+  { type: 'error', inputs: [], name: 'ContractNotFinished' },
+  { type: 'error', inputs: [], name: 'DurationNotElapsed' },
+  { type: 'error', inputs: [], name: 'InvalidRewardRate' },
   {
     type: 'function',
     inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
@@ -928,13 +932,6 @@ export const iSyntheticRewardAbi = [
     inputs: [{ name: 'account', internalType: 'address', type: 'address' }],
     name: 'rewards',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'token',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
   {
@@ -1202,7 +1199,11 @@ export const merkleTreeAllowlistAbi = [
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 export const syntheticRewardAbi = [
+  { type: 'error', inputs: [], name: 'AmountZero' },
+  { type: 'error', inputs: [], name: 'ContractNotFinished' },
+  { type: 'error', inputs: [], name: 'DurationNotElapsed' },
   { type: 'error', inputs: [], name: 'InvalidInitialization' },
+  { type: 'error', inputs: [], name: 'InvalidRewardRate' },
   { type: 'error', inputs: [], name: 'NotInitializing' },
   {
     type: 'error',
@@ -2300,13 +2301,6 @@ export const useReadISyntheticRewardRewards =
     abi: iSyntheticRewardAbi,
     functionName: 'rewards',
   })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"token"`
- */
-export const useReadISyntheticRewardToken = /*#__PURE__*/ createUseReadContract(
-  { abi: iSyntheticRewardAbi, functionName: 'token' },
-)
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSyntheticRewardAbi}__ and `functionName` set to `"totalSupply"`
