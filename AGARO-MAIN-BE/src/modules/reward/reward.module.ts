@@ -4,6 +4,9 @@ import { REWARD_REPOSITORY } from './domain/repositories/reward-repository.inter
 import { TypeORMRewardRepository } from './infrastructure/repositories/typeorm-reward.repository';
 import { RewardController } from './presentation/controllers/reward.controller';
 import { Reward } from './domain/entities/reward.entity';
+import { CreateVoteRewardsHandler } from './application/commands/create-vote-rewards.handler';
+
+const CommandHandlers = [CreateVoteRewardsHandler];
 
 @Module({
   imports: [TypeOrmModule.forFeature([Reward])],
@@ -13,6 +16,8 @@ import { Reward } from './domain/entities/reward.entity';
       provide: REWARD_REPOSITORY,
       useClass: TypeORMRewardRepository,
     },
+
+    ...CommandHandlers,
   ],
   exports: [REWARD_REPOSITORY],
 })

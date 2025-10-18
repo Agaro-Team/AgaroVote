@@ -114,6 +114,10 @@ export class Poll extends BaseEntity {
     return true;
   }
 
+  isSupportRewards(): boolean {
+    return this.rewardShare > 0;
+  }
+
   isCreator(walletAddress: string): boolean {
     return this.creatorWalletAddress === walletAddress;
   }
