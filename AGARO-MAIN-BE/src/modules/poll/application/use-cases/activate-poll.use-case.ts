@@ -12,6 +12,7 @@ import {
   Poll,
   TransactionStatus,
 } from '@modules/poll/domain/entities/poll.entity';
+import { ActivatePollDto } from '../dto/activate-poll.dto';
 
 @Injectable()
 export class ActivatePollUseCase {
@@ -20,7 +21,20 @@ export class ActivatePollUseCase {
     private readonly pollRepository: IPollRepository,
   ) {}
 
-  async execute(pollHash: string): Promise<Poll> {
+  async execute(
+    pollHash: string,
+    activatePollDto: ActivatePollDto,
+  ): Promise<Poll> {
+    if (!activatePollDto) {
+      throw new BadRequestException('Something went wrong');
+    }
+
+    if (!pollHash || !activatePollDto.syntheticRewardContractAddress) {
+      throw new BadRequestException(
+        'Poll hash and synthetic reward contract address are required',
+      );
+    }
+
     const poll = await this.pollRepository.findByPollHash(pollHash);
 
     if (!poll) {
@@ -34,6 +48,8 @@ export class ActivatePollUseCase {
     return await this.pollRepository.updateByPollHash(pollHash, {
       isActive: true,
       transactionStatus: TransactionStatus.SUCCESS,
+      syntheticRewardContractAddress:
+        activatePollDto.syntheticRewardContractAddress,
     });
   }
 }

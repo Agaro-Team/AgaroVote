@@ -54,11 +54,15 @@ export class TypeORMRewardRepository implements IRewardRepository {
   }
 
   async findByVoterWalletAddress(walletAddress: string): Promise<Reward[]> {
-    return await this.repository.find({
-      relations: ['vote', 'poll'],
-      where: { voterWalletAddress: walletAddress },
-      order: { createdAt: 'DESC' },
-    });
+    return await this.repository
+      .createQueryBuilder('reward')
+      .leftJoinAndSelect('reward.vote', 'vote')
+      .leftJoinAndSelect('reward.poll', 'poll')
+      .where('LOWER(reward.voterWalletAddress) = LOWER(:walletAddress)', {
+        walletAddress,
+      })
+      .orderBy('reward.createdAt', 'DESC')
+      .getMany();
   }
 
   async existsByVoteId(voteId: string): Promise<boolean> {
@@ -104,9 +108,12 @@ export class TypeORMRewardRepository implements IRewardRepository {
     }
 
     if (filters?.voterWalletAddress) {
-      query.andWhere('reward.voterWalletAddress = :walletAddress', {
-        walletAddress: filters.voterWalletAddress,
-      });
+      query.andWhere(
+        'LOWER(reward.voterWalletAddress) = LOWER(:walletAddress)',
+        {
+          walletAddress: filters.voterWalletAddress,
+        },
+      );
     }
 
     if (filters?.claimableOnly) {
