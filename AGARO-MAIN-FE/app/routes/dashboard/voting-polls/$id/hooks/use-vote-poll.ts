@@ -35,9 +35,10 @@ interface VotePollState {
   log: LogArgs | null;
   commitToken: string | null;
   pollId: string | null;
+  pollHash: `0x${string}` | null;
   choiceId: string | null;
   choiceIndex: number | null;
-  hasSubmittedToBackend: boolean;
+  backendVoteId: string | null;
 }
 
 // Action types
@@ -45,19 +46,20 @@ type VotePollAction =
   | { type: 'SET_LOG'; payload: LogArgs }
   | { type: 'SET_COMMIT_TOKEN'; payload: string }
   | { type: 'SET_POLL_ID'; payload: string }
+  | { type: 'SET_POLL_HASH'; payload: `0x${string}` }
   | { type: 'SET_CHOICE_ID'; payload: string }
   | { type: 'SET_CHOICE_INDEX'; payload: number }
-  | { type: 'SET_HAS_SUBMITTED_TO_BACKEND'; payload: boolean }
-  | { type: 'RESET_VOTE_STATE' }
-  | { type: 'RESET_TRANSACTION_STATE' };
+  | { type: 'SET_BACKEND_VOTE_ID'; payload: string }
+  | { type: 'RESET_VOTE_STATE' };
 
 // Initial state
 const initialState: VotePollState = {
   log: null,
   pollId: null,
+  pollHash: null,
   choiceId: null,
   choiceIndex: null,
-  hasSubmittedToBackend: false,
+  backendVoteId: null,
   commitToken: null,
 };
 
@@ -70,29 +72,16 @@ function votePollReducer(state: VotePollState, action: VotePollAction): VotePoll
       return { ...state, commitToken: action.payload };
     case 'SET_POLL_ID':
       return { ...state, pollId: action.payload };
+    case 'SET_POLL_HASH':
+      return { ...state, pollHash: action.payload };
     case 'SET_CHOICE_ID':
       return { ...state, choiceId: action.payload };
     case 'SET_CHOICE_INDEX':
       return { ...state, choiceIndex: action.payload };
-    case 'SET_HAS_SUBMITTED_TO_BACKEND':
-      return { ...state, hasSubmittedToBackend: action.payload };
+    case 'SET_BACKEND_VOTE_ID':
+      return { ...state, backendVoteId: action.payload };
     case 'RESET_VOTE_STATE':
-      return {
-        ...state,
-        log: null,
-        commitToken: null,
-        pollId: null,
-        choiceId: null,
-        hasSubmittedToBackend: false,
-      };
-    case 'RESET_TRANSACTION_STATE':
-      return {
-        ...state,
-        commitToken: null,
-        pollId: null,
-        choiceId: null,
-        log: null,
-      };
+      return initialState;
     default:
       return state;
   }
@@ -104,35 +93,24 @@ export function useVotePoll() {
 
   const [state, dispatch] = useReducer(votePollReducer, initialState);
 
+  // Backend mutation - Step 1: Register vote intent in backend
   const castVoteMutation = useMutation({
     ...castVoteMutationOptions,
-    onSuccess: async () => {
-      toast.success('Vote successfully recorded!');
+    onSuccess: async (data) => {
+      toast.success('Vote intent registered. Please confirm the transaction in your wallet.');
 
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: voteQueryKeys.baseUserVote,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: pollQueryKeys.baseVotingEligibility(),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: pollQueryKeys.all,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: voteQueryKeys.baseCheckHasVoted(),
-        }),
-      ]);
-
-      // Reset states after successful submission
-      dispatch({ type: 'RESET_VOTE_STATE' });
+      // Store backend vote ID for later verification
+      if (data?.data?.id) {
+        dispatch({ type: 'SET_BACKEND_VOTE_ID', payload: data.data.id });
+      }
     },
     onError: (error: Error) => {
-      toast.error(`Failed to record vote: ${error.message}`);
-      dispatch({ type: 'SET_HAS_SUBMITTED_TO_BACKEND', payload: false });
+      toast.error(`Failed to register vote: ${error.message}`);
+      dispatch({ type: 'RESET_VOTE_STATE' });
     },
   });
 
+  // Blockchain mutation - Step 2: Submit transaction to blockchain
   const {
     writeContract,
     data: voteTxHash,
@@ -146,7 +124,7 @@ export function useVotePoll() {
         const { title, description } = parseWagmiErrorForToast(error);
         toast.error(title, { description });
         // Reset local states on transaction error
-        dispatch({ type: 'RESET_TRANSACTION_STATE' });
+        dispatch({ type: 'RESET_VOTE_STATE' });
       },
     },
   });
@@ -166,7 +144,7 @@ export function useVotePoll() {
     chainId,
     onError: (error) => {
       toast.error(`Event watch error: ${error.message}`);
-      dispatch({ type: 'RESET_TRANSACTION_STATE' });
+      dispatch({ type: 'RESET_VOTE_STATE' });
     },
     onLogs: (logs) => {
       if (logs.length === 0) return;
@@ -192,12 +170,48 @@ export function useVotePoll() {
       return;
     }
 
+    if (!walletAddress) {
+      toast.error('Wallet not connected');
+      return;
+    }
+
+    // Store vote parameters
     dispatch({ type: 'SET_CHOICE_ID', payload: choiceId });
     dispatch({ type: 'SET_POLL_ID', payload: pollId });
+    dispatch({ type: 'SET_POLL_HASH', payload: pollHash });
+    dispatch({ type: 'SET_CHOICE_INDEX', payload: candidateSelected });
 
+    // Step 1: Register vote intent in backend first
+    castVoteMutation.mutate({
+      pollId,
+      choiceId,
+      voterWalletAddress: walletAddress,
+      commitToken: isNaN(Number(state.commitToken ?? 0)) ? undefined : Number(state.commitToken),
+    });
+  };
+
+  // Step 2: After backend success, trigger blockchain transaction
+  useEffect(() => {
+    // Only proceed if backend mutation was successful and we have all required data
+    if (!state.backendVoteId || !state.pollHash || state.choiceIndex === null) {
+      return;
+    }
+
+    // Prevent duplicate blockchain submissions
+    if (voteTxHash || isWritingEntryPointVote) {
+      return;
+    }
+
+    const address = getEntryPointAddress(chainId);
+    if (!address) {
+      toast.error('EntryPoint contract not deployed on this network');
+      return;
+    }
+
+    // Trigger blockchain transaction
     const args = {
-      pollHash: pollHash,
-      candidateSelected,
+      pollHash: state.pollHash,
+      candidateSelected: state.choiceIndex,
       commitToken: BigInt(state.commitToken ?? 0),
       proofs: [], // Empty for now
     } as const;
@@ -206,55 +220,63 @@ export function useVotePoll() {
       address,
       args: [args],
     });
-  };
+  }, [
+    state.backendVoteId,
+    state.pollHash,
+    state.choiceIndex,
+    state.commitToken,
+    voteTxHash,
+    isWritingEntryPointVote,
+    writeContract,
+    chainId,
+  ]);
 
+  // Step 3: After blockchain success and event emission, invalidate queries
   useEffect(() => {
-    // Prevent duplicate submissions
-    if (state.hasSubmittedToBackend || castVoteMutation.isPending) {
+    // Wait for all conditions to be met
+    if (!isTransactionReceiptSuccess || !state.log || !voteTxHash || !state.pollId) {
       return;
     }
 
-    // Validate all required data is present
-    if (!state.log || !state.log.pollHash || !state.log.voter || !walletAddress) {
-      return;
-    }
-
-    if (!state.choiceId || !state.pollId || !voteTxHash || !isTransactionReceiptSuccess) {
+    // Verify the log matches our transaction
+    if (!state.log.pollHash || !state.log.voter) {
       return;
     }
 
     // Verify the voter matches the wallet
-    if (state.log.voter.toLowerCase() !== walletAddress.toLowerCase()) {
+    if (walletAddress && state.log.voter.toLowerCase() !== walletAddress.toLowerCase()) {
       toast.error('Voter address mismatch');
       return;
     }
 
-    // Submit to backend
-    dispatch({ type: 'SET_HAS_SUBMITTED_TO_BACKEND', payload: true });
-    castVoteMutation.mutate({
-      pollId: state.pollId,
-      choiceId: state.choiceId,
-      voterWalletAddress: walletAddress,
-      transactionHash: voteTxHash,
-      commitToken: isNaN(Number(state.commitToken ?? 0)) ? undefined : Number(state.commitToken),
+    // All verifications passed - invalidate queries and show success
+    toast.success('Vote successfully recorded on blockchain!');
+
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: voteQueryKeys.baseUserVote,
+      }),
+      queryClient.invalidateQueries({
+        queryKey: pollQueryKeys.baseVotingEligibility(),
+      }),
+      queryClient.invalidateQueries({
+        queryKey: pollQueryKeys.all,
+      }),
+      queryClient.invalidateQueries({
+        queryKey: voteQueryKeys.baseCheckHasVoted(),
+      }),
+    ]).then(() => {
+      // Reset all state after successful completion
+      dispatch({ type: 'RESET_VOTE_STATE' });
     });
-  }, [
-    isTransactionReceiptSuccess,
-    state.pollId,
-    state.choiceId,
-    state.log,
-    state.hasSubmittedToBackend,
-    voteTxHash,
-    walletAddress,
-    castVoteMutation,
-  ]);
+  }, [isTransactionReceiptSuccess, state.log, state.pollId, voteTxHash, walletAddress]);
 
   // Handle receipt error
   useEffect(() => {
     if (receiptError) {
       const { title, description } = parseWagmiErrorForToast(receiptError);
       toast.error(title, { description });
-      dispatch({ type: 'RESET_TRANSACTION_STATE' });
+      dispatch({ type: 'RESET_VOTE_STATE' });
     }
   }, [receiptError]);
 
@@ -272,6 +294,8 @@ export function useVotePoll() {
     choiceId: state.choiceId,
     choiceIndex: state.choiceIndex,
     pollId: state.pollId,
+    pollHash: state.pollHash,
+    backendVoteId: state.backendVoteId,
     onChainLog: state.log,
     setChoiceIndex: (index: number) => dispatch({ type: 'SET_CHOICE_INDEX', payload: index }),
     setPollId: (id: string) => dispatch({ type: 'SET_POLL_ID', payload: id }),

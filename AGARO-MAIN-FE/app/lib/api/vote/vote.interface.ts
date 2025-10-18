@@ -11,22 +11,23 @@ export interface CastVoteRequest {
   voteWeight?: number;
 }
 
-export interface CastVoteResponse {
-  id: string;
-  pollId: string;
-  choiceId: string;
-  voterWalletAddress: string;
-  voterHash: string;
-  pollHash: string;
-  transactionHash: string | null;
-  blockNumber: number | null;
-  signature: string | null;
-  voteWeight: number;
-  votedAt: string;
-  createdAt: string;
-  isOnChain: boolean;
-  isVerified: boolean;
-}
+export interface CastVoteResponse
+  extends ApiResponse<{
+    id: string;
+    pollId: string;
+    choiceId: string;
+    voterWalletAddress: string;
+    voterHash: string;
+    pollHash: string;
+    transactionHash: string | null;
+    blockNumber: number | null;
+    signature: string | null;
+    voteWeight: number;
+    votedAt: string;
+    createdAt: string;
+    isOnChain: boolean;
+    isVerified: boolean;
+  }> {}
 
 /**
  * Get user vote for a specific poll
