@@ -40,14 +40,12 @@ export class GetRewardsUseCase {
     );
 
     // Map rewards with stats (already populated by repository subqueries)
-    const rewardsWithStats: RewardResponseDto[] = result.rewards.map(
-      (reward) => {
-        return RewardResponseDto.fromEntityWithStats(
-          reward,
-          reward.pollTotalVotes ?? 0,
-          reward.choiceTotalVotes ?? 0,
-        );
-      },
+    const rewardsWithStats: RewardResponseDto[] = result.rewards.map((reward) =>
+      RewardResponseDto.fromEntityWithStats(
+        reward,
+        reward.pollTotalVotes ?? 0,
+        reward.choiceTotalVotes ?? 0,
+      ),
     );
 
     const paginatedResult: IPaginatedResult<RewardResponseDto> = {
