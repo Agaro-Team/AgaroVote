@@ -14,6 +14,7 @@ export class RewardResponseDto {
   public readonly poll_title: string;
   public readonly poll_total_votes: number;
   public readonly choice_total_votes: number;
+  public readonly synthetic_reward_contract_address: string;
   public readonly created_at: string;
   public readonly updated_at: string;
 
@@ -31,6 +32,7 @@ export class RewardResponseDto {
     pollTitle: string,
     pollTotalVotes: number,
     choiceTotalVotes: number,
+    syntheticRewardContractAddress: string,
     createdAt: string,
     updatedAt: string,
   ) {
@@ -47,12 +49,13 @@ export class RewardResponseDto {
     this.poll_title = pollTitle;
     this.poll_total_votes = pollTotalVotes;
     this.choice_total_votes = choiceTotalVotes;
+    this.synthetic_reward_contract_address = syntheticRewardContractAddress;
     this.created_at = createdAt;
     this.updated_at = updatedAt;
   }
 
   static fromEntityWithStats(
-    reward: Reward,
+    reward: Reward & { syntheticRewardContractAddress?: string },
     pollTotalVotes: number,
     choiceTotalVotes: number,
   ): RewardResponseDto {
@@ -70,6 +73,7 @@ export class RewardResponseDto {
       reward.poll?.title || 'Unknown Poll',
       pollTotalVotes,
       choiceTotalVotes,
+      reward.syntheticRewardContractAddress || '',
       reward.createdAt.toISOString(),
       reward.updatedAt.toISOString(),
     );

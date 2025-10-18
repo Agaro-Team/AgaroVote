@@ -101,6 +101,11 @@ export class TypeORMRewardRepository implements IRewardRepository {
             .from('votes', 'v2')
             .where('v2.choice_id = vote.choiceId'),
         'choiceTotalVotes',
+      )
+      // Add synthetic reward contract address from poll
+      .addSelect(
+        'poll.syntheticRewardContractAddress',
+        'syntheticRewardContractAddress',
       );
 
     if (filters?.pollId) {
@@ -137,6 +142,7 @@ export class TypeORMRewardRepository implements IRewardRepository {
     type RawResult = {
       pollTotalVotes: string;
       choiceTotalVotes: string;
+      syntheticRewardContractAddress: string;
     };
 
     // Map the vote counts from raw results to entities
@@ -145,6 +151,7 @@ export class TypeORMRewardRepository implements IRewardRepository {
       return Object.assign(reward, {
         pollTotalVotes: parseInt(raw.pollTotalVotes || '0', 10) || 0,
         choiceTotalVotes: parseInt(raw.choiceTotalVotes || '0', 10) || 0,
+        syntheticRewardContractAddress: raw.syntheticRewardContractAddress,
       });
     });
 
