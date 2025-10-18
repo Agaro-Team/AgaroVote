@@ -1,6 +1,15 @@
 import { BaseEntity } from '@/shared/domain/base.entity';
-import { Column, Entity, Index, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  Index,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { RewardClaims } from './reward-claims.entity';
+import type { Vote } from '@modules/vote/domain/entities/vote.entity';
+import type { Poll } from '@modules/poll/domain/entities/poll.entity';
 
 @Entity('vote_rewards')
 @Index(['voteId'])
@@ -40,7 +49,20 @@ export class Reward extends BaseEntity {
   @OneToMany(() => RewardClaims, (rewardClaim) => rewardClaim.reward)
   rewardClaims: RewardClaims[];
 
+  // Relations
+  @ManyToOne('Vote', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'vote_id' })
+  vote?: Vote;
+
+  @ManyToOne('Poll', { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'poll_id' })
+  poll?: Poll;
+
   isClaimable(): boolean {
     return this.claimableAt && this.claimableAt <= new Date();
   }
+
+  // Transient properties (not persisted, populated by queries)
+  pollTotalVotes?: number;
+  choiceTotalVotes?: number;
 }
