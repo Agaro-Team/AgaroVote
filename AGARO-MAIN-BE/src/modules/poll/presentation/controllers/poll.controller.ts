@@ -161,12 +161,11 @@ export class PollController {
   }
 
   @Public()
-  @Post(':id/activate')
+  @Post('activate')
   async activate(
-    @Param('id') id: string,
     @Body() activatePollDto: ActivatePollDto,
   ): Promise<PollResponseDto> {
-    const poll = await this.activatePollUseCase.execute(id, activatePollDto);
+    const poll = await this.activatePollUseCase.execute(activatePollDto);
     return PollResponseDto.fromEntity(poll, true);
   }
 

@@ -21,35 +21,42 @@ export class ActivatePollUseCase {
     private readonly pollRepository: IPollRepository,
   ) {}
 
-  async execute(
-    pollHash: string,
-    activatePollDto: ActivatePollDto,
-  ): Promise<Poll> {
+  async execute(activatePollDto: ActivatePollDto): Promise<Poll> {
     if (!activatePollDto) {
       throw new BadRequestException('Something went wrong');
     }
 
-    if (!pollHash || !activatePollDto.syntheticRewardContractAddress) {
+    if (
+      !activatePollDto.pollHash ||
+      !activatePollDto.syntheticRewardContractAddress
+    ) {
       throw new BadRequestException(
         'Poll hash and synthetic reward contract address are required',
       );
     }
 
-    const poll = await this.pollRepository.findByPollHash(pollHash);
+    const poll = await this.pollRepository.findByPollHash(
+      activatePollDto.pollHash,
+    );
 
     if (!poll) {
-      throw new NotFoundException(`Poll with hash ${pollHash} not found`);
+      throw new NotFoundException(
+        `Poll with hash ${activatePollDto.pollHash} not found`,
+      );
     }
 
     if (poll.isActive) {
       throw new BadRequestException('Poll is already active');
     }
 
-    return await this.pollRepository.updateByPollHash(pollHash, {
-      isActive: true,
-      transactionStatus: TransactionStatus.SUCCESS,
-      syntheticRewardContractAddress:
-        activatePollDto.syntheticRewardContractAddress,
-    });
+    return await this.pollRepository.updateByPollHash(
+      activatePollDto.pollHash,
+      {
+        isActive: true,
+        transactionStatus: TransactionStatus.SUCCESS,
+        syntheticRewardContractAddress:
+          activatePollDto.syntheticRewardContractAddress,
+      },
+    );
   }
 }
