@@ -5,6 +5,7 @@ use crate::events::*;
 use dotenvy::dotenv;
 use ethers::prelude::*;
 use futures::StreamExt;
+use serde_json::json;
 use std::{env, sync::Arc};
 
 #[tokio::main]
@@ -13,6 +14,7 @@ async fn main() -> anyhow::Result<()> {
 
     let rpc_url = env::var("RPC_URL")?;
     let contract_addr: Address = env::var("CONTRACT_ADDR")?.parse()?;
+    let api_base_url = env::var("API_BASE_URL")?;
 
     let abi_json = utils::load_abi_from_file("abi/EntryPoint.json")?;
 
@@ -23,6 +25,7 @@ async fn main() -> anyhow::Result<()> {
 
     let poll_created_task = tokio::spawn({
         let contract = contract.clone();
+        let api_base = api_base_url.clone();
         async move {
             let client = reqwest::Client::new();
 
@@ -45,7 +48,8 @@ async fn main() -> anyhow::Result<()> {
 
                 let poll_hash_hex = format!("{:?}", event.poll_hash);
                 let url = format!(
-                    "https://agaro-api.ardial.tech/api/v1/polls/{}/activate",
+                    "{}/polls/{}/activate",
+                    api_base,
                     poll_hash_hex.trim_matches('"')
                 );
 
@@ -72,6 +76,8 @@ async fn main() -> anyhow::Result<()> {
     let vote_succeeded_task = tokio::spawn({
         let contract = contract.clone();
         async move {
+            let client = reqwest::Client::new();
+
             let event_builder = contract
                 .clone()
                 .event::<VoteSucceeded>()
@@ -83,11 +89,42 @@ async fn main() -> anyhow::Result<()> {
                 .expect("Failed to create VoteSucceeded stream");
 
             println!("Listening for VoteSucceeded events...");
+
             while let Some(Ok(event)) = stream.next().await {
                 println!(
-                    "[VoteSucceeded] poll_hash={:?}, voter={:?}, selected={}, commit_token={}",
-                    event.poll_hash, event.voter, event.selected, event.commit_token
+                    "[VoteSucceeded] poll_hash={:?}, voter={:?}, selected={}, voter_hash={}, commit_token={}",
+                    event.poll_hash, event.voter, event.selected, event.new_poll_voter_hash, event.commit_token
                 );
+                let poll_hash_hex = format!("{:?}", event.poll_hash);
+                let url = format!(
+                    "{}/polls/{}/update-voter-hash",
+                    api_base_url,
+                    poll_hash_hex.trim_matches('"')
+                );
+
+                let payload = json!({
+                    "voterHash": event.new_poll_voter_hash
+                });
+
+                match client.put(&url).json(&payload).send().await {
+                    Ok(resp) => {
+                        if resp.status().is_success() {
+                            println!(
+                                "Verified voter's credibility {} successfully",
+                                poll_hash_hex
+                            );
+                        } else {
+                            println!(
+                                "Failed to verify credibility {} — status: {}",
+                                poll_hash_hex,
+                                resp.status()
+                            );
+                        }
+                    }
+                    Err(err) => {
+                        eprintln!("HTTP request failed for {}: {:?}", poll_hash_hex, err);
+                    }
+                }
             }
         }
     });
