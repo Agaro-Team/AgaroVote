@@ -23,14 +23,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
    * Validate JWT payload
    * This method is called after passport verifies the JWT signature
    */
-  async validate(payload: JwtPayload): Promise<{ walletAddress: string }> {
+  validate(payload: JwtPayload): { walletAddress: string } {
     if (!payload.walletAddress) {
       throw new UnauthorizedException('Invalid token payload');
     }
 
     // Return user object (will be attached to request.user)
     return {
-      walletAddress: payload.walletAddress.toLowerCase(),
+      walletAddress: payload.walletAddress,
     };
   }
 }

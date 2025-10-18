@@ -27,7 +27,7 @@ export class TypeOrmNonceRepository implements INonceRepository {
   async findLatestByWallet(walletAddress: string): Promise<Nonce | null> {
     return this.repository.findOne({
       where: {
-        walletAddress: walletAddress.toLowerCase(),
+        walletAddress,
       },
       order: {
         createdAt: 'DESC',

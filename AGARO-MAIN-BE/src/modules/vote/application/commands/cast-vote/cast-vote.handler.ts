@@ -1,40 +1,39 @@
+import { CreateVoteRewardsCommand } from '@/modules/reward/application/commands/create-vote-rewards.command';
 import {
-  CommandHandler,
-  ICommandHandler,
-  EventBus,
-  QueryBus,
-  CommandBus,
-} from '@nestjs/cqrs';
+  CheckVotingEligibilityQuery,
+  VotingEligibilityResult,
+} from '@modules/poll/application/queries';
+import { VoteAuditLog } from '@modules/vote/domain/entities/vote-audit-log.entity';
+import { Vote } from '@modules/vote/domain/entities/vote.entity';
 import {
-  Inject,
-  BadRequestException,
-  ForbiddenException,
-  Logger,
-} from '@nestjs/common';
-import { DataSource } from 'typeorm';
-import { CastVoteCommand } from './cast-vote.command';
-import {
-  VOTE_REPOSITORY,
-  type IVoteRepository,
-} from '@modules/vote/domain/repositories/vote-repository.interface';
+  IllegalVoteAttemptedEvent,
+  VoteCastedEvent,
+} from '@modules/vote/domain/events';
 import {
   VOTE_AUDIT_LOG_REPOSITORY,
   type IVoteAuditLogRepository,
 } from '@modules/vote/domain/repositories/vote-audit-log-repository.interface';
 import {
-  CheckVotingEligibilityQuery,
-  VotingEligibilityResult,
-} from '@modules/poll/application/queries';
-import { Vote } from '@modules/vote/domain/entities/vote.entity';
-import { VoterHash } from '@modules/vote/domain/value-objects/voter-hash.vo';
-import { VoteSignature } from '@modules/vote/domain/value-objects/vote-signature.vo';
+  VOTE_REPOSITORY,
+  type IVoteRepository,
+} from '@modules/vote/domain/repositories/vote-repository.interface';
 import { PoolHash } from '@modules/vote/domain/value-objects/pool-hash.vo';
+import { VoteSignature } from '@modules/vote/domain/value-objects/vote-signature.vo';
 import {
-  VoteCastedEvent,
-  IllegalVoteAttemptedEvent,
-} from '@modules/vote/domain/events';
-import { VoteAuditLog } from '@modules/vote/domain/entities/vote-audit-log.entity';
-import { CreateVoteRewardsCommand } from '@/modules/reward/application/commands/create-vote-rewards.command';
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Logger,
+} from '@nestjs/common';
+import {
+  CommandBus,
+  CommandHandler,
+  EventBus,
+  ICommandHandler,
+  QueryBus,
+} from '@nestjs/cqrs';
+import { DataSource } from 'typeorm';
+import { CastVoteCommand } from './cast-vote.command';
 
 @CommandHandler(CastVoteCommand)
 export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
@@ -51,7 +50,8 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
     private readonly dataSource: DataSource,
   ) {}
 
-  async execute(command: CastVoteCommand): Promise<Vote> {
+  async execute(props: CastVoteCommand): Promise<Vote> {
+    const command = props.props;
     // 1. Validate vote eligibility via QueryBus (no tight coupling with Poll module!)
     const eligibility = await this.queryBus.execute<
       CheckVotingEligibilityQuery,
@@ -98,11 +98,6 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
       throw new ForbiddenException('You have already voted in this poll');
     }
 
-    // 3. Create value objects
-    const voterHash = VoterHash.create(
-      command.pollId,
-      command.voterWalletAddress,
-    );
     const pollHash = PoolHash.fromPoll(poll.pollHash);
     const signature = command.signature
       ? VoteSignature.createOptional(command.signature)
@@ -119,7 +114,6 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
       vote.pollId = command.pollId;
       vote.choiceId = command.choiceId;
       vote.voterWalletAddress = command.voterWalletAddress;
-      vote.voterHash = voterHash.value;
       vote.pollHash = pollHash.value;
       vote.transactionHash = command.transactionHash;
       vote.blockNumber = command.blockNumber;
@@ -137,7 +131,6 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
         {
           pollId: savedVote.pollId,
           choiceId: savedVote.choiceId,
-          voterHash: savedVote.voterHash,
           pollHash: savedVote.pollHash,
         },
         command.ipAddress,
@@ -169,7 +162,6 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
           savedVote.pollId,
           savedVote.choiceId,
           savedVote.voterWalletAddress,
-          savedVote.voterHash,
           savedVote.pollHash,
           savedVote.votedAt,
           savedVote.transactionHash,

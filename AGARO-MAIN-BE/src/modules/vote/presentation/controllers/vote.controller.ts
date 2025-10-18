@@ -71,18 +71,18 @@ export class VoteController {
     const userAgent = request.get('user-agent');
 
     const vote = await this.commandBus.execute<CastVoteCommand, Vote>(
-      new CastVoteCommand(
-        dto.pollId,
-        dto.choiceId,
-        dto.voterWalletAddress,
-        dto.transactionHash,
-        dto.blockNumber,
-        dto.signature,
-        dto.voteWeight,
-        dto.commitToken,
-        ipAddress,
-        userAgent,
-      ),
+      new CastVoteCommand({
+        pollId: dto.pollId,
+        choiceId: dto.choiceId,
+        voterWalletAddress: dto.voterWalletAddress,
+        transactionHash: dto.transactionHash,
+        blockNumber: dto.blockNumber,
+        signature: dto.signature,
+        voteWeight: dto.voteWeight,
+        commitToken: dto.commitToken,
+        ipAddress: ipAddress,
+        userAgent: userAgent,
+      }),
     );
 
     return VoteResponseDto.fromEntity(vote);
