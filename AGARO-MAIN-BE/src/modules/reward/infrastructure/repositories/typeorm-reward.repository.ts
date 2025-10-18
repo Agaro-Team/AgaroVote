@@ -120,14 +120,11 @@ export class TypeORMRewardRepository implements IRewardRepository {
 
     if (filters?.claimableOnly) {
       query.andWhere('reward.claimableAt <= :now', { now: new Date() });
-    } else {
-      query.andWhere('reward.claimableAt > :now', { now: new Date() });
+      query.andWhere('reward.claimedAt IS NULL');
     }
 
     if (filters?.claimedOnly) {
       query.andWhere('reward.claimedAt IS NOT NULL');
-    } else {
-      query.andWhere('reward.claimedAt IS NULL');
     }
 
     query.orderBy('reward.createdAt', 'DESC');
