@@ -8,10 +8,11 @@ import { Reward } from './domain/entities/reward.entity';
 import { GetRewardsPaginatedHandler } from './application/queries/get-rewards-paginated/get-rewards-paginated.handler';
 import { GetRewardsUseCase } from './application/use-cases/get-rewards.usecase';
 import { RewardableVoteCastedHandler } from './application/event-handlers/rewardable-vote-casted.handler';
+import { ClaimRewardUseCase } from './application/use-cases/claim-reward.usecase';
 
 const QueryHandlers = [GetRewardsPaginatedHandler];
 const EventHandlers = [RewardableVoteCastedHandler];
-const UseCases = [GetRewardsUseCase];
+const UseCases = [GetRewardsUseCase, ClaimRewardUseCase];
 
 @Module({
   imports: [TypeOrmModule.forFeature([Reward]), CqrsModule],

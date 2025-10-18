@@ -8,10 +8,14 @@ export class RewardResponseDto {
   public readonly principal_amount: number;
   public readonly reward_amount: number;
   public readonly claimable_at: string;
+  public readonly claimed_at: string | null;
+  public readonly claimed: boolean;
   public readonly is_claimable: boolean;
+  public readonly is_claimed: boolean;
   public readonly choice_id: string;
   public readonly choice_name: string;
   public readonly poll_title: string;
+  public readonly poll_hash: string;
   public readonly poll_total_votes: number;
   public readonly choice_total_votes: number;
   public readonly synthetic_reward_contract_address: string;
@@ -26,10 +30,13 @@ export class RewardResponseDto {
     principalAmount: number,
     rewardAmount: number,
     claimableAt: string,
+    claimedAt: string | null,
     isClaimable: boolean,
+    isClaimed: boolean,
     choiceId: string,
     choiceName: string,
     pollTitle: string,
+    pollHash: string,
     pollTotalVotes: number,
     choiceTotalVotes: number,
     syntheticRewardContractAddress: string,
@@ -43,10 +50,13 @@ export class RewardResponseDto {
     this.principal_amount = principalAmount;
     this.reward_amount = rewardAmount;
     this.claimable_at = claimableAt;
+    this.claimed_at = claimedAt;
     this.is_claimable = isClaimable;
+    this.is_claimed = isClaimed;
     this.choice_id = choiceId;
     this.choice_name = choiceName;
     this.poll_title = pollTitle;
+    this.poll_hash = pollHash;
     this.poll_total_votes = pollTotalVotes;
     this.choice_total_votes = choiceTotalVotes;
     this.synthetic_reward_contract_address = syntheticRewardContractAddress;
@@ -55,7 +65,7 @@ export class RewardResponseDto {
   }
 
   static fromEntityWithStats(
-    reward: Reward & { syntheticRewardContractAddress?: string },
+    reward: Reward & { syntheticRewardContractAddress?: `0x${string}` },
     pollTotalVotes: number,
     choiceTotalVotes: number,
   ): RewardResponseDto {
@@ -67,10 +77,13 @@ export class RewardResponseDto {
       Number(reward.principalAmount),
       Number(reward.rewardAmount),
       reward.claimableAt.toISOString(),
+      reward.claimedAt?.toISOString() || null,
       reward.isClaimable(),
+      reward.isClaimed(),
       reward.vote?.choiceId || '',
       reward.vote?.choice?.choiceText || 'Unknown',
       reward.poll?.title || 'Unknown Poll',
+      reward.poll?.pollHash || '',
       pollTotalVotes,
       choiceTotalVotes,
       reward.syntheticRewardContractAddress || '',
@@ -80,7 +93,6 @@ export class RewardResponseDto {
   }
 
   static fromEntities(rewards: Reward[]): RewardResponseDto[] {
-    // This is a simplified version, use fromEntityWithStats for full implementation
     return rewards.map((reward) => this.fromEntityWithStats(reward, 0, 0));
   }
 }

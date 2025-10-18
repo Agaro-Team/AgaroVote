@@ -7,7 +7,11 @@ import {
 import { GetRewardsQueryDto } from '../dto/get-rewards-query.dto';
 import { RewardResponseDto } from '../dto/reward-response.dto';
 import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
-import { GetRewardsPaginatedQuery, PaginatedRewardsResult } from '../queries';
+import {
+  GetRewardsPaginatedFilters,
+  GetRewardsPaginatedQuery,
+  PaginatedRewardsResult,
+} from '../queries';
 
 @Injectable()
 export class GetRewardsUseCase {
@@ -21,11 +25,7 @@ export class GetRewardsUseCase {
     walletAddress: string,
     query: GetRewardsQueryDto,
   ): Promise<IPaginatedResult<RewardResponseDto>> {
-    const filters: {
-      pollId?: string;
-      claimableOnly?: boolean;
-      voterWalletAddress?: string;
-    } = {};
+    const filters: GetRewardsPaginatedFilters = {};
 
     filters.claimableOnly = Boolean(query.claimableOnly);
 
