@@ -32,6 +32,7 @@ import { GetPollsByCreatorPaginatedUseCase } from '../../application/use-cases/g
 import { UpdatePollTransactionStatusUseCase } from '../../application/use-cases/update-poll-transaction-status.use-case';
 import { UpdatePollUseCase } from '../../application/use-cases/update-poll.use-case';
 import { UpdateVoterHashUseCase } from '../../application/use-cases/update-voter-hash.use-case';
+import { ActivatePollDto } from '../../application/dto/activate-poll.dto';
 
 @Controller('polls')
 export class PollController {
@@ -161,8 +162,11 @@ export class PollController {
 
   @Public()
   @Post(':id/activate')
-  async activate(@Param('id') id: string): Promise<PollResponseDto> {
-    const poll = await this.activatePollUseCase.execute(id);
+  async activate(
+    @Param('id') id: string,
+    @Body() activatePollDto: ActivatePollDto,
+  ): Promise<PollResponseDto> {
+    const poll = await this.activatePollUseCase.execute(id, activatePollDto);
     return PollResponseDto.fromEntity(poll, true);
   }
 
