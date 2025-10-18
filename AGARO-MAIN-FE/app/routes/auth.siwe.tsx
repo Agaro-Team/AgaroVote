@@ -86,7 +86,7 @@ export async function action({ request }: { request: Request }) {
     } = await response.json();
 
     // Set cookie and redirect to dashboard
-    return redirect('/dashboard/voting-polls', {
+    return redirect('/dashboard', {
       headers: await setAuthToken(accessToken),
     });
   } catch (error) {
