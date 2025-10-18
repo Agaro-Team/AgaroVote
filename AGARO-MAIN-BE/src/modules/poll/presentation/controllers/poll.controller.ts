@@ -166,6 +166,7 @@ export class PollController {
     return PollResponseDto.fromEntity(poll, true);
   }
 
+  @Public()
   @Put(':id/update-voter-hash')
   async updateVoterHash(
     @Param('id') pollHash: string,
