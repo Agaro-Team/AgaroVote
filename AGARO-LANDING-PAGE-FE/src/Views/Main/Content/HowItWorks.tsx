@@ -107,13 +107,13 @@ const HowItWorks = () => {
                     delay: index * 0.3,
                     ease: 'easeOut',
                   }}
-                  className="hidden md:block absolute top-14 left-[60%] w-[80%] h-[3px] bg-[var(--primary)] origin-left opacity-50"
+                  className="hidden md:block absolute top-12 left-[60%] w-[80%] h-[3px] bg-[var(--primary)] origin-left opacity-50"
                 />
               )}
 
               {/* Lingkaran step */}
               <motion.div
-                className="bg-[var(--primary)] rounded-full w-16 h-16 flex items-center justify-center text-white text-xl font-bold mb-3 relative z-10"
+                className="bg-[var(--primary)] rounded-full w-14 md:w-16 h-14 md:h-16 flex items-center justify-center text-white text-xl font-bold mb-3 relative z-10"
                 style={{
                   filter: 'drop-shadow(0 0 10px var(--light-glow))',
                 }}
@@ -130,7 +130,7 @@ const HowItWorks = () => {
 
               {/* Judul */}
               <motion.div
-                className="text-[16px] md:text-lg font-bold"
+                className="text-[16px] font-bold"
                 variants={{
                   hidden: { opacity: 0, y: 10 },
                   visible: {
@@ -144,7 +144,7 @@ const HowItWorks = () => {
 
               {/* Deskripsi */}
               <motion.div
-                className="text-[12px] md:text-base max-w-[180px] leading-snug break-words text-muted-foreground"
+                className="text-[13px] max-w-[180px] leading-snug break-words text-muted-foreground font-medium"
                 variants={{
                   hidden: { opacity: 0, y: 10 },
                   visible: {

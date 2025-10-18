@@ -15,12 +15,12 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
 
   return (
     <div
-      className={`border border-transparent dark:border-neutral-700 rounded-lg overflow-hidden ${className}`}>
+      className={` bg-[var(--card)] backdrop-blur-3xl overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl border border-transparent  rounded-lg ${className}`}>
       <button
         type="button"
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
-        className="w-full flex items-center justify-between px-4 py-3 text-left transition-colors duration-150">
+        className="w-full flex items-center justify-between px-5 py-5 text-left transition-colors duration-150 cursor-pointer">
         <span className="text-sm font-bold">{title}</span>
         <svg
           className={`w-5 h-5 ml-2 transform transition-transform duration-150 ${
@@ -41,8 +41,8 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
       </button>
 
       <div
-        className={`px-4 pb-4 text-sm  transition-[opacity,max-height] duration-200 ease-in-out ${
-          open ? 'opacity-100 max-h-96' : 'opacity-0 max-h-0'
+        className={`text-sm  transition-[opacity,max-height] duration-200 ease-in-out px-5 pb-5 ${
+          open ? ' max-h-96' : 'hidden'
         }`}
         style={{ overflow: 'hidden' }}
         role="region">

@@ -20,7 +20,6 @@ const MainContent = () => {
 
   // Move image down as scrolling
   const translateY = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
-  // Optional subtle glow intensity while scrolling (slightly increases glow as you scroll)
   const glowOpacity = useTransform(scrollYProgress, [0, 0.5, 1], [1, 1.3, 1.6]);
 
   return (
@@ -43,7 +42,7 @@ const MainContent = () => {
           delay={20}
           animateBy="words"
           direction="top"
-          className="text-3xl lg:text-4xl font-semibold mb-6 flex items-center justify-center text-center w-full 2xl:w-1/2"
+          className="text-3xl lg:text-4xl font-semibold mb-6 flex items-center justify-center text-center"
         />
 
         {/* Description */}
@@ -52,7 +51,7 @@ const MainContent = () => {
           delay={20}
           animateBy="words"
           direction="top"
-          className="text-md font-light mb-6 xl:mx-64 flex items-center justify-center text-center"
+          className="text-md font-light mb-6 flex items-center justify-center text-center w-full lg:w-[60%]"
         />
 
         {/* Button */}
@@ -64,9 +63,8 @@ const MainContent = () => {
             ease: 'backInOut',
             delay: 0.6,
           }}
-          // whileHover={{ scale: 1.05 }}
-          // whileTap={{ scale: 0.7 }}
-        >
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.7 }}>
           <CustomButton label="Get Started" className="mb-5" />
         </motion.div>
 

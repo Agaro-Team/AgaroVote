@@ -57,7 +57,7 @@ const KeyOfFeature = () => {
   const activeItem = dataFeature[activeIndex];
 
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden ">
+    <div className="relative h-screen flex flex-col items-center justify-center overflow-hidden ">
       <BlurText
         text="Core Features of AgaroVote"
         delay={20}
@@ -65,7 +65,7 @@ const KeyOfFeature = () => {
         direction="bottom"
         className="text-3xl lg:text-4xl font-semibold mb-6 flex items-center justify-center text-center w-full 2xl:w-1/2"
       />
-      <div className="w-[90%] md:w-[90%] lg:w-[80%] xl:w-[70%]">
+      <div className="md:max-w-5xl xl:max-w-6xl mx-5 ">
         <div className="bg-muted/50 flex flex-col md:flex-row gap-2  md:gap-1 mb-2">
           {dataFeature.map((item, index) => {
             const isActive = index === activeIndex;
@@ -74,7 +74,7 @@ const KeyOfFeature = () => {
                 <div
                   key={item.id}
                   onClick={() => handleFeatureClick(index)}
-                  className={`relative flex  gap-3 rounded-xl overflow-hidden transition-all duration-700 ease-in-out
+                  className={`relative flex gap-3 rounded-xl overflow-hidden transition-all duration-700 ease-in-out
                 ${isActive ? 'flex-[1]' : 'flex-[0.6]'}
                 bg-[var(--muted)] px-3 py-4`}>
                   {isActive && (
@@ -100,14 +100,22 @@ const KeyOfFeature = () => {
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -30 }}
                       transition={{ duration: 0.5, ease: 'linear' }}>
-                      <h3 className="text-xl md:text-2xl font-bold mb-2 text-foreground">
-                        {activeItem.Title}
-                      </h3>
-                      <p
-                        key={activeIndex}
-                        className="text-muted-foreground text-base leading-relaxed font-light">
-                        {activeItem.Desc}
-                      </p>
+                      <BlurText
+                        text={activeItem.Title}
+                        delay={2}
+                        animateBy="words"
+                        direction="left"
+                        width="100%"
+                        className="text-xl md:text-2xl font-bold mb-2 text-foreground"
+                      />
+                      <BlurText
+                        text={activeItem.Desc}
+                        delay={2}
+                        animateBy="words"
+                        direction="left"
+                        width="100%"
+                        className="text-muted-foreground text-base leading-relaxed font-light"
+                      />
                     </motion.div>
 
                     <motion.div
@@ -134,20 +142,31 @@ const KeyOfFeature = () => {
         </div>
 
         {/* CONTENT DEKSTOP VER */}
-        <div className="hidden md:flex bg-[var(--card)] rounded-xl h-[60dvh] shadow-md relative overflow-hidden">
+        <div className="hidden md:flex bg-[var(--card)] backdrop-blur-3xl rounded-xl h-[500px] 2xl:h-[60dvh] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl">
           <motion.div
             key={`text-${activeIndex}`}
-            className="flex-1 px-32 py-24 "
+            className="flex-1 px-20 py-24 lg:px-32  "
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -30 }}
             transition={{ duration: 0.5, ease: 'linear' }}>
-            <h3 className="text-4xl font-bold mb-6 text-foreground text-start">
-              {activeItem.Title}
-            </h3>
-            <p className="text-muted-foreground text-lg font-light animate-fade-in text-start ">
-              {activeItem.Desc}
-            </p>
+            <BlurText
+              text={activeItem.Title}
+              delay={2}
+              animateBy="words"
+              direction="left"
+              width="100%"
+              className="text-4xl font-bold mb-6 text-foreground text-start"
+            />
+
+            <BlurText
+              text={activeItem.Desc}
+              delay={2}
+              animateBy="words"
+              width="100%"
+              direction="left"
+              className="text-muted-foreground text-lg font-light animate-fade-in text-start"
+            />
           </motion.div>
 
           <motion.div

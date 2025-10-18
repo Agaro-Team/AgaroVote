@@ -6,6 +6,7 @@ import MainContent from './Content/MainContent';
 import FAQ from './Content/FAQ';
 import HowItWorks from './Content/HowItWorks';
 import KeyOfFeature from './Content/KeyOfFeature';
+import Timeline from './Content/Timeline';
 
 const MainPage = () => {
   // Smooth Scroll
@@ -33,6 +34,9 @@ const MainPage = () => {
       </Element>
       <Element name="third" className="relative z-10">
         <KeyOfFeature />
+      </Element>
+      <Element name="timeline" className="relative z-10">
+        <Timeline />
       </Element>
       <Element name="fourth" className="relative z-10">
         <FAQ />

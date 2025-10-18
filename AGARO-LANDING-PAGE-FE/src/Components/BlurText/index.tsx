@@ -7,7 +7,7 @@ type BlurTextProps = {
   delay?: number;
   className?: string;
   animateBy?: 'words' | 'letters';
-  direction?: 'top' | 'bottom';
+  direction?: 'top' | 'bottom' | 'left' | 'right';
   threshold?: number;
   rootMargin?: string;
   animationFrom?: Record<string, string | number>;
@@ -15,6 +15,7 @@ type BlurTextProps = {
   easing?: Easing | Easing[];
   onAnimationComplete?: () => void;
   stepDuration?: number;
+  width?: string | number;
 };
 
 const buildKeyframes = (
@@ -46,6 +47,7 @@ const BlurText: React.FC<BlurTextProps> = ({
   easing = (t: number) => t,
   onAnimationComplete,
   stepDuration = 0.35,
+  width,
 }) => {
   const elements = animateBy === 'words' ? text.split(' ') : text.split('');
   const [inView, setInView] = useState(false);
@@ -66,25 +68,63 @@ const BlurText: React.FC<BlurTextProps> = ({
     return () => observer.disconnect();
   }, [threshold, rootMargin]);
 
-  const defaultFrom = useMemo(
-    () =>
-      direction === 'top'
-        ? { filter: 'blur(10px)', opacity: 0, y: -50 }
-        : { filter: 'blur(10px)', opacity: 0, y: 50 },
-    [direction]
-  );
+  const defaultFrom = useMemo(() => {
+    switch (direction) {
+      case 'top':
+        return { filter: 'blur(10px)', opacity: 0, y: -50, x: 0 };
+      case 'bottom':
+        return { filter: 'blur(10px)', opacity: 0, y: 50, x: 0 };
+      case 'left':
+        return { filter: 'blur(10px)', opacity: 0, x: -50, y: 0 };
+      case 'right':
+        return { filter: 'blur(10px)', opacity: 0, x: 50, y: 0 };
+      default:
+        return { filter: 'blur(10px)', opacity: 0, y: -50, x: 0 };
+    }
+  }, [direction]);
 
-  const defaultTo = useMemo(
-    () => [
+  const defaultTo = useMemo(() => {
+    const getIntermediatePosition = () => {
+      switch (direction) {
+        case 'top':
+          return { y: 5, x: 0 };
+        case 'bottom':
+          return { y: -5, x: 0 };
+        case 'left':
+          return { x: 5, y: 0 };
+        case 'right':
+          return { x: -5, y: 0 };
+        default:
+          return { y: 5, x: 0 };
+      }
+    };
+
+    const getFinalPosition = () => {
+      switch (direction) {
+        case 'top':
+        case 'bottom':
+          return { y: 0, x: 0 };
+        case 'left':
+        case 'right':
+          return { x: 0, y: 0 };
+        default:
+          return { y: 0, x: 0 };
+      }
+    };
+
+    return [
       {
         filter: 'blur(5px)',
         opacity: 0.5,
-        y: direction === 'top' ? 5 : -5,
+        ...getIntermediatePosition(),
       },
-      { filter: 'blur(0px)', opacity: 1, y: 0 },
-    ],
-    [direction]
-  );
+      {
+        filter: 'blur(0px)',
+        opacity: 1,
+        ...getFinalPosition(),
+      },
+    ];
+  }, [direction]);
 
   const fromSnapshot = animationFrom ?? defaultFrom;
   const toSnapshots = animationTo ?? defaultTo;
@@ -98,9 +138,13 @@ const BlurText: React.FC<BlurTextProps> = ({
   return (
     <p
       ref={ref}
-      className={`blur-text ${className}  ${
-        animateBy === 'words' ? 'flex-wrap' : 'flex-nowrap'
-      }`}>
+      className={`blur-text ${className}  flex-wrap`}
+      style={{
+        width: width,
+        wordWrap: 'break-word',
+        overflowWrap: 'break-word',
+        hyphens: 'auto',
+      }}>
       {elements.map((segment, index) => {
         const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
 

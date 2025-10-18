@@ -38,7 +38,7 @@ const FAQ: React.FC = () => {
         <div className="space-y-8">
           {faqs.map((f, idx) => (
             <AccordionItem key={idx} title={f.q}>
-              <p>{f.a}</p>
+              <div>{f.a}</div>
             </AccordionItem>
           ))}
         </div>
