@@ -1,4 +1,5 @@
 import { toast } from 'sonner';
+import { parseEther } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { useWeb3Chain, useWeb3Wallet } from '~/hooks/use-web3';
 import { queryClient } from '~/lib/query-client/config';
@@ -212,7 +213,7 @@ export function useVotePoll() {
     const args = {
       pollHash: state.pollHash,
       candidateSelected: state.choiceIndex,
-      commitToken: BigInt(state.commitToken ?? 0),
+      commitToken: state.commitToken ? parseEther(state.commitToken) : parseEther('0'),
       proofs: [], // Empty for now
     } as const;
 

@@ -29,4 +29,5 @@ export type GetRewardsResponse = ApiResponse<ApiListResponse<Reward>>;
 export interface GetRewardsRequest extends ApiRequest {
   claimableOnly?: boolean;
   claimedOnly?: boolean;
+  pendingOnly?: boolean;
 }

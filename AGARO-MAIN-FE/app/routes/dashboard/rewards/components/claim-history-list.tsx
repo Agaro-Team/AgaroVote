@@ -21,6 +21,8 @@ import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/querie
 
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
+import { ClaimAmount } from './claim-amount';
+
 export function ClaimHistoryList() {
   const rewardsQuery = useSuspenseInfiniteQuery(
     infiniteRewardListQueryOptions({ claimedOnly: true })
@@ -153,9 +155,10 @@ export function ClaimHistoryList() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">💰 Claimed Amount:</span>
                 <div className="text-right">
-                  <p className="text-xl font-bold text-green-700 dark:text-green-300">
-                    {reward.reward_amount} AGR
-                  </p>
+                  <ClaimAmount
+                    reward={reward}
+                    className="text-xl font-bold text-green-700 dark:text-green-300"
+                  />
                   <p className="text-sm text-muted-foreground">≈ ${reward.reward_amount}</p>
                 </div>
               </div>

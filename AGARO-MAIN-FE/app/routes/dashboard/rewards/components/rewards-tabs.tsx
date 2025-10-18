@@ -22,7 +22,7 @@ const useRewardsTabsCountsQuery = () => {
   const { claimableRewardsCount, pendingRewardsCount, claimedRewardsCount } = useSuspenseQueries({
     queries: [
       rewardListQueryOptions({ claimableOnly: true }),
-      rewardListQueryOptions({}),
+      rewardListQueryOptions({ pendingOnly: true }),
       rewardListQueryOptions({ claimedOnly: true }),
     ],
     combine([claimableRewardsQuery, pendingRewardsQuery, claimedRewardsQuery]) {

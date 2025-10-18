@@ -22,6 +22,7 @@ import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/querie
 
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
+import { ClaimAmount } from './claim-amount';
 import { RewardSkeletonList } from './reward-skeleton-list';
 
 export function PendingRewardsList() {
@@ -33,7 +34,11 @@ export function PendingRewardsList() {
     isRefetching,
     hasNextPage,
     fetchNextPage,
-  } = useSuspenseInfiniteQuery(infiniteRewardListQueryOptions({}));
+  } = useSuspenseInfiniteQuery(
+    infiniteRewardListQueryOptions({
+      pendingOnly: true,
+    })
+  );
 
   const handleSetReminder = (pollTitle: string) => {
     toast.success('Reminder set!', {
@@ -191,7 +196,7 @@ export function PendingRewardsList() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">💎 Potential Reward:</span>
                   <div className="text-right">
-                    <p className="text-xl font-bold">~{reward.reward_amount} AGR</p>
+                    <ClaimAmount className="text-xl font-bold" reward={reward} />
                     <p className="text-sm text-muted-foreground">
                       Principal: {reward.principal_amount} AGR
                     </p>
