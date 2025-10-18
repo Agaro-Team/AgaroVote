@@ -1,4 +1,4 @@
-import { History, LayoutDashboard, Vote } from 'lucide-react';
+import { Coins, History, LayoutDashboard, Vote } from 'lucide-react';
 import { NavMain } from '~/components/nav-main';
 import { NavUser } from '~/components/nav-user';
 import {
@@ -72,6 +72,25 @@ const data = {
       ],
     },
     {
+      title: 'Rewards',
+      url: '/dashboard/rewards',
+      icon: Coins,
+      items: [
+        {
+          title: 'Claimable',
+          url: '/dashboard/rewards',
+        },
+        {
+          title: 'Pending',
+          url: '/dashboard/rewards',
+        },
+        {
+          title: 'History',
+          url: '/dashboard/rewards',
+        },
+      ],
+    },
+    {
       title: 'My Votes',
       url: '/my-votes',
       icon: History,
@@ -86,29 +105,6 @@ const data = {
         },
       ],
     },
-    // {
-    //   title: 'Rewards & Staking',
-    //   url: '/rewards',
-    //   icon: Coins,
-    //   items: [
-    //     {
-    //       title: 'My Rewards',
-    //       url: '/rewards',
-    //     },
-    //     {
-    //       title: 'Claim Rewards',
-    //       url: '/rewards/claim',
-    //     },
-    //     {
-    //       title: 'Staking Pool',
-    //       url: '/rewards/staking',
-    //     },
-    //     {
-    //       title: 'Reward History',
-    //       url: '/rewards/history',
-    //     },
-    //   ],
-    // },
     // {
     //   title: 'Verification',
     //   url: '/verification',

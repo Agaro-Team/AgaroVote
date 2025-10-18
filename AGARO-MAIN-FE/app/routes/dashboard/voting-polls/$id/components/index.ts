@@ -15,3 +15,4 @@ export { VoteProgressTracker } from './vote-progress-tracker';
 export { VoteLoading } from './vote-page-layout';
 export { VoteError } from './vote-page-layout';
 export { VoteProvider } from './vote-context';
+export { PollRewardStatus } from './poll-reward-status';
