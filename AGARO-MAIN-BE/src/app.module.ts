@@ -14,6 +14,7 @@ import { PollModule } from './modules/poll/poll.module';
 import { VoteModule } from './modules/vote/vote.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/presentation/guards/jwt-auth.guard';
+import { RewardModule } from './modules/reward/reward.module';
 
 @Module({
   imports: [
@@ -26,11 +27,13 @@ import { JwtAuthGuard } from './modules/auth/presentation/guards/jwt-auth.guard'
         limit: 100, // Max requests per time window
       },
     ]),
+
     // Feature modules
     AuthModule,
     UserModule,
     PollModule,
     VoteModule,
+    RewardModule,
   ],
   controllers: [AppController, HealthController],
   providers: [
