@@ -13,9 +13,8 @@ async function main() {
   const entryPointAddress = process.env.ENTRY_POINT_ADDRESS!;
   const entryPoint = new ethers.Contract(entryPointAddress, entryPointABI.abi, signer);
 
-  const pollHash =
-    process.env.POOL_HASH ||
-    "0x130c2494249baa1043729cbad6b12425207e3db96249ffc0144aba6b3c06ca02";
+  const pollHash = process.env.POLL_HASH ||
+    "0x589ddbd3cd15ed1cd8e4591d4cb382157855daea5168ded76985c766af79edd2";
 
   const candidateSelected = 0;
   const proofs: string[] = [];

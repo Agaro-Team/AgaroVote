@@ -13,7 +13,7 @@ async function main() {
     const entryPoint = new ethers.Contract(entryPointAddress, entryPointABI.abi, signer);
     const pollHash =
         process.env.POLL_HASH ||
-        "0x130c2494249baa1043729cbad6b12425207e3db96249ffc0144aba6b3c06ca02";
+        "0x88e009ee12f41ea7fbe2ff8a4c0c69fb013c02706d98be166296f44987f5901e";
 
     try {
         console.log("Sending withdraw transaction...");

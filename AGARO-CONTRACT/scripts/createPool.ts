@@ -8,12 +8,14 @@ async function main() {
     const provider = new ethers.JsonRpcProvider(process.env.AGARO_RPC_URL);
     const signer = new ethers.Wallet(process.env.AGARO_PRIVATE_KEY!, provider);
 
+    const blockNumber = await provider.getBlockNumber();
+    const block = await provider.getBlock(blockNumber);
+
     console.log("Signer address:", await signer.getAddress());
 
     const entryPointAddress = process.env.ENTRY_POINT_ADDRESS!;
     const entryPoint = new ethers.Contract(entryPointAddress, entryPointABI.abi, signer);
 
-    const now = Math.floor(Date.now() / 1000);
     const pollData = {
         versioning: await entryPoint.version(),
         title: "Zero Init Poll",
@@ -23,8 +25,8 @@ async function main() {
         candidates: ["A", "B", "C"],
         candidatesTotal: 3,
         expiry: {
-            startDate: now,
-            endDate: now + 86400,
+            startDate: block?.timestamp,
+            endDate: Number(block?.timestamp) + 86400,
         },
         rewardShare: ethers.parseEther("500"),
         isTokenRequired: true,
