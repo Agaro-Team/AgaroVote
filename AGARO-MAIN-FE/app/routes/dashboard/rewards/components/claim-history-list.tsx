@@ -3,23 +3,28 @@
  *
  * List of previously claimed rewards
  */
-import { ExternalLink } from 'lucide-react';
+import { AlertCircle, ExternalLink, Gift, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { ClientDate } from '~/components/ui/client-date';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '~/components/ui/empty';
+import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/queries';
 
-import { mockClaimedRewards } from './mock-data';
+import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
 export function ClaimHistoryList() {
-  const rewards = mockClaimedRewards;
-
-  const handleViewTransaction = (txHash: string) => {
-    toast.info('Opening block explorer...', {
-      description: `Viewing transaction ${txHash.slice(0, 10)}...`,
-    });
-  };
+  const rewardsQuery = useSuspenseInfiniteQuery(
+    infiniteRewardListQueryOptions({ claimedOnly: true })
+  );
 
   const handleViewPoll = (pollId: string) => {
     toast.info('Redirecting to poll...', {
@@ -27,16 +32,58 @@ export function ClaimHistoryList() {
     });
   };
 
-  if (rewards.length === 0) {
+  const handleRetry = () => {
+    rewardsQuery.refetch();
+    toast.info('Retrying...', {
+      description: 'Refreshing claim history',
+    });
+  };
+
+  // Error State - Detailed error message with retry
+  if (rewardsQuery.error) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">No claim history yet.</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Your claimed rewards will appear here.
-          </p>
-        </CardContent>
-      </Card>
+      <Empty className="border border-destructive/50">
+        <EmptyHeader>
+          <EmptyMedia variant="icon" className="bg-destructive/10 text-destructive">
+            <AlertCircle />
+          </EmptyMedia>
+          <EmptyTitle>Failed to Load Claim History</EmptyTitle>
+          <EmptyDescription>
+            {rewardsQuery.error instanceof Error
+              ? rewardsQuery.error.message
+              : 'Unable to fetch your claim history. Please check your connection and try again.'}
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button
+            onClick={handleRetry}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={rewardsQuery.isRefetching}
+          >
+            <RefreshCw className={`h-4 w-4 ${rewardsQuery.isRefetching ? 'animate-spin' : ''}`} />
+            {rewardsQuery.isRefetching ? 'Retrying...' : 'Try Again'}
+          </Button>
+        </EmptyContent>
+      </Empty>
+    );
+  }
+
+  // Empty State - Enhanced with icon
+  if (rewardsQuery.data && rewardsQuery.data.total === 0) {
+    return (
+      <Empty className="border">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Gift />
+          </EmptyMedia>
+          <EmptyTitle>No Claim History</EmptyTitle>
+          <EmptyDescription>
+            You haven't claimed any rewards yet. Vote in active polls to earn rewards!
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
@@ -44,24 +91,28 @@ export function ClaimHistoryList() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          Showing {rewards.length} recent claim{rewards.length !== 1 ? 's' : ''}
+          {/* Showing {rewardsQuery.data?.rewards?.length} recent claim
+          {rewardsQuery.data?.rewards?.length !== 1 ? 's' : ''} */}
         </p>
       </div>
 
-      {rewards.map((reward) => (
+      {rewardsQuery.data?.rewards?.map((reward) => (
         <Card key={reward.id} className="overflow-hidden">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg">🗳️ {reward.pollTitle}</CardTitle>
+                  <CardTitle className="text-lg">🗳️ {reward.poll_title}</CardTitle>
                   <Badge variant="default" className="bg-green-500">
                     ✅ Claimed
                   </Badge>
                 </div>
                 <CardDescription suppressHydrationWarning>
                   Claimed on{' '}
-                  <ClientDate date={reward.claimedAt!} formatString="MMM dd, yyyy HH:mm" />
+                  <ClientDate
+                    date={new Date(reward.claimed_at!)}
+                    formatString="MMM dd, yyyy HH:mm"
+                  />
                 </CardDescription>
               </div>
             </div>
@@ -71,23 +122,29 @@ export function ClaimHistoryList() {
             <div className="grid gap-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Your Vote:</span>
-                <span className="font-medium">{reward.userVote} ✓</span>
+                <span className="font-medium">{reward.choice_name} ✓</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Voted:</span>
                 <span className="font-medium" suppressHydrationWarning>
-                  <ClientDate date={reward.voteTimestamp} formatString="MMM dd, yyyy HH:mm" />
+                  <ClientDate
+                    date={new Date(reward.created_at)}
+                    formatString="MMM dd, yyyy HH:mm"
+                  />
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Poll Ended:</span>
                 <span className="font-medium" suppressHydrationWarning>
-                  <ClientDate date={reward.pollEndTime} formatString="MMM dd, yyyy HH:mm" />
+                  <ClientDate
+                    date={new Date(reward.claimable_at)}
+                    formatString="MMM dd, yyyy HH:mm"
+                  />
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Total Votes:</span>
-                <span className="font-medium">{reward.totalVotes.toLocaleString()}</span>
+                <span className="font-medium">{reward.poll_total_votes.toLocaleString()}</span>
               </div>
             </div>
 
@@ -97,43 +154,17 @@ export function ClaimHistoryList() {
                 <span className="text-sm text-muted-foreground">💰 Claimed Amount:</span>
                 <div className="text-right">
                   <p className="text-xl font-bold text-green-700 dark:text-green-300">
-                    {reward.rewardAmount} AGR
+                    {reward.reward_amount} AGR
                   </p>
-                  <p className="text-sm text-muted-foreground">≈ ${reward.rewardAmountUsd}</p>
+                  <p className="text-sm text-muted-foreground">≈ ${reward.reward_amount}</p>
                 </div>
-              </div>
-              {reward.earlyVoterBonus && (
-                <div className="pt-2 border-t border-green-500/20">
-                  <p className="text-xs text-muted-foreground">
-                    🏆 Included Early Voter Bonus: +{reward.earlyVoterBonus}%
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Transaction Hash */}
-            <div className="rounded-lg bg-muted p-3 space-y-1">
-              <p className="text-xs text-muted-foreground">Transaction Hash:</p>
-              <div className="flex items-center gap-2">
-                <code className="text-xs flex-1 overflow-hidden text-ellipsis">
-                  {reward.claimTxHash}
-                </code>
-                <Button
-                  onClick={() => handleViewTransaction(reward.claimTxHash!)}
-                  variant="ghost"
-                  size="sm"
-                  className="gap-1 h-7 text-xs"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  View
-                </Button>
               </div>
             </div>
 
             {/* Actions */}
             <div className="flex flex-wrap gap-2">
               <Button
-                onClick={() => handleViewPoll(reward.pollId)}
+                onClick={() => handleViewPoll(reward.poll_id)}
                 variant="outline"
                 size="sm"
                 className="gap-2"
@@ -146,10 +177,11 @@ export function ClaimHistoryList() {
         </Card>
       ))}
 
-      {/* Load More (Placeholder) */}
-      <div className="text-center pt-4">
-        <Button variant="outline">Load More History</Button>
-      </div>
+      {rewardsQuery.hasNextPage && (
+        <Button variant="outline" onClick={() => rewardsQuery.fetchNextPage()}>
+          Load More History
+        </Button>
+      )}
     </div>
   );
 }

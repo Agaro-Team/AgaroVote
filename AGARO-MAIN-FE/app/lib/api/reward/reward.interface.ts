@@ -10,7 +10,9 @@ export interface Reward {
   principal_amount: number;
   reward_amount: number;
   claimable_at: string;
+  claimed_at: string | null;
   is_claimable: boolean;
+  is_claimed: boolean;
   choice_id: string;
   choice_name: string;
   poll_title: string;
@@ -26,4 +28,5 @@ export type GetRewardsResponse = ApiResponse<ApiListResponse<Reward>>;
 
 export interface GetRewardsRequest extends ApiRequest {
   claimableOnly?: boolean;
+  claimedOnly?: boolean;
 }

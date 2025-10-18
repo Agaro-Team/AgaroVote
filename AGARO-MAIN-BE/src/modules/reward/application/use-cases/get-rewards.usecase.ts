@@ -1,7 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
-import { REWARD_REPOSITORY } from '../../domain/repositories/reward-repository.interface';
 import { GetRewardsQueryDto } from '../dto/get-rewards-query.dto';
 import { RewardResponseDto } from '../dto/reward-response.dto';
 import {
@@ -12,10 +11,7 @@ import {
 
 @Injectable()
 export class GetRewardsUseCase {
-  constructor(
-    @Inject(REWARD_REPOSITORY)
-    private readonly queryBus: QueryBus,
-  ) {}
+  constructor(private readonly queryBus: QueryBus) {}
 
   async execute(
     walletAddress: string,
