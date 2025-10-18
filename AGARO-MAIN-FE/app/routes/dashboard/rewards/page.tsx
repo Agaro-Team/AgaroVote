@@ -16,9 +16,12 @@ import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
 import { siweAuthMiddleware } from '~/lib/middleware/auth';
 
+import { Suspense } from 'react';
+
 import { ClaimHistoryList } from './components/claim-history-list';
 import { ClaimableRewardsList } from './components/claimable-rewards-list';
 import { PendingRewardsList } from './components/pending-rewards-list';
+import { RewardSkeletonList } from './components/reward-skeleton-list';
 import { RewardsStatsGrid } from './components/rewards-stats-grid';
 import { RewardsSummaryCard } from './components/rewards-summary-card';
 import { RewardsTabs } from './components/rewards-tabs';
@@ -71,8 +74,16 @@ export default function RewardsPage() {
 
         {/* Tabs */}
         <RewardsTabs
-          claimableContent={<ClaimableRewardsList />}
-          pendingContent={<PendingRewardsList />}
+          claimableContent={
+            <Suspense fallback={<RewardSkeletonList />}>
+              <ClaimableRewardsList />
+            </Suspense>
+          }
+          pendingContent={
+            <Suspense fallback={<RewardSkeletonList />}>
+              <PendingRewardsList />
+            </Suspense>
+          }
           historyContent={<ClaimHistoryList />}
         />
       </div>

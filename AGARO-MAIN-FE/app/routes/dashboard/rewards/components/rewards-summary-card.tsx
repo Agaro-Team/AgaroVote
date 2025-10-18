@@ -8,21 +8,16 @@ import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 
+import { useTabsQueryState } from '../hooks/use-tabs-query-state';
 import { mockRewardsSummary } from './mock-data';
 
 export function RewardsSummaryCard() {
   const summary = mockRewardsSummary;
 
-  const handleClaimAll = () => {
-    toast.info('Claim All feature coming soon!', {
-      description: 'This will claim all available rewards in a single transaction.',
-    });
-  };
+  const [__, setActiveTab] = useTabsQueryState();
 
   const handleViewHistory = () => {
-    toast.info('Redirecting to history...', {
-      description: 'This will show your claim history.',
-    });
+    setActiveTab('history');
   };
 
   return (
@@ -58,10 +53,6 @@ export function RewardsSummaryCard() {
 
         {/* Actions */}
         <div className="flex flex-wrap gap-3">
-          <Button onClick={handleClaimAll} size="lg" className="gap-2">
-            <Sparkles className="h-4 w-4" />
-            Claim All ({summary.claimableCount})
-          </Button>
           <Button onClick={handleViewHistory} size="lg" variant="outline" className="gap-2">
             <History className="h-4 w-4" />
             View History
