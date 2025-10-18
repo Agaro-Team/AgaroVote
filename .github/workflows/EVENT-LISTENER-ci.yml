@@ -1,4 +1,4 @@
-name: Backend Docker Build & Deploy
+name: Backend Build & Deploy (No Docker Push)
 
 on:
   push:
@@ -8,8 +8,10 @@ on:
   workflow_dispatch:
 
 env:
-  DOCKER_IMAGE: ardialqlause/agaro-event-listener
-  CONTAINER_NAME: agaro-event-listener
+  APP_NAME: agaro-event-listener
+  DEPLOY_DIR: /opt/agaro-event-listener
+  SERVER_USER: ardial
+  SERVER_HOST: 92.113.145.8
   PORT: 3002
 
 jobs:
@@ -20,53 +22,39 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          toolchain: stable
+          override: true
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./AGARO-EVENT-LISTENER
-          file: ./AGARO-EVENT-LISTENER/Dockerfile.prod
-          push: true
-          tags: ${{ env.DOCKER_IMAGE }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+      - name: Build release binary
+        run: |
+          cd AGARO-EVENT-LISTENER
+          cargo build --release
+          mkdir -p dist
+          cp target/release/agaro-event-listener dist/
+          cp -r abi dist/
+          cd dist
+          tar -czf agaro-event-listener.tar.gz agaro-event-listener abi
 
       - name: Setup SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 92.113.145.8 >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ env.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Deploy to Server
+      - name: Upload and deploy to server
         run: |
-          ssh ardial@92.113.145.8 "
-            sudo bash -c '
-              echo \"Pulling latest Docker image\"
-              docker pull ${{ env.DOCKER_IMAGE }}:latest
+          scp AGARO-EVENT-LISTENER/dist/agaro-event-listener.tar.gz ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/tmp/
+          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+            set -e
+            echo 'Deploying new version...'
+            sudo mkdir -p ${{ env.DEPLOY_DIR }}
+            sudo tar -xzf /tmp/agaro-event-listener.tar.gz -C ${{ env.DEPLOY_DIR }}
+            sudo rm /tmp/agaro-event-listener.tar.gz
 
-              echo \"Stopping old container\"
-              docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
-              docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null || true
-
-              echo \"Cleaning unused containers/images\"
-              docker container prune -f
-              docker image prune -f
-
-              echo \"Running new container\"
-              docker run -d \
-                --name agaro-event-listener \
-                --restart unless-stopped \
-                --network agaro-network \
-                -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
-                ${{ env.DOCKER_IMAGE }}:latest
-            '
+            echo 'Restarting service...'
+            sudo systemctl restart agaro-event-listener.service || true
           "
