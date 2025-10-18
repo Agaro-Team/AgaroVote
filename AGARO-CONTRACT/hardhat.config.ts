@@ -2,7 +2,10 @@ import "@nomicfoundation/hardhat-ethers";
 import type { HardhatUserConfig } from "hardhat/config";
 import hardhatToolboxMochaEthersPlugin from "@nomicfoundation/hardhat-toolbox-mocha-ethers";
 import { configVariable } from "hardhat/config";
+import dotenv from "dotenv";
+dotenv.config();
 
+const { RPC_URL, PRIVATE_KEY } = process.env;
 const config: HardhatUserConfig = {
   plugins: [hardhatToolboxMochaEthersPlugin],
 
@@ -59,9 +62,9 @@ const config: HardhatUserConfig = {
     agaro: {
       type: "http",
       chainType: "l1",
-      url: "https://agaro-rpc.ardial.tech",
+      url: configVariable("AGARO_RPC_URL"),
       chainId: 13377,
-      accounts: ["0xdbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97"],
+      accounts: [configVariable("AGARO_PRIVATE_KEY")],
     },
   },
 };

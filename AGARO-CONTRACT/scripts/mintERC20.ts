@@ -1,15 +1,12 @@
 import { ethers } from "ethers";
 
 async function main() {
-  const provider = new ethers.JsonRpcProvider("https://agaro-rpc.ardial.tech");
+  const provider = new ethers.JsonRpcProvider(process.env.AGARO_RPC_URL);
   const signer = await provider.getSigner(0);
-  // Address of deployed AGARO contract
-  const tokenAddress = "0x95bD8D42f30351685e96C62EDdc0d0613bf9a87A";
 
-  // Address to mint to
-  const recipient = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+  const tokenAddress = process.env.TOKEN_ADDRESS!;
+  const recipient = process.env.AGARO_PUBLIC_KEY!;
 
-  // Amount to mint (example: 1000 AGR tokens)
   const amount = ethers.parseEther("1000");
   const agaroABI = [
     "function name() view returns (string)",
@@ -23,12 +20,10 @@ async function main() {
   ];
 
   const agaro = new ethers.Contract(tokenAddress, agaroABI, signer);
-
-  // Call mint()
   const tx = await agaro.mint(recipient, amount);
   await tx.wait();
 
-  console.log(`✅ Minted ${ethers.formatEther(amount)} AGR to ${recipient}`);
+  console.log(`Minted ${ethers.formatEther(amount)} AGR to ${recipient}`);
 }
 
 main().catch((error) => {

@@ -9,7 +9,8 @@
     "ignition:entrypoint:agaro": "hardhat ignition deploy ignition/modules/EntryPointModule.ts --network agaro --reset",
     "compile": "hardhat compile",
     "node": "hardhat node",
-    "script:mint": "hardhat run scripts/mintERC20.ts --network localhost"
+    "script:mint:local": "hardhat run scripts/mintERC20.ts --network localhost",
+    "script:mint:agaro": "hardhat run scripts/mintERC20.ts --network agaro"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-ignition": "^3.0.3",
@@ -28,6 +29,7 @@
   "dependencies": {
     "@openzeppelin/contracts": "^5.4.0",
     "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "dotenv": "^17.2.3",
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.6.0"
   }
