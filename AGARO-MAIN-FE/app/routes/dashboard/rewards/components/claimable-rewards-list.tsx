@@ -3,17 +3,28 @@
  *
  * List of rewards from ended polls that are ready to claim
  */
-import { ExternalLink, Info, Sparkles } from 'lucide-react';
+import { AlertCircle, ExternalLink, Gift, Info, RefreshCw, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { ClientDate } from '~/components/ui/client-date';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '~/components/ui/empty';
+import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/queries';
 
-import { mockClaimableRewards } from './mock-data';
+import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
 export function ClaimableRewardsList() {
-  const rewards = mockClaimableRewards;
+  const rewardsQuery = useSuspenseInfiniteQuery(
+    infiniteRewardListQueryOptions({ claimableOnly: true })
+  );
 
   const handleClaim = (pollTitle: string, amount: string) => {
     toast.success('Claiming reward...', {
@@ -27,16 +38,58 @@ export function ClaimableRewardsList() {
     });
   };
 
-  if (rewards.length === 0) {
+  const handleRetry = () => {
+    rewardsQuery.refetch();
+    toast.info('Retrying...', {
+      description: 'Refreshing claimable rewards list',
+    });
+  };
+
+  // Error State - Detailed error message with retry
+  if (rewardsQuery.error) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">No claimable rewards at the moment.</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Vote in active polls to earn rewards!
-          </p>
-        </CardContent>
-      </Card>
+      <Empty className="border border-destructive/50">
+        <EmptyHeader>
+          <EmptyMedia variant="icon" className="bg-destructive/10 text-destructive">
+            <AlertCircle />
+          </EmptyMedia>
+          <EmptyTitle>Failed to Load Claimable Rewards</EmptyTitle>
+          <EmptyDescription>
+            {rewardsQuery.error instanceof Error
+              ? rewardsQuery.error.message
+              : 'Unable to fetch your claimable rewards. Please check your connection and try again.'}
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button
+            onClick={handleRetry}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={rewardsQuery.isRefetching}
+          >
+            <RefreshCw className={`h-4 w-4 ${rewardsQuery.isRefetching ? 'animate-spin' : ''}`} />
+            {rewardsQuery.isRefetching ? 'Retrying...' : 'Try Again'}
+          </Button>
+        </EmptyContent>
+      </Empty>
+    );
+  }
+
+  // Empty State - Enhanced with icon
+  if (rewardsQuery.data && rewardsQuery.data.total === 0) {
+    return (
+      <Empty className="border">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Gift />
+          </EmptyMedia>
+          <EmptyTitle>No Claimable Rewards</EmptyTitle>
+          <EmptyDescription>
+            You don't have any rewards ready to claim. Vote in active polls to earn rewards!
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
     );
   }
 
@@ -44,24 +97,30 @@ export function ClaimableRewardsList() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-muted-foreground">
-          {rewards.length} reward{rewards.length !== 1 ? 's' : ''} ready to claim
+          {/* {rewardsQuery.data?.rewards?.length} reward
+          {rewardsQuery.data?.rewards?.length !== 1 ? 's' : ''} ready to claim */}
         </p>
       </div>
 
-      {rewards.map((reward) => (
+      {rewardsQuery.data?.rewards?.map((reward) => (
         <Card key={reward.id} className="overflow-hidden">
           <CardHeader>
             <div className="flex items-start justify-between gap-4">
               <div className="space-y-1 flex-1">
                 <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg">🗳️ {reward.pollTitle}</CardTitle>
+                  <CardTitle className="text-lg">🗳️ {reward.poll_title}</CardTitle>
                   <Badge variant="default" className="bg-green-500">
                     ✅ Ended
                   </Badge>
                 </div>
                 <CardDescription suppressHydrationWarning>
-                  Ended <ClientDate date={reward.pollEndTime} formatString="MMM dd, yyyy HH:mm" /> (
-                  <ClientDate date={reward.pollEndTime} formatString="EEE" />)
+                  Ended{' '}
+                  <ClientDate
+                    date={new Date(reward.claimable_at)}
+                    formatString="MMM dd, yyyy HH:mm"
+                  />{' '}
+                  (
+                  <ClientDate date={new Date(reward.claimable_at)} formatString="EEE" />)
                 </CardDescription>
               </div>
             </div>
@@ -71,17 +130,20 @@ export function ClaimableRewardsList() {
             <div className="grid gap-3 text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Your Vote:</span>
-                <span className="font-medium">{reward.userVote} ✓</span>
+                <span className="font-medium">{reward.choice_name} ✓</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Voted:</span>
                 <span className="font-medium" suppressHydrationWarning>
-                  <ClientDate date={reward.voteTimestamp} formatString="MMM dd, yyyy HH:mm" />
+                  <ClientDate
+                    date={new Date(reward.created_at)}
+                    formatString="MMM dd, yyyy HH:mm"
+                  />
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Total Votes:</span>
-                <span className="font-medium">{reward.totalVotes.toLocaleString()}</span>
+                <span className="font-medium">{reward.poll_total_votes.toLocaleString()}</span>
               </div>
             </div>
 
@@ -90,37 +152,23 @@ export function ClaimableRewardsList() {
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">💎 Reward:</span>
                 <div className="text-right">
-                  <p className="text-xl font-bold">{reward.rewardAmount} AGR</p>
-                  <p className="text-sm text-muted-foreground">≈ ${reward.rewardAmountUsd}</p>
+                  <p className="text-xl font-bold">{reward.reward_amount} AGR</p>
+                  <p className="text-sm text-muted-foreground">≈ ${reward.reward_amount}</p>
                 </div>
               </div>
-              {(reward.earlyVoterBonus || reward.participationBonus) && (
-                <div className="pt-2 border-t">
-                  {reward.earlyVoterBonus && (
-                    <p className="text-xs text-muted-foreground">
-                      🏆 Early Voter Bonus: +{reward.earlyVoterBonus}%
-                    </p>
-                  )}
-                  {reward.participationBonus && (
-                    <p className="text-xs text-muted-foreground">
-                      🎯 Participation Bonus: +{reward.participationBonus}%
-                    </p>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Actions */}
             <div className="flex flex-wrap gap-2">
               <Button
-                onClick={() => handleClaim(reward.pollTitle, reward.rewardAmount)}
+                onClick={() => handleClaim(reward.poll_title, reward.reward_amount.toString())}
                 className="gap-2"
               >
                 <Sparkles className="h-4 w-4" />
                 Claim Now
               </Button>
               <Button
-                onClick={() => handleViewPoll(reward.pollId)}
+                onClick={() => handleViewPoll(reward.poll_id)}
                 variant="outline"
                 className="gap-2"
               >
@@ -134,6 +182,12 @@ export function ClaimableRewardsList() {
           </CardContent>
         </Card>
       ))}
+
+      {rewardsQuery.hasNextPage && (
+        <Button variant="outline" onClick={() => rewardsQuery.fetchNextPage()}>
+          Load More
+        </Button>
+      )}
     </div>
   );
 }

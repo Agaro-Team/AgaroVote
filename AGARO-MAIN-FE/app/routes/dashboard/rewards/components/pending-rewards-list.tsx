@@ -3,29 +3,37 @@
  *
  * List of rewards from active polls (locked until poll ends)
  */
-import { Bell, Clock, ExternalLink } from 'lucide-react';
+import { AlertCircle, Bell, Clock, ExternalLink, Inbox, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { ClientDate } from '~/components/ui/client-date';
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from '~/components/ui/empty';
+import { Skeleton } from '~/components/ui/skeleton';
+import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/queries';
 
-import { useEffect, useState } from 'react';
+import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
-import { formatTimeRemaining, getPollProgress, mockPendingRewards } from './mock-data';
+import { RewardSkeletonList } from './reward-skeleton-list';
 
 export function PendingRewardsList() {
-  const rewards = mockPendingRewards;
-  const [, setTick] = useState(0);
-
-  // Update countdown every minute
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setTick((prev) => prev + 1);
-    }, 60000); // Update every minute
-
-    return () => clearInterval(timer);
-  }, []);
+  const {
+    data: pendingRewards,
+    isLoading,
+    error,
+    refetch,
+    isRefetching,
+    hasNextPage,
+    fetchNextPage,
+  } = useSuspenseInfiniteQuery(infiniteRewardListQueryOptions({}));
 
   const handleSetReminder = (pollTitle: string) => {
     toast.success('Reminder set!', {
@@ -39,18 +47,63 @@ export function PendingRewardsList() {
     });
   };
 
-  if (rewards.length === 0) {
+  const handleRetry = () => {
+    refetch();
+    toast.info('Retrying...', {
+      description: 'Refreshing pending rewards list',
+    });
+  };
+
+  // Error State - Detailed error message with retry
+  if (error) {
     return (
-      <Card>
-        <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">No pending rewards.</p>
-          <p className="text-sm text-muted-foreground mt-2">
-            Your rewards from active polls will appear here.
-          </p>
-        </CardContent>
-      </Card>
+      <Empty className="border border-destructive/50">
+        <EmptyHeader>
+          <EmptyMedia variant="icon" className="bg-destructive/10 text-destructive">
+            <AlertCircle />
+          </EmptyMedia>
+          <EmptyTitle>Failed to Load Pending Rewards</EmptyTitle>
+          <EmptyDescription>
+            {error instanceof Error
+              ? error.message
+              : 'Unable to fetch your pending rewards. Please check your connection and try again.'}
+          </EmptyDescription>
+        </EmptyHeader>
+        <EmptyContent>
+          <Button
+            onClick={handleRetry}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+            disabled={isRefetching}
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefetching ? 'animate-spin' : ''}`} />
+            {isRefetching ? 'Retrying...' : 'Try Again'}
+          </Button>
+        </EmptyContent>
+      </Empty>
     );
   }
+
+  // Empty State - Enhanced with icon
+  if (pendingRewards && pendingRewards.rewards.length === 0) {
+    return (
+      <Empty className="border">
+        <EmptyHeader>
+          <EmptyMedia variant="icon">
+            <Inbox />
+          </EmptyMedia>
+          <EmptyTitle>No Pending Rewards</EmptyTitle>
+          <EmptyDescription>
+            Your rewards from active polls will appear here. Vote in ongoing polls to earn rewards!
+          </EmptyDescription>
+        </EmptyHeader>
+      </Empty>
+    );
+  }
+
+  // Success State - Display rewards
+  const rewards = pendingRewards.rewards || [];
 
   return (
     <div className="space-y-4">
@@ -61,8 +114,28 @@ export function PendingRewardsList() {
       </div>
 
       {rewards.map((reward) => {
-        const timeRemaining = formatTimeRemaining(reward.pollEndTime);
-        const progress = getPollProgress(reward.voteTimestamp, reward.pollEndTime);
+        const claimableDate = new Date(reward.claimable_at);
+        const votedDate = new Date(reward.created_at);
+        const now = Date.now();
+        const timeUntilClaimable = claimableDate.getTime() - now;
+
+        // Calculate time remaining
+        const days = Math.max(0, Math.floor(timeUntilClaimable / (1000 * 60 * 60 * 24)));
+        const hours = Math.max(
+          0,
+          Math.floor((timeUntilClaimable % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+        );
+        const minutes = Math.max(
+          0,
+          Math.floor((timeUntilClaimable % (1000 * 60 * 60)) / (1000 * 60))
+        );
+
+        const timeRemaining =
+          days > 0
+            ? `${days}d ${hours}h ${minutes}m`
+            : hours > 0
+              ? `${hours}h ${minutes}m`
+              : `${minutes}m`;
 
         return (
           <Card key={reward.id} className="overflow-hidden">
@@ -70,12 +143,12 @@ export function PendingRewardsList() {
               <div className="flex items-start justify-between gap-4">
                 <div className="space-y-1 flex-1">
                   <div className="flex items-center gap-2">
-                    <CardTitle className="text-lg">🗳️ {reward.pollTitle}</CardTitle>
+                    <CardTitle className="text-lg">🗳️ {reward.poll_title}</CardTitle>
                     <Badge variant="secondary" className="bg-blue-500 text-white">
                       🔵 Active
                     </Badge>
                   </div>
-                  <CardDescription>Your vote: {reward.userVote} ✓</CardDescription>
+                  <CardDescription>Your vote: {reward.choice_name} ✓</CardDescription>
                 </div>
               </div>
             </CardHeader>
@@ -85,19 +158,13 @@ export function PendingRewardsList() {
                 <div className="flex items-center justify-between text-sm">
                   <div className="flex items-center gap-2">
                     <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">Ends in:</span>
+                    <span className="text-muted-foreground">Claimable in:</span>
                   </div>
                   <span className="font-bold">{timeRemaining}</span>
                 </div>
-                {/* Progress Bar */}
-                <div className="w-full bg-secondary rounded-full h-2">
-                  <div
-                    className="bg-blue-500 h-2 rounded-full transition-all"
-                    style={{ width: `${Math.min(progress, 100)}%` }}
-                  />
-                </div>
                 <p className="text-xs text-muted-foreground" suppressHydrationWarning>
-                  Ends: <ClientDate date={reward.pollEndTime} formatString="MMM dd, yyyy HH:mm" />
+                  Claimable at:{' '}
+                  <ClientDate date={claimableDate} formatString="MMM dd, yyyy HH:mm" />
                 </p>
               </div>
 
@@ -106,12 +173,16 @@ export function PendingRewardsList() {
                 <div className="flex items-center justify-between">
                   <span className="text-muted-foreground">Voted:</span>
                   <span className="font-medium" suppressHydrationWarning>
-                    <ClientDate date={reward.voteTimestamp} formatString="MMM dd, yyyy HH:mm" />
+                    <ClientDate date={votedDate} formatString="MMM dd, yyyy HH:mm" />
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Current Votes:</span>
-                  <span className="font-medium">{reward.totalVotes.toLocaleString()}</span>
+                  <span className="text-muted-foreground">Total Votes:</span>
+                  <span className="font-medium">{reward.poll_total_votes.toLocaleString()}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Your Choice Votes:</span>
+                  <span className="font-medium">{reward.choice_total_votes.toLocaleString()}</span>
                 </div>
               </div>
 
@@ -120,8 +191,10 @@ export function PendingRewardsList() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-muted-foreground">💎 Potential Reward:</span>
                   <div className="text-right">
-                    <p className="text-xl font-bold">~{reward.rewardAmount} AGR</p>
-                    <p className="text-sm text-muted-foreground">≈ ${reward.rewardAmountUsd}</p>
+                    <p className="text-xl font-bold">~{reward.reward_amount} AGR</p>
+                    <p className="text-sm text-muted-foreground">
+                      Principal: {reward.principal_amount} AGR
+                    </p>
                   </div>
                 </div>
               </div>
@@ -136,7 +209,7 @@ export function PendingRewardsList() {
               {/* Actions */}
               <div className="flex flex-wrap gap-2">
                 <Button
-                  onClick={() => handleViewPoll(reward.pollId)}
+                  onClick={() => handleViewPoll(reward.poll_id)}
                   variant="outline"
                   className="gap-2"
                 >
@@ -144,7 +217,7 @@ export function PendingRewardsList() {
                   View Poll
                 </Button>
                 <Button
-                  onClick={() => handleSetReminder(reward.pollTitle)}
+                  onClick={() => handleSetReminder(reward.poll_title)}
                   variant="outline"
                   className="gap-2"
                 >
@@ -156,6 +229,12 @@ export function PendingRewardsList() {
           </Card>
         );
       })}
+
+      {hasNextPage && (
+        <Button variant="outline" onClick={() => fetchNextPage()}>
+          Load More
+        </Button>
+      )}
     </div>
   );
 }

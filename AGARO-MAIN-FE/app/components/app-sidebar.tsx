@@ -78,15 +78,15 @@ const data = {
       items: [
         {
           title: 'Claimable',
-          url: '/dashboard/rewards',
+          url: '/dashboard/rewards?activeTab=claimable',
         },
         {
           title: 'Pending',
-          url: '/dashboard/rewards',
+          url: '/dashboard/rewards?activeTab=pending',
         },
         {
           title: 'History',
-          url: '/dashboard/rewards',
+          url: '/dashboard/rewards?activeTab=history',
         },
       ],
     },
