@@ -1,11 +1,11 @@
 import { ethers } from "ethers";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 async function main() {
   const provider = new ethers.JsonRpcProvider(process.env.AGARO_RPC_URL);
-  const signer = await provider.getSigner(0);
-
-  const tokenAddress = process.env.TOKEN_ADDRESS!;
-  const recipient = process.env.AGARO_PUBLIC_KEY!;
+  const signer = new ethers.Wallet(process.env.AGARO_PRIVATE_KEY!, provider);
 
   const amount = ethers.parseEther("1000");
   const agaroABI = [
@@ -19,14 +19,18 @@ async function main() {
     "event Transfer(address indexed from, address indexed to, uint256 value)",
   ];
 
-  const agaro = new ethers.Contract(tokenAddress, agaroABI, signer);
-  const tx = await agaro.mint(recipient, amount);
-  await tx.wait();
+  const agaro = new ethers.Contract(process.env.TOKEN_ADDRESS!, agaroABI, signer);
 
-  console.log(`Minted ${ethers.formatEther(amount)} AGR to ${recipient}`);
+  console.log(`Minting ${ethers.formatEther(amount)} tokens to ${process.env.AGARO_PUBLIC_KEY!}...`);
+
+  const tx = await agaro.mint(process.env.AGARO_PUBLIC_KEY!, amount);
+  const receipt = await tx.wait();
+
+  console.log(`Minted ${ethers.formatEther(amount)} AGR to ${process.env.AGARO_PUBLIC_KEY!}`);
+  console.log(`Tx hash: ${receipt.hash}`);
 }
 
 main().catch((error) => {
-  console.error(error);
+  console.error("❌ Error:", error.message);
   process.exitCode = 1;
 });

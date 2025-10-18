@@ -36,23 +36,17 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
         if (_pollData.versioning != version)
             revert VersioningError(_pollData.versioning);
 
-        address merkleRootContract = _initMerkleRootContract(
-            _pollData.merkleRootHash
-        );
-
-        address syntheticRewardContract = _initSyntheticRewardContract(
-            _pollData.rewardShare,
-            _pollData.expiry,
-            msg.sender
-        );
-
         (bytes32 pollHash, bytes32 voterStorageHashLocation) = _new(
             _pollData.getHash(version, msg.sender),
             _pollData,
             _pollData.isPrivate,
             _pollData.isTokenRequired,
-            merkleRootContract,
-            syntheticRewardContract,
+            _initMerkleRootContract(_pollData.merkleRootHash),
+            _initSyntheticRewardContract(
+                _pollData.rewardShare,
+                _pollData.expiry,
+                msg.sender
+            ),
             msg.sender
         );
 
@@ -92,6 +86,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
 
     function withdraw(bytes32 _pollHash) external {
         PollData memory pollData = polls[_pollHash];
+
         if (
             !pollStorageVoters[pollData.voterStorageHashLocation][msg.sender]
                 .isVoted
@@ -125,7 +120,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
         if (!isPollHaveVoterStorage(_voteData.pollHash))
             revert PollDoesNotHaveVoterStorage(_voteData.pollHash);
 
-        return polls[_voteData.pollHash].voterStorageHashLocation;
+        return storageLocation;
     }
 
     function _verifyVoterCredential(
