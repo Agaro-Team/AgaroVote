@@ -24,7 +24,7 @@ async fn main() -> anyhow::Result<()> {
     let poll_created_task = tokio::spawn({
         let contract = contract.clone();
         async move {
-            let client = reqwest::Client::new(); // ✅ create HTTP client once per task
+            let client = reqwest::Client::new();
 
             let event_builder = contract
                 .event::<VotingPollCreated>()
@@ -43,7 +43,7 @@ async fn main() -> anyhow::Result<()> {
                     event.poll_hash, event.version
                 );
 
-                let poll_hash_hex = format!("{:?}", event.poll_hash); // Convert H256 to string
+                let poll_hash_hex = format!("{:?}", event.poll_hash);
                 let url = format!(
                     "https://agaro-api.ardial.tech/api/v1/polls/{}/activate",
                     poll_hash_hex.trim_matches('"')
