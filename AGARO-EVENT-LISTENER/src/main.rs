@@ -47,13 +47,14 @@ async fn main() -> anyhow::Result<()> {
                 );
 
                 let poll_hash_hex = format!("{:?}", event.poll_hash);
-                let url = format!(
-                    "{}/polls/{}/activate",
-                    api_base,
-                    poll_hash_hex.trim_matches('"')
-                );
+                let url = format!("{}/polls/activate", api_base);
 
-                match client.post(&url).send().await {
+                let payload = json!({
+                    "pollHash":event.poll_hash,
+                    "syntheticRewardContractAddress": event.synthetic_reward_contract
+                });
+
+                match client.post(&url).json(&payload).send().await {
                     Ok(resp) => {
                         if resp.status().is_success() {
                             println!("Activated poll {} successfully", poll_hash_hex);
