@@ -324,6 +324,12 @@ export const entryPointAbi = [
         indexed: false,
       },
       {
+        name: 'syntheticRewardContract',
+        internalType: 'address',
+        type: 'address',
+        indexed: false,
+      },
+      {
         name: 'candidateCount',
         internalType: 'uint256[]',
         type: 'uint256[]',
@@ -754,6 +760,12 @@ export const iEntryPointAbi = [
         name: 'voterStorageHashLocation',
         internalType: 'bytes32',
         type: 'bytes32',
+        indexed: false,
+      },
+      {
+        name: 'syntheticRewardContract',
+        internalType: 'address',
+        type: 'address',
         indexed: false,
       },
       {
