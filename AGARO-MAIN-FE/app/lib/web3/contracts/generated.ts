@@ -275,15 +275,15 @@ export const entryPointAbi = [
         indexed: true,
       },
       {
-        name: 'voter',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
         name: 'selected',
         internalType: 'uint8',
         type: 'uint8',
+        indexed: false,
+      },
+      {
+        name: 'commitToken',
+        internalType: 'uint256',
+        type: 'uint256',
         indexed: false,
       },
       {
@@ -291,6 +291,12 @@ export const entryPointAbi = [
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: false,
+      },
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
       },
     ],
     name: 'VoteSucceeded',
@@ -325,6 +331,37 @@ export const entryPointAbi = [
       },
     ],
     name: 'VotingPollCreated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'pollHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'withdrawedToken',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'withdrawedReward',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'WithdrawSucceeded',
   },
   {
     type: 'function',
@@ -671,15 +708,15 @@ export const iEntryPointAbi = [
         indexed: true,
       },
       {
-        name: 'voter',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
         name: 'selected',
         internalType: 'uint8',
         type: 'uint8',
+        indexed: false,
+      },
+      {
+        name: 'commitToken',
+        internalType: 'uint256',
+        type: 'uint256',
         indexed: false,
       },
       {
@@ -687,6 +724,12 @@ export const iEntryPointAbi = [
         internalType: 'bytes32',
         type: 'bytes32',
         indexed: false,
+      },
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
       },
     ],
     name: 'VoteSucceeded',
@@ -721,6 +764,37 @@ export const iEntryPointAbi = [
       },
     ],
     name: 'VotingPollCreated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'pollHash',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'withdrawedToken',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'withdrawedReward',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+      {
+        name: 'voter',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'WithdrawSucceeded',
   },
   {
     type: 'function',
@@ -959,7 +1033,10 @@ export const iSyntheticRewardAbi = [
     type: 'function',
     inputs: [{ name: '_sender', internalType: 'address', type: 'address' }],
     name: 'withdraw',
-    outputs: [],
+    outputs: [
+      { name: 'rewards', internalType: 'uint256', type: 'uint256' },
+      { name: 'principalToken', internalType: 'uint256', type: 'uint256' },
+    ],
     stateMutability: 'nonpayable',
   },
 ] as const
@@ -1386,7 +1463,10 @@ export const syntheticRewardAbi = [
     type: 'function',
     inputs: [{ name: '_sender', internalType: 'address', type: 'address' }],
     name: 'withdraw',
-    outputs: [],
+    outputs: [
+      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: '', internalType: 'uint256', type: 'uint256' },
+    ],
     stateMutability: 'nonpayable',
   },
 ] as const
@@ -1922,6 +2002,15 @@ export const useWatchEntryPointVotingPollCreatedEvent =
   })
 
 /**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"WithdrawSucceeded"`
+ */
+export const useWatchEntryPointWithdrawSucceededEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: entryPointAbi,
+    eventName: 'WithdrawSucceeded',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link iagaroAbi}__
  */
 export const useReadIagaro = /*#__PURE__*/ createUseReadContract({
@@ -2142,6 +2231,15 @@ export const useWatchIEntryPointVotingPollCreatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: iEntryPointAbi,
     eventName: 'VotingPollCreated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iEntryPointAbi}__ and `eventName` set to `"WithdrawSucceeded"`
+ */
+export const useWatchIEntryPointWithdrawSucceededEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iEntryPointAbi,
+    eventName: 'WithdrawSucceeded',
   })
 
 /**
