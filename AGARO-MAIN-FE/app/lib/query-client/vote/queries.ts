@@ -1,8 +1,9 @@
 import type { Address } from 'viem';
-import { pollService } from '~/lib/api/poll/poll.service';
+import type { GetUserVote, GetUserVotesRequest } from '~/lib/api/vote/vote.interface';
 import { voteService } from '~/lib/api/vote/vote.service';
+import { createGetNextPageParam } from '~/lib/utils';
 
-import { queryOptions } from '@tanstack/react-query';
+import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 
 export const voteQueryKeys = {
   baseUserVote: ['user-vote'] as const,
@@ -11,6 +12,9 @@ export const voteQueryKeys = {
   baseCheckHasVoted: () => [...voteQueryKeys.baseUserVote, 'check-has-voted'] as const,
   checkHasVoted: (pollId: string, walletAddress: Address) =>
     [...voteQueryKeys.baseCheckHasVoted(), { pollId, walletAddress }] as const,
+
+  baseUserVotes: ['user-votes'] as const,
+  userVotes: (params: GetUserVotesRequest) => [...voteQueryKeys.baseUserVotes, { params }] as const,
 };
 
 export const userVoteQueryOptions = (pollId: string, walletAddress: Address) =>
@@ -27,6 +31,17 @@ export const userVoteQueryOptions = (pollId: string, walletAddress: Address) =>
       });
     },
     enabled: !!pollId && !!walletAddress,
+  });
+
+export const infiniteUserVotesQueryOptions = (params: GetUserVotesRequest) =>
+  infiniteQueryOptions({
+    queryKey: voteQueryKeys.userVotes(params),
+    queryFn: () => voteService.getUserVotes(params),
+    getNextPageParam: createGetNextPageParam(params.limit ?? 10),
+    initialPageParam: 1,
+    select: (data) => {
+      return data.pages.flatMap((page) => page?.data?.data ?? []) as GetUserVote[];
+    },
   });
 
 export const checkHasVotedQueryOptions = (pollId: string, walletAddress: Address) =>
