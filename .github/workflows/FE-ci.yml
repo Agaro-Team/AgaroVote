@@ -59,7 +59,7 @@ jobs:
           echo "Creating directory on remote server if not exists..."
           ssh -o StrictHostKeyChecking=no ardial@92.113.145.8 "mkdir -p ${{ env.REMOTE_DIR }}"
           echo "Uploading environment file..."
-          scp -o StrictHostKeyChecking=no ./AGARO-MAIN-BE/${{ env.ENV_FILE }} ardial@92.113.145.8:${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}
+          scp -o StrictHostKeyChecking=no ./AGARO-MAIN-FE/${{ env.ENV_FILE }} ardial@92.113.145.8:${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}
 
       - name: Deploy to Server
         run: |
