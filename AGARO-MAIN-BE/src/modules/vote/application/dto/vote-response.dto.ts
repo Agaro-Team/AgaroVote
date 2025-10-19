@@ -4,6 +4,7 @@ export class VoteResponseDto {
   id: string;
   pollId: string;
   choiceId: string;
+  choiceName: string;
   commitToken?: number;
   voterWalletAddress: string;
   pollHash: string;
@@ -21,6 +22,7 @@ export class VoteResponseDto {
     dto.id = vote.id;
     dto.pollId = vote.pollId;
     dto.choiceId = vote.choiceId;
+    dto.choiceName = vote.choice?.choiceText || 'Unknown';
     dto.commitToken = vote.commitToken;
     dto.voterWalletAddress = vote.voterWalletAddress;
     dto.pollHash = vote.pollHash;

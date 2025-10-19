@@ -88,7 +88,9 @@ export class TypeORMVoteRepository implements IVoteRepository {
       pollHash?: string;
     },
   ): Promise<{ votes: Vote[]; total: number }> {
-    const query = this.repository.createQueryBuilder('vote');
+    const query = this.repository
+      .createQueryBuilder('vote')
+      .leftJoinAndSelect('vote.choice', 'choice');
 
     if (filters?.pollId) {
       query.andWhere('vote.pollId = :pollId', { pollId: filters.pollId });
