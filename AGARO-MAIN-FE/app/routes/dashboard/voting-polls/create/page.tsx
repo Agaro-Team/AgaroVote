@@ -59,7 +59,7 @@ export default function CreateVotingPollPage() {
         </div>
 
         {/* Form */}
-        <div className="max-w-3xl">
+        <div className="max-w-full">
           <CreateVotingPollForm />
         </div>
       </div>

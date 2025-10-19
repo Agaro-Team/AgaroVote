@@ -162,7 +162,7 @@ export function CreateVotingPollForm() {
             form.handleSubmit();
           }}
         >
-          <div className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Section 1: Basic Information */}
             <Card className="p-6 border-l-4 border-l-primary">
               <div className="space-y-6">
@@ -324,7 +324,7 @@ export function CreateVotingPollForm() {
             </Card>
 
             {/* Action Buttons */}
-            <Card className="p-6 bg-muted/50">
+            <Card className="p-6 bg-muted/50 col-span-1 md:col-span-2">
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   <form.SubmitButton

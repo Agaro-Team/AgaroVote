@@ -130,7 +130,6 @@ Shows countdown, vote info, and potential rewards.
       {/* Actions */}
       <Reward.Actions>
         <Button variant="outline">View Poll</Button>
-        <Button variant="outline">Set Reminder</Button>
       </Reward.Actions>
     </Reward.Content>
   </Reward.Card>

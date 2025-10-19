@@ -169,14 +169,6 @@ export function PendingRewardsList() {
                   <ExternalLink className="h-4 w-4" />
                   View Poll
                 </Button>
-                <Button
-                  onClick={() => handleSetReminder(reward.poll_title)}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <Bell className="h-4 w-4" />
-                  Set Reminder
-                </Button>
               </Reward.Actions>
             </Reward.Content>
           </Reward.Card>
