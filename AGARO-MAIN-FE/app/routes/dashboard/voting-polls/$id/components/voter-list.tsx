@@ -230,7 +230,7 @@ export const VoterList = () => {
                     <TableHead>Voter Address</TableHead>
                     <TableHead>Voted At</TableHead>
                     <TableHead>Choice</TableHead>
-                    <TableHead className="text-right">Commited Token</TableHead>
+                    <TableHead className="text-right">Committed Token</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
