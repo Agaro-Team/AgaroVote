@@ -266,6 +266,9 @@ export function useVotePoll() {
       queryClient.invalidateQueries({
         queryKey: voteQueryKeys.baseCheckHasVoted(),
       }),
+      queryClient.invalidateQueries({
+        queryKey: voteQueryKeys.baseUserVotes,
+      }),
     ]).then(() => {
       // Reset all state after successful completion
       dispatch({ type: 'RESET_VOTE_STATE' });
