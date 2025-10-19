@@ -1,4 +1,3 @@
-import { Public } from '@modules/auth/presentation/decorators/public.decorator';
 import { Wallet } from '@modules/auth/presentation/decorators/wallet.decorator';
 import { CastVoteCommand } from '@modules/vote/application/commands';
 import { CastVoteDto } from '@modules/vote/application/dto/cast-vote.dto';
@@ -26,6 +25,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  Post,
   Query,
   Req,
   UseInterceptors,
@@ -52,6 +52,7 @@ export class VoteController {
    * POST /votes
    * Requires authentication - wallet must match the voter wallet address
    */
+  @Post()
   @HttpCode(HttpStatus.CREATED)
   async castVote(
     @Wallet() walletAddress: string,
@@ -90,7 +91,6 @@ export class VoteController {
    * Get vote statistics for a poll
    * GET /votes/stats/:pollId
    */
-  @Public()
   @Get('stats/:pollId')
   async getVoteStats(
     @Param('pollId') pollId: string,
