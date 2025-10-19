@@ -1,14 +1,21 @@
+# ---------- Builder stage ----------
 FROM node:lts-alpine AS builder
 WORKDIR /app
+
 COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile --production=false
+RUN yarn install --frozen-lockfile
+
 COPY . .
 RUN yarn build && yarn cache clean
 
 FROM node:lts-alpine
 WORKDIR /app
+
+COPY --from=builder /app/package.json /app/yarn.lock ./
 COPY --from=builder /app/build ./build
-COPY package.json yarn.lock ./
+
 RUN yarn install --frozen-lockfile --production=true && yarn cache clean
+
 EXPOSE 3005
+
 CMD ["yarn", "start"]
