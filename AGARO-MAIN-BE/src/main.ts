@@ -7,9 +7,9 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // Get configuration
-  const port = 3005;
   const apiPrefix = configService.get<string>('app.apiPrefix', 'api');
   const apiVersion = configService.get<string>('app.apiVersion', 'v1');
+  const port = configService.get<number>('app.port', 3005);
 
   // Set global prefix
   app.setGlobalPrefix(`${apiPrefix}/${apiVersion}`);
@@ -25,4 +25,8 @@ async function bootstrap() {
     `🚀 Application is running on: http://localhost:${port}/${apiPrefix}/${apiVersion}`,
   );
 }
-bootstrap();
+
+bootstrap().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});
