@@ -1,26 +1,8 @@
-// import AnimatedText from '../../../Animation/AnimatedText';
-
 import BlurText from '../../../Components/BlurText';
 import { motion, useAnimation } from 'framer-motion';
 import { useInView } from 'react-intersection-observer';
 import { useEffect } from 'react';
-// import { desc } from 'motion/react-client';
-// import WalletBalance from '../Components/WalletBalance';
 
-// const DataContent = [
-//   {
-//     title: 'Coin-Based Power',
-//     icon: '/icons/coin.svg',
-//     description:
-//       'Leverage your token holdings to influence decisions. The more coins you hold, the greater your voting power, ensuring that committed stakeholders have a significant say in outcomes.',
-//   },
-//   {
-//     title: 'Address-Based Power',
-//     icon: '/icons/person.svg',
-//     description:
-//       'Each wallet address counts as one vote. A fair and equal system — one identity, one decision.',
-//   },
-// ];
 const HowItWorks = () => {
   const dataStep = [
     {
@@ -56,15 +38,15 @@ const HowItWorks = () => {
   }, [controls, inView]);
 
   return (
-    <div className="relative h-1/2  flex flex-col items-center justify-center overflow-hidden">
-      <div className="flex flex-col items-center pt-24 xl:pt-40 ">
+    <div className="relative h-screen flex flex-col items-center justify-center overflow-hidden">
+      <div className="flex flex-col items-center pt-28 xl:pt-40 ">
         {/* Judul */}
         <BlurText
           text="How It Works"
           delay={10}
           animateBy="letters"
           direction="bottom"
-          className="text-4xl font-semibold mb-6 flex items-center justify-center "
+          className="sm:text-3xl text-2xl font-semibold mb-6 flex items-center justify-center "
         />
         <BlurText
           text="Every vote is securely encrypted, recorded on blockchain, and impossible to manipulate - ensuring full transparency and trust."

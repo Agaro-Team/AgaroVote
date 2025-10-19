@@ -10,4 +10,6 @@ export interface NavItem {
 export interface HeaderProps {
   isScrolled: boolean;
   NavMenu: NavItem[];
+  onToggleTheme: () => void;
+  resolvedTheme: 'light' | 'dark';
 }

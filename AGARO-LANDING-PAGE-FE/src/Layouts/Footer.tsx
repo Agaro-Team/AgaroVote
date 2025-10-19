@@ -1,41 +1,67 @@
 import React from 'react';
+import { useScrollTo } from './Hooks';
 
 const Footer: React.FC = () => {
+  const scrollTo = useScrollTo();
+  const NavMenu = [
+    { id: 1, label: 'Overview', to: 'overview' },
+    { id: 2, label: 'Hot It Work', to: 'how-it-work' },
+    { id: 3, label: 'Features', to: 'features' },
+    { id: 4, label: 'Road Map', to: 'time-line' },
+    { id: 5, label: 'FAQ', to: 'FAQ' },
+    // { id: 6, label: 'About', route: '/about' },
+  ];
   return (
     <footer className="mt-12 border-t border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-8">
           <div className="max-w-sm">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-[var(--primary)] to-[var(--light-glow)] rounded flex items-center justify-center">
-                {/* placeholder logo circle */}
-                <span className="sr-only">Logo</span>
+            <div className="flex flex-col items-start">
+              {/* placeholder logo circle */}
+              <div className="">
+                <img
+                  src="/Logo.png"
+                  alt="AgaroVote Logo"
+                  className="h-22 w-full object-cover object-center"
+                />
               </div>
-              <h3 className="text-lg font-semibold">Logoipsum</h3>
+              <p className=" text-sm opacity-90">
+                Your Voice, Verified with
+                <br />
+                Web3 Transparency
+              </p>
             </div>
-            <p className="mt-4 text-sm opacity-90">
-              Your Voice, Verified with
-              <br />
-              Web3 Transparency
-            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-8 md:w-1/2">
             <div>
               <h4 className="text-sm font-semibold">Navigation</h4>
-              <ul className="mt-4 space-y-3 text-sm opacity-90">
-                <li className="hover:underline cursor-pointer">Overview</li>
-                <li className="hover:underline cursor-pointer">Benefit</li>
-                <li className="hover:underline cursor-pointer">Features</li>
-                <li className="hover:underline cursor-pointer">Testimonials</li>
-              </ul>
+              {NavMenu.map((menu, key) => (
+                <ul key={key} className="mt-4 space-y-3 text-sm opacity-90">
+                  <li
+                    key={menu.id}
+                    className="hover:underline cursor-pointer"
+                    onClick={() => {
+                      if (menu.to) {
+                        scrollTo(menu.to);
+                      }
+                    }}>
+                    {menu.label}
+                  </li>
+                </ul>
+              ))}
             </div>
 
             <div>
               <h4 className="text-sm font-semibold">Information</h4>
               <ul className="mt-4 space-y-3 text-sm opacity-90">
-                <li className="hover:underline cursor-pointer">FAQ</li>
-                <li className="hover:underline cursor-pointer">Contact</li>
+                <li
+                  className="hover:underline cursor-pointer"
+                  onClick={() =>
+                    window.open('https://agaro-app.ardial.tech', '_blank')
+                  }>
+                  AgaroVote Dashboard
+                </li>
               </ul>
             </div>
           </div>

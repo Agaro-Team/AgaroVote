@@ -26,19 +26,19 @@ const MainPage = () => {
 
   return (
     <div className="relative">
-      <Element name="main" className="relative z-0">
+      <Element name="overview" className="relative z-0">
         <MainContent />
       </Element>
-      <Element name="second" className="relative z-10">
+      <Element name="how-it-work" className="relative z-10">
         <HowItWorks />
       </Element>
-      <Element name="third" className="relative z-10">
+      <Element name="features" className="relative z-10">
         <KeyOfFeature />
       </Element>
-      <Element name="timeline" className="relative z-10">
+      <Element name="time-line" className="relative z-10">
         <Timeline />
       </Element>
-      <Element name="fourth" className="relative z-10">
+      <Element name="FAQ" className="relative z-10">
         <FAQ />
       </Element>
     </div>

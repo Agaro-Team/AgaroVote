@@ -24,7 +24,12 @@
  * @returns {JSX.Element} Timeline component with voting process steps
  */
 
-import { motion, useScroll, useTransform } from 'framer-motion';
+import {
+  AnimatePresence,
+  motion,
+  useScroll,
+  useTransform,
+} from 'framer-motion';
 import BlurText from '../../../Components/BlurText';
 import { useRef } from 'react';
 
@@ -246,16 +251,16 @@ const Timeline = () => {
   return (
     <div
       ref={timelineRef}
-      className="relative py-24 px-4 md:px-10 lg:px-32 overflow-hidden">
+      className="relative pt-28 md:pt-40 py-24 px-4 md:px-10 lg:px-32 overflow-hidden ">
       <div className="relative z-10">
         {/* Header */}
-        <div className="text-center mb-16 ">
+        <div className="text-center mb-16">
           <BlurText
             text="Our Road Map"
             delay={20}
             animateBy="words"
             direction="top"
-            className="text-3xl lg:text-4xl font-semibold mb-6 flex items-center justify-center"
+            className="sm:text-3xl text-2xl font-semibold mb-6 flex items-center justify-center text-center "
           />
         </div>
 
@@ -269,85 +274,87 @@ const Timeline = () => {
 
           {/* Timeline items */}
           <div className="space-y-16 ">
-            {timelineData.map((item, index) => {
-              const transforms = getItemTransforms(index);
+            <AnimatePresence mode="wait">
+              {timelineData.map((item, index) => {
+                const transforms = getItemTransforms(index);
 
-              return (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 50 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{
-                    duration: 0.6,
-                    delay: index * 0.2,
-                    ease: 'easeOut',
-                  }}
-                  viewport={{ once: true, amount: 0.3 }}
-                  className={`relative flex md:items-center items-start ${
-                    index % 2 === 0
-                      ? 'md:flex-row md:mr-6 flex-row '
-                      : 'md:flex-row-reverse md:ml-6 flex-row'
-                  }`}>
-                  {/* Card */}
-                  <div
-                    className={`w-full md:max-w-[50%] ${
-                      index % 2 === 0 ? 'md:pr-7' : 'md:pl-7'
-                    } pl-10`}>
-                    <motion.div
-                      className={`relative p-6 rounded-xl bg-[var(--card)] backdrop-blur-3xl before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl timeline-arrow-left ${
-                        index % 2 === 0 ? 'md-arrow-right' : 'md-arrow-left'
-                      }  `}
-                      style={{
-                        opacity: transforms.cardOpacity,
-                        y: transforms.cardY,
-                        rotateX: transforms.cardRotateX,
-                      }}>
-                      <BlurText
-                        text={item.title}
-                        delay={2}
-                        animateBy="words"
-                        direction="left"
-                        width="100%"
-                        className="text-2xl font-semibold mb-3 text-card-foreground"
-                      />
-                      <ul className="text-muted-foreground leading-relaxed list-disc ml-5 text-sm">
-                        {item.list.map((lists, keyLists) => (
-                          <li key={keyLists}>
-                            <BlurText
-                              text={lists.desc || '-'}
-                              delay={keyLists * 100}
-                              animateBy="words"
-                              direction="left"
-                            />
-                          </li>
-                        ))}
-                      </ul>
-                    </motion.div>
-                  </div>
-
-                  {/* Timeline Dot */}
+                return (
                   <motion.div
-                    className="absolute md:relative -left-2.5 md:left-auto top-1/2 -translate-y-1/2 md:-translate-y-[calc(-50%+14px)] z-10 bg-[var(--primary)] flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center shadow-lg"
-                    style={{
-                      scale: transforms.dotScale,
-                      opacity: transforms.dotOpacity,
-                    }}>
+                    key={item.id}
+                    initial={{ opacity: 0, y: 50 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{
+                      duration: 0.6,
+                      delay: index * 0.2,
+                      ease: 'easeOut',
+                    }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    className={`relative flex md:items-center items-start ${
+                      index % 2 === 0
+                        ? 'md:flex-row md:mr-6 flex-row '
+                        : 'md:flex-row-reverse md:ml-6 flex-row'
+                    }`}>
+                    {/* Card */}
+                    <div
+                      className={`w-full md:max-w-[50%] ${
+                        index % 2 === 0 ? 'md:pr-7' : 'md:pl-7'
+                      } pl-10`}>
+                      <motion.div
+                        className={`relative p-6 rounded-xl bg-[var(--card)] backdrop-blur-3xl before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl timeline-arrow-left ${
+                          index % 2 === 0 ? 'md-arrow-right' : 'md-arrow-left'
+                        }  `}
+                        style={{
+                          opacity: transforms.cardOpacity,
+                          y: transforms.cardY,
+                          rotateX: transforms.cardRotateX,
+                        }}>
+                        <BlurText
+                          text={item.title}
+                          delay={2}
+                          animateBy="words"
+                          direction="left"
+                          width="100%"
+                          className="text-2xl font-semibold mb-3 text-card-foreground"
+                        />
+                        <ul className="text-muted-foreground leading-relaxed list-disc ml-5 text-sm">
+                          {item.list.map((lists, keyLists) => (
+                            <li key={keyLists}>
+                              <BlurText
+                                text={lists.desc || '-'}
+                                delay={keyLists * 100}
+                                animateBy="words"
+                                direction="left"
+                              />
+                            </li>
+                          ))}
+                        </ul>
+                      </motion.div>
+                    </div>
+
+                    {/* Timeline Dot */}
                     <motion.div
-                      className="absolute inset-0.5 bg-[var(--primary)] rounded-full"
-                      animate={{
-                        scale: [1, 2, 1],
-                        opacity: [0.8, 0, 0.8],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        delay: index * 0.2,
-                      }}
-                    />
+                      className="absolute md:relative -left-2.5 md:left-auto top-1/2 -translate-y-1/2 md:-translate-y-[calc(-50%+14px)] z-10 bg-[var(--primary)] flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center shadow-lg"
+                      style={{
+                        scale: transforms.dotScale,
+                        opacity: transforms.dotOpacity,
+                      }}>
+                      <motion.div
+                        className="absolute inset-0.5 bg-[var(--primary)] rounded-full"
+                        animate={{
+                          scale: [1, 2, 1],
+                          opacity: [0.8, 0, 0.8],
+                        }}
+                        transition={{
+                          duration: 3,
+                          repeat: Infinity,
+                          delay: index * 0.2,
+                        }}
+                      />
+                    </motion.div>
                   </motion.div>
-                </motion.div>
-              );
-            })}
+                );
+              })}
+            </AnimatePresence>
           </div>
         </div>
       </div>

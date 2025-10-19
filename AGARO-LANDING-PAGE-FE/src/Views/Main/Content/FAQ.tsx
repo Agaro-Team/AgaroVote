@@ -1,5 +1,6 @@
 import React from 'react';
 import AccordionItem from '../../../Components/Accordion';
+import BlurText from '../../../Components/BlurText';
 
 const faqs = [
   {
@@ -26,14 +27,25 @@ const faqs = [
 
 const FAQ: React.FC = () => {
   return (
-    <div className="py-16">
-      <section className="max-w-3xl mx-auto px-4 py-12">
-        <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-center">
+    <div className="py-16 pt-28 md:pt-44 ">
+      <section className="max-w-3xl mx-auto px-4 ">
+        {/* <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-center">
           Frequently asked questions
-        </h2>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-6 text-center">
-          Answers to common questions about AgaroVote.
-        </p>
+        </h2> */}
+        <BlurText
+          text="Frequently asked questions"
+          delay={10}
+          animateBy="letters"
+          direction="bottom"
+          className="sm:text-3xl text-2xl font-semibold mb-2 flex items-center justify-center "
+        />
+        <BlurText
+          text="Answers to common questions about AgaroVote."
+          delay={10}
+          animateBy="letters"
+          direction="bottom"
+          className="text-sm text-neutral-600 dark:text-neutral-400 mb-6 flex items-center justify-center"
+        />
 
         <div className="space-y-8">
           {faqs.map((f, idx) => (

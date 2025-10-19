@@ -3,14 +3,17 @@ import { useState } from 'react';
 import type { HeaderProps } from '../../Type';
 import { useScrollTo } from '../../Hooks';
 import { useNavigate } from 'react-router-dom';
-import { useTheme } from '../../../lib/theme-provider';
 import { Sun, Moon } from 'lucide-react';
 
-const MobileHeader = ({ isScrolled, NavMenu }: HeaderProps) => {
+const MobileHeader = ({
+  isScrolled,
+  NavMenu,
+  onToggleTheme,
+  resolvedTheme,
+}: HeaderProps) => {
   const scrollTo = useScrollTo();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const { theme, setTheme } = useTheme();
 
   return (
     <div
@@ -85,15 +88,12 @@ const MobileHeader = ({ isScrolled, NavMenu }: HeaderProps) => {
             )
           )}
           <button
-            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-            className="p-2 rounded-full border border-gray-300 dark:border-gray-700 
-             bg-white dark:bg-gray-900 
-             hover:bg-gray-200 dark:hover:bg-gray-800 
-             transition-all duration-200 shadow-sm hover:shadow-md cursor-pointer ">
-            {theme === 'dark' ? (
+            onClick={onToggleTheme}
+            className="p-2 rounded-full transition-all duration-200 cursor-pointer">
+            {resolvedTheme === 'dark' ? (
               <Sun className="h-5 w-5 text-yellow-400 hover:text-yellow-300 transition-colors" />
             ) : (
-              <Moon className="h-5 w-5 text-white transition-colors" />
+              <Moon className="h-5 w-5 text-black transition-colors" />
             )}
           </button>
         </nav>

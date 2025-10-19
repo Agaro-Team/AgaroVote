@@ -6,19 +6,7 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-/* Custom nav hover underline */
-.nav-link {
-  @apply relative text-left cursor-pointer;
-}
 
-.nav-link::after {
-  content: '';
-  @apply absolute left-0 right-0 -bottom-1 mx-auto w-0 h-[2px] bg-gray-400 transition-all duration-300;
-}
-
-.nav-link:hover::after {
-  @apply w-full;
-}
 
 html {
   scroll-behavior: smooth;
@@ -109,6 +97,50 @@ html {
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 }
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 9999px;
+  border: 2px solid var(--background);
+  transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.7 0.12 220.4685); /* sedikit lebih terang dari --primary saat hover */
+}
+
+/* Firefox support */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) var(--background);
+}
+
+/* Custom nav hover underline */
+.nav-link {
+  @apply relative text-left cursor-pointer;
+}
+
+.nav-link::after {
+  content: '';
+  @apply absolute left-0 right-0 -bottom-1 mx-auto w-0 h-[2px]  transition-all duration-300;
+  background-color: var(--primary); 
+}
+
+.nav-link:hover::after {
+  @apply w-full;
+}
+
 @keyframes slide-ltr {
   0% {
     transform: translateX(-100%);
@@ -118,13 +150,11 @@ html {
   }
 }
 
-/* Jalan 1x, tanpa loop */
 .animate-slide-ltr {
   animation: slide-ltr 12s linear forwards;
   -webkit-animation: slide-ltr 12s linear forwards;
 }
 
-/* BlurText styles for handling long text */
 .blur-text {
   display: flex;
   flex-wrap: wrap;
