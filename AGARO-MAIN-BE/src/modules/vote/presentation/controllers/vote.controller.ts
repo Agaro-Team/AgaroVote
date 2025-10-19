@@ -1,3 +1,5 @@
+import { Public } from '@modules/auth/presentation/decorators/public.decorator';
+import { Wallet } from '@modules/auth/presentation/decorators/wallet.decorator';
 import { CastVoteCommand } from '@modules/vote/application/commands';
 import { CastVoteDto } from '@modules/vote/application/dto/cast-vote.dto';
 import { GetAuditLogsQueryDto } from '@modules/vote/application/dto/get-audit-logs-query.dto';
@@ -24,21 +26,18 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  Post,
   Query,
   Req,
   UseInterceptors,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import type { Request } from 'express';
-import { Vote } from '../../domain/entities/vote.entity';
-import { VoteStat } from '../../domain/entities/vote-stat.entity';
 import {
   AuditAction,
   EntityType,
 } from '../../domain/entities/vote-audit-log.entity';
-import { Public } from '@modules/auth/presentation/decorators/public.decorator';
-import { Wallet } from '@modules/auth/presentation/decorators/wallet.decorator';
+import { VoteStat } from '../../domain/entities/vote-stat.entity';
+import { Vote } from '../../domain/entities/vote.entity';
 
 @Controller('votes')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -53,7 +52,6 @@ export class VoteController {
    * POST /votes
    * Requires authentication - wallet must match the voter wallet address
    */
-  @Post()
   @HttpCode(HttpStatus.CREATED)
   async castVote(
     @Wallet() walletAddress: string,
@@ -91,7 +89,6 @@ export class VoteController {
   /**
    * Get vote statistics for a poll
    * GET /votes/stats/:pollId
-   * Public endpoint - anyone can view stats
    */
   @Public()
   @Get('stats/:pollId')
@@ -107,9 +104,7 @@ export class VoteController {
   /**
    * Get all votes with pagination and filters
    * GET /votes
-   * Public endpoint - anyone can view votes
    */
-  @Public()
   @Get()
   async getVotes(@Query() query: GetVotesQueryDto) {
     const filters: {
@@ -141,9 +136,7 @@ export class VoteController {
   /**
    * Get votes by poll
    * GET /votes/poll/:pollId
-   * Public endpoint - anyone can view votes
    */
-  @Public()
   @Get('poll/:pollId')
   async getVotesByPoll(
     @Param('pollId') pollId: string,
@@ -157,9 +150,7 @@ export class VoteController {
   /**
    * Get vote by voter and poll
    * GET /votes/poll/:pollId/voter/:voterWalletAddress
-   * Public endpoint - anyone can view votes
    */
-  @Public()
   @Get('poll/:pollId/voter/:voterWalletAddress')
   async getVoteByVoter(
     @Param('pollId') pollId: string,
@@ -174,9 +165,7 @@ export class VoteController {
   /**
    * Check if a voter has voted in a poll
    * GET /votes/poll/:pollId/voter/:voterWalletAddress/has-voted
-   * Public endpoint - anyone can check voting status
    */
-  @Public()
   @Get('poll/:pollId/voter/:voterWalletAddress/has-voted')
   async checkHasVoted(
     @Param('pollId') pollId: string,
@@ -191,9 +180,7 @@ export class VoteController {
   /**
    * Get audit logs with pagination and filters
    * GET /votes/audit-logs
-   * Public endpoint - transparency is key for voting
    */
-  @Public()
   @Get('audit-logs')
   async getAuditLogs(@Query() query: GetAuditLogsQueryDto) {
     const filters: {
