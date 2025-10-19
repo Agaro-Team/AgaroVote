@@ -320,7 +320,7 @@ export const VoterList = () => {
                       </Badge>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground mb-1">Commit Token</p>
+                      <p className="text-xs text-muted-foreground mb-1">Committed Token</p>
                       <code className="text-sm font-mono block">
                         {voter.commitToken !== null ? voter.commitToken : '-'}
                       </code>
