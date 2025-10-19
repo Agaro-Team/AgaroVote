@@ -1,7 +1,9 @@
 mod events;
 mod utils;
+mod logger;
 
 use crate::events::*;
+use crate::logger::*;
 use dotenvy::dotenv;
 use ethers::prelude::*;
 use futures::StreamExt;
@@ -21,7 +23,7 @@ async fn main() -> anyhow::Result<()> {
     let provider = Arc::new(Provider::<Http>::try_from(rpc_url)?);
     let contract = Contract::new(contract_addr, abi_json, provider);
 
-    println!("Listening to contract: {:?}", contract.address());
+    log_info(&format!("Listening to contract: {:?}", contract.address()));
 
     let poll_created_task = tokio::spawn({
         let contract = contract.clone();
@@ -38,36 +40,42 @@ async fn main() -> anyhow::Result<()> {
                 .await
                 .expect("Failed to create VotingPollCreated stream");
 
-            println!("Listening for VotingPollCreated events...");
+            log_info("Listening for VotingPollCreated events...");
 
             while let Some(Ok(event)) = stream.next().await {
-                println!(
+                log_info(&format!(
                     "[VotingPollCreated] poll_hash={:?}, version={}",
                     event.poll_hash, event.version
-                );
+                ));
 
                 let poll_hash_hex = format!("{:?}", event.poll_hash);
                 let url = format!("{}/polls/activate", api_base);
 
                 let payload = json!({
-                    "pollHash":event.poll_hash,
+                    "pollHash": event.poll_hash,
                     "syntheticRewardContractAddress": event.synthetic_reward_contract
                 });
 
                 match client.post(&url).json(&payload).send().await {
                     Ok(resp) => {
                         if resp.status().is_success() {
-                            println!("Activated poll {} successfully", poll_hash_hex);
+                            log_success(&format!(
+                                "Activated poll {} successfully",
+                                poll_hash_hex
+                            ));
                         } else {
-                            println!(
+                            log_warning(&format!(
                                 "Failed to activate poll {} — status: {}",
                                 poll_hash_hex,
                                 resp.status()
-                            );
+                            ));
                         }
                     }
                     Err(err) => {
-                        eprintln!("HTTP request failed for {}: {:?}", poll_hash_hex, err);
+                        log_error(&format!(
+                            "HTTP request failed for {}: {:?}",
+                            poll_hash_hex, err
+                        ));
                     }
                 }
             }
@@ -76,11 +84,11 @@ async fn main() -> anyhow::Result<()> {
 
     let vote_succeeded_task = tokio::spawn({
         let contract = contract.clone();
+        let api_base = api_base_url.clone();
         async move {
             let client = reqwest::Client::new();
 
             let event_builder = contract
-                .clone()
                 .event::<VoteSucceeded>()
                 .from_block(BlockNumber::Number(0.into()));
 
@@ -89,17 +97,18 @@ async fn main() -> anyhow::Result<()> {
                 .await
                 .expect("Failed to create VoteSucceeded stream");
 
-            println!("Listening for VoteSucceeded events...");
+            log_info("Listening for VoteSucceeded events...");
 
             while let Some(Ok(event)) = stream.next().await {
-                println!(
+                log_info(&format!(
                     "[VoteSucceeded] poll_hash={:?}, voter={:?}, selected={}, voter_hash={}, commit_token={}",
                     event.poll_hash, event.voter, event.selected, event.new_poll_voter_hash, event.commit_token
-                );
+                ));
+
                 let poll_hash_hex = format!("{:?}", event.poll_hash);
                 let url = format!(
                     "{}/polls/{}/update-voter-hash",
-                    api_base_url,
+                    api_base,
                     poll_hash_hex.trim_matches('"')
                 );
 
@@ -110,20 +119,23 @@ async fn main() -> anyhow::Result<()> {
                 match client.put(&url).json(&payload).send().await {
                     Ok(resp) => {
                         if resp.status().is_success() {
-                            println!(
+                            log_success(&format!(
                                 "Verified voter's credibility {} successfully",
                                 poll_hash_hex
-                            );
+                            ));
                         } else {
-                            println!(
+                            log_warning(&format!(
                                 "Failed to verify credibility {} — status: {}",
                                 poll_hash_hex,
                                 resp.status()
-                            );
+                            ));
                         }
                     }
                     Err(err) => {
-                        eprintln!("HTTP request failed for {}: {:?}", poll_hash_hex, err);
+                        log_error(&format!(
+                            "HTTP request failed for {}: {:?}",
+                            poll_hash_hex, err
+                        ));
                     }
                 }
             }
@@ -134,7 +146,6 @@ async fn main() -> anyhow::Result<()> {
         let contract = contract.clone();
         async move {
             let event_builder = contract
-                .clone()
                 .event::<WithdrawSucceeded>()
                 .from_block(BlockNumber::Number(0.into()));
 
@@ -143,12 +154,18 @@ async fn main() -> anyhow::Result<()> {
                 .await
                 .expect("Failed to create WithdrawSucceeded stream");
 
-            println!("Listening for WithdrawSucceeded events...");
+            log_info("Listening for WithdrawSucceeded events...");
+
             while let Some(Ok(event)) = stream.next().await {
-                println!(
-                "[WithdrawSucceeded] poll_hash={:?}, voter={:?}, withdrawed_token={}, reward={}",
-                event.poll_hash, event.voter, event.withdrawed_token, event.withdrawed_reward
-            );
+                log_info(&format!(
+                    "[WithdrawSucceeded] poll_hash={:?}, voter={:?}, withdrawed_token={}, reward={}",
+                    event.poll_hash, event.voter, event.withdrawed_token, event.withdrawed_reward
+                ));
+
+                log_success(&format!(
+                    "Withdraw successful for voter {:?}",
+                    event.voter
+                ));
             }
         }
     });
