@@ -11,6 +11,8 @@ export const rewardQueryKeys = {
   infiniteList: () => [...rewardQueryKeys.all, 'infinite-list'] as const,
   infiniteListWithFilter: (params: GetRewardsRequest) =>
     [...rewardQueryKeys.infiniteList(), 'filters', params] as const,
+
+  dashboardSummary: () => [...rewardQueryKeys.all, 'dashboard-summary'] as const,
 };
 
 export const rewardListQueryOptions = (params: GetRewardsRequest) =>
@@ -61,3 +63,11 @@ export const infiniteRewardListQueryOptions = (params: GetRewardsRequest) =>
       };
     },
   });
+
+export const rewardDashboardSummaryQueryOptions = queryOptions({
+  queryKey: rewardQueryKeys.dashboardSummary(),
+  queryFn: () => rewardService.getDashboardRewardSummary(),
+  refetchInterval: 20000,
+  refetchOnMount: true,
+  select: (data) => data?.data ?? undefined,
+});

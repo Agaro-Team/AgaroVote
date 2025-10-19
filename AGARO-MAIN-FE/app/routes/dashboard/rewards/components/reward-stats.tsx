@@ -2,10 +2,15 @@
  * Rewards Stats
  *
  * Three-column stats overview showing claimable, pending, and claimed rewards
+ * Features animated number countups using Framer Motion
  */
+import CountUp from '~/components/CountUp';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Spinner } from '~/components/ui/spinner';
 import { useWalletBalance } from '~/hooks/use-web3';
+
+import { useRewardDashboardSummary } from '../hooks/use-reward-dashboard-summary';
+import { useSyntheticRewardsEarned } from '../hooks/use-synthetic-rewards-earned';
 
 function RewardStatsGrid({ children }: { children: React.ReactNode }) {
   return <div className="grid gap-4 md:grid-cols-3">{children}</div>;
@@ -33,37 +38,142 @@ function RewardStatsCard({
 
 function ClaimableRewardsStatsCardContent() {
   const { symbol, isLoading: isLoadingSymbol } = useWalletBalance();
+  const { data: rewardDashboardSummary } = useRewardDashboardSummary();
+
+  const { isLoading: isLoadingClaimableRewards, formattedTotalEarned } = useSyntheticRewardsEarned({
+    syntheticAddresses: rewardDashboardSummary?.syntheticClaimablePlucks || [],
+    enabled: !!rewardDashboardSummary?.syntheticClaimablePlucks?.length,
+  });
+
+  const isLoading = isLoadingSymbol || !symbol || isLoadingClaimableRewards;
+  const amount = Number(formattedTotalEarned) || 0;
 
   return (
     <div className="space-y-1">
       <div className="text-2xl font-bold">
-        {isLoadingSymbol || !symbol ? <Spinner size="sm" /> : `${0} ${symbol}`}
+        {isLoading ? (
+          <Spinner size="sm" />
+        ) : (
+          <>
+            <CountUp
+              to={amount}
+              from={0}
+              duration={1.5}
+              separator=","
+              className="tabular-nums"
+              startWhen={!isLoading}
+            />{' '}
+            <span className="text-muted-foreground">{symbol}</span>
+          </>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">From 0 polls</p>
+      <p className="text-xs text-muted-foreground">
+        From{' '}
+        <CountUp
+          to={rewardDashboardSummary?.totalClaimableFromPolls || 0}
+          from={0}
+          duration={1}
+          className="inline-block tabular-nums"
+          startWhen={!!rewardDashboardSummary}
+        />{' '}
+        polls
+      </p>
     </div>
   );
 }
 
 function PendingRewardsStatsCardContent() {
   const { symbol, isLoading: isLoadingSymbol } = useWalletBalance();
+  const { data: rewardDashboardSummary } = useRewardDashboardSummary();
+
+  const { isLoading: isLoadingPendingRewards, formattedTotalEarned } = useSyntheticRewardsEarned({
+    syntheticAddresses: rewardDashboardSummary?.syntheticPendingPlucks || [],
+    enabled: !!rewardDashboardSummary?.syntheticPendingPlucks?.length,
+  });
+
+  const isLoading = isLoadingSymbol || !symbol || isLoadingPendingRewards;
+  const amount = Number(formattedTotalEarned) || 0;
+
   return (
     <div className="space-y-1">
       <div className="text-2xl font-bold">
-        {isLoadingSymbol || !symbol ? <Spinner size="sm" /> : `${0} ${symbol}`}
+        {isLoading ? (
+          <Spinner size="sm" />
+        ) : (
+          <>
+            <CountUp
+              to={amount}
+              from={0}
+              duration={1.5}
+              delay={0.2}
+              separator=","
+              className="tabular-nums"
+              startWhen={!isLoading}
+            />{' '}
+            <span className="text-muted-foreground">{symbol}</span>
+          </>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">From 0 polls</p>
+      <p className="text-xs text-muted-foreground">
+        From{' '}
+        <CountUp
+          to={rewardDashboardSummary?.totalPendingFromPolls || 0}
+          from={0}
+          duration={1}
+          delay={0.2}
+          className="inline-block tabular-nums"
+          startWhen={!!rewardDashboardSummary}
+        />{' '}
+        polls
+      </p>
     </div>
   );
 }
 
 function ClaimedRewardsStatsCardContent() {
   const { symbol, isLoading: isLoadingSymbol } = useWalletBalance();
+  const { data: rewardDashboardSummary } = useRewardDashboardSummary();
+
+  const { isLoading: isLoadingClaimedRewards, formattedTotalEarned } = useSyntheticRewardsEarned({
+    syntheticAddresses: rewardDashboardSummary?.syntheticClaimedPlucks || [],
+    enabled: !!rewardDashboardSummary?.syntheticClaimedPlucks?.length,
+  });
+
+  const isLoading = isLoadingSymbol || !symbol || isLoadingClaimedRewards;
+  const amount = Number(formattedTotalEarned) || 0;
+
   return (
     <div className="space-y-1">
       <div className="text-2xl font-bold">
-        {isLoadingSymbol || !symbol ? <Spinner size="sm" /> : `${0} ${symbol}`}
+        {isLoading ? (
+          <Spinner size="sm" />
+        ) : (
+          <>
+            <CountUp
+              to={amount}
+              from={0}
+              duration={1.5}
+              delay={0.4}
+              separator=","
+              className="tabular-nums"
+              startWhen={!isLoading}
+            />{' '}
+            <span className="text-muted-foreground">{symbol}</span>
+          </>
+        )}
       </div>
-      <p className="text-xs text-muted-foreground">From 0 polls</p>
+      <p className="text-xs text-muted-foreground">
+        From{' '}
+        <CountUp
+          to={rewardDashboardSummary?.totalClaimedFromPolls || 0}
+          from={0}
+          duration={1}
+          delay={0.4}
+          className="inline-block tabular-nums"
+          startWhen={!!rewardDashboardSummary}
+        />{' '}
+        polls
+      </p>
     </div>
   );
 }
