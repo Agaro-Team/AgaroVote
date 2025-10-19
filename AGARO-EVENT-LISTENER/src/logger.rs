@@ -1,11 +1,23 @@
 use chrono::Local;
 use colored::*;
+use std::sync::Once;
+
+static INIT: Once = Once::new();
+
+fn init_colors() {
+    INIT.call_once(|| {
+        std::env::set_var("CLICOLOR_FORCE", "1");
+    });
+}
 
 fn timestamp() -> String {
-    format!("[{}]", Local::now().format("%H:%M:%S")).dimmed().to_string()
+    format!("[{}]", Local::now().format("%H:%M:%S"))
+        .dimmed()
+        .to_string()
 }
 
 fn log_line(level: &str, color: &str, message: &str) {
+    init_colors();
     let level_colored = match color {
         "green" => level.green().bold(),
         "yellow" => level.yellow().bold(),
