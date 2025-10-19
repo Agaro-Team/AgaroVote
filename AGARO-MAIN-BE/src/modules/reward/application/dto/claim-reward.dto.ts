@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class ClaimRewardDto {
   @IsString()
@@ -9,11 +9,11 @@ export class ClaimRewardDto {
   @IsNotEmpty()
   voterWalletAddress: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  principalAmount: number;
+  principalAmount: string;
 
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
-  rewardAmount: number;
+  rewardAmount: string;
 }
