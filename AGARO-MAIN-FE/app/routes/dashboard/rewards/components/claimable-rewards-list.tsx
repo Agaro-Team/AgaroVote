@@ -5,10 +5,7 @@
  */
 import { AlertCircle, ExternalLink, Gift, Info, RefreshCw, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
-import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { ClientDate } from '~/components/ui/client-date';
 import {
   Empty,
   EmptyContent,
@@ -23,6 +20,7 @@ import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
 import { ClaimAmount } from './claim-amount';
 import { ClaimRewardConfirmationModal } from './claim-confirmation-modal';
+import { Reward } from './reward';
 
 export function ClaimableRewardsList() {
   const rewardsQuery = useSuspenseInfiniteQuery(
@@ -100,83 +98,72 @@ export function ClaimableRewardsList() {
       </div>
 
       {rewardsQuery.data?.rewards?.map((reward) => (
-        <Card key={reward.id} className="overflow-hidden">
-          <CardHeader>
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-1 flex-1">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-lg">🗳️ {reward.poll_title}</CardTitle>
-                  <Badge variant="default" className="bg-green-500">
-                    ✅ Ended
-                  </Badge>
-                </div>
-                <CardDescription suppressHydrationWarning>
-                  Ended{' '}
-                  <ClientDate
-                    date={new Date(reward.claimable_at)}
-                    formatString="MMM dd, yyyy HH:mm"
-                  />{' '}
-                  (
-                  <ClientDate date={new Date(reward.claimable_at)} formatString="EEE" />)
-                </CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Vote Info */}
-            <div className="grid gap-3 text-sm">
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Your Vote:</span>
-                <span className="font-medium">{reward.choice_name} ✓</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Voted:</span>
-                <span className="font-medium" suppressHydrationWarning>
-                  <ClientDate
-                    date={new Date(reward.created_at)}
-                    formatString="MMM dd, yyyy HH:mm"
-                  />
-                </span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-muted-foreground">Total Votes:</span>
-                <span className="font-medium">{reward.poll_total_votes.toLocaleString()}</span>
-              </div>
-            </div>
+        <Reward key={reward.id} reward={reward}>
+          <Reward.Card>
+            <Reward.Header>
+              <Reward.HeaderContainer>
+                <Reward.TitleContainer>
+                  <Reward.TitleGroup>
+                    <Reward.Title />
+                    <Reward.StatusBadge status="claimable" />
+                  </Reward.TitleGroup>
+                  <Reward.Description>
+                    Ended <Reward.ClaimableDate label="" formatString="MMM dd, yyyy HH:mm" />
+                  </Reward.Description>
+                </Reward.TitleContainer>
+              </Reward.HeaderContainer>
+            </Reward.Header>
 
-            {/* Reward Amount */}
-            <div className="rounded-lg bg-muted p-4 space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">💎 Reward:</span>
-                <div className="text-right">
-                  <ClaimAmount reward={reward} className="text-xl font-bold" />
-                  <p className="text-sm text-muted-foreground">≈ ${reward.reward_amount}</p>
-                </div>
-              </div>
-            </div>
+            <Reward.Content>
+              {/* Vote Info */}
+              <Reward.InfoGrid>
+                <Reward.InfoRow label="Your Vote:" value={`${reward.choice_name} ✓`} />
+                <Reward.VotedDate />
+                <Reward.TotalVotes />
+              </Reward.InfoGrid>
 
-            {/* Actions */}
-            <div className="flex flex-wrap gap-2">
-              <ClaimRewardConfirmationModal reward={reward}>
-                <Button className="gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  Claim Now
+              {/* Reward Amount - Highlighted for claimable */}
+              <Reward.AmountBox className="bg-green-500/10 border border-green-500/20">
+                <Reward.AmountRow>
+                  <Reward.AmountLabel emoji="💎">Reward:</Reward.AmountLabel>
+                  <Reward.AmountValue>
+                    <ClaimAmount
+                      reward={reward}
+                      className="text-xl font-bold text-green-700 dark:text-green-300"
+                    />
+                    <p className="text-sm text-muted-foreground">≈ ${reward.reward_amount}</p>
+                  </Reward.AmountValue>
+                </Reward.AmountRow>
+              </Reward.AmountBox>
+
+              {/* Success Alert */}
+              <Reward.Alert variant="success">
+                ✅ Your reward is ready! Claim now to receive your tokens.
+              </Reward.Alert>
+
+              {/* Actions */}
+              <Reward.Actions>
+                <ClaimRewardConfirmationModal reward={reward}>
+                  <Button className="gap-2">
+                    <Sparkles className="h-4 w-4" />
+                    Claim Now
+                  </Button>
+                </ClaimRewardConfirmationModal>
+                <Button
+                  onClick={() => handleViewPoll(reward.poll_id)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  View Poll
                 </Button>
-              </ClaimRewardConfirmationModal>
-              <Button
-                onClick={() => handleViewPoll(reward.poll_id)}
-                variant="outline"
-                className="gap-2"
-              >
-                <ExternalLink className="h-4 w-4" />
-                View Poll
-              </Button>
-              <Button variant="ghost" size="icon">
-                <Info className="h-4 w-4" />
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                <Button variant="ghost" size="icon">
+                  <Info className="h-4 w-4" />
+                </Button>
+              </Reward.Actions>
+            </Reward.Content>
+          </Reward.Card>
+        </Reward>
       ))}
 
       {rewardsQuery.hasNextPage && (
