@@ -1,10 +1,11 @@
-import { Check, Copy, Users } from 'lucide-react';
+import { AlertCircle, Check, Copy, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import {
   Empty,
+  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,
@@ -20,20 +21,15 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { useWalletDisplay } from '~/hooks/use-web3';
+import type { GetUserVote } from '~/lib/api/vote/vote.interface';
 import { formatDate } from '~/lib/date-utils';
+import { infiniteUserVotesQueryOptions } from '~/lib/query-client/vote/queries';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
+
+import { useInfiniteQuery } from '@tanstack/react-query';
 
 import { useVoteContext } from './vote-context';
-
-interface Voter {
-  id: string;
-  voterWalletAddress: string;
-  votedAt: string;
-  choiceId: string;
-  isVerified: boolean;
-  commitToken: number | null;
-}
 
 export const VoterListSkeleton = () => {
   return (
@@ -123,80 +119,22 @@ export const VoterList = () => {
   const { poll } = useVoteContext();
   const { shortenAddress } = useWalletDisplay();
   const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
-  const [displayCount, setDisplayCount] = useState(5);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - replace this with actual API call when available
-  const allVoters: Voter[] = [
-    {
-      id: '1',
-      voterWalletAddress: '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb0',
-      votedAt: new Date().toISOString(),
-      choiceId: poll.choices[0]?.id || '',
-      isVerified: true,
-      commitToken: 12345,
-    },
-    {
-      id: '2',
-      voterWalletAddress: '0x8626f6940E2eb28930eFb4CeF49B2d1F2C9C1199',
-      votedAt: new Date(Date.now() - 86400000).toISOString(),
-      choiceId: poll.choices[1]?.id || '',
-      isVerified: true,
-      commitToken: 67890,
-    },
-    {
-      id: '3',
-      voterWalletAddress: '0xdD2FD4581271e230360230F9337D5c0430Bf44C0',
-      votedAt: new Date(Date.now() - 172800000).toISOString(),
-      choiceId: poll.choices[0]?.id || '',
-      isVerified: false,
-      commitToken: null,
-    },
-    {
-      id: '4',
-      voterWalletAddress: '0xbDA5747bFD65F08deb54cb465eB87D40e51B197E',
-      votedAt: new Date(Date.now() - 259200000).toISOString(),
-      choiceId: poll.choices[1]?.id || '',
-      isVerified: true,
-      commitToken: 24680,
-    },
-    {
-      id: '5',
-      voterWalletAddress: '0x2546BcD3c84621e976D8185a91A922aE77ECEc30',
-      votedAt: new Date(Date.now() - 345600000).toISOString(),
-      choiceId: poll.choices[0]?.id || '',
-      isVerified: true,
-      commitToken: 13579,
-    },
-    {
-      id: '6',
-      voterWalletAddress: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
-      votedAt: new Date(Date.now() - 432000000).toISOString(),
-      choiceId: poll.choices[1]?.id || '',
-      isVerified: true,
-      commitToken: 98765,
-    },
-    {
-      id: '7',
-      voterWalletAddress: '0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed',
-      votedAt: new Date(Date.now() - 518400000).toISOString(),
-      choiceId: poll.choices[0]?.id || '',
-      isVerified: false,
-      commitToken: null,
-    },
-    {
-      id: '8',
-      voterWalletAddress: '0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359',
-      votedAt: new Date(Date.now() - 604800000).toISOString(),
-      choiceId: poll.choices[1]?.id || '',
-      isVerified: true,
-      commitToken: 54321,
-    },
-  ];
+  // Fetch voters using infinite query
+  const {
+    data: voters,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery(infiniteUserVotesQueryOptions({ pollId: poll.id, limit: 10 }));
 
-  const voters = allVoters.slice(0, displayCount);
-  const hasMore = displayCount < allVoters.length;
-  const remainingCount = allVoters.length - displayCount;
+  // Calculate total count from all pages
+  const totalVotersCount = useMemo(() => {
+    return voters?.length ?? 0;
+  }, [voters]);
 
   const copyToClipboard = async (address: string) => {
     try {
@@ -215,20 +153,45 @@ export const VoterList = () => {
   };
 
   const handleShowMore = () => {
-    setDisplayCount((prev) => Math.min(prev + 5, allVoters.length));
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
   };
-
-  // Simulate loading - replace with actual API loading state
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1500);
-
-    return () => clearTimeout(timer);
-  }, []);
 
   if (isLoading) {
     return <VoterListSkeleton />;
+  }
+
+  if (isError) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
+            <CardTitle>Voters</CardTitle>
+          </div>
+          <CardDescription>Unable to load voter information</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Empty>
+            <EmptyHeader>
+              <EmptyMedia variant="icon">
+                <AlertCircle className="text-destructive" />
+              </EmptyMedia>
+              <EmptyTitle>Failed to load voters</EmptyTitle>
+              <EmptyDescription>
+                {error?.message || 'An error occurred while loading the voter list.'}
+              </EmptyDescription>
+            </EmptyHeader>
+            <EmptyContent>
+              <Button variant="outline" onClick={() => window.location.reload()}>
+                Try again
+              </Button>
+            </EmptyContent>
+          </Empty>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
@@ -239,13 +202,13 @@ export const VoterList = () => {
           <CardTitle>Voters</CardTitle>
         </div>
         <CardDescription>
-          {allVoters.length === 0
+          {totalVotersCount === 0
             ? 'No votes cast yet'
-            : `${allVoters.length} ${allVoters.length === 1 ? 'vote' : 'votes'} recorded`}
+            : `${totalVotersCount} ${totalVotersCount === 1 ? 'vote' : 'votes'} recorded`}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {allVoters.length === 0 ? (
+        {totalVotersCount === 0 ? (
           <Empty>
             <EmptyHeader>
               <EmptyMedia variant="icon">
@@ -271,7 +234,7 @@ export const VoterList = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {voters.map((voter) => (
+                  {voters?.map((voter: GetUserVote) => (
                     <TableRow key={voter.id}>
                       <TableCell className="font-mono">
                         <div className="flex items-center gap-2">
@@ -298,7 +261,7 @@ export const VoterList = () => {
                       </TableCell>
                       <TableCell>
                         <Badge variant="secondary" className="font-normal">
-                          {getChoiceText(voter.choiceId)}
+                          {voter.choiceName || getChoiceText(voter.choiceId)}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">
@@ -314,7 +277,7 @@ export const VoterList = () => {
 
             {/* Mobile Card View */}
             <div className="md:hidden space-y-3">
-              {voters.map((voter) => (
+              {voters?.map((voter: GetUserVote) => (
                 <div
                   key={voter.id}
                   className="border rounded-lg p-4 space-y-3 hover:bg-muted/50 transition-colors"
@@ -353,7 +316,7 @@ export const VoterList = () => {
                     <div>
                       <p className="text-xs text-muted-foreground mb-1">Choice</p>
                       <Badge variant="secondary" className="font-normal">
-                        {getChoiceText(voter.choiceId)}
+                        {voter.choiceName || getChoiceText(voter.choiceId)}
                       </Badge>
                     </div>
                     <div>
@@ -368,13 +331,18 @@ export const VoterList = () => {
             </div>
 
             {/* Show More Button */}
-            {hasMore && (
+            {hasNextPage && (
               <div className="mt-4 flex flex-col items-center gap-2 pt-4 border-t">
-                <Button variant="outline" onClick={handleShowMore} className="w-full sm:w-auto">
-                  Show more ({remainingCount} remaining)
+                <Button
+                  variant="outline"
+                  onClick={handleShowMore}
+                  className="w-full sm:w-auto"
+                  disabled={isFetchingNextPage}
+                >
+                  {isFetchingNextPage ? 'Loading more...' : 'Show more'}
                 </Button>
                 <p className="text-xs text-muted-foreground">
-                  Showing {voters.length} of {allVoters.length} voters
+                  {totalVotersCount} {totalVotersCount === 1 ? 'voter' : 'voters'} loaded
                 </p>
               </div>
             )}

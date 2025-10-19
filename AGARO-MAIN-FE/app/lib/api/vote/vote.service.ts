@@ -6,6 +6,8 @@ import type {
   CheckHasVotedResponse,
   GetUserVoteRequest,
   GetUserVoteResponse,
+  GetUserVotesRequest,
+  GetUserVotesResponse,
 } from './vote.interface';
 
 export const voteService = {
@@ -27,6 +29,13 @@ export const voteService = {
       }
       throw error;
     }
+  },
+
+  getUserVotes: async (params: GetUserVotesRequest) => {
+    const response = await agaroApi.get<GetUserVotesResponse>(`/v1/votes`, {
+      params,
+    });
+    return response;
   },
 
   checkHasVoted: async ({ pollId, voterWalletAddress }: CheckHasVotedRequest) => {

@@ -1,4 +1,4 @@
-import type { ApiResponse } from '../api.interface';
+import type { ApiListResponse, ApiResponse } from '../api.interface';
 
 export interface CastVoteRequest {
   pollId: string;
@@ -41,6 +41,7 @@ export interface GetUserVote {
   id: string;
   pollId: string;
   choiceId: string;
+  choiceName: string;
   commitToken: number | null;
   voterWalletAddress: string;
   voterHash: string;
@@ -66,3 +67,13 @@ export interface CheckHasVotedRequest {
 }
 
 export interface CheckHasVotedResponse extends ApiResponse<{ hasVoted: boolean }> {}
+
+export interface GetUserVotesRequest {
+  pollId?: string;
+  voterWalletAddress?: string;
+  pollHash?: string;
+  page?: number;
+  limit?: number;
+}
+
+export interface GetUserVotesResponse extends ApiResponse<ApiListResponse<GetUserVote>> {}
