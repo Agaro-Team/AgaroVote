@@ -61,7 +61,7 @@ export function VoteProvider({ children }: VoteProviderProps) {
   } = useSuspenseQuery(pollDetailQueryOptions(id!));
 
   const { address: walletAddress } = useWeb3Wallet();
-  const votePoll = useVotePoll();
+  const votePoll = useVotePoll(poll);
 
   // Fetch voting eligibility from the backend
   const { data: eligibilityData, isLoading: isCheckingEligibility } = useQuery(

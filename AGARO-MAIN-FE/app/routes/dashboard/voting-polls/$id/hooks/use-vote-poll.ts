@@ -2,6 +2,7 @@ import { toast } from 'sonner';
 import { parseEther } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { useWeb3Chain, useWeb3Wallet } from '~/hooks/use-web3';
+import type { Poll } from '~/lib/api/poll/poll.interface';
 import { queryClient } from '~/lib/query-client/config';
 import { pollQueryKeys } from '~/lib/query-client/poll/queries';
 import { castVoteMutationOptions } from '~/lib/query-client/vote/mutations';
@@ -12,6 +13,7 @@ import {
   useWriteEntryPointVote,
 } from '~/lib/web3/contracts/generated';
 import { parseWagmiErrorForToast } from '~/lib/web3/error-parser';
+import { createHexProofByLeaves } from '~/lib/web3/utils';
 
 import { useEffect, useReducer } from 'react';
 
@@ -88,7 +90,7 @@ function votePollReducer(state: VotePollState, action: VotePollAction): VotePoll
   }
 }
 
-export function useVotePoll() {
+export function useVotePoll(poll: Poll) {
   const { chainId } = useWeb3Chain();
   const { address: walletAddress } = useWeb3Wallet();
 
@@ -161,6 +163,11 @@ export function useVotePoll() {
   const vote = ({ pollHash, candidateSelected, choiceId, pollId }: VoteParams) => {
     const address = getEntryPointAddress(chainId);
 
+    if (!poll) {
+      toast.error('Poll not found');
+      return;
+    }
+
     if (!address) {
       toast.error('EntryPoint contract not deployed on this network');
       return;
@@ -198,6 +205,16 @@ export function useVotePoll() {
       return;
     }
 
+    if (!poll.addresses.length) {
+      toast.error('Poll addresses not found');
+      return;
+    }
+
+    if (!walletAddress) {
+      toast.error('Wallet not connected');
+      return;
+    }
+
     // Prevent duplicate blockchain submissions
     if (voteTxHash || isWritingEntryPointVote) {
       return;
@@ -209,12 +226,22 @@ export function useVotePoll() {
       return;
     }
 
+    // Create Hex Proofs here
+    let proofs: `0x${string}`[] = [];
+
+    if (poll.addresses.length > 0) {
+      proofs = createHexProofByLeaves(
+        poll.addresses.map((address) => address.leaveHash),
+        walletAddress
+      );
+    }
+
     // Trigger blockchain transaction
     const args = {
       pollHash: state.pollHash,
       candidateSelected: state.choiceIndex,
       commitToken: state.commitToken ? parseEther(state.commitToken) : parseEther('0'),
-      proofs: [], // Empty for now
+      proofs, // Empty for now
     } as const;
 
     writeContract({
@@ -230,6 +257,8 @@ export function useVotePoll() {
     isWritingEntryPointVote,
     writeContract,
     chainId,
+    poll.addresses,
+    walletAddress,
   ]);
 
   // Step 3: After blockchain success and event emission, invalidate queries

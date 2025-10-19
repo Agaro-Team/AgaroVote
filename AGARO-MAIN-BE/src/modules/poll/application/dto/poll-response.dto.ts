@@ -14,6 +14,7 @@ export class PollAddressResponseDto {
   id: string;
   pollId: string;
   walletAddress: string;
+  leaveHash: `0x${string}` | null;
   createdAt: Date;
 }
 
@@ -84,6 +85,7 @@ export class PollResponseDto {
         id: address.id,
         pollId: address.pollId,
         walletAddress: address.walletAddress,
+        leaveHash: address.leaveHash as `0x${string}` | null,
         createdAt: address.createdAt,
       }));
     }
