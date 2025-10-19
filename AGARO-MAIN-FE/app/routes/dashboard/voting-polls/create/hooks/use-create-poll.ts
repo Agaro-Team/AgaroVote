@@ -225,8 +225,7 @@ export function useCreatePoll() {
 
       if (pollData.allowedAddresses.length > 0) {
         merkleRootHash = createHexRootByAddresses(
-          pollData.allowedAddresses.map((address) => address as Address),
-          walletAddress as Address
+          pollData.allowedAddresses.map((address) => address as Address)
         );
       }
 
