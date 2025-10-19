@@ -139,13 +139,15 @@ export function ClaimHistoryList() {
               {/* Claimed Amount */}
               <Reward.AmountBox className="bg-green-500/10 border border-green-500/20">
                 <Reward.AmountRow>
-                  <Reward.AmountLabel emoji="💰">Claimed Amount:</Reward.AmountLabel>
+                  <Reward.AmountLabel emoji="💰">Reward:</Reward.AmountLabel>
                   <Reward.AmountValue>
                     <ClaimAmount
                       reward={reward}
                       className="text-xl font-bold text-green-700 dark:text-green-300"
                     />
-                    <p className="text-sm text-muted-foreground">≈ ${reward.reward_amount}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Principal Amount: {reward.principal_amount}
+                    </p>
                   </Reward.AmountValue>
                 </Reward.AmountRow>
               </Reward.AmountBox>

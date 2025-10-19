@@ -22,12 +22,16 @@
  * </RewardsSummary.Root>
  * ```
  */
+import { formatEther } from 'viem';
+import CountUp from '~/components/CountUp';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
 import { useWalletBalance } from '~/hooks/use-web3';
 import { cn } from '~/lib/utils';
 
 import type { ReactNode } from 'react';
+
+import { useRewardDashboardBalanceNow } from '../hooks/use-reward-dashboard-summary';
 
 // ==================== Root Container ====================
 interface RewardsSummaryRootProps {
@@ -71,20 +75,16 @@ function RewardsSummaryContent({ children, className }: RewardsSummaryContentPro
 
 // ==================== Amount Display ====================
 interface RewardsSummaryAmountProps {
-  amount: number | string;
   label?: string;
-  isLoading?: boolean;
   className?: string;
 }
 
-function RewardsSummaryAmount({
-  amount,
-  label = 'Total Available to Claim',
-  isLoading: isLoadingProp,
-  className,
-}: RewardsSummaryAmountProps) {
-  const { symbol, isLoading: isBalanceLoading } = useWalletBalance();
-  const isLoading = isLoadingProp ?? isBalanceLoading;
+function RewardsBalanceNow({ label = 'Your Balance Now', className }: RewardsSummaryAmountProps) {
+  const { symbol } = useWalletBalance();
+
+  const { rawBalance, isLoading: isBalanceLoading } = useRewardDashboardBalanceNow();
+
+  const isLoading = isBalanceLoading;
 
   return (
     <div className={cn('space-y-2', className)}>
@@ -94,7 +94,15 @@ function RewardsSummaryAmount({
           <Skeleton className="h-12 w-40" />
         ) : (
           <p className="text-4xl font-bold">
-            {amount} {symbol}
+            <CountUp
+              to={Number(Number(formatEther(rawBalance)).toFixed(2))}
+              from={0}
+              duration={0.5}
+              separator=","
+              className="tabular-nums"
+              startWhen={!isLoading}
+            />{' '}
+            <span className="text-muted-foreground">{symbol}</span>
           </p>
         )}
       </div>
@@ -176,7 +184,7 @@ export const RewardsSummary = {
   Root: RewardsSummaryRoot,
   Header: RewardsSummaryHeader,
   Content: RewardsSummaryContent,
-  Amount: RewardsSummaryAmount,
+  BalanceNow: RewardsBalanceNow,
   Stats: RewardsSummaryStats,
   StatItem: RewardsSummaryStatItem,
   Actions: RewardsSummaryActions,

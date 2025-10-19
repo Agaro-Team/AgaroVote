@@ -32,3 +32,20 @@ export interface GetRewardsRequest extends ApiRequest {
   claimedOnly?: boolean;
   pendingOnly?: boolean;
 }
+
+export interface RewardDashboardSummaryResponse {
+  totalClaimedAmount: number;
+  totalClaimedFromPolls: number;
+  totalPendingFromPolls: number;
+  totalClaimableFromPolls: number;
+  totalClaimableAmount: number;
+  totalPendingAmount: number;
+  totalClaimedAmountEthers: string;
+  syntheticClaimedPlucks: `0x${string}`[];
+  syntheticPendingPlucks: `0x${string}`[];
+  syntheticClaimablePlucks: `0x${string}`[];
+  allSyntheticRewardContractAddresses: `0x${string}`[];
+}
+
+export interface GetDashboardRewardSummaryResponse
+  extends ApiResponse<RewardDashboardSummaryResponse> {}

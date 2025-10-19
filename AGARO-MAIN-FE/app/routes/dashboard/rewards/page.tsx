@@ -4,7 +4,7 @@
  * Page for viewing and claiming rewards from ended voting polls.
  * Protected by SIWE authentication middleware.
  */
-import { Check, Clock, Gem, HistoryIcon } from 'lucide-react';
+import { Check, Clock, Gem } from 'lucide-react';
 import { useSearchParams } from 'react-router';
 import {
   Breadcrumb,
@@ -14,7 +14,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
-import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
 import { siweAuthMiddleware } from '~/lib/middleware/auth';
@@ -101,17 +100,9 @@ export default function RewardsPage() {
           <RewardsSummary.Header
             icon={<Gem className="h-6 w-6 text-primary" />}
             title="Your Rewards"
-            description="Total rewards available from ended voting polls"
           />
           <RewardsSummary.Content>
-            <RewardsSummary.Amount amount={1000} />
-            <RewardsSummary.Stats totalClaimed={1000} />
-            <RewardsSummary.Actions>
-              <Button onClick={handleViewHistory} size="lg" variant="outline" className="gap-2">
-                <HistoryIcon className="h-4 w-4" />
-                View History
-              </Button>
-            </RewardsSummary.Actions>
+            <RewardsSummary.BalanceNow />
           </RewardsSummary.Content>
         </RewardsSummary.Root>
 

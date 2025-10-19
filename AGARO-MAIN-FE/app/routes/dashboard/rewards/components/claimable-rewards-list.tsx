@@ -131,7 +131,9 @@ export function ClaimableRewardsList() {
                       reward={reward}
                       className="text-xl font-bold text-green-700 dark:text-green-300"
                     />
-                    <p className="text-sm text-muted-foreground">≈ ${reward.reward_amount}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Principal Amount: {reward.principal_amount}
+                    </p>
                   </Reward.AmountValue>
                 </Reward.AmountRow>
               </Reward.AmountBox>
