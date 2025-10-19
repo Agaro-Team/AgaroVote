@@ -1,15 +1,7 @@
 import { BaseEntity } from '@/shared/domain/base.entity';
-import {
-  Column,
-  Entity,
-  Index,
-  OneToMany,
-  ManyToOne,
-  JoinColumn,
-} from 'typeorm';
-import { RewardClaims } from './reward-claims.entity';
-import type { Vote } from '@modules/vote/domain/entities/vote.entity';
 import type { Poll } from '@modules/poll/domain/entities/poll.entity';
+import type { Vote } from '@modules/vote/domain/entities/vote.entity';
+import { Column, Entity, Index, JoinColumn, ManyToOne } from 'typeorm';
 
 @Entity('vote_rewards')
 @Index(['voteId'])
@@ -48,9 +40,6 @@ export class Reward extends BaseEntity {
 
   @Column({ name: 'claimed_at', type: 'timestamp', default: null })
   claimedAt?: Date;
-
-  @OneToMany(() => RewardClaims, (rewardClaim) => rewardClaim.reward)
-  rewardClaims: RewardClaims[];
 
   // Relations
   @ManyToOne('Vote', { onDelete: 'CASCADE' })
