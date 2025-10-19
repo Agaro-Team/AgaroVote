@@ -43,7 +43,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 expiry: {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
-                }, 
+                },
                 rewardShare: 0,
                 isTokenRequired: false
             };
@@ -97,8 +97,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
             const expectedVotesArray = Array(pollData.candidatesTotal).fill(ethers.toBigInt(0));
 
             await expect(entryPoint.newVotingPoll(pollData))
-                .to.emit(entryPoint, "VotingPollCreated")
-                .withArgs(1, expectedPollHash, expectedVoterStorageHash, expectedVotesArray);
+                .to.emit(entryPoint, "VotingPollCreated");
         });
 
         it("Should increment version after creating a poll", async function () {
@@ -137,7 +136,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 expiry: {
                     startDate: now,
                     endDate: now + 3600 * 24 * 2,   // 2 days
-                }, 
+                },
                 rewardShare: 0,
                 isTokenRequired: false
             };

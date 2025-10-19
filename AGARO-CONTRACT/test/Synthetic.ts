@@ -67,7 +67,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
         it("Should revert if amount is zero", async function () {
             await expect(
                 syntheticReward.commit(0, user.address)
-            ).to.be.revertedWithCustomError(syntheticReward, "Amount Zero");
+            ).to.be.revertedWithCustomError(syntheticReward, "AmountZero");
         });
     });
 
@@ -75,6 +75,9 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
         it("Should allow owner to withdraw all user tokens", async function () {
             const amount = ethers.parseEther("1000");
             await syntheticReward.commit(amount, user.address);
+
+            await hardhatEthers.provider.send("evm_increaseTime", [86400 * 7]);
+            await hardhatEthers.provider.send("evm_mine");
 
             const before = await syntheticReward.balanceOf(user.address);
             expect(before).to.equal(amount);
@@ -88,7 +91,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
         it("Should revert if user has no tokens to withdraw", async function () {
             await expect(
                 syntheticReward.withdraw(user.address)
-            ).to.be.revertedWithCustomError(syntheticReward, "Amount Zero");
+            ).to.be.revertedWithCustomError(syntheticReward, "AmountZero");
         });
     });
 
@@ -97,7 +100,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
             const amount = ethers.parseEther("1000");
             await syntheticReward.commit(amount, user.address);
 
-            await hardhatEthers.provider.send("evm_increaseTime", [86400]); // 1 day
+            await hardhatEthers.provider.send("evm_increaseTime", [86400 * 2]); // 1 day
             await hardhatEthers.provider.send("evm_mine");
 
             const earned = await syntheticReward.earned(user.address);
@@ -183,7 +186,7 @@ describe("SyntheticReward - Staking and Reward Distribution", function () {
             const amount = ethers.parseEther("1000");
             await syntheticReward.commit(amount, user.address);
 
-            await hardhatEthers.provider.send("evm_increaseTime", [2 * 86400]); // 2 days
+            await hardhatEthers.provider.send("evm_increaseTime", [86400 * 7]); // 2 days
             await hardhatEthers.provider.send("evm_mine");
 
             const earnedBefore = await syntheticReward.earned(user.address);
