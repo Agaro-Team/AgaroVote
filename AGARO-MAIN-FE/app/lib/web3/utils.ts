@@ -7,11 +7,8 @@ export const createLeaveHashByAddress = (address: EthereumAddress) => {
   return keccak256(address);
 };
 
-export const createHexRootByAddresses = (
-  addresses: EthereumAddress[],
-  voterAddress: EthereumAddress
-) => {
-  const whitelist = [...addresses, voterAddress];
+export const createHexRootByAddresses = (addresses: EthereumAddress[]) => {
+  const whitelist = [...addresses];
   const leaves = whitelist.map(createLeaveHashByAddress);
   const tree = new MerkleTree(leaves, keccak256, { sortPairs: true });
   return tree.getHexRoot() as EthereumAddress;
