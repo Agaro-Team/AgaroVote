@@ -107,6 +107,19 @@ contract SyntheticReward is
             rewards[_account];
     }
 
+    function earnedListAccounts(
+        address[] memory _accounts
+    ) public view returns (uint256) {
+        uint256 total = 0;
+
+        for (uint256 i = 0; i < _accounts.length; i++) {
+            address account = _accounts[i];
+            total += earned(account);
+        }
+
+        return total;
+    }
+
     function _getReward(
         address _sender
     ) private updateReward(_sender) returns (uint256) {
