@@ -4,6 +4,7 @@
  * Page for viewing and claiming rewards from ended voting polls.
  * Protected by SIWE authentication middleware.
  */
+import { Check, Clock, Gem, HistoryIcon } from 'lucide-react';
 import { useSearchParams } from 'react-router';
 import {
   Breadcrumb,
@@ -13,19 +14,21 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
+import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
 import { siweAuthMiddleware } from '~/lib/middleware/auth';
 
 import { Suspense, useEffect, useRef } from 'react';
 
+import { RewardStats } from './components';
 import { ClaimHistoryList } from './components/claim-history-list';
 import { ClaimableRewardsList } from './components/claimable-rewards-list';
 import { PendingRewardsList } from './components/pending-rewards-list';
 import { RewardSkeletonList } from './components/reward-skeleton-list';
-import { RewardsStatsGrid } from './components/rewards-stats-grid';
-import { RewardsSummaryCard } from './components/rewards-summary-card';
+import { RewardsSummary } from './components/reward-summary';
 import { RewardsTabs } from './components/rewards-tabs';
+import { useTabsQueryState } from './hooks/use-tabs-query-state';
 
 /**
  * Apply SIWE authentication middleware
@@ -36,6 +39,12 @@ export const middleware = [siweAuthMiddleware];
 export default function RewardsPage() {
   const [searchParams] = useSearchParams();
   const tabsRef = useRef<HTMLDivElement>(null);
+
+  const [__, setActiveTab] = useTabsQueryState();
+
+  const handleViewHistory = () => {
+    setActiveTab('history');
+  };
 
   // Scroll to tabs section when activeTab query param is present
   useEffect(() => {
@@ -88,10 +97,38 @@ export default function RewardsPage() {
         </div>
 
         {/* Summary Card */}
-        <RewardsSummaryCard />
+        <RewardsSummary.Root>
+          <RewardsSummary.Header
+            icon={<Gem className="h-6 w-6 text-primary" />}
+            title="Your Rewards"
+            description="Total rewards available from ended voting polls"
+          />
+          <RewardsSummary.Content>
+            <RewardsSummary.Amount amount={1000} />
+            <RewardsSummary.Stats totalClaimed={1000} />
+            <RewardsSummary.Actions>
+              <Button onClick={handleViewHistory} size="lg" variant="outline" className="gap-2">
+                <HistoryIcon className="h-4 w-4" />
+                View History
+              </Button>
+            </RewardsSummary.Actions>
+          </RewardsSummary.Content>
+        </RewardsSummary.Root>
 
         {/* Stats Grid */}
-        <RewardsStatsGrid />
+        <RewardStats.Grid>
+          <RewardStats.Card title="Claimable" icon={<Gem className="h-4 w-4 text-primary" />}>
+            <RewardStats.ClaimableCardContent />
+          </RewardStats.Card>
+
+          <RewardStats.Card title="Pending" icon={<Clock className="h-4 w-4 text-blue-500" />}>
+            <RewardStats.PendingCardContent />
+          </RewardStats.Card>
+
+          <RewardStats.Card title="Claimed" icon={<Check className="h-4 w-4 text-green-500" />}>
+            <RewardStats.ClaimedCardContent />
+          </RewardStats.Card>
+        </RewardStats.Grid>
 
         {/* Tabs - with ref for auto-scroll */}
         <div ref={tabsRef}>
