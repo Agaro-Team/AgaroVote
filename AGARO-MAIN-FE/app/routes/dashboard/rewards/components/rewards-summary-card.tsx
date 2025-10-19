@@ -58,11 +58,6 @@ export function RewardsSummaryCard() {
             View History
           </Button>
         </div>
-
-        {/* Gas Fee Estimate */}
-        <div className="rounded-lg bg-muted p-3 text-sm">
-          <p className="text-muted-foreground">⚠️ Estimated gas fee: ~0.0023 ETH (~$5.50)</p>
-        </div>
       </CardContent>
     </Card>
   );
