@@ -31,6 +31,12 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Create env file from secret
+        run: |
+          echo "${{ secrets.ENV_FE }}" > ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
+          echo "Environment file created:"
+          cat ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
@@ -47,12 +53,6 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 92.113.145.8 >> ~/.ssh/known_hosts
-
-      - name: Create env file from secret
-        run: |
-          echo "${{ secrets.ENV_FE }}" > ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
-          echo "Environment file created"
-          cat ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
 
       - name: Upload env file to server
         run: |
@@ -78,11 +78,11 @@ jobs:
 
               echo \"Running new container\"
               docker run -d \
-                --name agaro-fe \
+                --name ${{ env.CONTAINER_NAME }} \
                 --restart unless-stopped \
                 --network agaro-network \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
-                --env-file ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }} \
+                -v ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}:/app/.env \
                 ${{ env.DOCKER_IMAGE }}:latest
             '
           "
