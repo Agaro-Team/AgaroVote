@@ -103,7 +103,9 @@ export class TypeORMRewardRepository implements IRewardRepository {
       .addSelect(
         'poll.syntheticRewardContractAddress',
         'syntheticRewardContractAddress',
-      );
+      )
+      // Add voted at
+      .addSelect('vote.voted_at', 'votedAt');
 
     if (filters?.pollId) {
       query.andWhere('reward.pollId = :pollId', { pollId: filters.pollId });
@@ -146,6 +148,7 @@ export class TypeORMRewardRepository implements IRewardRepository {
       pollTotalVotes: string;
       choiceTotalVotes: string;
       syntheticRewardContractAddress: string;
+      votedAt: string | null;
     };
 
     // Map the vote counts from raw results to entities
@@ -155,6 +158,7 @@ export class TypeORMRewardRepository implements IRewardRepository {
         pollTotalVotes: parseInt(raw.pollTotalVotes || '0', 10) || 0,
         choiceTotalVotes: parseInt(raw.choiceTotalVotes || '0', 10) || 0,
         syntheticRewardContractAddress: raw.syntheticRewardContractAddress,
+        votedAt: raw.votedAt,
       });
     });
 

@@ -3,12 +3,9 @@
  *
  * List of rewards from active polls (locked until poll ends)
  */
-import { AlertCircle, Bell, Clock, ExternalLink, Inbox, RefreshCw } from 'lucide-react';
+import { AlertCircle, Bell, ExternalLink, Inbox, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
-import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { ClientDate } from '~/components/ui/client-date';
 import {
   Empty,
   EmptyContent,
@@ -17,13 +14,12 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from '~/components/ui/empty';
-import { Skeleton } from '~/components/ui/skeleton';
 import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/queries';
 
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
 import { ClaimAmount } from './claim-amount';
-import { RewardSkeletonList } from './reward-skeleton-list';
+import { Reward } from './reward';
 
 export function PendingRewardsList() {
   const {
@@ -118,101 +114,53 @@ export function PendingRewardsList() {
         </p>
       </div>
 
-      {rewards.map((reward) => {
-        const claimableDate = new Date(reward.claimable_at);
-        const votedDate = new Date(reward.created_at);
-        const now = Date.now();
-        const timeUntilClaimable = claimableDate.getTime() - now;
+      {rewards.map((reward) => (
+        <Reward key={reward.id} reward={reward}>
+          <Reward.Card>
+            <Reward.Header>
+              <Reward.HeaderContainer>
+                <Reward.TitleContainer>
+                  <Reward.TitleGroup>
+                    <Reward.Title />
+                    <Reward.StatusBadge status="active" />
+                  </Reward.TitleGroup>
+                  <Reward.Description />
+                </Reward.TitleContainer>
+              </Reward.HeaderContainer>
+            </Reward.Header>
 
-        // Calculate time remaining
-        const days = Math.max(0, Math.floor(timeUntilClaimable / (1000 * 60 * 60 * 24)));
-        const hours = Math.max(
-          0,
-          Math.floor((timeUntilClaimable % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-        );
-        const minutes = Math.max(
-          0,
-          Math.floor((timeUntilClaimable % (1000 * 60 * 60)) / (1000 * 60))
-        );
-
-        const timeRemaining =
-          days > 0
-            ? `${days}d ${hours}h ${minutes}m`
-            : hours > 0
-              ? `${hours}h ${minutes}m`
-              : `${minutes}m`;
-
-        return (
-          <Card key={reward.id} className="overflow-hidden">
-            <CardHeader>
-              <div className="flex items-start justify-between gap-4">
-                <div className="space-y-1 flex-1">
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-lg">🗳️ {reward.poll_title}</CardTitle>
-                    <Badge variant="secondary" className="bg-blue-500 text-white">
-                      🔵 Active
-                    </Badge>
-                  </div>
-                  <CardDescription>Your vote: {reward.choice_name} ✓</CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
+            <Reward.Content>
               {/* Countdown */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-muted-foreground" />
-                    <span className="text-muted-foreground">Claimable in:</span>
-                  </div>
-                  <span className="font-bold">{timeRemaining}</span>
-                </div>
-                <p className="text-xs text-muted-foreground" suppressHydrationWarning>
-                  Claimable at:{' '}
-                  <ClientDate date={claimableDate} formatString="MMM dd, yyyy HH:mm" />
-                </p>
-              </div>
+              <Reward.Section>
+                <Reward.TimeRemaining />
+                <Reward.ClaimableDate />
+              </Reward.Section>
 
               {/* Vote Info */}
-              <div className="grid gap-3 text-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Voted:</span>
-                  <span className="font-medium" suppressHydrationWarning>
-                    <ClientDate date={votedDate} formatString="MMM dd, yyyy HH:mm" />
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Total Votes:</span>
-                  <span className="font-medium">{reward.poll_total_votes.toLocaleString()}</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-muted-foreground">Your Choice Votes:</span>
-                  <span className="font-medium">{reward.choice_total_votes.toLocaleString()}</span>
-                </div>
-              </div>
+              <Reward.InfoGrid>
+                <Reward.VotedDate />
+                <Reward.TotalVotes />
+                <Reward.ChoiceVotes />
+              </Reward.InfoGrid>
 
               {/* Potential Reward */}
-              <div className="rounded-lg bg-muted p-4 space-y-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">💎 Potential Reward:</span>
-                  <div className="text-right">
+              <Reward.AmountBox>
+                <Reward.AmountRow>
+                  <Reward.AmountLabel />
+                  <Reward.AmountValue>
                     <ClaimAmount className="text-xl font-bold" reward={reward} />
-                    <p className="text-sm text-muted-foreground">
-                      Principal: {reward.principal_amount} AGR
-                    </p>
-                  </div>
-                </div>
-              </div>
+                    <Reward.Principal />
+                  </Reward.AmountValue>
+                </Reward.AmountRow>
+              </Reward.AmountBox>
 
               {/* Warning */}
-              <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 p-3 text-sm">
-                <p className="text-amber-700 dark:text-amber-300">
-                  ⚠️ Reward will be claimable after poll ends
-                </p>
-              </div>
+              <Reward.Alert variant="warning">
+                ⚠️ Reward will be claimable after poll ends
+              </Reward.Alert>
 
               {/* Actions */}
-              <div className="flex flex-wrap gap-2">
+              <Reward.Actions>
                 <Button
                   onClick={() => handleViewPoll(reward.poll_id)}
                   variant="outline"
@@ -229,11 +177,11 @@ export function PendingRewardsList() {
                   <Bell className="h-4 w-4" />
                   Set Reminder
                 </Button>
-              </div>
-            </CardContent>
-          </Card>
-        );
-      })}
+              </Reward.Actions>
+            </Reward.Content>
+          </Reward.Card>
+        </Reward>
+      ))}
 
       {hasNextPage && (
         <Button variant="outline" onClick={() => fetchNextPage()}>
