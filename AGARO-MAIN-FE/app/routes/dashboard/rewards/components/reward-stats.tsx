@@ -4,6 +4,7 @@
  * Three-column stats overview showing claimable, pending, and claimed rewards
  * Features animated number countups using Framer Motion
  */
+import { formatEther } from 'viem';
 import CountUp from '~/components/CountUp';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Spinner } from '~/components/ui/spinner';
@@ -132,15 +133,11 @@ function PendingRewardsStatsCardContent() {
 
 function ClaimedRewardsStatsCardContent() {
   const { symbol, isLoading: isLoadingSymbol } = useWalletBalance();
-  const { data: rewardDashboardSummary } = useRewardDashboardSummary();
+  const { data: rewardDashboardSummary, isLoading: isLoadingRewardDashboardSummary } =
+    useRewardDashboardSummary();
 
-  const { isLoading: isLoadingClaimedRewards, formattedTotalEarned } = useSyntheticRewardsEarned({
-    syntheticAddresses: rewardDashboardSummary?.syntheticClaimedPlucks || [],
-    enabled: !!rewardDashboardSummary?.syntheticClaimedPlucks?.length,
-  });
-
-  const isLoading = isLoadingSymbol || !symbol || isLoadingClaimedRewards;
-  const amount = Number(formattedTotalEarned) || 0;
+  const isLoading = isLoadingSymbol || !symbol || isLoadingRewardDashboardSummary;
+  const amount = rewardDashboardSummary?.totalClaimedAmount || 0;
 
   return (
     <div className="space-y-1">
@@ -150,7 +147,7 @@ function ClaimedRewardsStatsCardContent() {
         ) : (
           <>
             <CountUp
-              to={amount}
+              to={Number(Number(formatEther(BigInt(amount.toString()))).toFixed(2))}
               from={0}
               duration={1.5}
               delay={0.4}

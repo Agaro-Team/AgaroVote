@@ -5,6 +5,7 @@
  */
 import { AlertCircle, ExternalLink, Gift, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatEther } from 'viem';
 import { Button } from '~/components/ui/button';
 import { ClientDate } from '~/components/ui/client-date';
 import {
@@ -19,7 +20,7 @@ import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/querie
 
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
-import { ClaimAmount } from './claim-amount';
+import { ClaimAmount, ClaimedAmount } from './claim-amount';
 import { Reward } from './reward';
 
 export function ClaimHistoryList() {
@@ -141,12 +142,12 @@ export function ClaimHistoryList() {
                 <Reward.AmountRow>
                   <Reward.AmountLabel emoji="💰">Reward:</Reward.AmountLabel>
                   <Reward.AmountValue>
-                    <ClaimAmount
+                    <ClaimedAmount
                       reward={reward}
                       className="text-xl font-bold text-green-700 dark:text-green-300"
                     />
                     <p className="text-sm text-muted-foreground">
-                      Principal Amount: {reward.principal_amount}
+                      Principal Amount: {formatEther(BigInt(reward.principal_amount))}
                     </p>
                   </Reward.AmountValue>
                 </Reward.AmountRow>

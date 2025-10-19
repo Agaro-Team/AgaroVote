@@ -8,7 +8,7 @@ export interface Reward {
   poll_id: string;
   voter_wallet_address: string;
   principal_amount: number;
-  reward_amount: number;
+  reward_amount: bigint;
   claimable_at: string;
   claimed_at: string | null;
   is_claimable: boolean;

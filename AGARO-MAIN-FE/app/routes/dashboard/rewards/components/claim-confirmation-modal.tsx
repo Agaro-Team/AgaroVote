@@ -83,6 +83,10 @@ export const ClaimRewardConfirmationModal = ({
       queryClient.invalidateQueries({
         queryKey: rewardQueryKeys.all,
       });
+
+      queryClient.invalidateQueries({
+        queryKey: rewardQueryKeys.dashboardSummary(),
+      });
     }
   }, [isConfirmed]);
 

@@ -46,7 +46,6 @@ export class RewardDashboardSummaryResponseDto
 
   public readonly totalClaimedAmountEthers: string;
 
-  public readonly syntheticClaimedPlucks: `0x${string}`[];
   public readonly syntheticPendingPlucks: `0x${string}`[];
   public readonly syntheticClaimablePlucks: `0x${string}`[];
   public readonly allSyntheticRewardContractAddresses: `0x${string}`[];
@@ -61,7 +60,6 @@ export class RewardDashboardSummaryResponseDto
     totalClaimedAmountEthers: string,
     claimable: PollContractAddressDto[],
     pending: PollContractAddressDto[],
-    claimed: PollContractAddressDto[],
     allSyntheticRewardContractAddresses: `0x${string}`[],
   ) {
     this.totalClaimedAmount = totalClaimedAmount;
@@ -79,9 +77,6 @@ export class RewardDashboardSummaryResponseDto
     );
     this.syntheticPendingPlucks = pending.map(
       (p) => p.syntheticRewardContractAddress,
-    );
-    this.syntheticClaimedPlucks = claimed.map(
-      (c) => c.syntheticRewardContractAddress,
     );
   }
 
@@ -191,7 +186,6 @@ export class RewardDashboardSummaryResponseDto
       totalClaimedAmountEthers,
       claimable,
       pending,
-      claimed,
       allSyntheticRewardContractAddresses,
     );
   }
@@ -211,7 +205,6 @@ export class RewardDashboardSummaryResponseDto
       0,
       0,
       '0',
-      [],
       [],
       [],
       [],

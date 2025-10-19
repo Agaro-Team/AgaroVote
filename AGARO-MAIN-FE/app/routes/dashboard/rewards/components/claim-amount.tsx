@@ -1,7 +1,7 @@
 import { formatEther } from 'viem';
 import CountUp from '~/components/CountUp';
 import { Spinner } from '~/components/ui/spinner';
-import { useWeb3Wallet } from '~/hooks/use-web3';
+import { useWalletBalance, useWeb3Wallet } from '~/hooks/use-web3';
 import type { Reward } from '~/lib/api/reward/reward.interface';
 import { cn } from '~/lib/utils';
 import { useReadSyntheticRewardEarned } from '~/lib/web3/contracts/generated';
@@ -42,6 +42,25 @@ export const ClaimAmount = ({ reward, className, ...props }: ClaimAmountProps) =
         </>
       )}{' '}
       AGR
+    </p>
+  );
+};
+
+export const ClaimedAmount = ({ reward, className, ...props }: ClaimAmountProps) => {
+  const { symbol } = useWalletBalance();
+
+  const rewardAmount = Number(formatEther(BigInt(reward.reward_amount)));
+
+  return (
+    <p {...props} className={cn('text-2xl font-bold', className)}>
+      <CountUp
+        to={Number(rewardAmount.toFixed(4))}
+        from={0}
+        direction="up"
+        duration={0.5}
+        className={cn('inline-block', className)}
+      />
+      {symbol}
     </p>
   );
 };
