@@ -6,7 +6,7 @@
   "scripts": {
     "build": "react-router build",
     "dev": "react-router dev",
-    "start": "PORT=3005 react-router-serve ./build/server/index.js",
+    "start": "cross-env PORT=${PORT:-3005} react-router-serve ./build/server/index.js",
     "tsc": "react-router typegen && tsc",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,css,md}\"",
@@ -74,6 +74,7 @@
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@wagmi/cli": "^2.6.0",
+    "cross-env": "^10.1.0",
     "hardhat": "^3.0.6",
     "prettier": "^3.6.2",
     "shadcn": "^3.4.0",
