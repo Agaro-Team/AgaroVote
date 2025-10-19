@@ -1,23 +1,14 @@
-FROM node:20-alpine AS builder
-
+FROM node:lts-alpine AS builder
 WORKDIR /app
-
 COPY package.json yarn.lock ./
-RUN yarn install
-
+RUN yarn install --frozen-lockfile --production=false
 COPY . .
+RUN yarn build && yarn cache clean
 
-RUN yarn build
-
-FROM node:20-alpine
-
+FROM node:lts-alpine
 WORKDIR /app
-
+COPY --from=builder /app/build ./build
 COPY package.json yarn.lock ./
-RUN yarn install --production
-
-COPY --from=builder /app/build ./dist
-
+RUN yarn install --frozen-lockfile --production=true && yarn cache clean
 EXPOSE 3005
-
 CMD ["yarn", "start"]
