@@ -187,15 +187,15 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
     ) private pure returns (uint256, uint256) {
         uint256 bonus = 0;
         if (creatorBalances >= 10_000 * 1e18) {
-            bonus = 100 * 1e18;
+            bonus = 110 * 1e18;
         } else if (creatorBalances >= 50_00_0 * 1e18) {
-            bonus = 50 * 1e18;
+            bonus = 60 * 1e18;
         } else if (creatorBalances >= 25_000 * 1e18) {
-            bonus = 25 * 1e18;
+            bonus = 30 * 1e18;
         } else if (creatorBalances >= 10_000 * 1e18) {
-            bonus = 10 * 1e18;
+            bonus = 15 * 1e18;
         } else if (creatorBalances >= 5_000 * 1e18) {
-            bonus = 5 * 1e18;
+            bonus = 10 * 1e18;
         }
 
         return (rewardShare, bonus);
