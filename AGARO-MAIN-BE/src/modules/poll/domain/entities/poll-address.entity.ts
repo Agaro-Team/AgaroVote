@@ -12,6 +12,9 @@ export class PollAddress extends BaseEntity {
   @Column({ name: 'wallet_address', type: 'varchar', length: 255 })
   walletAddress: string;
 
+  @Column({ name: 'leave_hash', type: 'varchar', length: 255, nullable: true })
+  leaveHash: string | null;
+
   @ManyToOne(() => Poll, (poll) => poll.addresses, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'poll_id' })
   poll: Poll;

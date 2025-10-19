@@ -26,6 +26,11 @@ export class CreatePollAddressDto {
   @MinLength(1)
   @MaxLength(255)
   walletAddress: string;
+
+  @IsString()
+  @MinLength(1)
+  @MaxLength(255)
+  leaveHash: string;
 }
 
 export class CreatePollDto {

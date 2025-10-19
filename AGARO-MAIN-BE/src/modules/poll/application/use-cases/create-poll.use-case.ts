@@ -81,6 +81,7 @@ export class CreatePollUseCase {
         addresses.map((address) => ({
           pollId: poll.id,
           walletAddress: address.walletAddress,
+          leaveHash: address.leaveHash,
         })),
       );
     }
