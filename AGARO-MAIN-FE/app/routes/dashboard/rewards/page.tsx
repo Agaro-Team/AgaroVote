@@ -4,6 +4,7 @@
  * Page for viewing and claiming rewards from ended voting polls.
  * Protected by SIWE authentication middleware.
  */
+import { useSearchParams } from 'react-router';
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -16,7 +17,7 @@ import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
 import { siweAuthMiddleware } from '~/lib/middleware/auth';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect, useRef } from 'react';
 
 import { ClaimHistoryList } from './components/claim-history-list';
 import { ClaimableRewardsList } from './components/claimable-rewards-list';
@@ -33,6 +34,26 @@ import { RewardsTabs } from './components/rewards-tabs';
 export const middleware = [siweAuthMiddleware];
 
 export default function RewardsPage() {
+  const [searchParams] = useSearchParams();
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to tabs section when activeTab query param is present
+  useEffect(() => {
+    const activeTab = searchParams.get('activeTab');
+
+    if (activeTab && tabsRef.current) {
+      // Small delay to ensure content is rendered
+      const timer = setTimeout(() => {
+        tabsRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        });
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
+
   return (
     <>
       <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
@@ -72,20 +93,22 @@ export default function RewardsPage() {
         {/* Stats Grid */}
         <RewardsStatsGrid />
 
-        {/* Tabs */}
-        <RewardsTabs
-          claimableContent={
-            <Suspense fallback={<RewardSkeletonList />}>
-              <ClaimableRewardsList />
-            </Suspense>
-          }
-          pendingContent={
-            <Suspense fallback={<RewardSkeletonList />}>
-              <PendingRewardsList />
-            </Suspense>
-          }
-          historyContent={<ClaimHistoryList />}
-        />
+        {/* Tabs - with ref for auto-scroll */}
+        <div ref={tabsRef}>
+          <RewardsTabs
+            claimableContent={
+              <Suspense fallback={<RewardSkeletonList />}>
+                <ClaimableRewardsList />
+              </Suspense>
+            }
+            pendingContent={
+              <Suspense fallback={<RewardSkeletonList />}>
+                <PendingRewardsList />
+              </Suspense>
+            }
+            historyContent={<ClaimHistoryList />}
+          />
+        </div>
       </div>
     </>
   );

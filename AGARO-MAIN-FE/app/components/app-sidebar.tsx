@@ -90,21 +90,6 @@ const data = {
         },
       ],
     },
-    {
-      title: 'My Votes',
-      url: '/my-votes',
-      icon: History,
-      items: [
-        {
-          title: 'Vote History',
-          url: '/my-votes',
-        },
-        {
-          title: 'Pending Votes',
-          url: '/my-votes/pending',
-        },
-      ],
-    },
     // {
     //   title: 'Verification',
     //   url: '/verification',
