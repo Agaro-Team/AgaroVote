@@ -27,6 +27,7 @@ export interface Address {
   id?: string;
   pollId?: string;
   walletAddress: string;
+  leaveHash: `0x${string}`;
   createdAt?: string;
 }
 

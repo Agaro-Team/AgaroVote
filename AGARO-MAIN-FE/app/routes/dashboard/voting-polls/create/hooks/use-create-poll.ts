@@ -7,7 +7,7 @@
  * Handles Merkle root generation for private polls.
  */
 import { toast } from 'sonner';
-import { parseEther } from 'viem';
+import { type Address, keccak256, parseEther } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { useWeb3Chain, useWeb3Wallet } from '~/hooks/use-web3';
 import { createPollMutationOptions } from '~/lib/query-client/poll/mutations';
@@ -18,7 +18,7 @@ import {
   useWriteEntryPointNewVotingPoll,
 } from '~/lib/web3/contracts/generated';
 import { parseWagmiErrorForToast } from '~/lib/web3/error-parser';
-import { generateMerkleRoot } from '~/lib/web3/utils';
+import { createHexRootByAddresses, createLeaveHashByAddress } from '~/lib/web3/utils';
 import { getVotingPollHash } from '~/lib/web3/voting-poll-utils';
 
 import { useEffect, useRef, useState } from 'react';
@@ -177,6 +177,7 @@ export function useCreatePoll() {
       isPrivate: pollData.isPrivate,
       addresses: pollData.allowedAddresses.map((address) => ({
         walletAddress: address,
+        leaveHash: createLeaveHashByAddress(address as Address),
       })),
       creatorWalletAddress: walletAddress,
       pollHash: pollHash,
@@ -219,11 +220,14 @@ export function useCreatePoll() {
       const endDate = Math.floor(pollData.endDate.getTime() / 1000); // Convert to Unix timestamp
 
       // Generate Merkle root hash if private poll, otherwise use zero hash
-      let merkleRootHash: `0x${string}` =
+      let merkleRootHash: Address =
         '0x0000000000000000000000000000000000000000000000000000000000000000';
 
       if (pollData.allowedAddresses.length > 0) {
-        merkleRootHash = generateMerkleRoot(pollData.allowedAddresses);
+        merkleRootHash = createHexRootByAddresses(
+          pollData.allowedAddresses.map((address) => address as Address),
+          walletAddress as Address
+        );
       }
 
       // Convert candidatesTotal to uint8 format
@@ -289,6 +293,7 @@ export function useCreatePoll() {
         isPrivate: pollData.isPrivate,
         addresses: pollData.allowedAddresses.map((address) => ({
           walletAddress: address,
+          leaveHash: createLeaveHashByAddress(address as Address),
         })),
         creatorWalletAddress: walletAddress,
         pollHash,
