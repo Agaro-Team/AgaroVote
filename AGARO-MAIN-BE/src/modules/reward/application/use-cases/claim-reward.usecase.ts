@@ -46,8 +46,8 @@ export class ClaimRewardUseCase {
       body.voterWalletAddress,
       {
         claimedAt: new Date(),
-        principalAmount: Number(body.principalAmount),
-        rewardAmount: Number(body.rewardAmount),
+        principalAmount: body.principalAmount,
+        rewardAmount: body.rewardAmount,
       },
     );
   }

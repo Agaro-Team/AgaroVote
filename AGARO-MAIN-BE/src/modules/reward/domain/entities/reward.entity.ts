@@ -19,21 +19,29 @@ export class Reward extends BaseEntity {
 
   @Column({
     name: 'principal_amount',
-    type: 'decimal',
-    precision: 20,
-    scale: 8,
-    default: 0,
+    type: 'numeric',
+    precision: 78, // Max digits for uint256 (2^256 ≈ 10^77)
+    scale: 0, // No decimal places for wei
+    default: '0',
+    transformer: {
+      to: (value: string | number | bigint) => String(value),
+      from: (value: string) => value,
+    },
   })
-  principalAmount: number;
+  principalAmount: string;
 
   @Column({
     name: 'reward_amount',
-    type: 'decimal',
-    precision: 20,
-    scale: 8,
-    default: 0,
+    type: 'numeric',
+    precision: 78, // Max digits for uint256
+    scale: 0, // No decimal places for wei
+    default: '0',
+    transformer: {
+      to: (value: string | number | bigint) => String(value),
+      from: (value: string) => value,
+    },
   })
-  rewardAmount: number;
+  rewardAmount: string;
 
   @Column({ name: 'claimable_at', type: 'timestamp', default: null })
   claimableAt: Date;

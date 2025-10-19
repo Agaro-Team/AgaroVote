@@ -41,8 +41,8 @@ export class RewardableVoteCastedHandler
       reward.voteId = event.voteId;
       reward.voterWalletAddress = event.voterWalletAddress;
       reward.pollId = event.pollId;
-      reward.principalAmount = event.commitToken;
-      reward.rewardAmount = 0; // Will be calculated when user claims
+      reward.principalAmount = String(event.commitToken); // Store as string for uint256 support
+      reward.rewardAmount = '0'; // Will be calculated when user claims
       reward.claimableAt = event.claimableAt;
 
       await this.rewardRepository.save(reward);
