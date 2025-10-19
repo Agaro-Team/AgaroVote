@@ -87,7 +87,7 @@ export function useWalletBalance() {
   return {
     balance: data?.value,
     formattedBalance: data ? formatEther(data.value) : '0.0',
-    symbol: data?.symbol || 'ETH',
+    symbol: data?.symbol,
     decimals: data?.decimals || 18,
     isLoading,
     isError,
