@@ -10,7 +10,7 @@
 import { data, redirect } from 'react-router';
 import { setAuthToken } from '~/lib/auth/auth.server';
 
-const API_BASE_URL = process.env.VITE_AGARO_VOTE_API_ENTRYPOINT || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_AGARO_VOTE_API_ENTRYPOINT || 'http://localhost:3000/api';
 
 /**
  * GET /auth/siwe?walletAddress=0x...
