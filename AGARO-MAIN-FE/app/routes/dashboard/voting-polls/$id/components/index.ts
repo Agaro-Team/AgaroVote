@@ -1,7 +1,7 @@
 /**
  * Export all voting page components
  */
-export { VotePageLayout } from './vote-page-layout';
+export { VotePageLayout, VoteGrid, VoteGridItem } from './vote-page-layout';
 export { VotePageContent } from './vote-page-content';
 export { PollHeader } from './poll-header';
 export { PollMeta } from './poll-meta';
@@ -16,3 +16,4 @@ export { VoteLoading } from './vote-page-layout';
 export { VoteError } from './vote-page-layout';
 export { VoteProvider } from './vote-context';
 export { PollRewardStatus } from './poll-reward-status';
+export { VoterList, VoterListSkeleton } from './voter-list';
