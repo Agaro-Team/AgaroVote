@@ -7,10 +7,14 @@ import { Suspense } from 'react';
 
 import {
   VoteError,
+  VoteGrid,
+  VoteGridItem,
   VoteLoading,
   VotePageContent,
   VotePageLayout,
   VoteProvider,
+  VoterList,
+  VoterListSkeleton,
 } from './components';
 
 export default function VotePage() {
@@ -18,8 +22,18 @@ export default function VotePage() {
     <Suspense fallback={<VoteLoading />}>
       <VoteProvider>
         <VotePageLayout>
-          <VoteError />
-          <VotePageContent />
+          <VoteGrid>
+            <VoteGridItem>
+              <VoteError />
+              <VotePageContent />
+            </VoteGridItem>
+
+            <VoteGridItem>
+              <Suspense fallback={<VoterListSkeleton />}>
+                <VoterList />
+              </Suspense>
+            </VoteGridItem>
+          </VoteGrid>
         </VotePageLayout>
       </VoteProvider>
     </Suspense>

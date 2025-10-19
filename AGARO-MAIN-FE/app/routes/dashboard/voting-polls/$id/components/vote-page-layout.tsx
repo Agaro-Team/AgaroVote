@@ -12,6 +12,9 @@ import {
 import { Separator } from '~/components/ui/separator';
 import { SidebarTrigger } from '~/components/ui/sidebar';
 import { Spinner } from '~/components/ui/spinner';
+import { cn } from '~/lib/utils';
+
+import type React from 'react';
 
 import { useVoteContext } from './vote-context';
 
@@ -23,7 +26,7 @@ export function VotePageLayout({ children }: VotePageLayoutProps) {
   return (
     <>
       <VotePageHeader />
-      <div className="flex flex-1 flex-col gap-6 p-4 pt-0 max-w-4xl">{children}</div>
+      <div className="flex flex-1 flex-col gap-6 p-4 pt-0 ">{children}</div>
     </>
   );
 }
@@ -83,3 +86,25 @@ function VotePageBreadcrumbs() {
     </Breadcrumb>
   );
 }
+
+type VoteGridProps = React.ComponentProps<'div'>;
+export const VoteGrid = ({ children, className, ...props }: VoteGridProps) => {
+  return (
+    <div
+      className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12', className)}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
+type VoteGridItemProps = React.ComponentProps<'div'>;
+
+export const VoteGridItem = ({ children, className, ...props }: VoteGridItemProps) => {
+  return (
+    <div className={cn('col-span-1 space-y-8', className)} {...props}>
+      {children}
+    </div>
+  );
+};
