@@ -188,13 +188,13 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
         uint256 bonus = 0;
         if (creatorBalances >= 10_000 * 1e18) {
             bonus = 100 * 1e18;
-        } else if (creatorBalances >= 5_000 * 1e18) {
+        } else if (creatorBalances >= 50_00_0 * 1e18) {
             bonus = 50 * 1e18;
-        } else if (creatorBalances >= 2_500 * 1e18) {
+        } else if (creatorBalances >= 25_000 * 1e18) {
             bonus = 25 * 1e18;
-        } else if (creatorBalances >= 1_000 * 1e18) {
+        } else if (creatorBalances >= 10_000 * 1e18) {
             bonus = 10 * 1e18;
-        } else if (creatorBalances >= 500 * 1e18) {
+        } else if (creatorBalances >= 5_000 * 1e18) {
             bonus = 5 * 1e18;
         }
 
