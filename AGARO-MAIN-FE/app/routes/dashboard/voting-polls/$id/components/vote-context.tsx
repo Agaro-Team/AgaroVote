@@ -153,7 +153,10 @@ export function VoteProvider({ children }: VoteProviderProps) {
   const value: VoteContextValue = {
     poll,
     selectedChoiceIndex: votePoll.choiceIndex,
-    isVoting: votePoll.isWritingEntryPointVote,
+    isVoting:
+      votePoll.isSubmittingToBackend ||
+      votePoll.isWritingEntryPointVote ||
+      votePoll.isTransactionReceiptLoading,
     canVote,
     nonVotableReason: nonVotableReason || null,
     isCheckingEligibility,

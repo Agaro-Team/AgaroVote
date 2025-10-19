@@ -20,6 +20,7 @@ export interface Reward {
   poll_total_votes: number;
   choice_total_votes: number;
   synthetic_reward_contract_address: Address;
+  voted_at: string | null;
   created_at: string;
   updated_at: string;
 }

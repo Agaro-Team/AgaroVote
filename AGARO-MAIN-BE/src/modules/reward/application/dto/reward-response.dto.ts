@@ -19,6 +19,7 @@ export class RewardResponseDto {
   public readonly poll_total_votes: number;
   public readonly choice_total_votes: number;
   public readonly synthetic_reward_contract_address: string;
+  public readonly voted_at: string | null;
   public readonly created_at: string;
   public readonly updated_at: string;
 
@@ -40,6 +41,7 @@ export class RewardResponseDto {
     pollTotalVotes: number,
     choiceTotalVotes: number,
     syntheticRewardContractAddress: string,
+    votedAt: string | null,
     createdAt: string,
     updatedAt: string,
   ) {
@@ -60,6 +62,7 @@ export class RewardResponseDto {
     this.poll_total_votes = pollTotalVotes;
     this.choice_total_votes = choiceTotalVotes;
     this.synthetic_reward_contract_address = syntheticRewardContractAddress;
+    this.voted_at = votedAt;
     this.created_at = createdAt;
     this.updated_at = updatedAt;
   }
@@ -87,6 +90,7 @@ export class RewardResponseDto {
       pollTotalVotes,
       choiceTotalVotes,
       reward.syntheticRewardContractAddress || '',
+      reward.vote?.votedAt?.toISOString() || '',
       reward.createdAt.toISOString(),
       reward.updatedAt.toISOString(),
     );

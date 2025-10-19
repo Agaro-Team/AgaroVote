@@ -3,6 +3,7 @@ import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { ClientDate } from '~/components/ui/client-date';
 import type { Reward as RewardType } from '~/lib/api/reward/reward.interface';
+import { dayjs } from '~/lib/date-utils';
 import { cn } from '~/lib/utils';
 
 import { createContext, useContext } from 'react';
@@ -263,17 +264,17 @@ interface RewardVotedDateProps {
   className?: string;
   formatString?: string;
   label?: string;
-  dateField?: 'created_at' | 'updated_at';
+  dateField?: 'voted_at' | 'created_at' | 'updated_at';
 }
 
 function RewardVotedDate({
   className,
   formatString = 'MMM dd, yyyy HH:mm',
   label = 'Voted At:',
-  dateField = 'created_at',
+  dateField = 'voted_at',
 }: RewardVotedDateProps) {
   const { reward } = useRewardContext();
-  const votedDate = new Date(reward[dateField]);
+  const votedDate = new Date(reward[dateField] ?? '');
 
   return (
     <RewardInfoRow
