@@ -1,4 +1,4 @@
-name: Backend Docker Build & Deploy
+name: Frontend Docker Build & Deploy
 
 on:
   push:
@@ -10,7 +10,7 @@ on:
 env:
   DOCKER_IMAGE: ardialqlause/agaro-main-fe
   CONTAINER_NAME: agaro-fe
-  PORT: 3005
+  PORT: 3000
   ENV_FILE: .env
   REMOTE_DIR: /home/ardial/agaro-fe
 

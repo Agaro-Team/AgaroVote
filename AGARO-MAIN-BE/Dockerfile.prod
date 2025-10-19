@@ -21,7 +21,7 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 ENV NODE_ENV=production
 
-EXPOSE 3000
+EXPOSE 3005
 
 RUN addgroup -S nest && adduser -S nest -G nest
 USER nest

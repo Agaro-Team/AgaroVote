@@ -16,6 +16,6 @@ COPY --from=builder /app/build ./build
 
 RUN yarn install --frozen-lockfile --production=true && yarn cache clean
 
-EXPOSE 3005
+EXPOSE 3000
 
 CMD ["yarn", "start"]
