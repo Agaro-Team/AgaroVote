@@ -62,10 +62,52 @@ async fn main() -> anyhow::Result<()> {
                             log_success(&format!("Activated poll {} successfully", poll_hash_hex));
                         } else {
                             log_warning(&format!(
-                                "Failed to activate poll {} — status: {}",
+                                "Failed to activate poll {} — status: {}. Retrying...",
                                 poll_hash_hex,
                                 resp.status()
                             ));
+
+                            let mut retries = 0;
+                            let max_retries = 3;
+                            let mut success = false;
+
+                            while retries < max_retries {
+                                tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                                retries += 1;
+
+                                match client.post(&url).json(&payload).send().await {
+                                    Ok(retry_resp) => {
+                                        if retry_resp.status().is_success() {
+                                            log_success(&format!(
+                                                "Activated poll {} successfully after {} retries",
+                                                poll_hash_hex, retries
+                                            ));
+                                            success = true;
+                                            break;
+                                        } else {
+                                            log_warning(&format!(
+                                                "Retry {} failed for poll {} — status: {}",
+                                                retries,
+                                                poll_hash_hex,
+                                                retry_resp.status()
+                                            ));
+                                        }
+                                    }
+                                    Err(retry_err) => {
+                                        log_error(&format!(
+                                            "Retry {} failed for {}: {:?}",
+                                            retries, poll_hash_hex, retry_err
+                                        ));
+                                    }
+                                }
+                            }
+
+                            if !success {
+                                log_error(&format!(
+                                    "All retries failed for poll {} after {} attempts.",
+                                    poll_hash_hex, max_retries
+                                ));
+                            }
                         }
                     }
                     Err(err) => {
@@ -122,10 +164,52 @@ async fn main() -> anyhow::Result<()> {
                             ));
                         } else {
                             log_warning(&format!(
-                                "Failed to verify credibility {} — status: {}",
+                                "Failed to verify credibility {} — status: {}. Retrying...",
                                 poll_hash_hex,
                                 resp.status()
                             ));
+
+                            let mut retries = 0;
+                            let max_retries = 3;
+                            let mut success = false;
+
+                            while retries < max_retries {
+                                tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                                retries += 1;
+
+                                match client.put(&url).json(&payload).send().await {
+                                    Ok(retry_resp) => {
+                                        if retry_resp.status().is_success() {
+                                            log_success(&format!(
+                                                "Verified voter's credibility {} after {} retries",
+                                                poll_hash_hex, retries
+                                            ));
+                                            success = true;
+                                            break;
+                                        } else {
+                                            log_warning(&format!(
+                                                "Retry {} failed for {} — status: {}",
+                                                retries,
+                                                poll_hash_hex,
+                                                retry_resp.status()
+                                            ));
+                                        }
+                                    }
+                                    Err(retry_err) => {
+                                        log_error(&format!(
+                                            "Retry {} failed for {}: {:?}",
+                                            retries, poll_hash_hex, retry_err
+                                        ));
+                                    }
+                                }
+                            }
+
+                            if !success {
+                                log_error(&format!(
+                                    "All retries failed for {} after {} attempts.",
+                                    poll_hash_hex, max_retries
+                                ));
+                            }
                         }
                     }
                     Err(err) => {
@@ -158,9 +242,9 @@ async fn main() -> anyhow::Result<()> {
 
             while let Some(Ok(event)) = stream.next().await {
                 log_info(&format!(
-                "[WithdrawSucceeded] poll_hash={:?}, voter={:?}, withdrawed_token={}, reward={}",
-                event.poll_hash, event.voter, event.withdrawed_token, event.withdrawed_reward
-            ));
+                    "[WithdrawSucceeded] poll_hash={:?}, voter={:?}, withdrawed_token={}, reward={}",
+                    event.poll_hash, event.voter, event.withdrawed_token, event.withdrawed_reward
+                ));
 
                 let poll_hash_hex = format!("{:?}", event.poll_hash)
                     .trim_matches('"')
@@ -188,10 +272,52 @@ async fn main() -> anyhow::Result<()> {
                             ));
                         } else {
                             log_warning(&format!(
-                                "Failed to report withdrawal for poll={} — status: {}",
+                                "Failed to report withdrawal for poll={} — status: {}. Retrying...",
                                 poll_hash_hex,
                                 resp.status()
                             ));
+
+                            let mut retries = 0;
+                            let max_retries = 3;
+                            let mut success = false;
+
+                            while retries < max_retries {
+                                tokio::time::sleep(std::time::Duration::from_secs(1)).await;
+                                retries += 1;
+
+                                match client.put(&url).json(&payload).send().await {
+                                    Ok(retry_resp) => {
+                                        if retry_resp.status().is_success() {
+                                            log_success(&format!(
+                                                "Reported withdrawal success for poll={} voter={} after {} retries",
+                                                poll_hash_hex, voter_address_str, retries
+                                            ));
+                                            success = true;
+                                            break;
+                                        } else {
+                                            log_warning(&format!(
+                                                "Retry {} failed for poll={} — status: {}",
+                                                retries,
+                                                poll_hash_hex,
+                                                retry_resp.status()
+                                            ));
+                                        }
+                                    }
+                                    Err(retry_err) => {
+                                        log_error(&format!(
+                                            "Retry {} failed for poll={} voter={}: {:?}",
+                                            retries, poll_hash_hex, voter_address_str, retry_err
+                                        ));
+                                    }
+                                }
+                            }
+
+                            if !success {
+                                log_error(&format!(
+                                    "All retries failed for poll={} after {} attempts.",
+                                    poll_hash_hex, max_retries
+                                ));
+                            }
                         }
                     }
                     Err(err) => {
