@@ -23,7 +23,6 @@ export type VoteStep =
   | 'blockchain-submission'
   | 'blockchain-confirmation'
   | 'database-storage'
-  | 'verification'
   | 'complete';
 
 interface ProgressStep {
@@ -57,12 +56,6 @@ const PROGRESS_STEPS: ProgressStep[] = [
     label: 'Storing Vote Data',
     description: 'Recording your vote in our database',
     icon: Database,
-  },
-  {
-    id: 'verification',
-    label: 'Verification',
-    description: 'Verifying transaction and vote integrity',
-    icon: Shield,
   },
   {
     id: 'complete',
