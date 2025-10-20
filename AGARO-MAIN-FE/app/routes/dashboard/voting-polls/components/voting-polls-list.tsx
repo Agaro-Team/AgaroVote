@@ -83,7 +83,7 @@ export function VotingPollsList() {
       </div>
 
       {/* Polls grid */}
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-1">
+      <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {polls.map((poll) => (
           <VotingPollCard key={poll.pollHash} {...poll} />
         ))}
