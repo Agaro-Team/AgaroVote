@@ -109,7 +109,7 @@ export function ClaimableRewardsList() {
 
       {rewardsQuery.data?.rewards?.map((reward) => (
         <Reward key={reward.id} reward={reward}>
-          <Reward.Collapsible>
+          <Reward.Collapsible defaultOpen>
             <Reward.Card>
               <Reward.Header>
                 <Reward.HeaderContainer>
