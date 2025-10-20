@@ -1,4 +1,4 @@
-name: Event Listener 
+name: Event Listener
 
 on:
   push:
@@ -47,14 +47,31 @@ jobs:
 
       - name: Upload and deploy to server
         run: |
+          echo "Uploading package to server..."
           scp AGARO-EVENT-LISTENER/dist/agaro-event-listener.tar.gz ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/tmp/
+
+          echo "Deploying and restarting service..."
           ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
             set -e
-            echo 'Deploying new version...'
+
+            echo 'Extracting new version...'
             sudo mkdir -p ${{ env.DEPLOY_DIR }}
             sudo tar -xzf /tmp/agaro-event-listener.tar.gz -C ${{ env.DEPLOY_DIR }}
             sudo rm /tmp/agaro-event-listener.tar.gz
 
-            echo 'Restarting service...'
-            sudo systemctl restart agaro-event-listener.service || true
+            echo 'Stopping existing service (if running)...'
+            sudo systemctl stop agaro-event-listener.service || true
+
+            echo 'Starting new service...'
+            sudo systemctl start agaro-event-listener.service
+
+            echo 'Verifying service status...'
+            sleep 2
+            if ! sudo systemctl is-active --quiet agaro-event-listener.service; then
+              echo 'Service failed to start!'
+              sudo systemctl status agaro-event-listener.service --no-pager
+              exit 1
+            else
+              echo 'Service is active and running.'
+            fi
           "
