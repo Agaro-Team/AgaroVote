@@ -1,29 +1,57 @@
-import type { Address } from 'viem';
-
-import { defineConfig, loadEnv } from '@wagmi/cli';
-import { hardhat, react } from '@wagmi/cli/plugins';
+import { defineConfig } from '@wagmi/cli';
+import { react } from '@wagmi/cli/plugins';
 
 export default defineConfig(async () => {
-  const env = loadEnv({
-    mode: process.env.NODE_ENV,
-    envDir: process.cwd(),
-  });
-
   return {
     out: 'app/lib/web3/contracts/generated.ts',
     plugins: [
       react(),
-      hardhat({
-        project: '../AGARO-CONTRACT',
-        deployments: {
-          AgaroVote: {
-            1: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_MAINNET as Address,
-            11155111: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_SEPOLIA as Address,
-            31337: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_HARDHAT as Address,
-            13377: env.VITE_AGARO_VOTE_CONTRACT_ADDRESS_AGARO as Address,
-          },
+      // Using artifacts directly from AGARO-CONTRACT
+      // Make sure to run `yarn --cwd ../AGARO-CONTRACT compile` before generating
+      {
+        name: 'hardhat-artifacts',
+        async contracts() {
+          const fs = await import('fs');
+          const path = await import('path');
+
+          const artifactsPath = path.resolve(
+            process.cwd(),
+            '../AGARO-CONTRACT/artifacts/contracts'
+          );
+          const contracts: any[] = [];
+
+          // Helper function to recursively find all JSON artifacts
+          function findArtifacts(dir: string): void {
+            if (!fs.existsSync(dir)) return;
+
+            const files = fs.readdirSync(dir);
+
+            for (const file of files) {
+              const fullPath = path.join(dir, file);
+              const stat = fs.statSync(fullPath);
+
+              if (stat.isDirectory()) {
+                findArtifacts(fullPath);
+              } else if (file.endsWith('.json') && !file.includes('.dbg.')) {
+                try {
+                  const content = JSON.parse(fs.readFileSync(fullPath, 'utf-8'));
+                  if (content.abi && content.bytecode) {
+                    contracts.push({
+                      name: file.replace('.json', ''),
+                      abi: content.abi,
+                    });
+                  }
+                } catch (error) {
+                  // Skip invalid JSON files
+                }
+              }
+            }
+          }
+
+          findArtifacts(artifactsPath);
+          return contracts;
         },
-      }),
+      },
     ],
   };
 });
