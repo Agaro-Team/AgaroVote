@@ -9,12 +9,21 @@ import CountUp from '~/components/CountUp';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Spinner } from '~/components/ui/spinner';
 import { useWalletBalance } from '~/hooks/use-web3';
+import { cn } from '~/lib/utils';
 
 import { useRewardDashboardSummary } from '../hooks/use-reward-dashboard-summary';
 import { useSyntheticRewardsEarned } from '../hooks/use-synthetic-rewards-earned';
 
-function RewardStatsGrid({ children }: { children: React.ReactNode }) {
-  return <div className="grid gap-4 md:grid-cols-3">{children}</div>;
+function RewardStatsGrid({
+  children,
+  columns = 3,
+  className,
+}: {
+  children: React.ReactNode;
+  columns: number;
+  className?: string;
+}) {
+  return <div className={cn(`grid gap-4 md:grid-cols-${columns}`, className)}>{children}</div>;
 }
 
 function RewardStatsCard({
@@ -141,11 +150,24 @@ function ClaimedRewardsStatsCardContent() {
 
   return (
     <div className="space-y-1">
-      <div className="text-2xl font-bold">
+      <div className="space-y-2">
+        <p className="text-sm text-muted-foreground">
+          From{' '}
+          <CountUp
+            to={rewardDashboardSummary?.totalClaimedFromPolls || 0}
+            from={0}
+            duration={1}
+            delay={0.4}
+            className="inline-block tabular-nums"
+            startWhen={!!rewardDashboardSummary}
+          />{' '}
+          polls
+        </p>
+
         {isLoading ? (
           <Spinner size="sm" />
         ) : (
-          <>
+          <p className="text-4xl font-bold">
             <CountUp
               to={Number(Number(formatEther(BigInt(amount.toString()))).toFixed(2))}
               from={0}
@@ -156,21 +178,9 @@ function ClaimedRewardsStatsCardContent() {
               startWhen={!isLoading}
             />{' '}
             <span className="text-muted-foreground">{symbol}</span>
-          </>
+          </p>
         )}
       </div>
-      <p className="text-xs text-muted-foreground">
-        From{' '}
-        <CountUp
-          to={rewardDashboardSummary?.totalClaimedFromPolls || 0}
-          from={0}
-          duration={1}
-          delay={0.4}
-          className="inline-block tabular-nums"
-          startWhen={!!rewardDashboardSummary}
-        />{' '}
-        polls
-      </p>
     </div>
   );
 }

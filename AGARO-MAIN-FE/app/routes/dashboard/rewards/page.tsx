@@ -96,30 +96,30 @@ export default function RewardsPage() {
         </div>
 
         {/* Summary Card */}
-        <RewardsSummary.Root>
-          <RewardsSummary.Header
-            icon={<Gem className="h-6 w-6 text-primary" />}
-            title="Your Rewards"
-          />
-          <RewardsSummary.Content>
-            <RewardsSummary.BalanceNow />
-          </RewardsSummary.Content>
-        </RewardsSummary.Root>
-
-        {/* Stats Grid */}
-        <RewardStats.Grid>
-          <RewardStats.Card title="Claimable" icon={<Gem className="h-4 w-4 text-primary" />}>
-            <RewardStats.ClaimableCardContent />
-          </RewardStats.Card>
-
-          <RewardStats.Card title="Pending" icon={<Clock className="h-4 w-4 text-blue-500" />}>
-            <RewardStats.PendingCardContent />
-          </RewardStats.Card>
+        <RewardStats.Grid columns={2}>
+          <RewardsSummary.Root>
+            <RewardsSummary.Header
+              icon={<Gem className="h-6 w-6 text-primary" />}
+              title="Your Rewards"
+            />
+            <RewardsSummary.Content>
+              <RewardsSummary.BalanceNow />
+            </RewardsSummary.Content>
+          </RewardsSummary.Root>
 
           <RewardStats.Card title="Claimed" icon={<Check className="h-4 w-4 text-green-500" />}>
             <RewardStats.ClaimedCardContent />
           </RewardStats.Card>
         </RewardStats.Grid>
+
+        {/* Stats Grid */}
+        {/* <RewardStats.Card title="Claimable" icon={<Gem className="h-4 w-4 text-primary" />}>
+            <RewardStats.ClaimableCardContent />
+          </RewardStats.Card>
+
+          <RewardStats.Card title="Pending" icon={<Clock className="h-4 w-4 text-blue-500" />}>
+            <RewardStats.PendingCardContent />
+          </RewardStats.Card> */}
 
         {/* Tabs - with ref for auto-scroll */}
         <div ref={tabsRef}>

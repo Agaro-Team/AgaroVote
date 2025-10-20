@@ -40,7 +40,7 @@ interface RewardsSummaryRootProps {
 }
 
 function RewardsSummaryRoot({ children, className }: RewardsSummaryRootProps) {
-  return <Card className={cn('border-2', className)}>{children}</Card>;
+  return <Card className={cn(className)}>{children}</Card>;
 }
 
 // ==================== Header ====================
