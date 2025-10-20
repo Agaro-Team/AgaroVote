@@ -14,7 +14,6 @@ const MainContent = () => {
     [resolvedTheme]
   );
 
-  // Scroll tracking
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ['start start', 'end start'],
@@ -27,7 +26,6 @@ const MainContent = () => {
     mass: 0.8,
   });
 
-  // Kembalikan parallax range seperti semula (lebih dalam)
   const translateY = useTransform(smoothScroll, [0, 1], ['0%', '100%']);
   const glowOpacity = useTransform(smoothScroll, [0, 0.5, 1], [1, 1.3, 1.6]);
 
@@ -51,7 +49,7 @@ const MainContent = () => {
           delay={20}
           animateBy="words"
           direction="top"
-          className="text-3xl lg:text-4xl font-semibold mb-6 text-center"
+          className="text-3xl lg:text-4xl font-semibold mb-6 text-center flex items-center justify-center"
         />
 
         {/* Description */}

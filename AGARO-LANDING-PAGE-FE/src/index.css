@@ -6,10 +6,16 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-
-
 html {
   scroll-behavior: smooth;
+}
+
+html.lenis {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
 }
 
 @layer base {
@@ -117,7 +123,9 @@ html {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: oklch(0.7 0.12 220.4685); /* sedikit lebih terang dari --primary saat hover */
+  background: oklch(
+    0.7 0.12 220.4685
+  ); 
 }
 
 /* Firefox support */
@@ -134,7 +142,7 @@ html {
 .nav-link::after {
   content: '';
   @apply absolute left-0 right-0 -bottom-1 mx-auto w-0 h-[2px]  transition-all duration-300;
-  background-color: var(--primary); 
+  background-color: var(--primary);
 }
 
 .nav-link:hover::after {
@@ -207,6 +215,16 @@ html {
 }
 
 @media (min-width: 768px) {
-  .md-arrow-right::after { left: auto; right: -15px; border-left: 15px solid var(--card); border-right: none; }
-  .md-arrow-left::after { right: auto; left: -15px; border-right: 15px solid var(--card); border-left: none; }
+  .md-arrow-right::after {
+    left: auto;
+    right: -15px;
+    border-left: 15px solid var(--card);
+    border-right: none;
+  }
+  .md-arrow-left::after {
+    right: auto;
+    left: -15px;
+    border-right: 15px solid var(--card);
+    border-left: none;
+  }
 }
