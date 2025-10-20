@@ -109,13 +109,9 @@ export function VoteProvider({ children }: VoteProviderProps) {
       return 'database-storage';
     }
 
-    // If transaction is confirmed but backend submission pending
-    if (votePoll.isTransactionReceiptSuccess && !votePoll.isSubmittingToBackend) {
-      // Check if we have a vote recorded
-      if (hasVoted && votePoll.voteTxHash) {
-        return 'complete';
-      }
-      return 'verification';
+    // If backend submission was successful
+    if (votePoll.backendSuccess) {
+      return 'complete';
     }
 
     // Default: idle state
@@ -126,7 +122,7 @@ export function VoteProvider({ children }: VoteProviderProps) {
     votePoll.isTransactionReceiptSuccess,
     votePoll.isTransactionReceiptLoading,
     votePoll.isSubmittingToBackend,
-    hasVoted,
+    votePoll.backendSuccess,
   ]);
 
   // Determine non-votable reason
