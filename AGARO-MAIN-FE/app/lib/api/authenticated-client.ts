@@ -8,7 +8,7 @@ import axios, { type AxiosError } from 'axios';
 
 import { getAuthToken } from '../utils/cookie.client';
 
-const API_BASE_URL = process.env.VITE_AGARO_VOTE_API_ENTRYPOINT || 'http://localhost:3000/api';
+const API_BASE_URL = import.meta.env.VITE_AGARO_VOTE_API_ENTRYPOINT || 'http://localhost:3000/api';
 
 // Create full API URL with version
 const FULL_API_URL = `${API_BASE_URL}/v1`;

@@ -1,7 +1,7 @@
 import { Outlet } from 'react-router';
 import { AppSidebar } from '~/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '~/components/ui/sidebar';
-import { walletAuthMiddleware } from '~/lib/middleware';
+import { siweAuthMiddleware } from '~/lib/middleware/siwe-auth-middleware';
 
 /**
  * Middleware
@@ -10,7 +10,7 @@ import { walletAuthMiddleware } from '~/lib/middleware';
  * This middleware runs for all child routes under /dashboard.
  * Users must have a connected wallet to access any dashboard page.
  */
-export const middleware = [walletAuthMiddleware];
+export const middleware = [siweAuthMiddleware];
 
 export default function DashboardLayout() {
   return (
