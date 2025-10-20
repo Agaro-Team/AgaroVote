@@ -10,6 +10,10 @@ import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/components/ui/tooltip';
+import { useWeb3Wallet } from '~/hooks/use-web3';
+import { queryClient } from '~/lib/query-client/config';
+import { pollDetailQueryOptions } from '~/lib/query-client/poll/queries';
+import { checkHasVotedQueryOptions } from '~/lib/query-client/vote/queries';
 
 export interface VotingPollCardProps {
   id: string;
@@ -34,10 +38,22 @@ export function VotingPollCard({
   createdAt,
   endsAt,
 }: VotingPollCardProps) {
+  const { address: walletAddress } = useWeb3Wallet();
   const statusConfig = {
     active: { label: 'Active', variant: 'default' as const, icon: Vote },
     completed: { label: 'Completed', variant: 'secondary' as const, icon: CheckCircle2 },
     pending: { label: 'Pending', variant: 'outline' as const, icon: TrendingUp },
+  };
+
+  const prefetchPoll = async (id: string) => {
+    // Prefetch queries in parallel for better performance
+    const queries = [queryClient.prefetchQuery(pollDetailQueryOptions(id))];
+
+    if (walletAddress) {
+      queries.push(queryClient.prefetchQuery(checkHasVotedQueryOptions(id, walletAddress)));
+    }
+
+    await Promise.all(queries);
   };
 
   const config = statusConfig[status];
@@ -159,7 +175,7 @@ export function VotingPollCard({
           {/* Actions - Full width button on mobile */}
           <div className="flex items-center gap-2 pt-2">
             <Button asChild className="w-full sm:flex-1" size="default">
-              <Link to={`/dashboard/voting-polls/${id}`}>
+              <Link to={`/dashboard/voting-polls/${id}`} onMouseEnter={() => prefetchPoll(id)}>
                 {status === 'active' ? 'Vote Now' : 'View Results'}
               </Link>
             </Button>
@@ -169,13 +185,13 @@ export function VotingPollCard({
           <div className="pt-2 border-t">
             <Tooltip>
               <TooltipTrigger asChild>
-                <p className="text-xs text-muted-foreground font-mono truncate cursor-help">
+                <p className="text-xs text-muted-foreground font-mono truncate cursor-help w-fit">
                   <span className="hidden sm:inline">Hash: </span>
                   {pollHash.slice(0, 6)}...{pollHash.slice(-6)}
                 </p>
               </TooltipTrigger>
               <TooltipContent>
-                <p className="text-xs font-mono break-all max-w-xs">{pollHash}</p>
+                <p className="text-xs font-mono break-words max-w-xs">{pollHash}</p>
               </TooltipContent>
             </Tooltip>
           </div>
