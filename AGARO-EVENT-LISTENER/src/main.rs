@@ -1,6 +1,6 @@
 mod events;
-mod utils;
 mod logger;
+mod utils;
 
 use crate::events::*;
 use crate::logger::*;
@@ -59,10 +59,7 @@ async fn main() -> anyhow::Result<()> {
                 match client.post(&url).json(&payload).send().await {
                     Ok(resp) => {
                         if resp.status().is_success() {
-                            log_success(&format!(
-                                "Activated poll {} successfully",
-                                poll_hash_hex
-                            ));
+                            log_success(&format!("Activated poll {} successfully", poll_hash_hex));
                         } else {
                             log_warning(&format!(
                                 "Failed to activate poll {} — status: {}",
@@ -144,7 +141,10 @@ async fn main() -> anyhow::Result<()> {
 
     let withdraw_succeeded_task = tokio::spawn({
         let contract = contract.clone();
+        let api_base = api_base_url.clone();
         async move {
+            let client = reqwest::Client::new();
+
             let event_builder = contract
                 .event::<WithdrawSucceeded>()
                 .from_block(BlockNumber::Number(0.into()));
@@ -158,14 +158,49 @@ async fn main() -> anyhow::Result<()> {
 
             while let Some(Ok(event)) = stream.next().await {
                 log_info(&format!(
-                    "[WithdrawSucceeded] poll_hash={:?}, voter={:?}, withdrawed_token={}, reward={}",
-                    event.poll_hash, event.voter, event.withdrawed_token, event.withdrawed_reward
-                ));
+                "[WithdrawSucceeded] poll_hash={:?}, voter={:?}, withdrawed_token={}, reward={}",
+                event.poll_hash, event.voter, event.withdrawed_token, event.withdrawed_reward
+            ));
 
-                log_success(&format!(
-                    "Withdraw successful for voter {:?}",
-                    event.voter
-                ));
+                let poll_hash_hex = format!("{:?}", event.poll_hash)
+                    .trim_matches('"')
+                    .to_string();
+
+                let principal_amount_str = event.withdrawed_token.to_string();
+                let reward_amount_str = event.withdrawed_reward.to_string();
+                let voter_address_str = format!("{:?}", event.voter).trim_matches('"').to_string();
+
+                let url = format!("{}/rewards/claim", api_base);
+
+                let payload = json!({
+                    "pollHash": poll_hash_hex,
+                    "principalAmount": principal_amount_str,
+                    "rewardAmount": reward_amount_str,
+                    "voterWalletAddress": voter_address_str
+                });
+
+                match client.put(&url).json(&payload).send().await {
+                    Ok(resp) => {
+                        if resp.status().is_success() {
+                            log_success(&format!(
+                                "Reported withdrawal success for poll={} voter={}",
+                                poll_hash_hex, voter_address_str
+                            ));
+                        } else {
+                            log_warning(&format!(
+                                "Failed to report withdrawal for poll={} — status: {}",
+                                poll_hash_hex,
+                                resp.status()
+                            ));
+                        }
+                    }
+                    Err(err) => {
+                        log_error(&format!(
+                            "HTTP request failed for poll={} voter={}: {:?}",
+                            poll_hash_hex, voter_address_str, err
+                        ));
+                    }
+                }
             }
         }
     });
