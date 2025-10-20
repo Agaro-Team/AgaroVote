@@ -15,6 +15,7 @@ import { VoteModule } from './modules/vote/vote.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { JwtAuthGuard } from './modules/auth/presentation/guards/jwt-auth.guard';
 import { RewardModule } from './modules/reward/reward.module';
+import { DashboardModule } from './modules/dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { RewardModule } from './modules/reward/reward.module';
 
     // Feature modules
     AuthModule,
+    DashboardModule,
     UserModule,
     PollModule,
     VoteModule,
