@@ -17,7 +17,7 @@ import {
 import { ProgressStepList } from './progress-step-list';
 import { StatusMessage } from './status-message';
 
-type ProgressStep = 'idle' | 'saving' | 'wallet' | 'confirming' | 'verifying' | 'success' | 'error';
+type ProgressStep = 'idle' | 'saving' | 'wallet' | 'confirming' | 'success' | 'error';
 
 interface TransactionProgressDialogProps {
   open: boolean;
@@ -55,8 +55,6 @@ export function TransactionProgressDialog({
         return 'Wallet Confirmation Required';
       case 'confirming':
         return 'Confirming Transaction...';
-      case 'verifying':
-        return 'Verifying Hash...';
       case 'success':
         return 'Success!';
       case 'error':
@@ -97,19 +95,14 @@ export function TransactionProgressDialog({
           {/* Progress steps */}
           {progressStep !== 'idle' && (
             <>
-              <ProgressStepList
-                currentStep={progressStep}
-                offChainHash={offChainHash}
-                onChainHash={onChainHash}
-                verificationError={verificationError}
-              />
+              <ProgressStepList currentStep={progressStep} />
 
               {/* Success message */}
               {progressStep === 'success' && (
                 <StatusMessage
                   type="success"
                   title="Voting Pool Created Successfully!"
-                  description="Hash verification complete. On-chain and off-chain data match perfectly. Redirecting to voting pools page..."
+                  description="Your voting pool has been created and stored on the blockchain. Redirecting to voting pools page..."
                 />
               )}
 

@@ -95,6 +95,34 @@ export function useCreatePoll() {
     chainId,
   });
 
+  // Function to store poll data to backend after blockchain confirmation
+  const storePollToBackend = async (pollData: PollData, pollHash: `0x${string}`) => {
+    if (!walletAddress) return;
+
+    // Store to backend
+    await storePoll({
+      title: pollData.title,
+      description: pollData.description,
+      choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
+      startDate: pollData.startDate,
+      endDate: pollData.endDate,
+      isPrivate: pollData.isPrivate,
+      addresses: pollData.allowedAddresses.map((address) => ({
+        walletAddress: address,
+        leaveHash: createLeaveHashByAddress(address as Address),
+      })),
+      creatorWalletAddress: walletAddress,
+      pollHash: pollHash,
+      rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
+      isTokenRequired: pollData.isTokenRequired,
+    });
+
+    // Set success states after backend storage
+    setOnChainHash(pollHash);
+    setIsVerifying(false);
+    setShouldRedirect(true);
+  };
+
   // Watch for VotingpollCreated event to verify hash
   useWatchEntryPointVotingPollCreatedEvent({
     address: getEntryPointAddress(chainId),
@@ -143,10 +171,7 @@ export function useCreatePoll() {
           setOffChainHash(null);
         } else {
           // Hashes match - success!
-          setOnChainHash(onChainHash);
-          setIsVerifying(false);
-          setShouldRedirect(true);
-
+          // Now store to backend after blockchain confirmation
           if (!pollData || !walletAddress || !onChainHash) {
             return;
           }
@@ -158,33 +183,6 @@ export function useCreatePoll() {
       });
     },
   });
-
-  const storePollDataImmediately = async (pollData: PollData, pollHash: `0x${string}`) => {
-    if (!walletAddress) return;
-
-    // Hashes match - success!
-    setOnChainHash(pollHash);
-    setIsVerifying(false);
-    setShouldRedirect(true);
-
-    // Store immediately to backend
-    await storePoll({
-      title: pollData.title,
-      description: pollData.description,
-      choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
-      startDate: pollData.startDate,
-      endDate: pollData.endDate,
-      isPrivate: pollData.isPrivate,
-      addresses: pollData.allowedAddresses.map((address) => ({
-        walletAddress: address,
-        leaveHash: createLeaveHashByAddress(address as Address),
-      })),
-      creatorWalletAddress: walletAddress,
-      pollHash: pollHash,
-      rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
-      isTokenRequired: pollData.isTokenRequired,
-    });
-  };
 
   /**
    * Create a new voting poll
@@ -270,37 +268,7 @@ export function useCreatePoll() {
       setOffChainHash(pollHash);
       offChainHashRef.current = pollHash;
 
-      if (pollData.isPrivate) {
-        await storePollDataImmediately(pollData, pollHash);
-
-        // Submit to blockchain
-        await writeContractAsync({
-          address: contractAddress,
-          args: [args],
-        });
-
-        return;
-      }
-
-      // Store to web 2 DB
-      await storePoll({
-        title: pollData.title,
-        description: pollData.description,
-        choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
-        startDate: pollData.startDate,
-        endDate: pollData.endDate,
-        isPrivate: pollData.isPrivate,
-        addresses: pollData.allowedAddresses.map((address) => ({
-          walletAddress: address,
-          leaveHash: createLeaveHashByAddress(address as Address),
-        })),
-        creatorWalletAddress: walletAddress,
-        pollHash,
-        rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
-        isTokenRequired: pollData.isTokenRequired,
-      });
-
-      // Submit to blockchain
+      // Submit to blockchain FIRST (for both private and public polls)
       await writeContractAsync({
         address: contractAddress,
         args: [args],
@@ -339,6 +307,17 @@ export function useCreatePoll() {
   useEffect(() => {
     if (isSuccess) {
       refetchVersion();
+
+      if (!pollData) return;
+      if (!offChainHashRef.current) return;
+
+      // Store to backend after blockchain transaction is confirmed
+      storePollToBackend(pollData, offChainHashRef.current).catch((error) => {
+        console.error('Failed to store poll to backend:', error);
+        toast.error('Failed to store poll data', {
+          description: 'Blockchain transaction succeeded, but backend storage failed.',
+        });
+      });
     }
   }, [isSuccess, refetchVersion]);
 

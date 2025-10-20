@@ -22,7 +22,7 @@ import { ShareVotingPollModal } from './share-voting-poll-modal';
 import { TransactionProgressDialog } from './transaction-progress';
 import { votingPollFormOptions } from './voting-poll-form-options';
 
-type ProgressStep = 'idle' | 'saving' | 'wallet' | 'confirming' | 'verifying' | 'success' | 'error';
+type ProgressStep = 'idle' | 'saving' | 'wallet' | 'confirming' | 'success' | 'error';
 
 export function CreateVotingPollForm() {
   const navigate = useNavigate();
@@ -93,10 +93,8 @@ export function CreateVotingPollForm() {
       setProgressStep('wallet');
     } else if (isConfirming && progressStep === 'wallet') {
       setProgressStep('confirming');
-    } else if (isVerifying && progressStep === 'confirming') {
-      setProgressStep('verifying');
     }
-  }, [isPending, isConfirming, isVerifying, progressStep]);
+  }, [isPending, isConfirming, progressStep]);
 
   // Handle verification error
   useEffect(() => {
@@ -116,13 +114,13 @@ export function CreateVotingPollForm() {
     }
   }, [verificationError]);
 
-  // Handle successful hash verification and show share modal
+  // Handle successful transaction and show share modal
   useEffect(() => {
-    if (shouldRedirect && onChainHash && offChainHash) {
+    if (shouldRedirect && onChainHash) {
       setProgressStep('success');
 
       toast.success('Voting Pool Created Successfully!', {
-        description: 'Hashes verified. On-chain and off-chain data match perfectly.',
+        description: 'Your voting pool has been created and stored on the blockchain.',
         duration: 5000,
       });
 
@@ -135,7 +133,7 @@ export function CreateVotingPollForm() {
 
       return () => clearTimeout(timeout);
     }
-  }, [shouldRedirect, onChainHash, offChainHash]);
+  }, [shouldRedirect, onChainHash]);
 
   // Handle error
   useEffect(() => {
