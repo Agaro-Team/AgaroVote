@@ -75,7 +75,7 @@ export default function AppWithProviders({ loaderData }: Route.ComponentProps) {
             <NuqsAdapter>
               <Outlet />
             </NuqsAdapter>
-            <Toaster />
+            <Toaster position="top-right" />
           </AuthProvider>
         </QueryClientProvider>
       </Web3Provider>

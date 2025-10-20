@@ -35,7 +35,7 @@ export default function DashboardPage() {
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
         {/* Stats Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           <Card className="p-6">
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <h3 className="text-sm font-medium">Total Votes Cast</h3>
@@ -64,16 +64,6 @@ export default function DashboardPage() {
             <div>
               <div className="text-2xl font-bold">1,284 AGR</div>
               <p className="text-xs text-muted-foreground">+156 AGR this week</p>
-            </div>
-          </Card>
-          <Card className="p-6">
-            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <h3 className="text-sm font-medium">Verified On-Chain</h3>
-              <Shield className="h-4 w-4 text-muted-foreground" />
-            </div>
-            <div>
-              <div className="text-2xl font-bold">100%</div>
-              <p className="text-xs text-muted-foreground">All votes immutable</p>
             </div>
           </Card>
         </div>
@@ -191,14 +181,6 @@ export default function DashboardPage() {
                 <span className="text-sm font-bold">284 AGR</span>
               </div>
               <Separator />
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-primary" />
-                  <span className="text-sm">Verified Transactions</span>
-                </div>
-                <span className="text-sm font-bold">147/147</span>
-              </div>
-              <Separator />
               <div className="pt-2">
                 <a
                   href="/rewards/claim"
@@ -213,7 +195,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Additional Content Area */}
-        <div className="bg-muted/50 min-h-[400px] flex-1 rounded-xl p-6">
+        {/* <div className="bg-muted/50 min-h-[400px] flex-1 rounded-xl p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
               <h3 className="text-lg font-semibold">Voting Analytics</h3>
@@ -255,7 +237,7 @@ export default function DashboardPage() {
               <p className="text-xs text-muted-foreground mt-1">All votes secured</p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </>
   );
