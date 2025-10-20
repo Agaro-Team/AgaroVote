@@ -6,6 +6,7 @@
 import { AlertCircle, ExternalLink, Gift, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatEther } from 'viem';
+import { Alert, AlertTitle } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
 import { ClientDate } from '~/components/ui/client-date';
 import {
@@ -91,82 +92,88 @@ export function ClaimHistoryList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {/* Showing {rewardsQuery.data?.rewards?.length} recent claim
-          {rewardsQuery.data?.rewards?.length !== 1 ? 's' : ''} */}
-        </p>
-      </div>
+      <Alert variant="default" className="bg-green-500/10 border border-green-500/20">
+        <AlertTitle className="flex items-center gap-2">
+          Showing {rewardsQuery.data?.rewards?.length} recent claim
+          {rewardsQuery.data?.rewards?.length !== 1 ? 's' : ''}
+        </AlertTitle>
+      </Alert>
 
       {rewardsQuery.data?.rewards?.map((reward) => (
         <Reward key={reward.id} reward={reward}>
-          <Reward.Card className="opacity-75 hover:opacity-100 transition-opacity">
-            <Reward.Header>
-              <Reward.HeaderContainer>
-                <Reward.TitleContainer>
-                  <Reward.TitleGroup>
-                    <Reward.Title emoji="✅" />
-                    <Reward.StatusBadge status="claimed" />
-                  </Reward.TitleGroup>
-                  <Reward.Description>
-                    Claimed on{' '}
-                    <ClientDate
-                      date={new Date(reward.claimed_at!)}
-                      formatString="MMM dd, yyyy HH:mm"
-                    />
-                  </Reward.Description>
-                </Reward.TitleContainer>
-              </Reward.HeaderContainer>
-            </Reward.Header>
+          <Reward.Collapsible defaultOpen>
+            <Reward.Card className="opacity-75 hover:opacity-100 transition-opacity">
+              <Reward.Header>
+                <Reward.HeaderContainer>
+                  <Reward.TitleContainer>
+                    <Reward.TitleGroup>
+                      <Reward.Title emoji="✅" />
+                      <Reward.StatusBadge status="claimed" />
+                    </Reward.TitleGroup>
+                    <Reward.Description>
+                      Claimed on{' '}
+                      <ClientDate
+                        date={new Date(reward.claimed_at!)}
+                        formatString="MMM dd, yyyy HH:mm"
+                      />
+                    </Reward.Description>
+                  </Reward.TitleContainer>
+                </Reward.HeaderContainer>
 
-            <Reward.Content>
-              {/* Claim Info */}
-              <Reward.InfoGrid>
-                <Reward.InfoRow label="Your Vote:" value={`${reward.choice_name} ✓`} />
-                <Reward.VotedDate />
-                <Reward.InfoRow
-                  label="Poll Ended:"
-                  value={
-                    <ClientDate
-                      date={new Date(reward.claimable_at)}
-                      formatString="MMM dd, yyyy HH:mm"
-                    />
-                  }
-                  suppressHydrationWarning
-                />
-                <Reward.TotalVotes />
-              </Reward.InfoGrid>
+                <Reward.CollapsibleTrigger />
+              </Reward.Header>
 
-              {/* Claimed Amount */}
-              <Reward.AmountBox className="bg-green-500/10 border border-green-500/20">
-                <Reward.AmountRow>
-                  <Reward.AmountLabel emoji="💰">Reward:</Reward.AmountLabel>
-                  <Reward.AmountValue>
-                    <ClaimedAmount
-                      reward={reward}
-                      className="text-xl font-bold text-green-700 dark:text-green-300"
+              <Reward.CollapsibleContent>
+                <Reward.Content>
+                  {/* Claim Info */}
+                  <Reward.InfoGrid>
+                    <Reward.InfoRow label="Your Vote:" value={`${reward.choice_name} ✓`} />
+                    <Reward.VotedDate />
+                    <Reward.InfoRow
+                      label="Poll Ended:"
+                      value={
+                        <ClientDate
+                          date={new Date(reward.claimable_at)}
+                          formatString="MMM dd, yyyy HH:mm"
+                        />
+                      }
+                      suppressHydrationWarning
                     />
-                    <p className="text-sm text-muted-foreground">
-                      Principal Amount: {formatEther(BigInt(reward.principal_amount))}
-                    </p>
-                  </Reward.AmountValue>
-                </Reward.AmountRow>
-              </Reward.AmountBox>
+                    <Reward.TotalVotes />
+                  </Reward.InfoGrid>
 
-              {/* Actions */}
-              <Reward.Actions>
-                <Button
-                  onClick={() => handleViewPoll(reward.poll_id)}
-                  variant="outline"
-                  size="sm"
-                  className="gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  View Poll
-                </Button>
-              </Reward.Actions>
-            </Reward.Content>
-          </Reward.Card>
+                  {/* Claimed Amount */}
+                  <Reward.AmountBox className="bg-green-500/10 border border-green-500/20">
+                    <Reward.AmountRow>
+                      <Reward.AmountLabel emoji="💰">Reward:</Reward.AmountLabel>
+                      <Reward.AmountValue>
+                        <ClaimedAmount
+                          reward={reward}
+                          className="text-xl font-bold text-green-700 dark:text-green-300"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Principal Amount: {formatEther(BigInt(reward.principal_amount))}
+                        </p>
+                      </Reward.AmountValue>
+                    </Reward.AmountRow>
+                  </Reward.AmountBox>
+
+                  {/* Actions */}
+                  <Reward.Actions>
+                    <Button
+                      onClick={() => handleViewPoll(reward.poll_id)}
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      View Poll
+                    </Button>
+                  </Reward.Actions>
+                </Reward.Content>
+              </Reward.CollapsibleContent>
+            </Reward.Card>
+          </Reward.Collapsible>
         </Reward>
       ))}
 

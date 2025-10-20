@@ -1,12 +1,14 @@
-import { Clock } from 'lucide-react';
+import { ChevronDown, ChevronUp, Clock } from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { ClientDate } from '~/components/ui/client-date';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '~/components/ui/collapsible';
 import type { Reward as RewardType } from '~/lib/api/reward/reward.interface';
 import { dayjs } from '~/lib/date-utils';
 import { cn } from '~/lib/utils';
 
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState } from 'react';
 
 interface RewardContextType {
   reward: RewardType;
@@ -53,24 +55,32 @@ export const useRewardContext = () => {
 
 // ========== CARD COMPONENTS ==========
 
-interface RewardCardProps {
+interface RewardCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
 }
 
-function RewardCard({ children, className }: RewardCardProps) {
-  return <Card className={cn('overflow-hidden', className)}>{children}</Card>;
+function RewardCard({ children, className, ...props }: RewardCardProps) {
+  return (
+    <Card className={cn('overflow-hidden', className)} {...props}>
+      {children}
+    </Card>
+  );
 }
 
 // ========== HEADER COMPONENTS ==========
 
-interface RewardHeaderProps {
+interface RewardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
 }
 
-function RewardHeader({ children, className }: RewardHeaderProps) {
-  return <CardHeader className={className}>{children}</CardHeader>;
+function RewardHeader({ children, className, ...props }: RewardHeaderProps) {
+  return (
+    <CardHeader className={cn('flex items-center justify-between gap-4', className)} {...props}>
+      {children}
+    </CardHeader>
+  );
 }
 
 interface RewardHeaderContainerProps {
@@ -402,6 +412,22 @@ function RewardAlert({ children, variant = 'warning', className }: RewardAlertPr
   );
 }
 
+const RewardCollapsibleContext = createContext<{
+  isOpen: boolean;
+  setIsOpen: (isOpen: boolean) => void;
+}>({
+  isOpen: false,
+  setIsOpen: () => {},
+});
+
+const useRewardCollapsibleContext = () => {
+  const context = useContext(RewardCollapsibleContext);
+  if (!context) {
+    throw new Error('RewardCollapsible components must be used within RewardCollapsible component');
+  }
+  return context;
+};
+
 // ========== ACTION COMPONENTS ==========
 
 interface RewardActionsProps {
@@ -413,11 +439,59 @@ function RewardActions({ children, className }: RewardActionsProps) {
   return <div className={cn('flex flex-wrap gap-2', className)}>{children}</div>;
 }
 
+interface RewardCollapsibleProps {
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+}
+function RewardCollapsible({ children, defaultOpen = false }: RewardCollapsibleProps) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+  return (
+    <RewardCollapsibleContext.Provider value={{ isOpen, setIsOpen }}>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        {children}
+      </Collapsible>
+    </RewardCollapsibleContext.Provider>
+  );
+}
+
+interface RewardCollapsibleTriggerProps {
+  children?: React.ReactNode;
+  className?: string;
+}
+function RewardCollapsibleTrigger({ children, className }: RewardCollapsibleTriggerProps) {
+  const { isOpen } = useRewardCollapsibleContext();
+
+  const Icon = isOpen ? ChevronUp : ChevronDown;
+
+  return (
+    <CollapsibleTrigger asChild>
+      {children ?? (
+        <Button variant="ghost" size="icon-lg">
+          <Icon className="h-5 w-5" />
+        </Button>
+      )}
+    </CollapsibleTrigger>
+  );
+}
+
+interface RewardCollapsibleContentProps {
+  children: React.ReactNode;
+  className?: string;
+}
+function RewardCollapsibleContent({ children, className }: RewardCollapsibleContentProps) {
+  return <CollapsibleContent className={cn(className)}>{children}</CollapsibleContent>;
+}
+
 // ========== COMPOUND COMPONENT EXPORT ==========
 
 export const Reward = Object.assign(RewardRoot, {
   // Card
   Card: RewardCard,
+
+  // Collapsible
+  Collapsible: RewardCollapsible,
+  CollapsibleTrigger: RewardCollapsibleTrigger,
+  CollapsibleContent: RewardCollapsibleContent,
 
   // Header
   Header: RewardHeader,

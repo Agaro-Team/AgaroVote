@@ -3,8 +3,17 @@
  *
  * List of rewards from ended polls that are ready to claim
  */
-import { AlertCircle, ExternalLink, Gift, Info, RefreshCw, Sparkles } from 'lucide-react';
+import {
+  AlertCircle,
+  DiamondIcon,
+  ExternalLink,
+  Gift,
+  Info,
+  RefreshCw,
+  Sparkles,
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertTitle } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
 import {
   Empty,
@@ -90,81 +99,88 @@ export function ClaimableRewardsList() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {/* {rewardsQuery.data?.rewards?.length} reward
-          {rewardsQuery.data?.rewards?.length !== 1 ? 's' : ''} ready to claim */}
-        </p>
-      </div>
+      <Alert variant="default" className="bg-green-500/10 border border-green-500/20">
+        <AlertTitle className="flex items-center gap-2">
+          <DiamondIcon className="h-4 w-4" />
+          {rewardsQuery.data?.rewards?.length} reward
+          {rewardsQuery.data?.rewards?.length !== 1 ? 's' : ''} ready to claim
+        </AlertTitle>
+      </Alert>
 
       {rewardsQuery.data?.rewards?.map((reward) => (
         <Reward key={reward.id} reward={reward}>
-          <Reward.Card>
-            <Reward.Header>
-              <Reward.HeaderContainer>
-                <Reward.TitleContainer>
-                  <Reward.TitleGroup>
-                    <Reward.Title />
-                    <Reward.StatusBadge status="claimable" />
-                  </Reward.TitleGroup>
-                  <Reward.Description>
-                    Ended <Reward.ClaimableDate label="" formatString="MMM dd, yyyy HH:mm" />
-                  </Reward.Description>
-                </Reward.TitleContainer>
-              </Reward.HeaderContainer>
-            </Reward.Header>
+          <Reward.Collapsible>
+            <Reward.Card>
+              <Reward.Header>
+                <Reward.HeaderContainer>
+                  <Reward.TitleContainer>
+                    <Reward.TitleGroup>
+                      <Reward.Title />
+                      <Reward.StatusBadge status="claimable" />
+                    </Reward.TitleGroup>
+                    <Reward.Description>
+                      Ended <Reward.ClaimableDate label="" formatString="MMM dd, yyyy HH:mm" />
+                    </Reward.Description>
+                  </Reward.TitleContainer>
+                </Reward.HeaderContainer>
 
-            <Reward.Content>
-              {/* Vote Info */}
-              <Reward.InfoGrid>
-                <Reward.InfoRow label="Your Vote:" value={`${reward.choice_name} ✓`} />
-                <Reward.VotedDate />
-                <Reward.TotalVotes />
-              </Reward.InfoGrid>
+                <Reward.CollapsibleTrigger />
+              </Reward.Header>
 
-              {/* Reward Amount - Highlighted for claimable */}
-              <Reward.AmountBox className="bg-green-500/10 border border-green-500/20">
-                <Reward.AmountRow>
-                  <Reward.AmountLabel emoji="💎">Reward:</Reward.AmountLabel>
-                  <Reward.AmountValue>
-                    <ClaimAmount
-                      reward={reward}
-                      className="text-xl font-bold text-green-700 dark:text-green-300"
-                    />
-                    <p className="text-sm text-muted-foreground">
-                      Principal Amount: {reward.principal_amount}
-                    </p>
-                  </Reward.AmountValue>
-                </Reward.AmountRow>
-              </Reward.AmountBox>
+              <Reward.CollapsibleContent>
+                <Reward.Content>
+                  {/* Vote Info */}
+                  <Reward.InfoGrid>
+                    <Reward.InfoRow label="Your Vote:" value={`${reward.choice_name} ✓`} />
+                    <Reward.VotedDate />
+                    <Reward.TotalVotes />
+                  </Reward.InfoGrid>
 
-              {/* Success Alert */}
-              <Reward.Alert variant="success">
-                ✅ Your reward is ready! Claim now to receive your tokens.
-              </Reward.Alert>
+                  {/* Reward Amount - Highlighted for claimable */}
+                  <Reward.AmountBox className="bg-green-500/10 border border-green-500/20">
+                    <Reward.AmountRow>
+                      <Reward.AmountLabel emoji="💎">Reward:</Reward.AmountLabel>
+                      <Reward.AmountValue>
+                        <ClaimAmount
+                          reward={reward}
+                          className="text-xl font-bold text-green-700 dark:text-green-300"
+                        />
+                        <p className="text-sm text-muted-foreground">
+                          Principal Amount: {reward.principal_amount}
+                        </p>
+                      </Reward.AmountValue>
+                    </Reward.AmountRow>
+                  </Reward.AmountBox>
 
-              {/* Actions */}
-              <Reward.Actions>
-                <ClaimRewardConfirmationModal reward={reward}>
-                  <Button className="gap-2">
-                    <Sparkles className="h-4 w-4" />
-                    Claim Now
-                  </Button>
-                </ClaimRewardConfirmationModal>
-                <Button
-                  onClick={() => handleViewPoll(reward.poll_id)}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  View Poll
-                </Button>
-                <Button variant="ghost" size="icon">
-                  <Info className="h-4 w-4" />
-                </Button>
-              </Reward.Actions>
-            </Reward.Content>
-          </Reward.Card>
+                  {/* Success Alert */}
+                  <Reward.Alert variant="success">
+                    ✅ Your reward is ready! Claim now to receive your tokens.
+                  </Reward.Alert>
+
+                  {/* Actions */}
+                  <Reward.Actions>
+                    <ClaimRewardConfirmationModal reward={reward}>
+                      <Button className="gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        Claim Now
+                      </Button>
+                    </ClaimRewardConfirmationModal>
+                    <Button
+                      onClick={() => handleViewPoll(reward.poll_id)}
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      View Poll
+                    </Button>
+                    <Button variant="ghost" size="icon">
+                      <Info className="h-4 w-4" />
+                    </Button>
+                  </Reward.Actions>
+                </Reward.Content>
+              </Reward.CollapsibleContent>
+            </Reward.Card>
+          </Reward.Collapsible>
         </Reward>
       ))}
 

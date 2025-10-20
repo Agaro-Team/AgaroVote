@@ -3,8 +3,17 @@
  *
  * List of rewards from active polls (locked until poll ends)
  */
-import { AlertCircle, Bell, ExternalLink, Inbox, RefreshCw } from 'lucide-react';
+import {
+  AlertCircle,
+  Bell,
+  ChevronDown,
+  ExternalLink,
+  Inbox,
+  InfoIcon,
+  RefreshCw,
+} from 'lucide-react';
 import { toast } from 'sonner';
+import { Alert, AlertTitle } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
 import {
   Empty,
@@ -108,70 +117,77 @@ export function PendingRewardsList() {
 
   return (
     <div className="space-y-4">
-      <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-4 text-sm">
-        <p className="text-blue-700 dark:text-blue-300">
-          ℹ️ These rewards are from ongoing polls. They will become claimable once the polls end.
-        </p>
-      </div>
+      <Alert variant="default" className="bg-blue-500/10 border border-blue-500/20">
+        <AlertTitle className="flex items-center gap-2">
+          <InfoIcon className="h-4 w-4" />
+          These rewards are from ongoing polls. They will become claimable once the polls end.
+        </AlertTitle>
+      </Alert>
 
       {rewards.map((reward) => (
         <Reward key={reward.id} reward={reward}>
-          <Reward.Card>
-            <Reward.Header>
-              <Reward.HeaderContainer>
-                <Reward.TitleContainer>
-                  <Reward.TitleGroup>
-                    <Reward.Title />
-                    <Reward.StatusBadge status="active" />
-                  </Reward.TitleGroup>
-                  <Reward.Description />
-                </Reward.TitleContainer>
-              </Reward.HeaderContainer>
-            </Reward.Header>
+          <Reward.Collapsible>
+            <Reward.Card>
+              <Reward.Header>
+                <Reward.HeaderContainer>
+                  <Reward.TitleContainer>
+                    <Reward.TitleGroup>
+                      <Reward.Title />
+                      <Reward.StatusBadge status="active" />
+                    </Reward.TitleGroup>
+                    <Reward.Description />
+                  </Reward.TitleContainer>
+                </Reward.HeaderContainer>
 
-            <Reward.Content>
-              {/* Countdown */}
-              <Reward.Section>
-                <Reward.TimeRemaining />
-                <Reward.ClaimableDate />
-              </Reward.Section>
+                <Reward.CollapsibleTrigger />
+              </Reward.Header>
 
-              {/* Vote Info */}
-              <Reward.InfoGrid>
-                <Reward.VotedDate />
-                <Reward.TotalVotes />
-                <Reward.ChoiceVotes />
-              </Reward.InfoGrid>
+              <Reward.CollapsibleContent>
+                <Reward.Content>
+                  {/* Countdown */}
+                  <Reward.Section>
+                    <Reward.TimeRemaining />
+                    <Reward.ClaimableDate />
+                  </Reward.Section>
 
-              {/* Potential Reward */}
-              <Reward.AmountBox>
-                <Reward.AmountRow>
-                  <Reward.AmountLabel />
-                  <Reward.AmountValue>
-                    <ClaimAmount className="text-xl font-bold" reward={reward} />
-                    <Reward.Principal />
-                  </Reward.AmountValue>
-                </Reward.AmountRow>
-              </Reward.AmountBox>
+                  {/* Vote Info */}
+                  <Reward.InfoGrid>
+                    <Reward.VotedDate />
+                    <Reward.TotalVotes />
+                    <Reward.ChoiceVotes />
+                  </Reward.InfoGrid>
 
-              {/* Warning */}
-              <Reward.Alert variant="warning">
-                ⚠️ Reward will be claimable after poll ends
-              </Reward.Alert>
+                  {/* Potential Reward */}
+                  <Reward.AmountBox>
+                    <Reward.AmountRow>
+                      <Reward.AmountLabel />
+                      <Reward.AmountValue>
+                        <ClaimAmount className="text-xl font-bold" reward={reward} />
+                        <Reward.Principal />
+                      </Reward.AmountValue>
+                    </Reward.AmountRow>
+                  </Reward.AmountBox>
 
-              {/* Actions */}
-              <Reward.Actions>
-                <Button
-                  onClick={() => handleViewPoll(reward.poll_id)}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <ExternalLink className="h-4 w-4" />
-                  View Poll
-                </Button>
-              </Reward.Actions>
-            </Reward.Content>
-          </Reward.Card>
+                  {/* Warning */}
+                  <Reward.Alert variant="warning">
+                    ⚠️ Reward will be claimable after poll ends
+                  </Reward.Alert>
+
+                  {/* Actions */}
+                  <Reward.Actions>
+                    <Button
+                      onClick={() => handleViewPoll(reward.poll_id)}
+                      variant="outline"
+                      className="gap-2"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      View Poll
+                    </Button>
+                  </Reward.Actions>
+                </Reward.Content>
+              </Reward.CollapsibleContent>
+            </Reward.Card>
+          </Reward.Collapsible>
         </Reward>
       ))}
 
