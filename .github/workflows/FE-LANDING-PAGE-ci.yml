@@ -44,11 +44,11 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 92.113.145.8 >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
 
       - name: Deploy to Server
         run: |
-          ssh ardial@92.113.145.8 "
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
             sudo bash -c '
               echo \"Pulling latest Docker image\"
               docker pull ${{ env.DOCKER_IMAGE }}:latest
@@ -63,7 +63,7 @@ jobs:
 
               echo \"Running new container\"
               docker run -d \
-                --name agaro-landing-page-fe \
+                --name ${{ env.CONTAINER_NAME }} \
                 --restart unless-stopped \
                 --network agaro-network \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \

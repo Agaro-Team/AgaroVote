@@ -46,7 +46,7 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H 92.113.145.8 >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
 
       - name: Create env file from secret
         run: |
@@ -57,13 +57,13 @@ jobs:
       - name: Upload env file to server
         run: |
           echo "Creating directory on remote server if not exists..."
-          ssh -o StrictHostKeyChecking=no ardial@92.113.145.8 "mkdir -p ${{ env.REMOTE_DIR }}"
+          ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "mkdir -p ${{ env.REMOTE_DIR }}"
           echo "Uploading environment file..."
-          scp -o StrictHostKeyChecking=no ./AGARO-MAIN-BE/${{ env.ENV_FILE }} ardial@92.113.145.8:${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}
+          scp -o StrictHostKeyChecking=no ./AGARO-MAIN-BE/${{ env.ENV_FILE }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}
 
       - name: Deploy to Server
         run: |
-          ssh ardial@92.113.145.8 "
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
             sudo bash -c '
               echo \"Pulling latest Docker image\"
               docker pull ${{ env.DOCKER_IMAGE }}:latest
@@ -78,7 +78,7 @@ jobs:
 
               echo \"Running new container\"
               docker run -d \
-                --name agaro-be \
+                --name ${{ env.CONTAINER_NAME }} \
                 --restart unless-stopped \
                 --network agaro-network \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \

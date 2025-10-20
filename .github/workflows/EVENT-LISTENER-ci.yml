@@ -10,8 +10,6 @@ on:
 env:
   APP_NAME: agaro-event-listener
   DEPLOY_DIR: /opt/agaro-event-listener
-  SERVER_USER: ardial
-  SERVER_HOST: 92.113.145.8
   PORT: 3002
 
 jobs:
@@ -43,15 +41,16 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ env.SERVER_HOST }} >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
 
       - name: Upload and deploy to server
         run: |
           echo "Uploading package to server..."
-          scp AGARO-EVENT-LISTENER/dist/agaro-event-listener.tar.gz ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }}:/tmp/
+          scp AGARO-EVENT-LISTENER/dist/agaro-event-listener.tar.gz \
+            ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:/tmp/
 
           echo "Deploying and restarting service..."
-          ssh ${{ env.SERVER_USER }}@${{ env.SERVER_HOST }} "
+          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
             set -e
 
             echo 'Extracting new version...'
