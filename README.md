@@ -1,9 +1,9 @@
 # 🗳️ AgaroVote
 
-**AgaroVote** is a Web3-based decentralized voting system designed to bring transparency, integrity, and trustless governance to every decision-making process — from small community polls to large-scale elections.
+**AgaroVote** is a Web3-based decentralized voting system designed to bring transparency, integrity, and trustless governance to every decision making process from small community polls to large-scale elections.
 
 Inspired by the WETH contract, which secures over $10 billion with fewer than 50 lines of code, AgaroVote follows the same principle of elegant simplicity with massive impact.  
-That is the power of decentralization — openness, auditability, and code-based trust replacing intermediaries and manipulation.
+That is the power of decentralization, openness, auditability, and code-based trust replacing intermediaries and manipulation.
 
 We believe that what begins as simple can become transformative through decentralization.  
 AgaroVote extends this principle, creating a system where governance is secure, transparent, and rewarding for all.
@@ -33,12 +33,12 @@ Privacy and verifiability coexist, secured by the blockchain.
 
 ### 🧑‍💻 Invited Voting
 Control participation with precision.  
-Whitelist thousands of addresses allowed to vote — while still allowing the public to verify results on-chain.  
+Whitelist thousands of addresses allowed to vote, while still allowing the public to verify results on-chain.  
 Our access control feature lets you design trustless yet restricted voting environments.
 
 ### 🎁 Reward Token System
 Incentivize your voters with tokens that bring life to your polls.  
-Allocate custom reward pools, or simply hold **AGR** — our platform token — and let the system mint incentives automatically for your voters.
+Allocate custom reward pools, or simply hold **AGR**, our platform token, and let the system mint incentives automatically for your voters.
 
 ---
 
