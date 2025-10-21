@@ -2,7 +2,7 @@ import type { DateRange } from 'react-day-picker';
 import { isAddress } from 'viem';
 import { z } from 'zod';
 
-import { formOptions } from '@tanstack/react-form';
+import { formOptions, revalidateLogic } from '@tanstack/react-form';
 
 /**
  * Zod Schema for Voting Pool Form Validation
@@ -115,7 +115,8 @@ const defaultValues: CreateVotingPollFormData = {
 
 export const votingPollFormOptions = formOptions({
   defaultValues,
+  validationLogic: revalidateLogic(),
   validators: {
-    onChange: votingPoolSchema,
+    onDynamic: votingPoolSchema,
   },
 });

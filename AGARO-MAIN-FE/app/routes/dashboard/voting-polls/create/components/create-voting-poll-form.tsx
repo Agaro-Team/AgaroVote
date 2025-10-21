@@ -44,48 +44,54 @@ export function CreateVotingPollForm() {
 
   const form = useAppForm({
     ...votingPollFormOptions,
-    onSubmit: async ({ value }) => {
-      // Validate choices
-      const validChoices = value.choices.filter((c) => c.trim() !== '');
+    onSubmit: () => {
+      setOpenConfirmationDialog(true);
+    },
+  });
 
-      if (validChoices.length < 2) {
-        toast.error('Please add at least 2 choices with names');
+  const startSubmission = async () => {
+    const value = form.state.values;
+
+    // Validate choices
+    const validChoices = value.choices.filter((c) => c.trim() !== '');
+
+    if (validChoices.length < 2) {
+      toast.error('Please add at least 2 choices with names');
+      return;
+    }
+
+    try {
+      // Step 1: Saving poll data
+      setProgressStep('saving');
+
+      // Validate voting period
+      if (!value.votingPeriod?.from || !value.votingPeriod?.to) {
+        toast.error('Please select both start and end dates for the voting period');
         return;
       }
 
-      try {
-        // Step 1: Saving poll data
-        setProgressStep('saving');
+      // Create the pool with all required data
+      // Note: Smart contract still uses "candidates" terminology
 
-        // Validate voting period
-        if (!value.votingPeriod?.from || !value.votingPeriod?.to) {
-          toast.error('Please select both start and end dates for the voting period');
-          return;
-        }
+      await createPoll({
+        title: value.title,
+        description: value.description,
+        candidates: validChoices, // Map "choices" to "candidates" for contract
+        candidatesTotal: validChoices.length,
+        startDate: startOfDay(value.votingPeriod?.from),
+        endDate: endOfDay(value.votingPeriod?.to),
+        isPrivate: value.isPrivate,
+        allowedAddresses: value.allowedAddresses.filter((addr) => addr.trim() !== ''),
+        rewardShare: value.rewardShare,
+        isTokenRequired: value.isTokenRequired,
+      });
 
-        // Create the pool with all required data
-        // Note: Smart contract still uses "candidates" terminology
-
-        await createPoll({
-          title: value.title,
-          description: value.description,
-          candidates: validChoices, // Map "choices" to "candidates" for contract
-          candidatesTotal: validChoices.length,
-          startDate: startOfDay(value.votingPeriod?.from),
-          endDate: endOfDay(value.votingPeriod?.to),
-          isPrivate: value.isPrivate,
-          allowedAddresses: value.allowedAddresses.filter((addr) => addr.trim() !== ''),
-          rewardShare: value.rewardShare,
-          isTokenRequired: value.isTokenRequired,
-        });
-
-        // Step 2: Wallet confirmation will be tracked by isPending/isConfirming
-      } catch (err) {
-        setProgressStep('error');
-        // Error will be handled by useEffect below
-      }
-    },
-  });
+      // Step 2: Wallet confirmation will be tracked by isPending/isConfirming
+    } catch (err) {
+      setProgressStep('error');
+      // Error will be handled by useEffect below
+    }
+  };
 
   // Track progress based on submission state
   useEffect(() => {
@@ -326,9 +332,8 @@ export function CreateVotingPollForm() {
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   <form.SubmitButton
-                    type="button"
+                    type="submit"
                     disabled={isSubmitting}
-                    onClick={() => setOpenConfirmationDialog(true)}
                     className="w-full sm:flex-1"
                   >
                     {isSubmitting
@@ -372,7 +377,7 @@ export function CreateVotingPollForm() {
           verificationError={verificationError}
           error={error}
           onClose={() => setProgressStep('idle')}
-          onConfirm={() => form.handleSubmit()}
+          onConfirm={() => startSubmission()}
         />
 
         {/* Share Modal - Shows after successful creation */}
