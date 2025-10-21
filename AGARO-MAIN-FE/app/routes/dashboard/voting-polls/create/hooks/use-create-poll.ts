@@ -93,6 +93,9 @@ export function useCreatePoll() {
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
     hash: txHash,
     chainId,
+    query: {
+      enabled: !!txHash,
+    },
   });
 
   // Function to store poll data to backend after blockchain confirmation
@@ -116,6 +119,8 @@ export function useCreatePoll() {
       rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
       isTokenRequired: pollData.isTokenRequired,
     });
+
+    refetchVersion();
 
     // Set success states after backend storage
     setOnChainHash(pollHash);
@@ -167,8 +172,8 @@ export function useCreatePoll() {
           setIsVerifying(false);
 
           // Clear the reference after error
-          offChainHashRef.current = null;
-          setOffChainHash(null);
+          // offChainHashRef.current = null;
+          // setOffChainHash(null);
         } else {
           // Hashes match - success!
           // Now store to backend after blockchain confirmation
@@ -176,8 +181,10 @@ export function useCreatePoll() {
             return;
           }
 
+          toast.success('Hash verified successfully');
+
           // Clear the reference (but keep state for UI to show success)
-          offChainHashRef.current = null;
+          // offChainHashRef.current = null;
           // DON'T clear offChainHash state - form needs it to detect success!
         }
       });
@@ -295,8 +302,8 @@ export function useCreatePoll() {
             'Verification timeout: Event not received from blockchain within 30 seconds. Please check the blockchain explorer.'
           );
           setIsVerifying(false);
-          offChainHashRef.current = null;
-          setOffChainHash(null);
+          // offChainHashRef.current = null;
+          // setOffChainHash(null);
         }
       }, 30000);
     }
@@ -305,21 +312,24 @@ export function useCreatePoll() {
   // Refetch version after successful poll creation
   // This is critical for replay attack prevention - version increments with each poll
   useEffect(() => {
-    if (isSuccess) {
-      refetchVersion();
-
-      if (!pollData) return;
-      if (!offChainHashRef.current) return;
-
-      // Store to backend after blockchain transaction is confirmed
-      storePollToBackend(pollData, offChainHashRef.current).catch((error) => {
-        console.error('Failed to store poll to backend:', error);
-        toast.error('Failed to store poll data', {
-          description: 'Blockchain transaction succeeded, but backend storage failed.',
-        });
-      });
+    if (!pollData) {
+      return;
     }
-  }, [isSuccess, refetchVersion]);
+    if (!offChainHashRef.current) {
+      return;
+    }
+    if (!isSuccess) {
+      return;
+    }
+
+    // Store to backend after blockchain transaction is confirmed
+    storePollToBackend(pollData, offChainHashRef.current).catch((error) => {
+      console.error('Failed to store poll to backend:', error);
+      toast.error('Failed to store poll data', {
+        description: 'Blockchain transaction succeeded, but backend storage failed.',
+      });
+    });
+  }, [isSuccess, pollData, offChainHashRef.current]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
