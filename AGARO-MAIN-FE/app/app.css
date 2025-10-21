@@ -24,6 +24,51 @@ body {
   }
 }
 
+/* Global Scroll Style - Transparent/Minimal */
+* {
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+*:hover {
+  /* Firefox - show on hover */
+  scrollbar-color: oklch(0.5 0 0 / 0.2) transparent;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+*:hover::-webkit-scrollbar-thumb {
+  background: oklch(0.5 0 0 / 0.2);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.5 0 0 / 0.3);
+}
+
+/* Dark mode adjustments */
+.dark *:hover::-webkit-scrollbar-thumb {
+  background: oklch(0.7 0 0 / 0.2);
+}
+
+.dark *::-webkit-scrollbar-thumb:hover {
+  background: oklch(0.7 0 0 / 0.3);
+}
+
 :root {
   --background: oklch(0.994 0 0);
   --foreground: oklch(0 0 0);

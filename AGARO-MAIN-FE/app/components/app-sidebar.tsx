@@ -179,12 +179,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
-        <div className="flex items-center gap-2 px-2">
-          <img
-            src="/Logo.png"
-            alt="AgaroVote Logo"
-            className="h-20 w-full object-cover object-center"
-          />
+        <div className="flex justify-start gap-2 px-2">
+          <picture>
+            <source srcSet="/Logo.png" type="image/png" />
+            <img src="/Logo.png" alt="AgaroVote Logo" className="h-12 w-full object-contain" />
+          </picture>
         </div>
       </SidebarHeader>
       <SidebarContent>
