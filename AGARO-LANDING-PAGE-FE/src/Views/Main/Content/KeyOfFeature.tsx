@@ -8,25 +8,24 @@ const dataFeature = [
     id: 1,
     feature: 'Secure',
     Title: 'Blockchain-Powered Voting Security',
-    Desc: 'Every vote is encrypted and recorded on the blockchain, ensuring results cannot be altered or tampered with by any third party.',
+    Desc: 'Every vote is Hashed and recorded on the blockchain, ensuring results can not be altered or tampered with by any third party.',
     image: example1,
     iconTitle: '🔐',
-  },
-  {
+  }, {
     id: 2,
-    feature: 'Transparent',
-    Title: 'Fully Transparent Voting Results',
-    Desc: 'All participants can verify the voting outcome in real time without compromising privacy, thanks to AgaroVote’s public verification system.',
-    image: example1,
-    iconTitle: '📊',
+    feature: "Hybrid (Open Source)",
+    Title: "Hybrid Voting You Can Clone and Own",
+    Desc: "AgaroVote uses a hybrid model (blockchain + private servers) rather than full public transparency. You can verify results where needed, but keep sensitive data private. The project is open-source, so platforms can clone the system and build their own customized voting solution.",
+    image: "example1",
+    iconTitle: "📂"
   },
   {
     id: 3,
-    feature: 'Decentralized',
-    Title: 'Decentralized Digital Identity',
-    Desc: 'Each voter owns a unique and secure digital identity that operates independently of any central authority, preserving the integrity of the voting process.',
-    image: example1,
-    iconTitle: '🪪',
+    feature: "Un-altered",
+    Title: "Data Integrity",
+    Desc: "AgaroVote ensures data integrity through our hashing mechanism, where every record is cryptographically verified on the blockchain. This unaltered design guarantees trust and transparency while keeping user data secure within our hybrid architecture.",
+    image: "example1",
+    iconTitle: "🪪"
   },
   {
     id: 4,

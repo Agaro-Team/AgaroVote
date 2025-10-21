@@ -49,7 +49,7 @@ const HowItWorks = () => {
           className="sm:text-3xl text-2xl font-semibold mb-6 flex items-center justify-center "
         />
         <BlurText
-          text="Every vote is securely encrypted, recorded on blockchain, and impossible to manipulate - ensuring full transparency and trust."
+          text="Every vote is hashed, recorded on blockchain, and impossible to manipulate - ensuring full transparency and trust."
           delay={10}
           animateBy="words"
           direction="bottom"

@@ -152,39 +152,51 @@ const Timeline = () => {
   const timelineData: TimelineItem[] = [
     {
       id: 1,
-      title: 'Q1',
+      title: 'Q4 2025',
       list: [
-        { desc: 'Rilis landing page (Hero, Hot It Works, CTA, Social Proof)' },
-        { desc: 'Optimasi performa (loadingn speed, SEO dasar).' },
+        { desc: 'MVP on Sepolia Testnet.' },
+        { desc: 'Synthetic reward for every vote.' },
+        { desc: 'Whitelisted address with MerkleTree.' },
+        { desc: 'Data integrity powered by blockchain.' },
       ],
       icon: '📝',
     },
     {
       id: 2,
-      title: 'Q2',
+      title: 'Q1 2026',
       list: [
-        { desc: 'Newsletters' },
-        { desc: 'Optimasi performa (loading speed, SEO dasar).' },
+        { desc: 'MVP on Ethereum.' },
+        { desc: 'Data availability with IPFS.' },
+        { desc: 'Vote with Multi-token support.' },
+        { desc: 'Node service RPC dedicated for Agaro.' },
       ],
       icon: '🔐',
     },
     {
       id: 3,
-      title: 'Q3',
+      title: 'Q2 2026',
       list: [
-        { desc: 'Integrasi Web3 authenctication (connect wallet).' },
-        { desc: 'Transparasi dashboard (data transaksi, user aktif).' },
-        { desc: 'Showcase partner & success stories.' },
+        { desc: 'Multi-chain support.' },
+        { desc: 'Platform fee integration.' },
+        { desc: 'Fee-less vote with EIP-4337 (Account Abstraction).' },
+        { desc: 'Customizable reward token.' },
+        { desc: 'Customizable reward style.' },
       ],
       icon: '🗳️',
     },
     {
       id: 4,
-      title: 'Q4',
+      title: 'Beyond',
       list: [
-        { desc: 'Scale-up menjadi multi-page website.' },
+        { desc: 'zk-circuit support for whitelisting billions of addresses.' },
         {
-          desc: 'Optimasi growth (A/B testing, SEO global, analytic Web3-native',
+          desc: 'SDK for developers to easily integrate AgaroVote.',
+        }, {
+          desc: 'AI-powered fraud detection – Automatically detect and flag suspicious voting behaviors or anomalies using on-chain and off-chain signals.',
+        }, {
+          desc: 'Full Account Abstraction Identity – Sign votes with your verified decentralized identity; no wallet management needed.',
+        }, {
+          desc: 'And many more....',
         },
       ],
       icon: '📊',
@@ -289,20 +301,17 @@ const Timeline = () => {
                       ease: 'easeOut',
                     }}
                     viewport={{ once: true, amount: 0.3 }}
-                    className={`relative flex md:items-center items-start ${
-                      index % 2 === 0
-                        ? 'md:flex-row md:mr-6 flex-row '
-                        : 'md:flex-row-reverse md:ml-6 flex-row'
-                    }`}>
+                    className={`relative flex md:items-center items-start ${index % 2 === 0
+                      ? 'md:flex-row md:mr-6 flex-row '
+                      : 'md:flex-row-reverse md:ml-6 flex-row'
+                      }`}>
                     {/* Card */}
                     <div
-                      className={`w-full md:max-w-[50%] ${
-                        index % 2 === 0 ? 'md:pr-7' : 'md:pl-7'
-                      } pl-10`}>
+                      className={`w-full md:max-w-[50%] ${index % 2 === 0 ? 'md:pr-7' : 'md:pl-7'
+                        } pl-10`}>
                       <motion.div
-                        className={`relative p-6 rounded-xl bg-[var(--card)] backdrop-blur-3xl before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl timeline-arrow-left ${
-                          index % 2 === 0 ? 'md-arrow-right' : 'md-arrow-left'
-                        }  `}
+                        className={`relative p-6 rounded-xl bg-[var(--card)] backdrop-blur-3xl before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl timeline-arrow-left ${index % 2 === 0 ? 'md-arrow-right' : 'md-arrow-left'
+                          }  `}
                         style={{
                           opacity: transforms.cardOpacity,
                           y: transforms.cardY,

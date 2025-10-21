@@ -5,23 +5,23 @@ import BlurText from '../../../Components/BlurText';
 const faqs = [
   {
     q: 'What is AgaroVote?',
-    a: 'AgaroVote is a lightweight voting interface built on web3 principles to make decentralized voting simple and secure.',
+    a: 'AgaroVote is a hybrid governance voting system that enhances traditional voting by integrating Web3 technology. It adds transparency, security, and rewards to existing systems, allowing every vote to be both meaningful and valuable.',
   },
   {
     q: 'Do i need a crypto wallet to vote?',
-    a: 'Click the Connect button in the header and follow the prompts to connect your wallet (MetaMask or any injected provider).',
+    a: 'Yes, for now you’ll need a crypto wallet to vote, as it helps verify your identity and manage tokens securely. However, in the future, AgaroVote aims to make voting feeless and wallet-free, so anyone can participate easily without needing blockchain knowledge..',
   },
   {
     q: 'What voting models are available?',
-    a: 'Votes are recorded on-chain and are publicly verifiable. You can use privacy-preserving mechanisms where available depending on the target chain.',
+    a: 'AgaroVote supports several flexible voting models. Voters commit tokens to participate, which helps prevent spam and ensure genuine engagement. Only whitelisted (approved) addresses can access certain votes for security and control. The system also includes a reward model, where voters earn yield for participation, and each voting session can have a custom duration set by the creator. This makes AgaroVote adaptable for different communities and governance needs. More models will be added in future!',
   },
   {
     q: 'How do reward mechanisms work?',
-    a: 'Votes are recorded on-chain and are publicly verifiable. You can use privacy-preserving mechanisms where available depending on the target chain.',
+    a: 'AgaroVote uses a synthetic reward system where every token and every second committed contributes to your earnings. The longer and more you commit, the greater your reward.',
   },
   {
     q: 'Which blockchain does AgaroVote run on?',
-    a: 'Votes are recorded on-chain and are publicly verifiable. You can use privacy-preserving mechanisms where available depending on the target chain.',
+    a: 'AgaroVote currently runs on a private blockchain for demo and internal testing. It will be deployed on a public testnet for open trials and later launched on the Ethereum mainnet for real production. The system is also designed to be compatible with all EVM-based blockchains.',
   },
 ];
 

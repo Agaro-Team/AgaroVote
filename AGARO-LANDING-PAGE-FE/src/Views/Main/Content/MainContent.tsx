@@ -45,7 +45,7 @@ const MainContent = () => {
       <div className="flex flex-col items-center pt-24 xl:pt-40">
         {/* Header */}
         <BlurText
-          text="Your Voice, Verified with Web3 Transparency"
+          text="Yield with Your Voice, Powered by Web3"
           delay={20}
           animateBy="words"
           direction="top"
@@ -54,7 +54,7 @@ const MainContent = () => {
 
         {/* Description */}
         <BlurText
-          text="Traditional voting systems often rely on central authorities, making them vulnerable to manipulation. AgaroVote redefines voting with blockchain - secure, transparent, and accessible to everyone."
+          text="Enhances traditional voting systems by integrating Web3 technology, adding transparency, security, and value without replacing existing processes. By leveraging blockchain, AgaroVote ensures that every vote remains verifiable and tamper-proof, while maintaining the familiar structure and accessibility of current voting platforms."
           delay={20}
           animateBy="words"
           direction="top"
