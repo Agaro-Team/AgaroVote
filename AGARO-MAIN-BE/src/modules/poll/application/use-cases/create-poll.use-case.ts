@@ -51,18 +51,38 @@ export class CreatePollUseCase {
       throw new BadRequestException('Start date must be before end date');
     }
 
+    const getTransactionStatus = () => {
+      if (createPollDto.isPrivate) {
+        return TransactionStatus.SUCCESS;
+      }
+      return createPollDto.transactionStatus ?? TransactionStatus.PENDING;
+    };
+
+    const getIsActive = () => {
+      if (createPollDto.isPrivate) {
+        return true;
+      }
+      return createPollDto.isActive ?? false;
+    };
+
+    const getRewardShare = () => {
+      if (createPollDto.isPrivate) {
+        return 0;
+      }
+      return createPollDto.rewardShare ?? 0;
+    };
+
     // Create poll
     const { choices, addresses, ...pollData } = createPollDto;
     const poll = await this.pollRepository.create({
       ...pollData,
       startDate,
       endDate,
-      transactionStatus:
-        createPollDto.transactionStatus ?? TransactionStatus.PENDING,
-      isActive: createPollDto.isActive ?? false,
+      transactionStatus: getTransactionStatus(),
+      isActive: getIsActive(),
       isPrivate: createPollDto.isPrivate ?? false,
       isTokenRequired: createPollDto.isTokenRequired ?? false,
-      rewardShare: createPollDto.rewardShare ?? 0,
+      rewardShare: getRewardShare(),
     });
 
     // Create choices
