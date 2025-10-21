@@ -2,18 +2,25 @@
  * AllowedAddressesField Component
  *
  * A dynamic array field for managing allowed wallet addresses in private voting pools.
- * Allows adding/removing addresses with validation.
- * Supports bulk CSV upload for adding multiple addresses at once.
- * Uses TanStack Form's field context to avoid props drilling.
+ * Features:
+ * - Add/remove addresses individually with validation
+ * - Bulk CSV upload for adding multiple addresses at once
+ * - Asynchronous batch processing for large datasets (>100 addresses)
+ * - Virtual scrolling for rendering large lists without freezing (uses @tanstack/react-virtual)
+ * - Automatic view switching: detailed view for small datasets, virtualized view for large datasets
+ * - Browser navigation protection during processing to prevent data loss
+ * - Visual feedback for processing state
+ * - Download addresses as CSV
+ * - Uses TanStack Form's field context to avoid props drilling
  */
-import { Plus, Trash2, Upload } from 'lucide-react';
+import { Download, Plus, Upload } from 'lucide-react';
 import { withForm } from '~/components/form';
 import { Button } from '~/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '~/components/ui/field';
-import { Input } from '~/components/ui/input';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
+import { AddressesList } from './addresses-list';
 import { CSVUploadModal } from './csv-upload-modal';
 import { votingPollFormOptions } from './voting-poll-form-options';
 
@@ -21,6 +28,42 @@ export const AllowedAddressesField = withForm({
   ...votingPollFormOptions,
   render: ({ form }) => {
     const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [isVirtualized, setIsVirtualized] = useState(false);
+
+    // Download addresses as CSV
+    const handleDownloadCSV = (addresses: string[]) => {
+      const csv = ['Address\n', ...addresses.map((addr) => `${addr}\n`)].join('');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'allowed-addresses.csv';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    };
+
+    // Prevent user from leaving page while processing
+    useEffect(() => {
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        if (isProcessing) {
+          e.preventDefault();
+          // Chrome requires returnValue to be set
+          e.returnValue = '';
+          return '';
+        }
+      };
+
+      if (isProcessing) {
+        window.addEventListener('beforeunload', handleBeforeUnload);
+      }
+
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload);
+      };
+    }, [isProcessing]);
 
     return (
       <form.AppField
@@ -33,12 +76,40 @@ export const AllowedAddressesField = withForm({
               field.state.meta.errors.length) ||
             false;
 
-          // Handler for CSV upload
-          const handleCSVUpload = (addresses: string[]) => {
-            // Append new addresses to existing ones
-            addresses.forEach((address) => {
-              field.pushValue(address);
-            });
+          const addressCount = field.state.value.length;
+
+          // Handler for CSV upload with async batching for large datasets
+          const handleCSVUpload = async (addresses: string[]) => {
+            const BATCH_SIZE = 100;
+            const shouldBatch = addresses.length > BATCH_SIZE;
+
+            if (!shouldBatch) {
+              // Small dataset - process synchronously
+              addresses.forEach((address) => {
+                field.pushValue(address);
+              });
+              return;
+            }
+
+            // Large dataset - process asynchronously in batches
+            setIsProcessing(true);
+            try {
+              for (let i = 0; i < addresses.length; i += BATCH_SIZE) {
+                const batch = addresses.slice(i, i + BATCH_SIZE);
+
+                // Process batch
+                batch.forEach((address) => {
+                  field.pushValue(address);
+                });
+
+                // Yield to the main thread to keep UI responsive
+                if (i + BATCH_SIZE < addresses.length) {
+                  await new Promise((resolve) => setTimeout(resolve, 0));
+                }
+              }
+            } finally {
+              setIsProcessing(false);
+            }
           };
 
           return (
@@ -57,15 +128,39 @@ export const AllowedAddressesField = withForm({
                   <FieldLabel htmlFor={field.name} className="mb-0">
                     Allowed Addresses{' '}
                     <span className="text-muted-foreground font-normal">
-                      ({field.state.value.length} total)
+                      ({addressCount} total)
                     </span>
+                    {isProcessing && (
+                      <span className="text-primary font-normal ml-2 animate-pulse">
+                        (Processing...)
+                      </span>
+                    )}
+                    {isVirtualized && (
+                      <span className="text-blue-600 dark:text-blue-400 font-normal ml-2 text-xs">
+                        (Virtualized for performance)
+                      </span>
+                    )}
                   </FieldLabel>
                   <div className="flex flex-wrap gap-2">
+                    {addressCount > 0 && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDownloadCSV(field.state.value)}
+                        disabled={isProcessing}
+                        className="gap-2"
+                      >
+                        <Download className="h-4 w-4" />
+                        <span className="hidden sm:inline">Download</span>
+                      </Button>
+                    )}
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => setIsCSVModalOpen(true)}
+                      disabled={isProcessing}
                       className="gap-2 flex-1 sm:flex-none"
                     >
                       <Upload className="h-4 w-4" />
@@ -77,6 +172,7 @@ export const AllowedAddressesField = withForm({
                       variant="outline"
                       size="sm"
                       onClick={() => field.pushValue('')}
+                      disabled={isProcessing}
                       className="gap-2 flex-1 sm:flex-none"
                     >
                       <Plus className="h-4 w-4" />
@@ -86,63 +182,12 @@ export const AllowedAddressesField = withForm({
                   </div>
                 </div>
 
-                {/* Addresses Grid - Responsive layout */}
-                {field.state.value.length > 0 ? (
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                    {field.state.value.map((__, index) => (
-                      <form.Field
-                        key={index}
-                        name={`allowedAddresses[${index}]`}
-                        children={(subField) => {
-                          const hasError =
-                            subField.state.meta.isTouched &&
-                            !subField.state.meta.isValid &&
-                            subField.state.meta.errors.length > 0;
-                          const errorMessage = subField.state.meta.errors?.[index]?.message;
-
-                          return (
-                            <div className="flex gap-2 items-start">
-                              <Field className="flex-1">
-                                <div className="relative">
-                                  <Input
-                                    id={`allowedAddresses.${index}`}
-                                    name={`allowedAddresses.${index}`}
-                                    value={subField.state.value}
-                                    onChange={(e) => subField.handleChange(() => e.target.value)}
-                                    onBlur={subField.handleBlur}
-                                    aria-invalid={hasError}
-                                    placeholder="0x..."
-                                    className="font-mono text-sm"
-                                  />
-                                </div>
-                                {hasError && (
-                                  <FieldError className="text-xs mt-1">{errorMessage}</FieldError>
-                                )}
-                              </Field>
-
-                              <Button
-                                type="button"
-                                variant="outline"
-                                size="icon"
-                                onClick={() => field.removeValue(index)}
-                                aria-label={`Remove address ${index + 1}`}
-                                className="shrink-0 hover:bg-destructive hover:text-destructive-foreground"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </Button>
-                            </div>
-                          );
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-lg border border-dashed p-8 text-center">
-                    <p className="text-sm text-muted-foreground">
-                      No addresses added yet. Click "Add Address" or "Upload CSV" to get started.
-                    </p>
-                  </div>
-                )}
+                {/* Addresses List - Uses separate component to properly handle hooks */}
+                <AddressesList
+                  field={field}
+                  formField={form.Field}
+                  onViewModeChange={(mode) => setIsVirtualized(mode === 'virtual')}
+                />
 
                 {/* Description and Errors */}
                 {!hasError && field.state.value.length > 0 && (

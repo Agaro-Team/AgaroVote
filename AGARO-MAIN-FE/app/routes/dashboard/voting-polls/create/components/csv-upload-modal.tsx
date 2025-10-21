@@ -6,8 +6,12 @@
  * - Template download
  * - Drag-and-drop file upload
  * - CSV validation with preview
- * - Duplicate detection
+ * - Duplicate detection (within CSV and against existing addresses)
  * - Ethereum address validation
+ * - Async upload handling for large datasets
+ * - Browser navigation protection during processing/uploading
+ * - Visual feedback for processing and uploading states
+ * - Modal close protection while operations are in progress
  */
 import { AlertCircle, CheckCircle, Download, Upload, X } from 'lucide-react';
 import { useDropzone } from 'react-dropzone';
@@ -33,12 +37,12 @@ import type { CSVParseResult } from '~/lib/csv-utils';
 import { downloadAddressTemplate, parseAddressesCSV } from '~/lib/csv-utils';
 import { cn } from '~/lib/utils';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 interface CSVUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUpload: (addresses: string[]) => void;
+  onUpload: (addresses: string[]) => void | Promise<void>;
   existingAddresses?: string[];
 }
 
@@ -51,6 +55,27 @@ export function CSVUploadModal({
   const [file, setFile] = useState<File | null>(null);
   const [parseResult, setParseResult] = useState<CSVParseResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Prevent user from leaving page while processing or uploading
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isProcessing || isUploading) {
+        e.preventDefault();
+        // Chrome requires returnValue to be set
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    if (isProcessing || isUploading) {
+      window.addEventListener('beforeunload', handleBeforeUnload);
+    }
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [isProcessing, isUploading]);
 
   const onDrop = useCallback(
     async (acceptedFiles: File[]) => {
@@ -106,21 +131,35 @@ export function CSVUploadModal({
     maxSize: 1024 * 1024, // 1MB
   });
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
     if (!parseResult || parseResult.validAddresses.length === 0) return;
-    onUpload(parseResult.validAddresses);
-    handleClose();
+
+    setIsUploading(true);
+    try {
+      await onUpload(parseResult.validAddresses);
+      handleClose();
+    } catch (error) {
+      console.error('Error uploading addresses:', error);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleClose = () => {
+    // Prevent closing while processing or uploading
+    if (isProcessing || isUploading) {
+      return;
+    }
+
     setFile(null);
     setParseResult(null);
     setIsProcessing(false);
+    setIsUploading(false);
     onClose();
   };
 
   const hasValidAddresses = parseResult && parseResult.validAddresses.length > 0;
-  const hasErrors = parseResult && !parseResult.isValid;
+  const isDisabled = isProcessing || isUploading;
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -157,7 +196,7 @@ export function CSVUploadModal({
                 isDragActive
                   ? 'border-primary bg-primary/5'
                   : 'border-muted-foreground/25 hover:border-primary/50',
-                isProcessing && 'opacity-50 pointer-events-none'
+                isDisabled && 'opacity-50 pointer-events-none'
               )}
             >
               <input {...getInputProps()} />
@@ -186,8 +225,23 @@ export function CSVUploadModal({
 
             {/* Processing State */}
             {isProcessing && (
-              <div className="text-center text-sm text-muted-foreground">
+              <div className="text-center text-sm text-muted-foreground animate-pulse">
                 Processing CSV file...
+              </div>
+            )}
+
+            {/* Uploading State */}
+            {isUploading && (
+              <div className="bg-primary/10 border border-primary/20 rounded-lg p-4 flex items-center justify-center gap-3">
+                <div className="animate-spin h-5 w-5 border-2 border-primary border-t-transparent rounded-full" />
+                <div>
+                  <p className="text-sm font-medium text-primary">Uploading addresses...</p>
+                  <p className="text-xs text-muted-foreground">
+                    {parseResult && parseResult.validAddresses.length > 100
+                      ? 'Processing large dataset in batches for optimal performance'
+                      : 'This will only take a moment'}
+                  </p>
+                </div>
               </div>
             )}
 
@@ -316,17 +370,15 @@ export function CSVUploadModal({
         </ScrollArea>
 
         <DialogFooter className="flex-shrink-0 mt-4">
-          <Button type="button" variant="outline" onClick={handleClose}>
+          <Button type="button" variant="outline" onClick={handleClose} disabled={isDisabled}>
             <X className="h-4 w-4" />
             Cancel
           </Button>
-          <Button
-            type="button"
-            onClick={handleUpload}
-            disabled={!hasValidAddresses || isProcessing}
-          >
+          <Button type="button" onClick={handleUpload} disabled={!hasValidAddresses || isDisabled}>
             <Upload className="h-4 w-4" />
-            Upload {hasValidAddresses ? `(${parseResult.validAddresses.length})` : ''}
+            {isUploading
+              ? 'Uploading...'
+              : `Upload ${hasValidAddresses ? `(${parseResult.validAddresses.length})` : ''}`}
           </Button>
         </DialogFooter>
       </DialogContent>
