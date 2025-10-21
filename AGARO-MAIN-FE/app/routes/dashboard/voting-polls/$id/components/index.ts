@@ -17,3 +17,4 @@ export { VoteError } from './vote-page-layout';
 export { VoteProvider } from './vote-context';
 export { PollRewardStatus } from './poll-reward-status';
 export { VoterList, VoterListSkeleton } from './voter-list';
+export { InvitedAddressesList, InvitedAddressesListSkeleton } from './invited-addresses-list';

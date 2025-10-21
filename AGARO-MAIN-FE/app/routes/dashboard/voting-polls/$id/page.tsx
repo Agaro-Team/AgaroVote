@@ -6,6 +6,8 @@
 import { Suspense } from 'react';
 
 import {
+  InvitedAddressesList,
+  InvitedAddressesListSkeleton,
   VoteError,
   VoteGrid,
   VoteGridItem,
@@ -31,6 +33,10 @@ export default function VotePage() {
             <VoteGridItem>
               <Suspense fallback={<VoterListSkeleton />}>
                 <VoterList />
+              </Suspense>
+
+              <Suspense fallback={<InvitedAddressesListSkeleton />}>
+                <InvitedAddressesList />
               </Suspense>
             </VoteGridItem>
           </VoteGrid>
