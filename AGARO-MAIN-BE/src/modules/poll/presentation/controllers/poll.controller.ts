@@ -14,7 +14,10 @@ import {
   Query,
 } from '@nestjs/common';
 import { IPaginatedResult } from '@shared/application/dto/pagination.dto';
+import { ActivatePollDto } from '../../application/dto/activate-poll.dto';
 import { CreatePollDto } from '../../application/dto/create-poll.dto';
+import { InvitedAddressFilterDto } from '../../application/dto/invited-address-filter.dto';
+import { InvitedAddressResponseDto } from '../../application/dto/invited-address-response.dto';
 import { PollFilterDto } from '../../application/dto/poll-filter.dto';
 import { PollResponseDto } from '../../application/dto/poll-response.dto';
 import { UpdatePollDto } from '../../application/dto/update-poll.dto';
@@ -26,13 +29,13 @@ import { CreatePollUseCase } from '../../application/use-cases/create-poll.use-c
 import { DeletePollUseCase } from '../../application/use-cases/delete-poll.use-case';
 import { GetActivePollsPaginatedUseCase } from '../../application/use-cases/get-active-polls-paginated.use-case';
 import { GetAllPollsPaginatedUseCase } from '../../application/use-cases/get-all-polls-paginated.use-case';
+import { GetInvitedAddressesByPollPaginatedUseCase } from '../../application/use-cases/get-invited-addresses-by-poll-paginated.use-case';
 import { GetOngoingPollsPaginatedUseCase } from '../../application/use-cases/get-ongoing-polls-paginated.use-case';
 import { GetPollByIdUseCase } from '../../application/use-cases/get-poll-by-id.use-case';
 import { GetPollsByCreatorPaginatedUseCase } from '../../application/use-cases/get-polls-by-creator-paginated.use-case';
 import { UpdatePollTransactionStatusUseCase } from '../../application/use-cases/update-poll-transaction-status.use-case';
 import { UpdatePollUseCase } from '../../application/use-cases/update-poll.use-case';
 import { UpdateVoterHashUseCase } from '../../application/use-cases/update-voter-hash.use-case';
-import { ActivatePollDto } from '../../application/dto/activate-poll.dto';
 
 @Controller('polls')
 export class PollController {
@@ -49,6 +52,7 @@ export class PollController {
     private readonly updatePollTransactionStatusUseCase: UpdatePollTransactionStatusUseCase,
     private readonly activatePollUseCase: ActivatePollUseCase,
     private readonly updateVoterHashUseCase: UpdateVoterHashUseCase,
+    private readonly getInvitedAddressesByPollPaginatedUseCase: GetInvitedAddressesByPollPaginatedUseCase,
   ) {}
 
   @Post()
@@ -135,6 +139,21 @@ export class PollController {
     @Query('walletAddress') walletAddress: string,
   ): Promise<{ eligible: boolean; reason?: string }> {
     return await this.checkVotingEligibilityUseCase.execute(id, walletAddress);
+  }
+
+  @Get(':id/invited-addresses')
+  async getInvitedAddressesPaginated(
+    @Param('id') pollId: string,
+    @Query() filters: InvitedAddressFilterDto,
+  ): Promise<IPaginatedResult<InvitedAddressResponseDto>> {
+    const result = await this.getInvitedAddressesByPollPaginatedUseCase.execute(
+      pollId,
+      filters,
+    );
+    return {
+      data: InvitedAddressResponseDto.fromEntities(result.data),
+      meta: result.meta,
+    };
   }
 
   @Put(':id')
