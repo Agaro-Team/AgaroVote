@@ -144,6 +144,24 @@ export function useVotePoll(poll: Poll) {
     reset: resetWrite,
   } = useWriteEntryPointVote({
     mutation: {
+      onSuccess: () => {
+        if (!state.pollId || !state.choiceId || !walletAddress || !state.commitToken) {
+          toast.error('Missing required data for backend submission');
+          return;
+        }
+
+        // Submit to backend after blockchain success
+        toast.info('Recording vote in database...');
+
+        castVoteMutation.mutate({
+          pollId: state.pollId,
+          choiceId: state.choiceId,
+          voterWalletAddress: walletAddress as `0x${string}`,
+          commitToken: isNaN(Number(state.commitToken ?? 0))
+            ? undefined
+            : Number(state.commitToken),
+        });
+      },
       onError: (error) => {
         // Parse the error and show user-friendly message
         const { title, description } = parseWagmiErrorForToast(error);
@@ -254,16 +272,6 @@ export function useVotePoll(poll: Poll) {
     if (state.backendSubmitted || castVoteMutation.isPending || castVoteMutation.isSuccess) {
       return;
     }
-
-    // Submit to backend after blockchain success
-    toast.info('Recording vote in database...');
-
-    castVoteMutation.mutate({
-      pollId: state.pollId,
-      choiceId: state.choiceId,
-      voterWalletAddress: walletAddress as `0x${string}`,
-      commitToken: isNaN(Number(state.commitToken ?? 0)) ? undefined : Number(state.commitToken),
-    });
   }, [
     isTransactionReceiptSuccess,
     voteTxHash,

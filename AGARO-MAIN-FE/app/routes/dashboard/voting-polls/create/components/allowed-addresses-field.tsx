@@ -4,32 +4,51 @@
  * A dynamic array field for managing allowed wallet addresses in private voting pools.
  * Features:
  * - Add/remove addresses individually with validation
+ * - Remove all addresses with confirmation dialog
+ * - New addresses appear at the top (first position) with auto-scroll for better UX
+ * - Grouped button layout for compact and tidy UI (button group style)
  * - Bulk CSV upload for adding multiple addresses at once
+ * - Download addresses as CSV
+ * - Maximum limit of 500 total addresses with validation and error feedback
  * - Asynchronous batch processing for large datasets (>100 addresses)
  * - Virtual scrolling for rendering large lists without freezing (uses @tanstack/react-virtual)
  * - Automatic view switching: detailed view for small datasets, virtualized view for large datasets
  * - Browser navigation protection during processing to prevent data loss
  * - Visual feedback for processing state
- * - Download addresses as CSV
  * - Uses TanStack Form's field context to avoid props drilling
  */
-import { Download, Plus, Upload } from 'lucide-react';
+import { Download, Plus, Trash2, Upload } from 'lucide-react';
+import { toast } from 'sonner';
 import { withForm } from '~/components/form';
 import { Button } from '~/components/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '~/components/ui/dialog';
 import { Field, FieldDescription, FieldError, FieldLabel } from '~/components/ui/field';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
-import { AddressesList } from './addresses-list';
+import { AddressesList, type AddressesListRef } from './addresses-list';
 import { CSVUploadModal } from './csv-upload-modal';
 import { votingPollFormOptions } from './voting-poll-form-options';
+
+// Maximum allowed addresses limit
+const MAX_ADDRESSES_LIMIT = 500;
 
 export const AllowedAddressesField = withForm({
   ...votingPollFormOptions,
   render: ({ form }) => {
     const [isCSVModalOpen, setIsCSVModalOpen] = useState(false);
+    const [isRemoveAllDialogOpen, setIsRemoveAllDialogOpen] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isVirtualized, setIsVirtualized] = useState(false);
+    const addressesListRef = useRef<AddressesListRef>(null);
 
     // Download addresses as CSV
     const handleDownloadCSV = (addresses: string[]) => {
@@ -78,8 +97,42 @@ export const AllowedAddressesField = withForm({
 
           const addressCount = field.state.value.length;
 
+          // Handler for adding a new address and scrolling to it
+          const handleAddAddress = () => {
+            // Insert new address at the top (index 0)
+            field.insertValue(0, '');
+            // Scroll to top after a short delay to allow the DOM to update
+            setTimeout(() => {
+              addressesListRef.current?.scrollToTop();
+            }, 100);
+          };
+
+          // Handler for removing all addresses
+          const handleRemoveAll = () => {
+            const count = field.state.value.length;
+            // Remove all addresses by setting empty array
+            field.setValue([]);
+            setIsRemoveAllDialogOpen(false);
+            toast.success('Addresses Cleared', {
+              description: `Successfully removed ${count} address${count !== 1 ? 'es' : ''}.`,
+            });
+          };
+
           // Handler for CSV upload with async batching for large datasets
           const handleCSVUpload = async (addresses: string[]) => {
+            const currentCount = field.state.value.length;
+            const newCount = addresses.length;
+            const totalCount = currentCount + newCount;
+
+            // Validate total addresses limit
+            if (totalCount > MAX_ADDRESSES_LIMIT) {
+              toast.error('Address Limit Exceeded', {
+                description: `Cannot add ${newCount} addresses. You currently have ${currentCount} addresses, and the maximum limit is ${MAX_ADDRESSES_LIMIT}. You can add up to ${MAX_ADDRESSES_LIMIT - currentCount} more addresses.`,
+              });
+              setIsCSVModalOpen(false);
+              return;
+            }
+
             const BATCH_SIZE = 100;
             const shouldBatch = addresses.length > BATCH_SIZE;
 
@@ -128,7 +181,7 @@ export const AllowedAddressesField = withForm({
                   <FieldLabel htmlFor={field.name} className="mb-0">
                     Allowed Addresses{' '}
                     <span className="text-muted-foreground font-normal">
-                      ({addressCount} total)
+                      ({addressCount} / {MAX_ADDRESSES_LIMIT})
                     </span>
                     {isProcessing && (
                       <span className="text-primary font-normal ml-2 animate-pulse">
@@ -140,8 +193,66 @@ export const AllowedAddressesField = withForm({
                         (Virtualized for performance)
                       </span>
                     )}
+                    {addressCount >= MAX_ADDRESSES_LIMIT && (
+                      <span className="text-destructive font-normal ml-2 text-xs">
+                        (Limit reached)
+                      </span>
+                    )}
                   </FieldLabel>
-                  <div className="flex flex-wrap gap-2">
+
+                  {/* Action Buttons - Grouped for compact UI */}
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    {/* Primary Actions Group */}
+                    <div className="inline-flex rounded-md shadow-sm" role="group">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={handleAddAddress}
+                        disabled={isProcessing || addressCount >= MAX_ADDRESSES_LIMIT}
+                        className="rounded-r-none border-r-0 gap-2"
+                        title={
+                          addressCount >= MAX_ADDRESSES_LIMIT
+                            ? 'Maximum address limit reached'
+                            : 'Add new address'
+                        }
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span className="hidden sm:inline">Add</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsCSVModalOpen(true)}
+                        disabled={isProcessing || addressCount >= MAX_ADDRESSES_LIMIT}
+                        className="rounded-none gap-2"
+                        title={
+                          addressCount >= MAX_ADDRESSES_LIMIT
+                            ? 'Maximum address limit reached'
+                            : 'Upload CSV file'
+                        }
+                      >
+                        <Upload className="h-4 w-4" />
+                        <span className="hidden sm:inline">Upload</span>
+                      </Button>
+                      {addressCount > 0 && (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setIsRemoveAllDialogOpen(true)}
+                          disabled={isProcessing}
+                          className="rounded-l-none gap-2 hover:bg-destructive hover:text-destructive-foreground"
+                          title="Remove all addresses"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="hidden sm:inline">Clear</span>
+                        </Button>
+                      )}
+                    </div>
+
+                    {/* Secondary Actions */}
                     {addressCount > 0 && (
                       <Button
                         type="button"
@@ -150,40 +261,18 @@ export const AllowedAddressesField = withForm({
                         onClick={() => handleDownloadCSV(field.state.value)}
                         disabled={isProcessing}
                         className="gap-2"
+                        title="Download as CSV"
                       >
                         <Download className="h-4 w-4" />
                         <span className="hidden sm:inline">Download</span>
                       </Button>
                     )}
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsCSVModalOpen(true)}
-                      disabled={isProcessing}
-                      className="gap-2 flex-1 sm:flex-none"
-                    >
-                      <Upload className="h-4 w-4" />
-                      <span className="hidden sm:inline">Upload CSV</span>
-                      <span className="sm:hidden">CSV</span>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => field.pushValue('')}
-                      disabled={isProcessing}
-                      className="gap-2 flex-1 sm:flex-none"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span className="hidden sm:inline">Add Address</span>
-                      <span className="sm:hidden">Add</span>
-                    </Button>
                   </div>
                 </div>
 
                 {/* Addresses List - Uses separate component to properly handle hooks */}
                 <AddressesList
+                  ref={addressesListRef}
                   field={field}
                   formField={form.Field}
                   onViewModeChange={(mode) => setIsVirtualized(mode === 'virtual')}
@@ -210,6 +299,28 @@ export const AllowedAddressesField = withForm({
                 onUpload={handleCSVUpload}
                 existingAddresses={field.state.value}
               />
+
+              {/* Remove All Confirmation Dialog */}
+              <Dialog open={isRemoveAllDialogOpen} onOpenChange={setIsRemoveAllDialogOpen}>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Remove All Addresses?</DialogTitle>
+                    <DialogDescription>
+                      Are you sure you want to remove all {addressCount} address
+                      {addressCount !== 1 ? 'es' : ''}? This action cannot be undone.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline">Cancel</Button>
+                    </DialogClose>
+                    <Button variant="destructive" onClick={handleRemoveAll} className="gap-2">
+                      <Trash2 className="h-4 w-4" />
+                      Remove All
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
             </Field>
           );
         }}

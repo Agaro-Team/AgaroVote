@@ -51,7 +51,9 @@ const votingPoolSchema = z
         }
       ),
     isPrivate: z.boolean(),
-    allowedAddresses: z.array(z.string().min(1, 'Address cannot be empty')),
+    allowedAddresses: z
+      .array(z.string().min(1, 'Address cannot be empty'))
+      .max(500, 'Maximum 500 addresses allowed'),
     rewardShare: z.string().refine((val) => {
       const number = Number(val);
       return number >= 0;
