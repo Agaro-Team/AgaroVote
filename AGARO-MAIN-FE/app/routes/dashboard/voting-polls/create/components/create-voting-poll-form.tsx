@@ -37,7 +37,6 @@ export function CreateVotingPollForm() {
     verificationError,
     error,
     shouldRedirect,
-    onChainHash,
     offChainHash,
     storePollData,
   } = useCreatePoll();
@@ -122,7 +121,7 @@ export function CreateVotingPollForm() {
 
   // Handle successful transaction and show share modal
   useEffect(() => {
-    if (shouldRedirect && onChainHash) {
+    if (shouldRedirect) {
       setProgressStep('success');
 
       toast.success('Voting Pool Created Successfully!', {
@@ -139,7 +138,7 @@ export function CreateVotingPollForm() {
 
       return () => clearTimeout(timeout);
     }
-  }, [shouldRedirect, onChainHash]);
+  }, [shouldRedirect]);
 
   // Handle error
   useEffect(() => {
@@ -373,7 +372,6 @@ export function CreateVotingPollForm() {
           progressStep={progressStep}
           isSubmitting={isSubmitting}
           offChainHash={offChainHash}
-          onChainHash={onChainHash}
           verificationError={verificationError}
           error={error}
           onClose={() => setProgressStep('idle')}
@@ -381,7 +379,7 @@ export function CreateVotingPollForm() {
         />
 
         {/* Share Modal - Shows after successful creation */}
-        {onChainHash && (
+        {shouldRedirect && (
           <ShareVotingPollModal
             open={openShareModal}
             onOpenChange={setOpenShareModal}

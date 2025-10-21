@@ -57,7 +57,6 @@ export function useCreatePoll() {
   const { address: walletAddress } = useWeb3Wallet();
   const [shouldRedirect, setShouldRedirect] = useState(false);
   const [offChainHash, setOffChainHash] = useState<`0x${string}` | null>(null);
-  const [onChainHash, setOnChainHash] = useState<`0x${string}` | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const [pollData, setPollData] = useState<PollData | null>(null);
@@ -65,10 +64,23 @@ export function useCreatePoll() {
   const verificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
-    mutateAsync: storePoll,
+    mutate: storePoll,
     isPending: isCreatePollWeb2Pending,
     data: storePollData,
-  } = useMutation(createPollMutationOptions);
+  } = useMutation({
+    ...createPollMutationOptions,
+    onSuccess: () => {
+      refetchVersion();
+      setIsVerifying(false);
+      setShouldRedirect(true);
+    },
+    onError: (error) => {
+      console.error('Failed to store poll to backend:', error);
+      toast.error('Failed to store poll data', {
+        description: 'Blockchain transaction succeeded, but backend storage failed.',
+      });
+    },
+  });
 
   const hasConnected = !!chainId && !!walletAddress;
 
@@ -79,7 +91,20 @@ export function useCreatePoll() {
     isPending,
     isError,
     error,
-  } = useWriteEntryPointNewVotingPoll();
+  } = useWriteEntryPointNewVotingPoll({
+    mutation: {
+      onSuccess: () => {
+        if (!pollData || !offChainHashRef.current) return;
+        storePollToBackend(pollData, offChainHashRef.current);
+      },
+      onError: (error) => {
+        console.error('Failed to write contract transaction:', error);
+        toast.error('Failed to create voting poll', {
+          description: 'Blockchain transaction failed. Please try again.',
+        });
+      },
+    },
+  });
 
   const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
     address: getEntryPointAddress(chainId),
@@ -99,11 +124,11 @@ export function useCreatePoll() {
   });
 
   // Function to store poll data to backend after blockchain confirmation
-  const storePollToBackend = async (pollData: PollData, pollHash: `0x${string}`) => {
+  const storePollToBackend = (pollData: PollData, pollHash: `0x${string}`) => {
     if (!walletAddress) return;
 
     // Store to backend
-    await storePoll({
+    storePoll({
       title: pollData.title,
       description: pollData.description,
       choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
@@ -119,77 +144,7 @@ export function useCreatePoll() {
       rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
       isTokenRequired: pollData.isTokenRequired,
     });
-
-    refetchVersion();
-
-    // Set success states after backend storage
-    setOnChainHash(pollHash);
-    setIsVerifying(false);
-    setShouldRedirect(true);
   };
-
-  // Watch for VotingpollCreated event to verify hash
-  useWatchEntryPointVotingPollCreatedEvent({
-    address: getEntryPointAddress(chainId),
-    onError: (error) => {
-      if (isVerifying) {
-        setVerificationError(error instanceof Error ? error.message : 'Unknown error');
-        setIsVerifying(false);
-
-        // Clear timeout on error
-        if (verificationTimeoutRef.current) {
-          clearTimeout(verificationTimeoutRef.current);
-          verificationTimeoutRef.current = null;
-        }
-      }
-    },
-    onLogs: (logs) => {
-      logs.forEach((log, index) => {
-        const { pollHash: onChainHash } = log.args;
-
-        // Only proceed for the last log in the array
-        if (index !== logs.length - 1) {
-          return;
-        }
-
-        // Only verify if we have an off-chain hash waiting
-        if (!offChainHashRef.current || !onChainHash) {
-          return;
-        }
-
-        // Clear verification timeout
-        if (verificationTimeoutRef.current) {
-          clearTimeout(verificationTimeoutRef.current);
-          verificationTimeoutRef.current = null;
-        }
-
-        // Compare hashes
-        if (offChainHashRef.current !== onChainHash) {
-          // Hash mismatch - security alert!
-          setVerificationError(
-            'Off-chain and on-chain hashes do not match. This may indicate a security issue.'
-          );
-          setIsVerifying(false);
-
-          // Clear the reference after error
-          // offChainHashRef.current = null;
-          // setOffChainHash(null);
-        } else {
-          // Hashes match - success!
-          // Now store to backend after blockchain confirmation
-          if (!pollData || !walletAddress || !onChainHash) {
-            return;
-          }
-
-          toast.success('Hash verified successfully');
-
-          // Clear the reference (but keep state for UI to show success)
-          // offChainHashRef.current = null;
-          // DON'T clear offChainHash state - form needs it to detect success!
-        }
-      });
-    },
-  });
 
   /**
    * Create a new voting poll
@@ -311,25 +266,19 @@ export function useCreatePoll() {
 
   // Refetch version after successful poll creation
   // This is critical for replay attack prevention - version increments with each poll
-  useEffect(() => {
-    if (!pollData) {
-      return;
-    }
-    if (!offChainHashRef.current) {
-      return;
-    }
-    if (!isSuccess) {
-      return;
-    }
+  // useEffect(() => {
+  //   if (!pollData) {
+  //     return;
+  //   }
+  //   if (!offChainHashRef.current) {
+  //     return;
+  //   }
+  //   if (!isSuccess) {
+  //     return;
+  //   }
 
-    // Store to backend after blockchain transaction is confirmed
-    storePollToBackend(pollData, offChainHashRef.current).catch((error) => {
-      console.error('Failed to store poll to backend:', error);
-      toast.error('Failed to store poll data', {
-        description: 'Blockchain transaction succeeded, but backend storage failed.',
-      });
-    });
-  }, [isSuccess, pollData, offChainHashRef.current]);
+  //   // Store to backend after blockchain transaction is confirmed
+  // }, [isSuccess, pollData, offChainHashRef.current]);
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -350,7 +299,6 @@ export function useCreatePoll() {
     isError,
     error,
     txHash,
-    onChainHash,
     offChainHash,
     shouldRedirect,
     storePollData,

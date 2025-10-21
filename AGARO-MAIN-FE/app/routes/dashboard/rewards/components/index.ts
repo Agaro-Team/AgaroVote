@@ -7,4 +7,3 @@ export * from './pending-rewards-list';
 export * from './reward';
 export * from './reward-stats';
 export * from './reward-summary';
-export * from './rewards-tabs';

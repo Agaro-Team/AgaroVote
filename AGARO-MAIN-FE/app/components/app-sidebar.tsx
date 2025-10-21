@@ -73,20 +73,20 @@ const data = {
     },
     {
       title: 'Rewards',
-      url: '/dashboard/rewards',
+      url: '/dashboard/rewards/claimable',
       icon: Coins,
       items: [
         {
           title: 'Claimable',
-          url: '/dashboard/rewards?activeTab=claimable',
+          url: '/dashboard/rewards/claimable',
         },
         {
           title: 'Pending',
-          url: '/dashboard/rewards?activeTab=pending',
+          url: '/dashboard/rewards/pending',
         },
         {
           title: 'History',
-          url: '/dashboard/rewards?activeTab=history',
+          url: '/dashboard/rewards/history',
         },
       ],
     },
@@ -185,8 +185,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             <img src="/Logo-small.png" alt="AgaroVote Logo" className="h-8 w-full object-contain" />
           </picture>
 
-          <h1 className="text-2xl text-primary-foreground font-bold">
-            Agaro<span className="text-primary">Vote</span>
+          <h1 className="text-2xl text-muted-foreground dark:text-foreground font-bold">
+            Agaro<span className="text-primary ">Vote</span>
           </h1>
         </div>
       </SidebarHeader>

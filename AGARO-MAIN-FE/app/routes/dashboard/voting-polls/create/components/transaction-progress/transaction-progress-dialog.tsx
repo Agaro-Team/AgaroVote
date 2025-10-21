@@ -25,7 +25,6 @@ interface TransactionProgressDialogProps {
   progressStep: ProgressStep;
   isSubmitting: boolean;
   offChainHash?: string | null;
-  onChainHash?: string | null;
   verificationError?: string | null;
   error?: Error | null;
   onClose: () => void;
@@ -38,7 +37,6 @@ export function TransactionProgressDialog({
   progressStep,
   isSubmitting,
   offChainHash,
-  onChainHash,
   verificationError,
   error,
   onClose,

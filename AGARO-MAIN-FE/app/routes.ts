@@ -1,12 +1,27 @@
 import { type RouteConfig, index, layout, prefix, route } from '@react-router/dev/routes';
 
+const votingPollsRoutes = prefix('voting-polls', [
+  layout('routes/dashboard/voting-polls/layout.tsx', [
+    index('routes/dashboard/voting-polls/page.tsx'),
+    route('create', 'routes/dashboard/voting-polls/create/page.tsx'),
+    route(':id', 'routes/dashboard/voting-polls/$id/page.tsx'),
+  ]),
+]);
+
+const rewardsRoutes = prefix('rewards', [
+  layout('routes/dashboard/rewards/layout.tsx', [
+    index('routes/dashboard/rewards/index.tsx'),
+    route('claimable', 'routes/dashboard/rewards/claimable/page.tsx'),
+    route('pending', 'routes/dashboard/rewards/pending/page.tsx'),
+    route('history', 'routes/dashboard/rewards/history/page.tsx'),
+  ]),
+]);
+
 const dashboardRoutes = prefix('dashboard', [
   layout('routes/dashboard/layout.tsx', [
     index('routes/dashboard/page.tsx'),
-    route('voting-polls', 'routes/dashboard/voting-polls/page.tsx'),
-    route('voting-polls/create', 'routes/dashboard/voting-polls/create/page.tsx'),
-    route('voting-polls/:id', 'routes/dashboard/voting-polls/$id/page.tsx'),
-    route('rewards', 'routes/dashboard/rewards/page.tsx'),
+    ...votingPollsRoutes,
+    ...rewardsRoutes,
   ]),
 ]);
 
