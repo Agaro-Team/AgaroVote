@@ -7,7 +7,7 @@ async function main() {
   const provider = new ethers.JsonRpcProvider(process.env.AGARO_RPC_URL);
   const signer = new ethers.Wallet(process.env.AGARO_PRIVATE_KEY!, provider);
 
-  const amount = ethers.parseEther("1000");
+  const amount = ethers.parseEther("1000000");
   const agaroABI = [
     "function name() view returns (string)",
     "function symbol() view returns (string)",

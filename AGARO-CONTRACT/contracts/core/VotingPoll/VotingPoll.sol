@@ -54,7 +54,8 @@ contract VotingPoll is IVotingPoll {
                 voter,
                 _hashPoll,
                 poll.candidatesVotersCount,
-                poll.voterStorageHashLocation
+                poll.voterStorageHashLocation,
+                poll.pollVoterHash
             )
         );
         poll.pollVoterHash = newPollVoterHash;
