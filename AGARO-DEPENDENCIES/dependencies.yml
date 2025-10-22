@@ -10,9 +10,11 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "5432:5432"
+      - "5434:5432"
     volumes:
       - agaro_postgres_data:/var/lib/postgresql/data
+      - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
+    command: postgres -c listen_addresses='*' -c hba_file='/etc/postgresql/pg_hba.conf'
     networks:
       - agaro-network
     healthcheck:
@@ -44,6 +46,8 @@ services:
       --block-time 5
       --gas-limit 30000000
       --base-fee 1000000000
+      --fork-url http://localhost:8545
+      --state /home/foundry/.foundry/anvil/state.json
     ports:
       - "8545:8545"
     volumes:
