@@ -54,7 +54,7 @@ const MainContent = () => {
 
         {/* Description */}
         <BlurText
-          text="Enhances traditional voting systems by integrating Web3 technology, adding transparency, security, and value without replacing existing processes. By leveraging blockchain, AgaroVote ensures that every vote remains verifiable and tamper-proof, while maintaining the familiar structure and accessibility of current voting platforms."
+          text="Elevates traditional voting with Web3 transparency, security, and value. Keeping the system you trust while transforming every vote into something more: verifiable, tamper-proof, powerful, and rewarded. Here, your voice doesn’t just count — it earns, it grows, it gives back."
           delay={20}
           animateBy="words"
           direction="top"
