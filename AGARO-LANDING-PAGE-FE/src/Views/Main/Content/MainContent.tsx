@@ -54,7 +54,7 @@ const MainContent = () => {
 
         {/* Description */}
         <BlurText
-          text="Elevates traditional voting with Web3 transparency, security, and value. Keeping the system you trust while transforming every vote into something more: verifiable, tamper-proof, powerful, and rewarded. Here, your voice doesn’t just count — it earns, it grows, it gives back."
+          text="Elevates traditional voting with Web3 transparency, security, and value. Keeping the system you trust while transforming every vote into something more verifiable, tamper-proof, powerful and rewarded. Here, your voice doesn’t just count — it earns, it grows, it gives back."
           delay={20}
           animateBy="words"
           direction="top"
