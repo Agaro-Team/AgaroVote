@@ -46,6 +46,8 @@ services:
       --base-fee 1000000000
     ports:
       - "8545:8545"
+    volumes:
+      - agaro_anvil_data:/home/foundry/.foundry/anvil
     networks:
       - agaro-network
 
@@ -78,3 +80,5 @@ volumes:
     name: agaro_postgres_data
   agaro_redis_data:
     name: agaro_redis_data
+  agaro_anvil_data:
+    name: agaro_anvil_data
