@@ -115,7 +115,8 @@ describe("EntryPoint - Voting Functionality", function () {
         let pollHash: string;
 
         beforeEach(async function () {
-            const now = Math.floor(Date.now() / 1000);
+            const block = await hardhatEthers.provider.getBlock("latest");
+            const blockTime = block!.timestamp;
             const pollData = {
                 versioning: await entryPoint.version(),
                 title: "Voting Test Poll",
@@ -125,8 +126,8 @@ describe("EntryPoint - Voting Functionality", function () {
                 candidates: ["Yes", "No", "Maybe"],
                 candidatesTotal: 3,
                 expiry: {
-                    startDate: now,
-                    endDate: now + 3600 * 24 * 2,   // 2 days
+                    startDate: blockTime,
+                    endDate: blockTime + 3600 * 24 * 2,   // 2 days
                 },
                 rewardShare: 0,
                 isTokenRequired: false

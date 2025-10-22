@@ -27,6 +27,8 @@ struct VoteArgument {
 }
 
 struct VoterData {
+    uint256 index;
+    bytes32 proof;
     uint8 selected;
     uint256 commitedToken;
     bool isVoted;
@@ -40,6 +42,7 @@ struct PollData {
     address syntheticRewardContract;
     bytes32 pollVoterHash;
     CandidateData[] candidatesVotersCount;
+    uint256 count;
     bytes32 voterStorageHashLocation;
     VotingPollExpiry expiry;
     bool isTokenRequired;

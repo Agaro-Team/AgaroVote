@@ -44,7 +44,7 @@ contract VotingPoll is IVotingPoll {
         uint8 selected,
         uint256 commitToken,
         address voter
-    ) internal returns (bytes32) {
+    ) internal returns (bytes32, bytes32) {
         PollData storage poll = polls[_hashPoll];
 
         poll.candidatesVotersCount[selected].count++;
@@ -58,8 +58,9 @@ contract VotingPoll is IVotingPoll {
                 poll.pollVoterHash
             )
         );
+        bytes32 oldPollVoterHash = poll.pollVoterHash;
         poll.pollVoterHash = newPollVoterHash;
-        return newPollVoterHash;
+        return (oldPollVoterHash, newPollVoterHash);
     }
 
     function _new(
@@ -73,6 +74,7 @@ contract VotingPoll is IVotingPoll {
     ) internal returns (bytes32, bytes32) {
         bytes32 voterStorageHashLocation = keccak256(abi.encode(_pollHash));
         polls[_pollHash] = PollData({
+            count: 0,
             version: version,
             owner: owner,
             isPrivate: isPrivate,

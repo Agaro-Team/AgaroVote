@@ -68,15 +68,15 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
         PollData memory pollData = polls[_voteData.pollHash];
         _verifyVoterCredential(pollData, _voteData, msg.sender);
 
-        bytes32 newPollVoterHash = _incSelected(
+        (bytes32 oldPollVoterHash, bytes32 newPollVoterHash) = _incSelected(
             _voteData.pollHash,
             _voteData.candidateSelected,
             _voteData.commitToken,
             msg.sender
         );
 
-        _vote(storageLocation, msg.sender, _voteData);
-
+        _vote(pollData.count, storageLocation, msg.sender, _voteData, oldPollVoterHash);
+        pollData.count++;
         emit VoteSucceeded(
             _voteData.pollHash,
             _voteData.candidateSelected,
