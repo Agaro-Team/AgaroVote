@@ -23,9 +23,11 @@ import { PollResponseDto } from '../../application/dto/poll-response.dto';
 import { UpdatePollDto } from '../../application/dto/update-poll.dto';
 import { UpdateTransactionStatusDto } from '../../application/dto/update-transaction-status.dto';
 import { UpdateVoterHashDto } from '../../application/dto/update-voter-hash.dto';
-import { ActivatePollUseCase } from '../../application/use-cases/activate-poll.use-case';
 import { CheckVotingEligibilityUseCase } from '../../application/use-cases/check-voting-eligibility.use-case';
-import { CreatePollUseCase } from '../../application/use-cases/create-poll.use-case';
+import {
+  ActivatePollFromCacheUseCase,
+  StorePendingPollUseCase,
+} from '../../application/use-cases/create-poll-with-cache.use-case';
 import { DeletePollUseCase } from '../../application/use-cases/delete-poll.use-case';
 import { GetActivePollsPaginatedUseCase } from '../../application/use-cases/get-active-polls-paginated.use-case';
 import { GetAllPollsPaginatedUseCase } from '../../application/use-cases/get-all-polls-paginated.use-case';
@@ -40,7 +42,7 @@ import { UpdateVoterHashUseCase } from '../../application/use-cases/update-voter
 @Controller('polls')
 export class PollController {
   constructor(
-    private readonly createPollUseCase: CreatePollUseCase,
+    private readonly storePendingPollUseCase: StorePendingPollUseCase,
     private readonly getPollByIdUseCase: GetPollByIdUseCase,
     private readonly updatePollUseCase: UpdatePollUseCase,
     private readonly deletePollUseCase: DeletePollUseCase,
@@ -50,7 +52,7 @@ export class PollController {
     private readonly getOngoingPollsPaginatedUseCase: GetOngoingPollsPaginatedUseCase,
     private readonly getPollsByCreatorPaginatedUseCase: GetPollsByCreatorPaginatedUseCase,
     private readonly updatePollTransactionStatusUseCase: UpdatePollTransactionStatusUseCase,
-    private readonly activatePollUseCase: ActivatePollUseCase,
+    private readonly activatePollUseCase: ActivatePollFromCacheUseCase,
     private readonly updateVoterHashUseCase: UpdateVoterHashUseCase,
     private readonly getInvitedAddressesByPollPaginatedUseCase: GetInvitedAddressesByPollPaginatedUseCase,
   ) {}
@@ -60,7 +62,7 @@ export class PollController {
   async create(
     @Wallet() walletAddress: string,
     @Body() createPollDto: CreatePollDto,
-  ): Promise<PollResponseDto> {
+  ) {
     if (
       createPollDto.creatorWalletAddress.toLowerCase() !==
       walletAddress.toLowerCase()
@@ -69,8 +71,12 @@ export class PollController {
         'You can only create polls with your own wallet address',
       );
     }
-    const poll = await this.createPollUseCase.execute(createPollDto);
-    return PollResponseDto.fromEntity(poll, true);
+
+    await this.storePendingPollUseCase.execute(createPollDto, walletAddress);
+
+    return {
+      message: 'OK',
+    };
   }
 
   @Public()
@@ -184,7 +190,12 @@ export class PollController {
   async activate(
     @Body() activatePollDto: ActivatePollDto,
   ): Promise<PollResponseDto> {
-    const poll = await this.activatePollUseCase.execute(activatePollDto);
+    if (!activatePollDto.pollHash) {
+      throw new ForbiddenException('Poll hash is required');
+    }
+    const poll = await this.activatePollUseCase.execute(
+      activatePollDto.pollHash,
+    );
     return PollResponseDto.fromEntity(poll, true);
   }
 

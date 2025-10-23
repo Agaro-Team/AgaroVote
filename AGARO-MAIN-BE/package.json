@@ -29,6 +29,7 @@
     "schema:drop": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js schema:drop -d ./ormconfig.ts",
     "generate:module": "bash scripts/generate-module.sh",
     "generate:crud": "node scripts/generate-crud-module.js",
+    "redis:check": "node scripts/check-redis-connection.js",
     "ts:check": "tsc --noEmit"
   },
   "dependencies": {

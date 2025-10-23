@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, Global } from '@nestjs/common';
 import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import Keyv from 'keyv';
@@ -9,10 +9,12 @@ interface RedisConfig {
   host: string;
   port: number;
   password?: string;
+  tls?: boolean;
   ttl: number;
   max: number;
 }
 
+@Global() // Make this module global
 @Module({
   imports: [
     NestCacheModule.registerAsync({
@@ -26,10 +28,11 @@ interface RedisConfig {
           throw new Error('Redis configuration not found');
         }
 
-        // Build Redis connection URL
+        // Build Redis connection URL (use rediss:// for TLS)
+        const protocol = redisConfig.tls ? 'rediss' : 'redis';
         const redisUrl = redisConfig.password
-          ? `redis://:${redisConfig.password}@${redisConfig.host}:${redisConfig.port}`
-          : `redis://${redisConfig.host}:${redisConfig.port}`;
+          ? `${protocol}://:${redisConfig.password}@${redisConfig.host}:${redisConfig.port}`
+          : `${protocol}://${redisConfig.host}:${redisConfig.port}`;
 
         // Create Keyv instance with Redis store
         const keyv = new Keyv({
