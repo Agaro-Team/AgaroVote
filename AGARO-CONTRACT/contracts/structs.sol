@@ -33,6 +33,10 @@ struct VoterData {
     uint256 commitedToken;
     bool isVoted;
 }
+struct AdminData {
+    address admin;
+    bool isAdminAgreed;
+}
 
 struct PollData {
     uint256 version;

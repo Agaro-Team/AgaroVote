@@ -3,16 +3,30 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "../interfaces/ISecurity.sol";
+import "../structs.sol";
 
 contract Security is ISecurity, ReentrancyGuard {
-    address public admin;
-    bool private halted;
-    uint256 public commitThreshold;
     uint256 totalCommitedToken;
+    bool private halted;
+    AdminData[] public admin;
+    uint256 public commitThreshold;
     mapping(address => uint256) public committedAmount;
 
     modifier onlyAdmin() {
-        require(msg.sender == admin, "Not admin");
+        bool isAdmin;
+        for (uint8 i = 0; i < admin.length; i++) {
+            if (admin[i].admin == msg.sender) {
+                isAdmin = true;
+            }
+        }
+        require(isAdmin, "Not admin");
+        _;
+    }
+
+    modifier allAdminAgreed() {
+        for (uint8 i = 0; i < admin.length; i++) {
+            require(admin[i].isAdminAgreed, "Not all admin agreed");
+        }
         _;
     }
 
@@ -47,7 +61,7 @@ contract Security is ISecurity, ReentrancyGuard {
         return totalCommitedTokenOfUser;
     }
 
-    function haltAll() public onlyAdmin criticalActionAllowed {
+    function haltAll() public allAdminAgreed criticalActionAllowed {
         halted = true;
         emit SystemHalted(msg.sender);
     }
@@ -55,6 +69,55 @@ contract Security is ISecurity, ReentrancyGuard {
     function resumeAll() external onlyAdmin {
         halted = false;
         emit SystemResumed(msg.sender);
+    }
+
+    function agree() public onlyAdmin {
+        for (uint8 i = 0; i < admin.length; i++) {
+            if (admin[i].admin == msg.sender) {
+                admin[i] = AdminData({admin: msg.sender, isAdminAgreed: true});
+                break;
+            }
+        }
+    }
+
+    function resetConsensus() public onlyAdmin {
+        for (uint8 i = 0; i < admin.length; i++) {
+            admin[i] = AdminData({admin: msg.sender, isAdminAgreed: false});
+        }
+    }
+
+    function adminOps(string memory option, address _admin) public onlyAdmin {
+        bytes32 opt = keccak256(abi.encodePacked(option));
+
+        if (opt == keccak256("add")) {
+            require(admin.length < 5, "Max admin 5.");
+            for (uint i = 0; i < admin.length; i++) {
+                require(admin[i].admin != _admin, "Admin already exists");
+            }
+            admin.push(AdminData({admin: _admin, isAdminAgreed: false}));
+        } else if (opt == keccak256("remove")) {
+            require(_admin != msg.sender, "Cannot remove self");
+            AdminData[] memory newAdmin = new AdminData[](admin.length - 1);
+            uint8 found;
+
+            unchecked {
+                for (uint8 i = 0; i < admin.length; i++) {
+                    uint8 index = i - found;
+                    if (admin[i].admin == _admin) {
+                        found++;
+                        continue;
+                    }
+                    newAdmin[index] = admin[i];
+                }
+
+                delete admin;
+                for (uint i = 0; i < newAdmin.length; i++) {
+                    admin.push(newAdmin[i]);
+                }
+            }
+        } else {
+            revert("Invalid admin operation");
+        }
     }
 
     function isHalted() external view returns (bool) {

@@ -82,20 +82,6 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 isTokenRequired: false
             };
 
-            const expectedPollHash = ethers.keccak256(ethers.AbiCoder.defaultAbiCoder().encode(
-                ["string", "string", "string[]", "uint8", "uint256", "address"],
-                [pollData.title, pollData.description, pollData.candidates, pollData.candidatesTotal, 0, owner.address]
-            ));
-
-            const expectedVoterStorageHash = ethers.keccak256(
-                ethers.AbiCoder.defaultAbiCoder().encode(
-                    ["bytes32"],
-                    [expectedPollHash]
-                )
-            );
-
-            const expectedVotesArray = Array(pollData.candidatesTotal).fill(ethers.toBigInt(0));
-
             await expect(entryPoint.newVotingPoll(pollData))
                 .to.emit(entryPoint, "VotingPollCreated");
         });

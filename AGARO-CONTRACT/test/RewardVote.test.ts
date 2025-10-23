@@ -107,7 +107,8 @@ describe("EntryPoint - Extended Functionality", function () {
     });
 
     it("Should revert when isTokenRequired = true but commitToken == 0", async function () {
-        const now = Math.floor(Date.now() / 1000);
+        const currentBlock = await hardhatEthers.provider.getBlock("latest");
+        const jumpTime = currentBlock!.timestamp + 86400;
         const pollData = {
             versioning: await entryPoint.version(),
             title: "Token Required Poll",
@@ -117,8 +118,8 @@ describe("EntryPoint - Extended Functionality", function () {
             candidates: ["A", "B"],
             candidatesTotal: 2,
             expiry: {
-                startDate: now,
-                endDate: now + 3600,
+                startDate: currentBlock!.timestamp,
+                endDate: jumpTime,
             },
             rewardShare: 0,
             isTokenRequired: true,

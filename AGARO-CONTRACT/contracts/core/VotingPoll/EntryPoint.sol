@@ -31,7 +31,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
         merkleTreeAllowListImplementation = _merkleTreeAllowListImplementation;
         syntheticRewardImplementation = _syntheticRewardImplementation;
         token = IAGARO(_token);
-        admin = msg.sender;
+        admin.push(AdminData({admin: msg.sender, isAdminAgreed: false}));
     }
 
     function newVotingPoll(
