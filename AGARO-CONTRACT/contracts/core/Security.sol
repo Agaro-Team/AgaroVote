@@ -23,29 +23,31 @@ contract Security is ISecurity, ReentrancyGuard {
 
     modifier criticalActionAllowed() {
         require(
-            commitThreshold > totalCommitedToken,
-            "Locked due to high commitment"
+            totalCommitedToken > commitThreshold,
+            "Commited Token is bellow treshold"
         );
         _;
     }
 
-    function _commitSecurity(uint256 amount) internal nonReentrant {
+    function setCommitTreshold(uint256 threshold) public onlyAdmin {
+        commitThreshold = threshold;
+    }
+
+    function _commitSecurity(uint256 amount) internal {
         require(amount > 0, "Invalid amount");
         committedAmount[msg.sender] += amount;
         totalCommitedToken += amount;
         emit TokenCommitted(msg.sender, amount);
     }
 
-    function _withdrawSecurity(
-        address sender
-    ) internal nonReentrant returns (uint256) {
+    function _withdrawSecurity(address sender) internal returns (uint256) {
         uint256 totalCommitedTokenOfUser = committedAmount[sender];
         require(totalCommitedTokenOfUser > 0, "Invalid amount");
         committedAmount[sender] = 0;
         return totalCommitedTokenOfUser;
     }
 
-    function haltAll() external criticalActionAllowed {
+    function haltAll() public onlyAdmin criticalActionAllowed {
         halted = true;
         emit SystemHalted(msg.sender);
     }
