@@ -120,7 +120,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
 
     function withdrawSecurity() public nonReentrant {
         uint256 amountToTransfer = _withdrawSecurity(msg.sender);
-        token.transferFrom(address(this), msg.sender, amountToTransfer);
+        token.transfer(msg.sender, amountToTransfer);
     }
 
     function _verifyVoteData(

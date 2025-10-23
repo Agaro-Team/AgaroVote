@@ -74,7 +74,7 @@ contract Security is ISecurity, ReentrancyGuard {
     function agree() public onlyAdmin {
         for (uint8 i = 0; i < admin.length; i++) {
             if (admin[i].admin == msg.sender) {
-                admin[i] = AdminData({admin: msg.sender, isAdminAgreed: true});
+                admin[i].isAdminAgreed = true;
                 break;
             }
         }
@@ -82,7 +82,7 @@ contract Security is ISecurity, ReentrancyGuard {
 
     function resetConsensus() public onlyAdmin {
         for (uint8 i = 0; i < admin.length; i++) {
-            admin[i] = AdminData({admin: msg.sender, isAdminAgreed: false});
+            admin[i].isAdminAgreed = false;
         }
     }
 
