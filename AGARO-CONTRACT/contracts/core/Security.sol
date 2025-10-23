@@ -29,17 +29,19 @@ contract Security is ISecurity, ReentrancyGuard {
         _;
     }
 
-    function commitSecurity(uint256 amount) internal nonReentrant {
+    function _commitSecurity(uint256 amount) internal nonReentrant {
         require(amount > 0, "Invalid amount");
         committedAmount[msg.sender] += amount;
         totalCommitedToken += amount;
         emit TokenCommitted(msg.sender, amount);
     }
 
-    function withdrawSecurity() external nonReentrant returns (uint256) {
-        uint256 totalCommitedTokenOfUser = committedAmount[msg.sender];
+    function _withdrawSecurity(
+        address sender
+    ) internal nonReentrant returns (uint256) {
+        uint256 totalCommitedTokenOfUser = committedAmount[sender];
         require(totalCommitedTokenOfUser > 0, "Invalid amount");
-        committedAmount[msg.sender] = 0;
+        committedAmount[sender] = 0;
         return totalCommitedTokenOfUser;
     }
 

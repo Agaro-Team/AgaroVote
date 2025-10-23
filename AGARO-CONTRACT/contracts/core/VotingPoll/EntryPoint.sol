@@ -5,6 +5,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./VotingPoll.sol";
 import "./VoterStorage.sol";
+import "../Security.sol";
 import "../MerkleTree/MerkleTreeAllowList.sol";
 import "../SyntheticReward/SyntheticReward.sol";
 import "../../lib/VotingPollDataArgumentLib.sol";
@@ -13,7 +14,7 @@ import "../../interfaces/MerkleTree/IMerkleTreeAllowList.sol";
 import "../../interfaces/SyntheticReward/ISyntheticReward.sol";
 import "../../interfaces/VotingPoll/IEntryPoint.sol";
 
-contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
+contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
     // using SafeERC20 for IERC20;
     using VotingPollDataLib for VotingPollDataArgument;
     using Clones for address;
@@ -30,9 +31,12 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
         merkleTreeAllowListImplementation = _merkleTreeAllowListImplementation;
         syntheticRewardImplementation = _syntheticRewardImplementation;
         token = IAGARO(_token);
+        admin = msg.sender;
     }
 
-    function newVotingPoll(VotingPollDataArgument calldata _pollData) external {
+    function newVotingPoll(
+        VotingPollDataArgument calldata _pollData
+    ) external systemActive {
         if (_pollData.versioning != version)
             revert VersioningError(_pollData.versioning);
 
@@ -63,7 +67,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
             );
     }
 
-    function vote(VoteArgument calldata _voteData) external {
+    function vote(VoteArgument calldata _voteData) external systemActive {
         bytes32 storageLocation = _verifyVoteData(_voteData);
         PollData memory pollData = polls[_voteData.pollHash];
         _verifyVoterCredential(pollData, _voteData, msg.sender);
@@ -75,7 +79,13 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
             msg.sender
         );
 
-        _vote(pollData.count, storageLocation, msg.sender, _voteData, oldPollVoterHash);
+        _vote(
+            pollData.count,
+            storageLocation,
+            msg.sender,
+            _voteData,
+            oldPollVoterHash
+        );
         pollData.count++;
         emit VoteSucceeded(
             _voteData.pollHash,
@@ -86,7 +96,12 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
         );
     }
 
-    function withdraw(bytes32 _pollHash) external {
+    function commitSecurity(uint256 amountToCommit) public nonReentrant {
+        token.transferFrom(msg.sender, address(this), amountToCommit);
+        _commitSecurity(amountToCommit);
+    }
+
+    function withdraw(bytes32 _pollHash) external systemActive {
         PollData memory pollData = polls[_pollHash];
 
         if (
@@ -101,6 +116,11 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint {
         ).withdraw(msg.sender);
 
         emit WithdrawSucceeded(_pollHash, principalToken, rewards, msg.sender);
+    }
+
+    function withdrawSecurity() public nonReentrant {
+        uint256 amountToTransfer = _withdrawSecurity(msg.sender);
+        token.transferFrom(address(this), msg.sender, amountToTransfer);
     }
 
     function _verifyVoteData(
