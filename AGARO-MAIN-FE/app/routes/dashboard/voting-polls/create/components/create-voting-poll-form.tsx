@@ -11,7 +11,6 @@ import { useAppForm } from '~/components/form/use-app-form';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
 import { endOfDay, startOfDay } from '~/lib/date-utils';
-import { parseWagmiErrorForToast } from '~/lib/web3/error-parser';
 
 import { useEffect, useState } from 'react';
 
@@ -165,7 +164,7 @@ export function CreateVotingPollForm() {
             form.handleSubmit();
           }}
         >
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             {/* Section 1: Basic Information */}
             <Card className="p-6 border-l-4 border-l-primary">
               <div className="space-y-6">
@@ -176,7 +175,7 @@ export function CreateVotingPollForm() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-6">
                   {/* Title Field */}
                   <form.AppField name="title">
                     {(field) => (
@@ -229,90 +228,81 @@ export function CreateVotingPollForm() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+                <div className="space-y-6">
                   {/* Voting Period Field */}
-                  <div className="col-span-1 sm:col-span-2">
-                    <form.AppField
-                      name="votingPeriod"
-                      children={(field) => (
-                        <field.DatePickerRangeField
-                          label="Voting Period"
-                          placeholder="Select voting start and end dates"
-                          description="Choose when voting starts and when it ends"
-                          disabled={isSubmitting}
-                          fromDate={new Date()} // Can't select past dates
-                          numberOfMonths={2}
-                        />
-                      )}
-                    />
-                  </div>
+                  <form.AppField
+                    name="votingPeriod"
+                    children={(field) => (
+                      <field.DatePickerRangeField
+                        label="Voting Period"
+                        placeholder="Select voting start and end dates"
+                        description="Choose when voting starts and when it ends"
+                        disabled={isSubmitting}
+                        fromDate={new Date()} // Can't select past dates
+                        numberOfMonths={2}
+                      />
+                    )}
+                  />
 
                   {/* Reward Share Field */}
-                  <div className="col-span-1">
-                    <form.AppField name="rewardShare">
-                      {(field) => (
-                        <field.NumberField
-                          label="Reward Share"
-                          placeholder="0"
-                          description="Enter the reward share amount"
-                          formatValue={(value) => {
-                            // Format for display: add thousand separators
-                            if (!value || value === '') return '';
-                            const numValue = Number(value);
-                            if (isNaN(numValue)) return value;
-                            return Intl.NumberFormat('en-US').format(numValue);
-                          }}
-                          formatValueOnChange={(value) => {
-                            // Remove all non-numeric characters except decimals for storage
-                            const cleaned = value.replace(/[^\d.]/g, '');
-                            // Prevent multiple decimal points
-                            const parts = cleaned.split('.');
-                            if (parts.length > 2) {
-                              return parts[0] + '.' + parts.slice(1).join('');
-                            }
-                            return cleaned;
-                          }}
-                          disabled={isSubmitting}
-                        />
-                      )}
-                    </form.AppField>
-                  </div>
+                  <form.AppField name="rewardShare">
+                    {(field) => (
+                      <field.NumberField
+                        label="Reward Share"
+                        placeholder="0"
+                        description="Enter the reward share amount"
+                        formatValue={(value) => {
+                          // Format for display: add thousand separators
+                          if (!value || value === '') return '';
+                          const numValue = Number(value);
+                          if (isNaN(numValue)) return value;
+                          return Intl.NumberFormat('en-US').format(numValue);
+                        }}
+                        formatValueOnChange={(value) => {
+                          // Remove all non-numeric characters except decimals for storage
+                          const cleaned = value.replace(/[^\d.]/g, '');
+                          // Prevent multiple decimal points
+                          const parts = cleaned.split('.');
+                          if (parts.length > 2) {
+                            return parts[0] + '.' + parts.slice(1).join('');
+                          }
+                          return cleaned;
+                        }}
+                        disabled={isSubmitting}
+                      />
+                    )}
+                  </form.AppField>
 
                   {/* Private Pool Switch */}
-                  <div className="col-span-1">
-                    <form.AppField
-                      name="isPrivate"
-                      children={(field) => (
-                        <field.SwitchField
-                          label="Private Pool"
-                          orientation="vertical"
-                          description="Restrict pool visibility and access"
-                          disabled={isSubmitting}
-                        />
-                      )}
-                    />
-                  </div>
+                  <form.AppField
+                    name="isPrivate"
+                    children={(field) => (
+                      <field.SwitchField
+                        label="Private Pool"
+                        orientation="vertical"
+                        description="Restrict pool visibility and access"
+                        disabled={isSubmitting}
+                      />
+                    )}
+                  />
 
                   {/* Require Token */}
-                  <div className="col-span-1">
-                    <form.AppField
-                      name="isTokenRequired"
-                      children={(field) => (
-                        <field.SwitchField
-                          label="Token Required"
-                          orientation="vertical"
-                          description="Require voters to commit a token to vote"
-                          disabled={isSubmitting}
-                        />
-                      )}
-                    />
-                  </div>
+                  <form.AppField
+                    name="isTokenRequired"
+                    children={(field) => (
+                      <field.SwitchField
+                        label="Token Required"
+                        orientation="vertical"
+                        description="Require voters to commit a token to vote"
+                        disabled={isSubmitting}
+                      />
+                    )}
+                  />
                 </div>
               </div>
             </Card>
 
             {/* Section 4: Access Control */}
-
             <Card className="p-6 border-l-4 border-l-amber-500">
               <div className="space-y-6">
                 <div className="space-y-2">
@@ -327,7 +317,7 @@ export function CreateVotingPollForm() {
             </Card>
 
             {/* Action Buttons */}
-            <Card className="p-6 bg-muted/50 col-span-1 md:col-span-2">
+            <Card className="p-6 bg-muted/50">
               <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   <form.SubmitButton

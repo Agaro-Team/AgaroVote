@@ -18,7 +18,7 @@ export class ApiError extends Error {
 export const createApiClient = (options?: CreateAxiosDefaults): AxiosInstance => {
   const client = axios.create({
     baseURL: 'https://jsonplaceholder.typicode.com', // TODO: Adjust this
-    timeout: 10000,
+    timeout: 50000,
     headers: {
       'Content-Type': 'application/json',
     },
