@@ -5,6 +5,7 @@ import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
 import { ConfigModule } from '@config/config.module';
 import { DatabaseModule } from '@shared/infrastructure/database/database.module';
+import { CacheModule } from '@shared/infrastructure/cache';
 import { AllExceptionsFilter } from '@shared/presentation/filters/http-exception.filter';
 import { TransformInterceptor } from '@shared/presentation/interceptors/transform.interceptor';
 import { ValidationPipe } from '@shared/presentation/pipes/validation.pipe';
@@ -21,6 +22,7 @@ import { DashboardModule } from './modules/dashboard/dashboard.module';
   imports: [
     ConfigModule,
     DatabaseModule,
+    CacheModule, // Redis Cache Module
     // Rate limiting - prevent spam and DDoS attacks
     ThrottlerModule.forRoot([
       {
