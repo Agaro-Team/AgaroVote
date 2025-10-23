@@ -34,6 +34,12 @@ interface ProgressStep {
 
 const PROGRESS_STEPS: ProgressStep[] = [
   {
+    id: 'database-storage',
+    label: 'Storing Vote Data',
+    description: 'Recording your vote in our database',
+    icon: Database,
+  },
+  {
     id: 'wallet-confirmation',
     label: 'Wallet Confirmation',
     description: 'Waiting for you to confirm in your wallet',
@@ -50,12 +56,6 @@ const PROGRESS_STEPS: ProgressStep[] = [
     label: 'Blockchain Confirmation',
     description: 'Waiting for network confirmation',
     icon: Shield,
-  },
-  {
-    id: 'database-storage',
-    label: 'Storing Vote Data',
-    description: 'Recording your vote in our database',
-    icon: Database,
   },
   {
     id: 'complete',
