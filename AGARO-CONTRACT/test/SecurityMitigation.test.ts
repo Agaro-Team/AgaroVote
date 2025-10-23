@@ -124,4 +124,30 @@ describe("Security Contract", function () {
 
         expect(await entryPoint.connect(owner).adminOps("remove", await user1.getAddress())).not.to.be.revert;
     });
+    it("should allow all admins to agree and reset consensus correctly", async function () {
+        await entryPoint.connect(owner).adminOps("add", await user1.getAddress());
+
+        const adminDataAfterAdd = await entryPoint.admin(1);
+        expect(adminDataAfterAdd.isAdminAgreed).to.equal(false);
+
+        await entryPoint.connect(owner).agree();
+        const admin0 = await entryPoint.admin(0);
+        expect(admin0.isAdminAgreed).to.equal(true);
+
+        await entryPoint.connect(user1).agree();
+        const admin1 = await entryPoint.admin(1);
+        expect(admin1.isAdminAgreed).to.equal(true);
+
+        for (let i = 0; i < 2; i++) {
+            const data = await entryPoint.admin(i);
+            expect(data.isAdminAgreed).to.equal(true);
+        }
+
+        await entryPoint.connect(owner).resetConsensus();
+
+        for (let i = 0; i < 2; i++) {
+            const data = await entryPoint.admin(i);
+            expect(data.isAdminAgreed).to.equal(false);
+        }
+    });
 });
