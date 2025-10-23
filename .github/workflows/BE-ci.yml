@@ -83,6 +83,7 @@ jobs:
                 --network agaro-network \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
                 --env-file ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }} \
+                -v /etc/letsencrypt/live/ardial.tech/:/etc/letsencrypt/live/ardial.tech/ \
                 ${{ env.DOCKER_IMAGE }}:latest
             '
           "
