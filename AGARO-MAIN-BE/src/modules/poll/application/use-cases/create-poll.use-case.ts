@@ -22,6 +22,10 @@ import {
   TransactionStatus,
 } from '@modules/poll/domain/entities/poll.entity';
 
+/**
+ * @deprecated Use StorePendingPollUseCase and ActivatePollFromCacheUseCase instead
+ * Use case for creating a new poll
+ */
 @Injectable()
 export class CreatePollUseCase {
   constructor(

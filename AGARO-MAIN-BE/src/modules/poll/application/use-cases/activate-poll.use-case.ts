@@ -14,6 +14,10 @@ import {
 } from '@modules/poll/domain/entities/poll.entity';
 import { ActivatePollDto } from '../dto/activate-poll.dto';
 
+/**
+ * @deprecated Use ActivatePollFromCacheUseCase instead
+ * Use case for creating a new poll
+ */
 @Injectable()
 export class ActivatePollUseCase {
   constructor(
