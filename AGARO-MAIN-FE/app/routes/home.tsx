@@ -11,6 +11,10 @@ import { useWeb3Wallet } from '~/hooks/use-web3';
 
 import type { Route } from './+types/home';
 
+export const handle = {
+  breadcrumb: 'AgaroVote',
+};
+
 export function meta({}: Route.MetaArgs) {
   return [
     { title: 'AgaroVote - Decentralized Voting Platform' },

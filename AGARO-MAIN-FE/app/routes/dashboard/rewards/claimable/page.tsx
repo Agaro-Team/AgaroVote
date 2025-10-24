@@ -8,6 +8,10 @@ import { Suspense } from 'react';
 import { ClaimableRewardsList } from '../components/claimable-rewards-list';
 import { RewardSkeletonList } from '../components/reward-skeleton-list';
 
+export const handle = {
+  breadcrumb: 'Claimable',
+};
+
 export default function ClaimableRewardsPage() {
   return (
     <Suspense fallback={<RewardSkeletonList />}>

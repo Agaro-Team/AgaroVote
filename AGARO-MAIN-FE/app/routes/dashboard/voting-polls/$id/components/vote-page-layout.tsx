@@ -91,7 +91,7 @@ type VoteGridProps = React.ComponentProps<'div'>;
 export const VoteGrid = ({ children, className, ...props }: VoteGridProps) => {
   return (
     <div
-      className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-12', className)}
+      className={cn('grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-12', className)}
       {...props}
     >
       {children}
