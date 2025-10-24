@@ -15,6 +15,17 @@ import "../../interfaces/MerkleTree/IMerkleTreeAllowList.sol";
 import "../../interfaces/SyntheticReward/ISyntheticReward.sol";
 import "../../interfaces/VotingPoll/IEntryPoint.sol";
 
+/**
+ * @title EntryPoint Contract
+ * @author Agaro Protocol Team
+ * @notice Main entry point for the AgaroVote decentralized voting platform with blockchain-verified data integrity
+ * @dev Implements voting poll creation, voting mechanism, reward distribution, and tier-based fee system.
+ * Integrates with MerkleTree for whitelisting, SyntheticReward for token distribution, and AGR token for platform fees.
+ * Uses Clones pattern for gas-efficient deployment of auxiliary contracts.
+ * @custom:version 1.0.0
+ * @custom:security-contact security@agaro.io
+ * @custom:standard ERC-20 (AGR Token), Clones Pattern, Merkle Tree Verification
+ */
 contract EntryPoint is
     VotingPoll,
     VoterStorage,
@@ -30,6 +41,16 @@ contract EntryPoint is
     address public immutable syntheticRewardImplementation;
     IAGARO public immutable token;
 
+    /**
+     * @notice Initializes the EntryPoint contract with tier configuration and implementation addresses
+     * @dev Sets up 10 tiers with varying discounts and AGR holding requirements, initializes platform fee,
+     * minimum hold requirements, base incentives, and deploys implementation contracts for cloning
+     * @param _merkleTreeAllowListImplementation Address of the MerkleTreeAllowList implementation for cloning
+     * @param _syntheticRewardImplementation Address of the SyntheticReward implementation for cloning
+     * @param _token Address of the AGR ERC-20 token contract
+     * @custom:tier-structure Tier 1 (5% discount, 100 AGR) to Tier 10 (100% discount, 100,000 AGR)
+     * @custom:platform-fee Default platform fee is 5 AGR tokens
+     */
     constructor(
         address _merkleTreeAllowListImplementation,
         address _syntheticRewardImplementation,
@@ -100,6 +121,13 @@ contract EntryPoint is
         admin.push(AdminData({admin: msg.sender, isAdminAgreed: false}));
     }
 
+    /**
+     * @notice Internal function to process platform fee payment from poll creator
+     * @dev Transfers platform fee in AGR tokens from sender to contract
+     * @param sender Address of the user creating the poll
+     * @return bool True if payment successful, false if insufficient balance
+     * @custom:security Checks balance before transfer to prevent revert
+     */
     function _payFee(address sender) private returns (bool) {
         if (token.balanceOf(sender) < platformFee) return false;
         token.transferFrom(sender, address(this), platformFee);
@@ -107,12 +135,32 @@ contract EntryPoint is
         return true;
     }
 
+    /**
+     * @notice Withdraws accumulated platform fees with automatic burn mechanism
+     * @dev Burns 20% of collected fees and transfers remaining 80% to admin caller
+     * @custom:access-control Only callable by admin addresses
+     * @custom:tokenomics Implements deflationary mechanism by burning 20% of fees
+     * @custom:event Emits AGR token Transfer events for burn and withdrawal
+     */
     function withdrawFee() public onlyAdmin {
         uint256 tokenToBurn = (token.balanceOf(address(this)) * 20) / 100;
         token.burn(tokenToBurn);
         token.transfer(msg.sender, token.balanceOf(address(this)));
     }
 
+    /**
+     * @notice Creates a new voting poll with optional token requirements and whitelist
+     * @dev Deploys clone contracts for MerkleTree and SyntheticReward if needed,
+     * validates fee payment, tier limits, and versioning before poll creation
+     * @param _pollData Struct containing poll configuration (candidates, expiry, privacy, rewards, etc.)
+     * @custom:requirements
+     * - Caller must have sufficient AGR tokens for platform fee
+     * - Caller must not exceed daily poll creation limit based on tier
+     * - If token-required poll, rewardShare must be > 0
+     * - Poll versioning must match current contract version
+     * @custom:gas-optimization Uses Clones pattern for auxiliary contract deployment
+     * @custom:event Emits VotingPollCreated with poll hash, storage location, and reward contract address
+     */
     function newVotingPoll(
         VotingPollDataArgument calldata _pollData
     ) external systemActive {
@@ -157,6 +205,19 @@ contract EntryPoint is
             );
     }
 
+    /**
+     * @notice Casts a vote in a specific poll for a selected candidate
+     * @dev Validates voter credentials, merkle proof (if private poll), timing, token commitment,
+     * and updates vote counts atomically
+     * @param _voteData Struct containing pollHash, candidateSelected, commitToken, and merkle proofs
+     * @custom:requirements
+     * - Poll must exist and be active (within start/end date)
+     * - Voter must be whitelisted (if private poll with merkle root)
+     * - If poll requires tokens, commitToken must be > 0
+     * - Voter must not have already voted in this poll
+     * @custom:security Uses merkle proof verification for private polls
+     * @custom:event Emits VoteSucceeded with poll hash, candidate index, token amount, and voter hash
+     */
     function vote(VoteArgument calldata _voteData) external systemActive {
         bytes32 storageLocation = _verifyVoteData(_voteData);
         PollData memory pollData = polls[_voteData.pollHash];
@@ -186,11 +247,28 @@ contract EntryPoint is
         );
     }
 
+    /**
+     * @notice Commits AGR tokens to the security pool for system stability
+     * @dev Transfers tokens from caller to contract and records security commitment
+     * @param amountToCommit Amount of AGR tokens to commit to security pool
+     * @custom:security Protected by nonReentrant modifier to prevent reentrancy attacks
+     * @custom:access-control Public function, any address can commit security tokens
+     */
     function commitSecurity(uint256 amountToCommit) public nonReentrant {
         token.transferFrom(msg.sender, address(this), amountToCommit);
         _commitSecurity(amountToCommit);
     }
 
+    /**
+     * @notice Withdraws rewards and principal tokens from a completed poll
+     * @dev Verifies caller has voted in the poll, then claims rewards from SyntheticReward contract
+     * @param _pollHash Unique identifier of the poll to withdraw from
+     * @custom:requirements
+     * - Caller must have voted in the specified poll
+     * - Poll must have an associated SyntheticReward contract
+     * - System must be active
+     * @custom:event Emits WithdrawSucceeded with poll hash, principal amount, rewards, and recipient
+     */
     function withdraw(bytes32 _pollHash) external systemActive {
         PollData memory pollData = polls[_pollHash];
 
@@ -208,11 +286,27 @@ contract EntryPoint is
         emit WithdrawSucceeded(_pollHash, principalToken, rewards, msg.sender);
     }
 
+    /**
+     * @notice Withdraws committed security tokens from the security pool
+     * @dev Calculates withdrawable amount and transfers AGR tokens back to caller
+     * @custom:security Protected by nonReentrant modifier to prevent reentrancy attacks
+     * @custom:access-control Public function, only caller's own security commitment is withdrawable
+     */
     function withdrawSecurity() public nonReentrant {
         uint256 amountToTransfer = _withdrawSecurity(msg.sender);
         token.transfer(msg.sender, amountToTransfer);
     }
 
+    /**
+     * @notice Internal function to verify vote data integrity and poll existence
+     * @dev Validates poll hash exists, candidate index is valid, and voter storage is bound
+     * @param _voteData Vote argument containing poll hash and candidate selection
+     * @return bytes32 Storage location hash for the voter in this poll
+     * @custom:reverts
+     * - PollHashDoesNotExist if poll hash not found
+     * - CandidateDoesNotExist if candidate index exceeds candidates array
+     * - PollDoesNotHaveVoterStorage if storage binding missing
+     */
     function _verifyVoteData(
         VoteArgument memory _voteData
     ) private view returns (bytes32) {
@@ -235,6 +329,18 @@ contract EntryPoint is
         return storageLocation;
     }
 
+    /**
+     * @notice Internal function to verify voter's credentials and eligibility to vote
+     * @dev Checks merkle proof (if private), timing window, and token commitment requirements
+     * @param _pollData Poll configuration data including merkle root and expiry
+     * @param _voteData Vote argument with proofs and commit token amount
+     * @param sender Address of the voter attempting to cast vote
+     * @custom:reverts
+     * - AddressIsNotAllowed if merkle proof verification fails (private polls)
+     * - VotingIsNotActive if current time outside poll's start/end window
+     * - PollNeedsCommitToken if token-required poll but commitToken is 0
+     * @custom:side-effects Calls SyntheticReward.commit() if tokens committed
+     */
     function _verifyVoterCredential(
         PollData memory _pollData,
         VoteArgument memory _voteData,
@@ -272,6 +378,14 @@ contract EntryPoint is
         }
     }
 
+    /**
+     * @notice Internal function to deploy a new MerkleTreeAllowList clone contract
+     * @dev Uses OpenZeppelin Clones library for gas-efficient minimal proxy deployment
+     * @param root Merkle root hash for whitelist verification
+     * @return newClone Address of the newly deployed MerkleTreeAllowList clone
+     * @custom:pattern Clones Pattern (EIP-1167) for minimal proxy deployment
+     * @custom:gas-optimization Significantly cheaper than deploying full contract
+     */
     function _createMerkleAllowlist(
         bytes32 root
     ) private returns (address newClone) {
@@ -279,6 +393,13 @@ contract EntryPoint is
         MerkleTreeAllowlist(newClone).initialize(address(this), root);
     }
 
+    /**
+     * @notice Internal function to initialize merkle root contract if needed
+     * @dev Creates MerkleTreeAllowList clone only if merkle root hash is provided
+     * @param merkleRootHash Root hash for whitelist, or bytes32(0) for public polls
+     * @return address Address of deployed MerkleTreeAllowList, or address(0) if public poll
+     * @custom:optimization Avoids deployment cost for public polls
+     */
     function _initMerkleRootContract(
         bytes32 merkleRootHash
     ) private returns (address) {
@@ -290,6 +411,15 @@ contract EntryPoint is
         return merkleRootContract;
     }
 
+    /**
+     * @notice Internal function to deploy a new SyntheticReward clone contract
+     * @dev Uses Clones pattern to deploy minimal proxy, initializes with poll parameters
+     * @param rewardShare Total reward tokens to distribute (creator contribution + incentives)
+     * @param expiry Poll expiry configuration with start/end timestamps
+     * @return newClone Address of the newly deployed SyntheticReward clone
+     * @custom:pattern Clones Pattern (EIP-1167) for gas-efficient deployment
+     * @custom:calculation Duration = endDate - startDate for reward vesting calculation
+     */
     function _createSyntheticReward(
         uint256 rewardShare,
         VotingPollExpiry memory expiry
@@ -304,6 +434,18 @@ contract EntryPoint is
         );
     }
 
+    /**
+     * @notice Internal function to initialize and fund SyntheticReward contract for poll
+     * @dev Calculates incentives based on creator's AGR holdings, deploys reward contract,
+     * and transfers tokens (creator's rewardShare + protocol-minted incentives)
+     * @param rewardShare Amount of AGR tokens creator commits to reward pool
+     * @param expiry Poll timing configuration for duration calculation
+     * @param sender Address of poll creator (token source)
+     * @return address Address of deployed SyntheticReward contract, or address(0) if no rewards
+     * @custom:reverts insufficientBalance if sender balance < rewardShare
+     * @custom:incentives Minted by protocol based on holder tier (tier 1/5/10 thresholds)
+     * @custom:tokenomics Combines creator contribution + protocol incentives for total reward pool
+     */
     function _initSyntheticRewardContract(
         uint256 rewardShare,
         VotingPollExpiry memory expiry,
@@ -337,6 +479,17 @@ contract EntryPoint is
         return rewardContract;
     }
 
+    /**
+     * @notice Internal function to verify voter address against merkle proof
+     * @dev Calls MerkleTreeAllowList contract to validate proof inclusion
+     * @param cont Address of the MerkleTreeAllowList contract to verify against
+     * @param proofs Array of merkle proof hashes for verification
+     * @param pollHash Poll identifier for error reporting
+     * @param voter Address to verify in whitelist
+     * @return bool True if address is allowed (proof valid)
+     * @custom:reverts AddressIsNotAllowed if merkle proof verification fails
+     * @custom:security Critical security check for private polls
+     */
     function _verifyAddressWithProof(
         address cont,
         bytes32[] memory proofs,
@@ -353,20 +506,55 @@ contract EntryPoint is
         return isAllowed;
     }
 
+    /**
+     * @notice Updates the platform fee for poll creation
+     * @dev Sets new fee amount in AGR tokens (wei denomination)
+     * @param _fee New platform fee amount in AGR token wei
+     * @custom:access-control Only callable by admin addresses
+     * @custom:governance Fee changes affect all future poll creations
+     */
     function setPlatformFee(uint256 _fee) public onlyAdmin {
         platformFee = _fee;
     }
 
+    /**
+     * @notice Updates base incentive amounts for different tier levels
+     * @dev Sets reward multipliers for tier 1, tier 5, and tier 10 holders
+     * @param _baseIncentives Struct containing tier1, tier5, tier10 incentive amounts in AGR wei
+     * @custom:access-control Only callable by admin addresses
+     * @custom:governance Affects protocol-minted rewards for future polls
+     * @custom:tokenomics Higher tiers receive proportionally larger incentive multipliers
+     */
     function setBaseIncentives(
         BaseIncentives memory _baseIncentives
     ) public onlyAdmin {
         baseIncentives = _baseIncentives;
     }
 
+    /**
+     * @notice Updates minimum AGR token holding requirement for incentive eligibility
+     * @dev Sets threshold balance required to receive protocol-minted incentives
+     * @param _minHold Minimum AGR token balance (in wei) required for incentives
+     * @custom:access-control Only callable by admin addresses
+     * @custom:governance Affects incentive eligibility for all future polls
+     * @custom:threshold Default is 100 AGR tokens (100 * 10^18 wei)
+     */
     function setMinHold(uint256 _minHold) public onlyAdmin {
         minHold = _minHold;
     }
 
+    /**
+     * @notice Updates tier configuration with new parameters
+     * @dev Modifies discount rate, minimum AGR holding requirement, and daily poll limit for a tier
+     * @param _tier Tier number (1-10) to update
+     * @param _discount Discount percentage on platform fee (0-100, where 100 = free)
+     * @param _minHoldAGR Minimum AGR token balance required to qualify for this tier (in wei)
+     * @param _maxPollingPerDay Maximum polls user can create per day at this tier
+     * @custom:access-control Only callable by admin addresses
+     * @custom:validation Requires tier number between 1 and 10 (inclusive)
+     * @custom:governance Changes affect all users qualifying for the tier immediately
+     * @custom:example Tier 10: 100% discount, 100,000 AGR minimum, unlimited daily polls
+     */
     function updateTier(
         uint8 _tier,
         uint8 _discount,
