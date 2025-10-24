@@ -103,7 +103,7 @@ describe("Security Contract", function () {
     it("should withdraw committed tokens successfully", async function () {
         const amount = ethers.parseEther("200");
         await entryPoint.connect(user1).commitSecurity(amount);
-        await expect(entryPoint.connect(user1).withdrawSecurity()).not.to.be.revert;
+        expect(await entryPoint.connect(user1).withdrawSecurity()).not.to.be.revert;
     });
     it("should allow adding and removing admin and all agreeing", async function () {
         await entryPoint.connect(owner).adminOps("add", await user1.getAddress());

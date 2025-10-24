@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/proxy/Clones.sol";
 import "./VotingPoll.sol";
 import "./VoterStorage.sol";
 import "../Security.sol";
+import "../AgaroTierSystem.sol";
 import "../MerkleTree/MerkleTreeAllowList.sol";
 import "../SyntheticReward/SyntheticReward.sol";
 import "../../lib/VotingPollDataArgumentLib.sol";
@@ -14,7 +15,13 @@ import "../../interfaces/MerkleTree/IMerkleTreeAllowList.sol";
 import "../../interfaces/SyntheticReward/ISyntheticReward.sol";
 import "../../interfaces/VotingPoll/IEntryPoint.sol";
 
-contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
+contract EntryPoint is
+    VotingPoll,
+    VoterStorage,
+    IEntryPoint,
+    Security,
+    AgaroTierSystem
+{
     // using SafeERC20 for IERC20;
     using VotingPollDataLib for VotingPollDataArgument;
     using Clones for address;
@@ -28,15 +35,93 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
         address _syntheticRewardImplementation,
         address _token
     ) {
+        tiers[1] = Tier({
+            discount: 5,
+            minHoldAGR: 100000000000000000000,
+            maxPollingPerDay: 1
+        });
+        tiers[2] = Tier({
+            discount: 10,
+            minHoldAGR: 500000000000000000000,
+            maxPollingPerDay: 2
+        });
+        tiers[3] = Tier({
+            discount: 15,
+            minHoldAGR: 1000000000000000000000,
+            maxPollingPerDay: 3
+        });
+        tiers[4] = Tier({
+            discount: 20,
+            minHoldAGR: 2500000000000000000000,
+            maxPollingPerDay: 4
+        });
+        tiers[5] = Tier({
+            discount: 25,
+            minHoldAGR: 5000000000000000000000,
+            maxPollingPerDay: 5
+        });
+        tiers[6] = Tier({
+            discount: 30,
+            minHoldAGR: 10000000000000000000000,
+            maxPollingPerDay: 6
+        });
+        tiers[7] = Tier({
+            discount: 40,
+            minHoldAGR: 20000000000000000000000,
+            maxPollingPerDay: 7
+        });
+        tiers[8] = Tier({
+            discount: 60,
+            minHoldAGR: 50000000000000000000000,
+            maxPollingPerDay: 8
+        });
+        tiers[9] = Tier({
+            discount: 80,
+            minHoldAGR: 75000000000000000000000,
+            maxPollingPerDay: 9
+        });
+        tiers[10] = Tier({
+            discount: 100,
+            minHoldAGR: 100000000000000000000000,
+            maxPollingPerDay: type(uint256).max
+        });
+
+        platformFee = 5000000000000000000;
+        minHold = 100000000000000000000;
+        baseIncentives = BaseIncentives({
+            tier1: 50000000000000000000,
+            tier5: 88000000000000000000,
+            tier10: 200000000000000000000
+        });
+
         merkleTreeAllowListImplementation = _merkleTreeAllowListImplementation;
         syntheticRewardImplementation = _syntheticRewardImplementation;
         token = IAGARO(_token);
         admin.push(AdminData({admin: msg.sender, isAdminAgreed: false}));
     }
 
+    function _payFee(address sender) private returns (bool) {
+        if (token.balanceOf(sender) > platformFee) return false;
+        token.transferFrom(sender, address(this), platformFee);
+
+        return true;
+    }
+
+    function withdrawFee() public onlyAdmin {
+        uint256 tokenToBurn = (token.balanceOf(address(this)) * 20) / 100;
+        token.burn(tokenToBurn);
+        token.transfer(msg.sender, token.balanceOf(address(this)));
+    }
+
     function newVotingPoll(
         VotingPollDataArgument calldata _pollData
     ) external systemActive {
+        require(_payFee(msg.sender), "Insufficient Fee");
+        require(
+            canCreatePoll(msg.sender, token.balanceOf(msg.sender)),
+            "Exceeded max create poll"
+        );
+
         if (_pollData.versioning != version)
             revert VersioningError(_pollData.versioning);
 
@@ -56,7 +141,7 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
         );
 
         _bind(pollHash, voterStorageHashLocation);
-
+        _recordPollCreation(msg.sender);
         if (!_pollData.isPrivate)
             emit VotingPollCreated(
                 version,
@@ -201,26 +286,6 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
         return merkleRootContract;
     }
 
-    function _addAdditionalReward(
-        uint256 rewardShare,
-        uint256 creatorBalances
-    ) private pure returns (uint256, uint256) {
-        uint256 bonus = 0;
-        if (creatorBalances >= 10_000 * 1e18) {
-            bonus = 110 * 1e18;
-        } else if (creatorBalances >= 50_00_0 * 1e18) {
-            bonus = 60 * 1e18;
-        } else if (creatorBalances >= 25_000 * 1e18) {
-            bonus = 30 * 1e18;
-        } else if (creatorBalances >= 10_000 * 1e18) {
-            bonus = 15 * 1e18;
-        } else if (creatorBalances >= 5_000 * 1e18) {
-            bonus = 10 * 1e18;
-        }
-
-        return (rewardShare, bonus);
-    }
-
     function _createSyntheticReward(
         uint256 rewardShare,
         VotingPollExpiry memory expiry
@@ -238,25 +303,30 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
     function _initSyntheticRewardContract(
         uint256 rewardShare,
         VotingPollExpiry memory expiry,
-        address creator
+        address sender
     ) private returns (address) {
         address rewardContract = address(0);
-        uint256 creatorBalances = token.balanceOf(creator);
-        if (creatorBalances < rewardShare) {
-            revert insufficientBalance(creator);
+        uint256 senderBalances = token.balanceOf(sender);
+        if (senderBalances < rewardShare) {
+            revert insufficientBalance(sender);
         }
-        (uint256 reward, uint256 bonus) = _addAdditionalReward(
-            rewardShare,
-            creatorBalances
-        );
 
-        uint256 total = reward + bonus;
+        uint256 incentives;
+        if (senderBalances > minHold) {
+            incentives = _calculateMintIncentives(
+                senderBalances,
+                expiry.endDate - expiry.startDate
+            );
+        }
+
+        uint256 total = rewardShare + incentives;
         if (total > 0) {
             rewardContract = _createSyntheticReward(total, expiry);
-
-            token.transferFrom(creator, rewardContract, rewardShare);
-            if (bonus > 0) {
-                token.mint(rewardContract, bonus);
+            if (rewardShare > 0) {
+                token.transferFrom(sender, rewardContract, rewardShare);
+            }
+            if (incentives > 0) {
+                token.mint(rewardContract, incentives);
             }
         }
 
@@ -277,5 +347,33 @@ contract EntryPoint is VotingPoll, VoterStorage, IEntryPoint, Security {
         if (!isAllowed) revert AddressIsNotAllowed(voter, pollHash);
 
         return isAllowed;
+    }
+
+    function setPlatformFee(uint256 _fee) public onlyAdmin {
+        platformFee = _fee;
+    }
+
+    function setBaseIncentives(
+        BaseIncentives memory _baseIncentives
+    ) public onlyAdmin {
+        baseIncentives = _baseIncentives;
+    }
+
+    function setMinHold(uint256 _minHold) public onlyAdmin {
+        minHold = _minHold;
+    }
+
+    function updateTier(
+        uint8 _tier,
+        uint8 _discount,
+        uint256 _minHoldAGR,
+        uint256 _maxPollingPerDay
+    ) public onlyAdmin {
+        require(_tier >= 1 && _tier <= 10, "Tier must be 1-10");
+        tiers[_tier] = Tier({
+            discount: _discount,
+            minHoldAGR: _minHoldAGR,
+            maxPollingPerDay: _maxPollingPerDay
+        });
     }
 }

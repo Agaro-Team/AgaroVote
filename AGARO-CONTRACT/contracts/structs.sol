@@ -19,11 +19,28 @@ struct VotingPollExpiry {
     uint256 endDate;
 }
 
+struct BaseIncentives {
+    uint256 tier1;
+    uint256 tier5;
+    uint256 tier10;
+}
+
 struct VoteArgument {
     bytes32 pollHash;
     uint8 candidateSelected;
     bytes32[] proofs;
     uint256 commitToken;
+}
+
+struct Tier {
+    uint8 discount;
+    uint256 maxPollingPerDay;
+    uint256 minHoldAGR;
+}
+
+struct UserPollData {
+    uint256 lastResetTime;
+    uint256 pollsCreated;
 }
 
 struct VoterData {

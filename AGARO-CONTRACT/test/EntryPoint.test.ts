@@ -9,10 +9,8 @@ describe("EntryPoint - Voting Poll Creation", function () {
     let merkleTreeAllowListContract: any;
     let syntheticRewardContract: any;
     let agaroERC20Contract: any;
-    let owner: any;
 
     beforeEach(async function () {
-        [owner] = await hardhatEthers.getSigners();
         merkleTreeAllowListContract = await hardhatEthers.deployContract("MerkleTreeAllowlist");
         syntheticRewardContract = await hardhatEthers.deployContract("SyntheticReward");
         agaroERC20Contract = await hardhatEthers.deployContract("AGARO");

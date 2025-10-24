@@ -47,6 +47,16 @@ contract AGARO is IERC20, ReentrancyGuard {
         return true;
     }
 
+    function burn(uint256 _amount) external nonReentrant {
+        require(
+            balanceOf[msg.sender] >= _amount,
+            "Insufficient balance to burn"
+        );
+        balanceOf[msg.sender] -= _amount;
+        totalSupply -= _amount;
+        emit Transfer(msg.sender, address(0), _amount);
+    }
+
     function _transfer(
         address _from,
         address _to,
