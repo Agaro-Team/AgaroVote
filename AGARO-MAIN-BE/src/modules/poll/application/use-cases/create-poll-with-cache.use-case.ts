@@ -23,6 +23,7 @@ import {
   TransactionStatus,
 } from '@modules/poll/domain/entities/poll.entity';
 import { CacheService } from '@shared/infrastructure/cache';
+import { ActivatePollDto } from '@/modules/poll/application/dto/activate-poll.dto';
 
 /**
  * Use case for storing poll data temporarily in Redis cache
@@ -98,7 +99,22 @@ export class ActivatePollFromCacheUseCase {
     private readonly cacheService: CacheService,
   ) {}
 
-  async execute(pollHash: string): Promise<Poll> {
+  async execute(activatePollDto: ActivatePollDto): Promise<Poll> {
+    if (!activatePollDto.pollHash) {
+      throw new BadRequestException('Poll hash is required');
+    }
+
+    if (!activatePollDto.syntheticRewardContractAddress) {
+      throw new BadRequestException(
+        'Synthetic reward contract address is required',
+      );
+    }
+
+    // Store variables for easier access
+    const pollHash = activatePollDto.pollHash;
+    const syntheticRewardContractAddress =
+      activatePollDto.syntheticRewardContractAddress;
+
     // Generate cache key
     const cacheKey = this.cacheService.generateKey('pending-poll', pollHash);
 
@@ -165,6 +181,7 @@ export class ActivatePollFromCacheUseCase {
       isPrivate: pollData.isPrivate ?? false,
       isTokenRequired: pollData.isTokenRequired ?? false,
       rewardShare: getRewardShare(),
+      syntheticRewardContractAddress,
     });
 
     // Create choices

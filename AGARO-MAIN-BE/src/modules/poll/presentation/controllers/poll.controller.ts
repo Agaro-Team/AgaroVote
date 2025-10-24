@@ -190,12 +190,7 @@ export class PollController {
   async activate(
     @Body() activatePollDto: ActivatePollDto,
   ): Promise<PollResponseDto> {
-    if (!activatePollDto.pollHash) {
-      throw new ForbiddenException('Poll hash is required');
-    }
-    const poll = await this.activatePollUseCase.execute(
-      activatePollDto.pollHash,
-    );
+    const poll = await this.activatePollUseCase.execute(activatePollDto);
     return PollResponseDto.fromEntity(poll, true);
   }
 
