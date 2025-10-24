@@ -135,10 +135,11 @@ const Timeline = () => {
                       ease: 'easeOut',
                     }}
                     viewport={{ once: true, amount: 0.3 }}
-                    className={`relative flex items-center
-                      flex-row
-                      md:${isEven ? 'flex-row' : 'flex-row-reverse'}
-                    `}>
+                    className={`relative flex items-center ${
+                      isEven
+                        ? 'flex-row md:flex-row'
+                        : 'flex-row md:flex-row-reverse'
+                    }`}>
                     {/* Card */}
                     <div
                       className={`w-full md:max-w-[50%] md:-mt-4 ${
