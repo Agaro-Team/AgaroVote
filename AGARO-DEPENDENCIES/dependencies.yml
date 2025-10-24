@@ -82,13 +82,16 @@ services:
         "/etc/redis/ssl/privkey.pem",
         "--tls-ca-cert-file",
         "/etc/redis/ssl/chain.pem",
+        "--tls-auth-clients",
+        "no",
       ]
     ports:
-      - "127.0.0.1:8882:8882"
+      - "8882:8882"
     volumes:
       - agaro_redis_data:/data
       - ./certs/:/etc/redis/ssl/
-
+    extra_hosts:
+      - "ardial.tech:127.0.0.1"
     networks:
       - agaro-network
     healthcheck:
