@@ -83,6 +83,17 @@ services:
       timeout: 5s
       retries: 5
 
+  agaro-redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: agaro-redisinsight
+    restart: unless-stopped
+    ports:
+      - "8883:8883"
+    volumes:
+      - agaro_redisinsight_data:/db
+    depends_on:
+      - agaro-redis
+
 networks:
   agaro-network:
     name: agaro-network
@@ -95,3 +106,5 @@ volumes:
     name: agaro_redis_data
   agaro_anvil_data:
     name: agaro_anvil_data
+  agaro_redisinsight_data:
+    name: agaro_redisinsight_data
