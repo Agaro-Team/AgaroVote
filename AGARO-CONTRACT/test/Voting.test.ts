@@ -14,14 +14,16 @@ describe("EntryPoint - Voting Functionality", function () {
     let merkleTreeAllowListContract: any;
     let syntheticRewardContract: any;
     let agaroERC20Contract: any;
-    let voter1: any, voter2: any, voter3: any;
+    let deployer: any, voter1: any, voter2: any, voter3: any;
 
     beforeEach(async function () {
-        [voter1, voter2, voter3] = await hardhatEthers.getSigners();
+        [deployer, voter1, voter2, voter3] = await hardhatEthers.getSigners();
         merkleTreeAllowListContract = await hardhatEthers.deployContract("MerkleTreeAllowlist");
         syntheticRewardContract = await hardhatEthers.deployContract("SyntheticReward");
         agaroERC20Contract = await hardhatEthers.deployContract("AGARO");
         entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleTreeAllowListContract.getAddress(), await syntheticRewardContract.getAddress(), await agaroERC20Contract.getAddress()]);
+        await agaroERC20Contract.mint(await deployer.getAddress(), ethers.parseEther("100000"));
+
     });
 
     describe("Voting Poll Creation", function () {
@@ -43,7 +45,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const votingPollEvent = receipt?.logs.find((log: any) => {
@@ -90,7 +92,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const votingPollEvent = receipt?.logs.find((log: any) => {
@@ -133,7 +135,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const votingPollEvent = receipt?.logs.find((log: any) => {
@@ -295,7 +297,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const votingPollEvent = receipt.logs.find((log: any) => {
@@ -363,7 +365,7 @@ describe("EntryPoint - Voting Functionality", function () {
 
             const proofs = tree.getHexProof(keccak256(voter1.address));
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
             const votingPollEvent = receipt.logs.find((log: any) => {
                 try {
@@ -413,7 +415,7 @@ describe("EntryPoint - Voting Functionality", function () {
 
             const proofs = tree.getHexProof(keccak256(voter1.address));
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
             const votingPollEvent = receipt.logs.find((log: any) => {
                 try {
@@ -462,7 +464,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const votingPollEvent = receipt?.logs.find((log: any) => {
@@ -511,7 +513,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const votingPollEvent = receipt?.logs.find((log: any) => {
@@ -603,7 +605,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx1 = await entryPoint.newVotingPoll(pollData);
+            const tx1 = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt1 = await tx1.wait();
 
             const votingPollEvent = receipt1?.logs.find((log: any) => {
@@ -648,7 +650,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const votingPollEvent = receipt.logs.find((log: any) => {
@@ -697,7 +699,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const votingPollEvent = receipt.logs.find((log: any) => {
@@ -745,7 +747,7 @@ describe("EntryPoint - Voting Functionality", function () {
                 isTokenRequired: false
             };
 
-            await expect(entryPoint.newVotingPoll(pollData))
+            await expect(entryPoint.connect(deployer).newVotingPoll(pollData))
                 .to.be.revertedWithCustomError(entryPoint, "VersioningError")
                 .withArgs(
                     1

@@ -26,7 +26,7 @@ describe("EntryPoint - AgaroTierSystem Public Integration", function () {
         await entryPoint.waitForDeployment();
 
         await agaroERC20Contract.mint(await deployer.getAddress(), ethers.parseEther("100000"));
-        await agaroERC20Contract.mint(await voter1.getAddress(), ethers.parseEther("1000"));
+        await agaroERC20Contract.mint(await voter1.getAddress(), ethers.parseEther("1010"));
     });
     describe("Access Control", function () {
         it("Should revert when non-admin tries to update tier", async function () {
@@ -138,7 +138,7 @@ describe("EntryPoint - AgaroTierSystem Public Integration", function () {
                 isTokenRequired: false,
             };
 
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) {
                 pollData.versioning = await entryPoint.version();
                 await expect(entryPoint.connect(voter1).newVotingPoll(pollData))
                     .to.emit(entryPoint, "VotingPollCreated");
@@ -163,7 +163,7 @@ describe("EntryPoint - AgaroTierSystem Public Integration", function () {
                 isTokenRequired: false,
             };
 
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < 2; i++) {
                 pollData.versioning = await entryPoint.version();
                 await entryPoint.connect(voter1).newVotingPoll(pollData);
             }

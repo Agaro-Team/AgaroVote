@@ -48,7 +48,7 @@ contract VotingPoll is IVotingPoll {
         PollData storage poll = polls[_hashPoll];
 
         poll.candidatesVotersCount[selected].count++;
-        poll.candidatesVotersCount[selected].count += commitToken;
+        poll.candidatesVotersCount[selected].commitToken += commitToken;
         bytes32 newPollVoterHash = keccak256(
             abi.encode(
                 voter,

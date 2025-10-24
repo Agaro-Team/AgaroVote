@@ -40,34 +40,29 @@ contract AgaroTierSystem is IAgaroTierSystem {
 
     function _recordPollCreation(address sender) internal {
         UserPollData storage data = lastCreatedPoll[sender];
+        data.pollsCreated += 1;
+    }
+
+    function _checkTimeValidity(address sender) internal {
+        UserPollData storage data = lastCreatedPoll[sender];
         uint256 nowTime = block.timestamp;
 
         if (nowTime >= data.lastResetTime + 86400) {
             data.lastResetTime = nowTime;
-            data.pollsCreated = 1;
-        } else {
-            data.pollsCreated += 1;
+            data.pollsCreated = 0;
         }
-    }
-
-    function getPollsInLast24Hours(
-        address sender
-    ) private view returns (uint256) {
-        UserPollData memory data = lastCreatedPoll[sender];
-        if (block.timestamp >= data.lastResetTime + 86400) {
-            return 0;
-        }
-        return data.pollsCreated;
     }
 
     function canCreatePoll(
         address sender,
         uint256 holdAmount
-    ) internal view returns (bool) {
+    ) internal returns (bool) {
+        _checkTimeValidity(sender);
+
+        UserPollData storage data = lastCreatedPoll[sender];
         uint8 tierLevel = _normalizeTier(holdAmount);
         Tier memory userTier = tiers[tierLevel];
-        uint256 created = getPollsInLast24Hours(sender);
-        return created < userTier.maxPollingPerDay;
+        return data.pollsCreated < userTier.maxPollingPerDay;
     }
 
     function _timestampToMonths(

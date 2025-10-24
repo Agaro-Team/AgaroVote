@@ -28,7 +28,6 @@ contract VoterStorage is IVoterStorage {
                 storageLocation,
                 voter
             );
-
         pollStorageVoters[storageLocation][voter] = VoterData({
             index: count,
             selected: _voteArgument.candidateSelected,

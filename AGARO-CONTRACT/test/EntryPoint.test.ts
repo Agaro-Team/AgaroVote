@@ -9,12 +9,15 @@ describe("EntryPoint - Voting Poll Creation", function () {
     let merkleTreeAllowListContract: any;
     let syntheticRewardContract: any;
     let agaroERC20Contract: any;
+    let deployer: any;
 
     beforeEach(async function () {
+        [deployer] = await hardhatEthers.getSigners();
         merkleTreeAllowListContract = await hardhatEthers.deployContract("MerkleTreeAllowlist");
         syntheticRewardContract = await hardhatEthers.deployContract("SyntheticReward");
         agaroERC20Contract = await hardhatEthers.deployContract("AGARO");
         entryPoint = await hardhatEthers.deployContract("EntryPoint", [await merkleTreeAllowListContract.getAddress(), await syntheticRewardContract.getAddress(), await agaroERC20Contract.getAddress()]);
+        await agaroERC20Contract.mint(await deployer.getAddress(), ethers.parseEther("100000"));
     });
 
     describe("Deployment", function () {
@@ -46,7 +49,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const hasEvent = receipt.logs.some((log: any) => {
@@ -80,7 +83,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 isTokenRequired: false
             };
 
-            await expect(entryPoint.newVotingPoll(pollData))
+            await expect(entryPoint.connect(deployer).newVotingPoll(pollData))
                 .to.emit(entryPoint, "VotingPollCreated");
         });
 
@@ -103,7 +106,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
             };
 
             expect(await entryPoint.version()).to.equal(0);
-            await entryPoint.newVotingPoll(pollData);
+            await entryPoint.connect(deployer).newVotingPoll(pollData);
             expect(await entryPoint.version()).to.equal(1);
         });
 
@@ -166,7 +169,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 isTokenRequired: false
             };
 
-            await expect(entryPoint.newVotingPoll(pollData))
+            await expect(entryPoint.connect(deployer).newVotingPoll(pollData))
                 .to.emit(entryPoint, "VotingPollCreated");
         });
 
@@ -188,7 +191,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 isTokenRequired: false
             };
 
-            await expect(entryPoint.newVotingPoll(pollData))
+            await expect(entryPoint.connect(deployer).newVotingPoll(pollData))
                 .to.emit(entryPoint, "VotingPollCreated");
         });
 
@@ -211,7 +214,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 isTokenRequired: false
             };
 
-            await expect(entryPoint.newVotingPoll(pollData))
+            await expect(entryPoint.connect(deployer).newVotingPoll(pollData))
                 .to.emit(entryPoint, "VotingPollCreated");
         });
 
@@ -256,7 +259,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             expect(receipt?.gasUsed).to.be.lessThan(500000);
@@ -280,7 +283,7 @@ describe("EntryPoint - Voting Poll Creation", function () {
                 isTokenRequired: false
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const event = receipt?.logs.find((log: any) => {

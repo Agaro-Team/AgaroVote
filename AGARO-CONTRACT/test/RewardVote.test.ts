@@ -46,7 +46,7 @@ describe("EntryPoint - Extended Functionality", function () {
             isTokenRequired: false,
         };
 
-        const tx = await entryPoint.newVotingPoll(pollData);
+        const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
         const receipt = await tx.wait();
 
         const event = receipt.logs.find((log: any) => {
@@ -88,7 +88,7 @@ describe("EntryPoint - Extended Functionality", function () {
             isTokenRequired: false,
         };
 
-        const tx = await entryPoint.newVotingPoll(pollData);
+        const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
         const receipt = await tx.wait();
 
         const event = receipt.logs.find((log: any) => {
@@ -121,11 +121,11 @@ describe("EntryPoint - Extended Functionality", function () {
                 startDate: currentBlock!.timestamp,
                 endDate: jumpTime,
             },
-            rewardShare: 0,
+            rewardShare: ethers.parseEther("1"),
             isTokenRequired: true,
         };
 
-        const tx = await entryPoint.newVotingPoll(pollData);
+        const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
         const receipt = await tx.wait();
 
         const event = receipt.logs.find((log: any) => {
@@ -164,7 +164,7 @@ describe("EntryPoint - Extended Functionality", function () {
                 startDate: now,
                 endDate: now + 3600 * 24,
             },
-            rewardShare: 0,
+            rewardShare: ethers.parseEther("1"),
             isTokenRequired: true,
         };
 
@@ -185,7 +185,7 @@ describe("EntryPoint - Extended Functionality", function () {
             pollHash,
             candidateSelected: 0,
             proofs: [ethers.ZeroHash],
-            commitToken: 1,
+            commitToken: ethers.parseEther("500"),
         };
 
         await expect(entryPoint.connect(voter1).vote(voteData))
@@ -212,7 +212,7 @@ describe("EntryPoint - Extended Functionality", function () {
                 isTokenRequired: true, // Require commit tokens
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const event = receipt.logs.find((log: any) => {
@@ -279,7 +279,7 @@ describe("EntryPoint - Extended Functionality", function () {
                 isTokenRequired: true,
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const event = receipt.logs.find((log: any) => {
@@ -351,7 +351,7 @@ describe("EntryPoint - Extended Functionality", function () {
                 isTokenRequired: true,
             };
 
-            const tx = await entryPoint.newVotingPoll(pollData);
+            const tx = await entryPoint.connect(deployer).newVotingPoll(pollData);
             const receipt = await tx.wait();
 
             const event = receipt.logs.find((log: any) => {

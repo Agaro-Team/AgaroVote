@@ -101,7 +101,7 @@ contract EntryPoint is
     }
 
     function _payFee(address sender) private returns (bool) {
-        if (token.balanceOf(sender) > platformFee) return false;
+        if (token.balanceOf(sender) < platformFee) return false;
         token.transferFrom(sender, address(this), platformFee);
 
         return true;
@@ -121,7 +121,12 @@ contract EntryPoint is
             canCreatePoll(msg.sender, token.balanceOf(msg.sender)),
             "Exceeded max create poll"
         );
-
+        if (_pollData.isTokenRequired) {
+            require(
+                _pollData.rewardShare != 0,
+                "Need reward share for every token commit"
+            );
+        }
         if (_pollData.versioning != version)
             revert VersioningError(_pollData.versioning);
 
@@ -163,7 +168,6 @@ contract EntryPoint is
             _voteData.commitToken,
             msg.sender
         );
-
         _vote(
             pollData.count,
             storageLocation,
@@ -171,6 +175,7 @@ contract EntryPoint is
             _voteData,
             oldPollVoterHash
         );
+
         pollData.count++;
         emit VoteSucceeded(
             _voteData.pollHash,
@@ -233,7 +238,7 @@ contract EntryPoint is
     function _verifyVoterCredential(
         PollData memory _pollData,
         VoteArgument memory _voteData,
-        address voter
+        address sender
     ) private {
         address cont = _pollData.merkleRootContract;
         if (cont != address(0))
@@ -241,7 +246,7 @@ contract EntryPoint is
                 cont,
                 _voteData.proofs,
                 _voteData.pollHash,
-                voter
+                sender
             );
 
         if (
@@ -259,11 +264,10 @@ contract EntryPoint is
                 _voteData.pollHash,
                 _voteData.commitToken
             );
-
         if (_voteData.commitToken > 0) {
             ISyntheticReward(_pollData.syntheticRewardContract).commit(
                 _voteData.commitToken,
-                voter
+                sender
             );
         }
     }
