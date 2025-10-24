@@ -7,6 +7,7 @@ import {
   SidebarFooter,
   SidebarHeader,
   SidebarRail,
+  useSidebar,
 } from '~/components/ui/sidebar';
 
 import * as React from 'react';
@@ -176,18 +177,36 @@ const data = {
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { state } = useSidebar();
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <div className="flex items-center gap-2 px-2 pt-4">
-          <picture>
-            <source srcSet="/Logo-small.png" type="image/png" />
-            <img src="/Logo-small.png" alt="AgaroVote Logo" className="h-8 w-full object-contain" />
-          </picture>
+          {state === 'collapsed' ? (
+            <picture className="h-8 w-8">
+              <source srcSet="/Logo-small.png" type="image/png" />
+              <img
+                src="/Logo-small.png"
+                alt="AgaroVote Logo"
+                className="h-8 w-full object-contain"
+              />
+            </picture>
+          ) : (
+            <>
+              <picture className="h-8 w-8">
+                <source srcSet="/Logo-small.png" type="image/png" />
+                <img
+                  src="/Logo-small.png"
+                  alt="AgaroVote Logo"
+                  className="h-8 w-full object-contain"
+                />
+              </picture>
 
-          <h1 className="text-2xl text-muted-foreground dark:text-foreground font-bold">
-            Agaro<span className="text-primary ">Vote</span>
-          </h1>
+              <h1 className="text-2xl text-muted-foreground dark:text-foreground font-bold">
+                Agaro<span className="text-primary ">Vote</span>
+              </h1>
+            </>
+          )}
         </div>
       </SidebarHeader>
       <SidebarContent>

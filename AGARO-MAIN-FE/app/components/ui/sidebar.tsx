@@ -122,6 +122,7 @@ function SidebarProvider({
       <TooltipProvider delayDuration={0}>
         <div
           data-slot="sidebar-wrapper"
+          data-collapse={state}
           style={
             {
               '--sidebar-width': SIDEBAR_WIDTH,
@@ -160,6 +161,7 @@ function Sidebar({
     return (
       <div
         data-slot="sidebar"
+        data-collapse={state}
         className={cn(
           'bg-sidebar text-sidebar-foreground flex h-full w-(--sidebar-width) flex-col',
           className
@@ -178,6 +180,7 @@ function Sidebar({
           data-sidebar="sidebar"
           data-slot="sidebar"
           data-mobile="true"
+          data-collapse={openMobile ? 'expanded' : 'collapsed'}
           className="bg-sidebar text-sidebar-foreground w-(--sidebar-width) p-0 [&>button]:hidden"
           style={
             {
@@ -200,6 +203,7 @@ function Sidebar({
     <div
       className="group peer text-sidebar-foreground hidden md:block"
       data-state={state}
+      data-collapse={state}
       data-collapsible={state === 'collapsed' ? collapsible : ''}
       data-variant={variant}
       data-side={side}

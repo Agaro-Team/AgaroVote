@@ -54,8 +54,8 @@ export const agaroAbi = [
   {
     type: 'function',
     inputs: [
-      { name: '', internalType: 'address', type: 'address' },
-      { name: '', internalType: 'address', type: 'address' },
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'spender', internalType: 'address', type: 'address' },
     ],
     name: 'allowance',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
@@ -64,8 +64,8 @@ export const agaroAbi = [
   {
     type: 'function',
     inputs: [
-      { name: '', internalType: 'address', type: 'address' },
-      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: 'spender', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'approve',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
@@ -1996,8 +1996,8 @@ export const syntheticRewardAbi = [
     inputs: [{ name: '_sender', internalType: 'address', type: 'address' }],
     name: 'withdraw',
     outputs: [
-      { name: '', internalType: 'uint256', type: 'uint256' },
-      { name: '', internalType: 'uint256', type: 'uint256' },
+      { name: 'rewardsPaid', internalType: 'uint256', type: 'uint256' },
+      { name: 'principalReturned', internalType: 'uint256', type: 'uint256' },
     ],
     stateMutability: 'nonpayable',
   },
