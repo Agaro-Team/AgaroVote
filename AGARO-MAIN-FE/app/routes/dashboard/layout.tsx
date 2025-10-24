@@ -1,4 +1,5 @@
 import { Outlet } from 'react-router';
+import { AlphaVersionAlert } from '~/components/alpha-version';
 import { AppSidebar } from '~/components/app-sidebar';
 import { SidebarInset, SidebarProvider } from '~/components/ui/sidebar';
 import { siweAuthMiddleware } from '~/lib/middleware/siwe-auth-middleware';
@@ -17,6 +18,11 @@ export default function DashboardLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
+        <div className="py-4 px-4">
+          <div className="flex justify-end">
+            <AlphaVersionAlert />
+          </div>
+        </div>
         <Outlet />
       </SidebarInset>
     </SidebarProvider>

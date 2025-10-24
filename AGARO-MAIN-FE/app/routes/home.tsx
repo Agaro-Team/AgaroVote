@@ -3,6 +3,7 @@
  *
  * Main landing page with Web3 wallet connection interface
  */
+import { AlphaPhaseNotice, AlphaVersionAlert } from '~/components/alpha-version';
 import { WalletConnectAuthButton } from '~/components/auth/wallet-connect-auth-button';
 import { ChainSwitcher } from '~/components/chain-switcher';
 import { WalletInfoCard } from '~/components/wallet-info-card';
@@ -25,6 +26,8 @@ export default function Home() {
 
   return (
     <div className="container mx-auto py-8 space-y-8">
+      <AlphaVersionAlert />
+
       {/* Header */}
       <div className="space-y-4 text-center">
         <h1 className="text-4xl font-bold">Welcome to AgaroVote</h1>
