@@ -15,7 +15,7 @@ services:
     volumes:
       - agaro_postgres_data:/var/lib/postgresql/data
       - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - ./postgres/certs/:/etc/letsencrypt/live/ardial.tech/
+      - ./certs/:/etc/letsencrypt/live/ardial.tech/
       - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf
 
     command: >
@@ -67,11 +67,28 @@ services:
     restart: unless-stopped
     env_file:
       - .env
-    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    command:
+      [
+        "redis-server",
+        "--requirepass",
+        "${REDIS_PASSWORD}",
+        "--tls-port",
+        "8882",
+        "--port",
+        "0",
+        "--tls-cert-file",
+        "/etc/redis/ssl/fullchain.pem",
+        "--tls-key-file",
+        "/etc/redis/ssl/privkey.pem",
+        "--tls-ca-cert-file",
+        "/etc/redis/ssl/chain.pem",
+      ]
     ports:
       - "127.0.0.1:8882:8882"
     volumes:
       - agaro_redis_data:/data
+      - ./certs/:/etc/redis/ssl/
+
     networks:
       - agaro-network
     healthcheck:
