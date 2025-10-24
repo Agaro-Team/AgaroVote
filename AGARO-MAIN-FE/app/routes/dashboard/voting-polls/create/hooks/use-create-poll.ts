@@ -79,7 +79,7 @@ export function useCreatePoll() {
         return;
       }
 
-      if (!version) {
+      if (typeof version === 'undefined') {
         toast.error('Could not fetch contract version');
         return;
       }
@@ -171,6 +171,10 @@ export function useCreatePoll() {
     query: {
       enabled: hasConnected,
     },
+  });
+
+  console.log({
+    version,
   });
 
   // Wait for transaction confirmation
