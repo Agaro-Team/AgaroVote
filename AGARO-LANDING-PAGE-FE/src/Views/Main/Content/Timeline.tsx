@@ -116,8 +116,7 @@ const Timeline = () => {
 
         <div className="relative lg:max-w-5xl lg:mx-auto px-4">
           {/* Timeline Line */}
-          <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-1 h-full bg-[var(--muted)] rounded-full" />
-          <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-0.5 h-full bg-[var(--muted)] rounded-full blur-sm" />
+          <div className="timeline-line" />
 
           <div className="space-y-16">
             <AnimatePresence mode="wait">
@@ -136,13 +135,14 @@ const Timeline = () => {
                       ease: 'easeOut',
                     }}
                     viewport={{ once: true, amount: 0.3 }}
-                    className={`relative flex md:items-center ${
-                      isEven ? 'md:flex-row' : 'md:flex-row-reverse'
-                    }`}>
+                    className={`relative flex items-center
+                      flex-row
+                      md:${isEven ? 'flex-row' : 'flex-row-reverse'}
+                    `}>
                     {/* Card */}
                     <div
                       className={`w-full md:max-w-[50%] md:-mt-4 ${
-                        isEven ? 'md:pr-7 pl-10' : 'md:pl-7 pl-10'
+                        isEven ? 'md:pr-12 pl-10' : 'md:pl-12 pl-10'
                       }`}>
                       {/* Glow effect */}
                       <motion.div
@@ -160,14 +160,9 @@ const Timeline = () => {
                       />
 
                       <motion.div
-                        className={`p-6 rounded-xl bg-[var(--card)] backdrop-blur-xl relative overflow-visible
-                        timeline-arrow-left
-                        md:${
-                          isEven
-                            ? 'timeline-arrow-right'
-                            : 'timeline-arrow-left'
-                        }
-                      `}
+                        className={`p-6 rounded-xl bg-[var(--card)] backdrop-blur-xl relative overflow-visible timeline-arrow ${
+                          isEven ? 'right' : 'left'
+                        }`}
                         style={{
                           opacity: t.cardOpacity,
                           y: t.cardY,
@@ -198,7 +193,11 @@ const Timeline = () => {
 
                     {/* Dot */}
                     <motion.div
-                      className="absolute md:relative -left-2.5 md:left-auto top-1/2 -translate-y-1/2 z-10 bg-[var(--primary)] flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center shadow-lg"
+                      className={`absolute md:absolute top-1/2 md:top-[45%] -translate-y-1/2 z-10 bg-[var(--primary)] flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center shadow-lg ${
+                        isEven
+                          ? '-left-3 md:left-[calc(50%-0.75rem)]'
+                          : '-left-3 md:left-[calc(50%-0.75rem)]'
+                      }`}
                       style={{
                         scale: t.dotScale,
                         opacity: t.dotOpacity,
