@@ -56,16 +56,13 @@ services:
       --block-time 5
       --gas-limit 30000000
       --base-fee 1000000000
-      --state /home/foundry/.foundry/anvil/state.json
     ports:
       - "8545:8545"
-    volumes:
-      - agaro_anvil_data:/home/foundry/.foundry/anvil
     networks:
       - agaro-network
 
   agaro-redis:
-    image: redis:7
+    image: redis:latest
     container_name: agaro-redis
     restart: unless-stopped
     env_file:
@@ -88,7 +85,7 @@ services:
     container_name: agaro-redisinsight
     restart: unless-stopped
     ports:
-      - "8883:8883"
+      - "8883:5540"
     volumes:
       - agaro_redisinsight_data:/db
     depends_on:
@@ -104,7 +101,5 @@ volumes:
     name: agaro_postgres_data
   agaro_redis_data:
     name: agaro_redis_data
-  agaro_anvil_data:
-    name: agaro_anvil_data
   agaro_redisinsight_data:
     name: agaro_redisinsight_data
