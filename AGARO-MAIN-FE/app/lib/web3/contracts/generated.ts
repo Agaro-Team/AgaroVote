@@ -80,6 +80,13 @@ export const agaroAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: '_amount', internalType: 'uint256', type: 'uint256' }],
+    name: 'burn',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'decimals',
     outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
@@ -136,6 +143,66 @@ export const agaroAbi = [
     name: 'transferFrom',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// AgaroTierSystem
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const agaroTierSystemAbi = [
+  {
+    type: 'function',
+    inputs: [{ name: '_minHoldAGR', internalType: 'uint256', type: 'uint256' }],
+    name: '_normalizeTier',
+    outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'baseIncentives',
+    outputs: [
+      { name: 'tier1', internalType: 'uint256', type: 'uint256' },
+      { name: 'tier5', internalType: 'uint256', type: 'uint256' },
+      { name: 'tier10', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'lastCreatedPoll',
+    outputs: [
+      { name: 'lastResetTime', internalType: 'uint256', type: 'uint256' },
+      { name: 'pollsCreated', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'minHold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'platformFee',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'tiers',
+    outputs: [
+      { name: 'discount', internalType: 'uint8', type: 'uint8' },
+      { name: 'maxPollingPerDay', internalType: 'uint256', type: 'uint256' },
+      { name: 'minHoldAGR', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
   },
 ] as const
 
@@ -218,6 +285,7 @@ export const entryPointAbi = [
     ],
     name: 'PollNeedsCommitToken',
   },
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
   {
     type: 'error',
     inputs: [
@@ -263,6 +331,46 @@ export const entryPointAbi = [
       },
     ],
     name: 'PollBinded',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'admin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SystemHalted',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'admin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SystemResumed',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'user', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'TokenCommitted',
   },
   {
     type: 'event',
@@ -371,6 +479,74 @@ export const entryPointAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: '_minHoldAGR', internalType: 'uint256', type: 'uint256' }],
+    name: '_normalizeTier',
+    outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'admin',
+    outputs: [
+      { name: 'admin', internalType: 'address', type: 'address' },
+      { name: 'isAdminAgreed', internalType: 'bool', type: 'bool' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'option', internalType: 'string', type: 'string' },
+      { name: '_admin', internalType: 'address', type: 'address' },
+    ],
+    name: 'adminOps',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'agree',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'baseIncentives',
+    outputs: [
+      { name: 'tier1', internalType: 'uint256', type: 'uint256' },
+      { name: 'tier5', internalType: 'uint256', type: 'uint256' },
+      { name: 'tier10', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'amountToCommit', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'commitSecurity',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'commitThreshold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'committedAmount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'getPollData',
     outputs: [
@@ -400,9 +576,23 @@ export const entryPointAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'haltAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'isContractValid',
     outputs: [{ name: 'isExist', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'isHalted',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
@@ -414,9 +604,26 @@ export const entryPointAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'lastCreatedPoll',
+    outputs: [
+      { name: 'lastResetTime', internalType: 'uint256', type: 'uint256' },
+      { name: 'pollsCreated', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'merkleTreeAllowListImplementation',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'minHold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -454,6 +661,13 @@ export const entryPointAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'platformFee',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     name: 'pollHashToStorage',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
@@ -467,6 +681,8 @@ export const entryPointAbi = [
     ],
     name: 'pollStorageVoters',
     outputs: [
+      { name: 'index', internalType: 'uint256', type: 'uint256' },
+      { name: 'proof', internalType: 'bytes32', type: 'bytes32' },
       { name: 'selected', internalType: 'uint8', type: 'uint8' },
       { name: 'commitedToken', internalType: 'uint256', type: 'uint256' },
       { name: 'isVoted', internalType: 'bool', type: 'bool' },
@@ -488,6 +704,7 @@ export const entryPointAbi = [
         type: 'address',
       },
       { name: 'pollVoterHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'count', internalType: 'uint256', type: 'uint256' },
       {
         name: 'voterStorageHashLocation',
         internalType: 'bytes32',
@@ -508,6 +725,59 @@ export const entryPointAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'resetConsensus',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'resumeAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      {
+        name: '_baseIncentives',
+        internalType: 'struct BaseIncentives',
+        type: 'tuple',
+        components: [
+          { name: 'tier1', internalType: 'uint256', type: 'uint256' },
+          { name: 'tier5', internalType: 'uint256', type: 'uint256' },
+          { name: 'tier10', internalType: 'uint256', type: 'uint256' },
+        ],
+      },
+    ],
+    name: 'setBaseIncentives',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'threshold', internalType: 'uint256', type: 'uint256' }],
+    name: 'setCommitTreshold',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_minHold', internalType: 'uint256', type: 'uint256' }],
+    name: 'setMinHold',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_fee', internalType: 'uint256', type: 'uint256' }],
+    name: 'setPlatformFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     name: 'storageHashToPoll',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
@@ -522,10 +792,33 @@ export const entryPointAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'tiers',
+    outputs: [
+      { name: 'discount', internalType: 'uint8', type: 'uint8' },
+      { name: 'maxPollingPerDay', internalType: 'uint256', type: 'uint256' },
+      { name: 'minHoldAGR', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'token',
     outputs: [{ name: '', internalType: 'contract IAGARO', type: 'address' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: '_tier', internalType: 'uint8', type: 'uint8' },
+      { name: '_discount', internalType: 'uint8', type: 'uint8' },
+      { name: '_minHoldAGR', internalType: 'uint256', type: 'uint256' },
+      { name: '_maxPollingPerDay', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'updateTier',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -557,6 +850,20 @@ export const entryPointAbi = [
     type: 'function',
     inputs: [{ name: '_pollHash', internalType: 'bytes32', type: 'bytes32' }],
     name: 'withdraw',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'withdrawFee',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'withdrawSecurity',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -593,6 +900,13 @@ export const iagaroAbi = [
     name: 'balanceOf',
     outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_amount', internalType: 'uint256', type: 'uint256' }],
+    name: 'burn',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -652,6 +966,34 @@ export const iagaroAbi = [
     name: 'transferFrom',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IAgaroTierSystem
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iAgaroTierSystemAbi = [
+  {
+    type: 'function',
+    inputs: [{ name: '_minHoldAGR', internalType: 'uint256', type: 'uint256' }],
+    name: '_normalizeTier',
+    outputs: [{ name: '', internalType: 'uint8', type: 'uint8' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'minHold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'platformFee',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
   },
 ] as const
 
@@ -922,6 +1264,60 @@ export const iMerkleTreeAllowListAbi = [
     inputs: [],
     name: 'merkleRoot',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    stateMutability: 'view',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// ISecurity
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iSecurityAbi = [
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'admin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SystemHalted',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'admin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SystemResumed',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'user', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'TokenCommitted',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'isHalted',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
 ] as const
@@ -1284,6 +1680,130 @@ export const merkleTreeAllowlistAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// Security
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const securityAbi = [
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'admin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SystemHalted',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'admin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+    ],
+    name: 'SystemResumed',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'user', internalType: 'address', type: 'address', indexed: true },
+      {
+        name: 'amount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'TokenCommitted',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'admin',
+    outputs: [
+      { name: 'admin', internalType: 'address', type: 'address' },
+      { name: 'isAdminAgreed', internalType: 'bool', type: 'bool' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'option', internalType: 'string', type: 'string' },
+      { name: '_admin', internalType: 'address', type: 'address' },
+    ],
+    name: 'adminOps',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'agree',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'commitThreshold',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'committedAmount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'haltAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'isHalted',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'resetConsensus',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'resumeAll',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'threshold', internalType: 'uint256', type: 'uint256' }],
+    name: 'setCommitTreshold',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // SyntheticReward
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1548,6 +2068,8 @@ export const voterStorageAbi = [
     ],
     name: 'pollStorageVoters',
     outputs: [
+      { name: 'index', internalType: 'uint256', type: 'uint256' },
+      { name: 'proof', internalType: 'bytes32', type: 'bytes32' },
       { name: 'selected', internalType: 'uint8', type: 'uint8' },
       { name: 'commitedToken', internalType: 'uint256', type: 'uint256' },
       { name: 'isVoted', internalType: 'bool', type: 'bool' },
@@ -1632,6 +2154,7 @@ export const votingPollAbi = [
         type: 'address',
       },
       { name: 'pollVoterHash', internalType: 'bytes32', type: 'bytes32' },
+      { name: 'count', internalType: 'uint256', type: 'uint256' },
       {
         name: 'voterStorageHashLocation',
         internalType: 'bytes32',
@@ -1658,12 +2181,6 @@ export const votingPollAbi = [
     stateMutability: 'view',
   },
 ] as const
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-// VotingPollDataLib
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-export const votingPollDataLibAbi = [] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
@@ -1740,6 +2257,14 @@ export const useWriteAgaro = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"burn"`
+ */
+export const useWriteAgaroBurn = /*#__PURE__*/ createUseWriteContract({
+  abi: agaroAbi,
+  functionName: 'burn',
+})
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"mint"`
  */
 export const useWriteAgaroMint = /*#__PURE__*/ createUseWriteContract({
@@ -1768,6 +2293,14 @@ export const useWriteAgaroTransferFrom = /*#__PURE__*/ createUseWriteContract({
  */
 export const useSimulateAgaro = /*#__PURE__*/ createUseSimulateContract({
   abi: agaroAbi,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link agaroAbi}__ and `functionName` set to `"burn"`
+ */
+export const useSimulateAgaroBurn = /*#__PURE__*/ createUseSimulateContract({
+  abi: agaroAbi,
+  functionName: 'burn',
 })
 
 /**
@@ -1820,11 +2353,115 @@ export const useWatchAgaroTransferEvent =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroTierSystemAbi}__
+ */
+export const useReadAgaroTierSystem = /*#__PURE__*/ createUseReadContract({
+  abi: agaroTierSystemAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroTierSystemAbi}__ and `functionName` set to `"_normalizeTier"`
+ */
+export const useReadAgaroTierSystemNormalizeTier =
+  /*#__PURE__*/ createUseReadContract({
+    abi: agaroTierSystemAbi,
+    functionName: '_normalizeTier',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroTierSystemAbi}__ and `functionName` set to `"baseIncentives"`
+ */
+export const useReadAgaroTierSystemBaseIncentives =
+  /*#__PURE__*/ createUseReadContract({
+    abi: agaroTierSystemAbi,
+    functionName: 'baseIncentives',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroTierSystemAbi}__ and `functionName` set to `"lastCreatedPoll"`
+ */
+export const useReadAgaroTierSystemLastCreatedPoll =
+  /*#__PURE__*/ createUseReadContract({
+    abi: agaroTierSystemAbi,
+    functionName: 'lastCreatedPoll',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroTierSystemAbi}__ and `functionName` set to `"minHold"`
+ */
+export const useReadAgaroTierSystemMinHold =
+  /*#__PURE__*/ createUseReadContract({
+    abi: agaroTierSystemAbi,
+    functionName: 'minHold',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroTierSystemAbi}__ and `functionName` set to `"platformFee"`
+ */
+export const useReadAgaroTierSystemPlatformFee =
+  /*#__PURE__*/ createUseReadContract({
+    abi: agaroTierSystemAbi,
+    functionName: 'platformFee',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link agaroTierSystemAbi}__ and `functionName` set to `"tiers"`
+ */
+export const useReadAgaroTierSystemTiers = /*#__PURE__*/ createUseReadContract({
+  abi: agaroTierSystemAbi,
+  functionName: 'tiers',
+})
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__
  */
 export const useReadEntryPoint = /*#__PURE__*/ createUseReadContract({
   abi: entryPointAbi,
 })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"_normalizeTier"`
+ */
+export const useReadEntryPointNormalizeTier =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: '_normalizeTier',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"admin"`
+ */
+export const useReadEntryPointAdmin = /*#__PURE__*/ createUseReadContract({
+  abi: entryPointAbi,
+  functionName: 'admin',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"baseIncentives"`
+ */
+export const useReadEntryPointBaseIncentives =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'baseIncentives',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"commitThreshold"`
+ */
+export const useReadEntryPointCommitThreshold =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'commitThreshold',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"committedAmount"`
+ */
+export const useReadEntryPointCommittedAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'committedAmount',
+  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"getPollData"`
@@ -1843,12 +2480,29 @@ export const useReadEntryPointIsContractValid =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"isHalted"`
+ */
+export const useReadEntryPointIsHalted = /*#__PURE__*/ createUseReadContract({
+  abi: entryPointAbi,
+  functionName: 'isHalted',
+})
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"isPollHaveVoterStorage"`
  */
 export const useReadEntryPointIsPollHaveVoterStorage =
   /*#__PURE__*/ createUseReadContract({
     abi: entryPointAbi,
     functionName: 'isPollHaveVoterStorage',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"lastCreatedPoll"`
+ */
+export const useReadEntryPointLastCreatedPoll =
+  /*#__PURE__*/ createUseReadContract({
+    abi: entryPointAbi,
+    functionName: 'lastCreatedPoll',
   })
 
 /**
@@ -1859,6 +2513,21 @@ export const useReadEntryPointMerkleTreeAllowListImplementation =
     abi: entryPointAbi,
     functionName: 'merkleTreeAllowListImplementation',
   })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"minHold"`
+ */
+export const useReadEntryPointMinHold = /*#__PURE__*/ createUseReadContract({
+  abi: entryPointAbi,
+  functionName: 'minHold',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"platformFee"`
+ */
+export const useReadEntryPointPlatformFee = /*#__PURE__*/ createUseReadContract(
+  { abi: entryPointAbi, functionName: 'platformFee' },
+)
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"pollHashToStorage"`
@@ -1905,6 +2574,14 @@ export const useReadEntryPointSyntheticRewardImplementation =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"tiers"`
+ */
+export const useReadEntryPointTiers = /*#__PURE__*/ createUseReadContract({
+  abi: entryPointAbi,
+  functionName: 'tiers',
+})
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"token"`
  */
 export const useReadEntryPointToken = /*#__PURE__*/ createUseReadContract({
@@ -1928,12 +2605,106 @@ export const useWriteEntryPoint = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"adminOps"`
+ */
+export const useWriteEntryPointAdminOps = /*#__PURE__*/ createUseWriteContract({
+  abi: entryPointAbi,
+  functionName: 'adminOps',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"agree"`
+ */
+export const useWriteEntryPointAgree = /*#__PURE__*/ createUseWriteContract({
+  abi: entryPointAbi,
+  functionName: 'agree',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"commitSecurity"`
+ */
+export const useWriteEntryPointCommitSecurity =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'commitSecurity',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"haltAll"`
+ */
+export const useWriteEntryPointHaltAll = /*#__PURE__*/ createUseWriteContract({
+  abi: entryPointAbi,
+  functionName: 'haltAll',
+})
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"newVotingPoll"`
  */
 export const useWriteEntryPointNewVotingPoll =
   /*#__PURE__*/ createUseWriteContract({
     abi: entryPointAbi,
     functionName: 'newVotingPoll',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"resetConsensus"`
+ */
+export const useWriteEntryPointResetConsensus =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'resetConsensus',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"resumeAll"`
+ */
+export const useWriteEntryPointResumeAll = /*#__PURE__*/ createUseWriteContract(
+  { abi: entryPointAbi, functionName: 'resumeAll' },
+)
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"setBaseIncentives"`
+ */
+export const useWriteEntryPointSetBaseIncentives =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'setBaseIncentives',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"setCommitTreshold"`
+ */
+export const useWriteEntryPointSetCommitTreshold =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'setCommitTreshold',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"setMinHold"`
+ */
+export const useWriteEntryPointSetMinHold =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'setMinHold',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"setPlatformFee"`
+ */
+export const useWriteEntryPointSetPlatformFee =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'setPlatformFee',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"updateTier"`
+ */
+export const useWriteEntryPointUpdateTier =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'updateTier',
   })
 
 /**
@@ -1953,11 +2724,65 @@ export const useWriteEntryPointWithdraw = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"withdrawFee"`
+ */
+export const useWriteEntryPointWithdrawFee =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'withdrawFee',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"withdrawSecurity"`
+ */
+export const useWriteEntryPointWithdrawSecurity =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: entryPointAbi,
+    functionName: 'withdrawSecurity',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__
  */
 export const useSimulateEntryPoint = /*#__PURE__*/ createUseSimulateContract({
   abi: entryPointAbi,
 })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"adminOps"`
+ */
+export const useSimulateEntryPointAdminOps =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'adminOps',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"agree"`
+ */
+export const useSimulateEntryPointAgree =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'agree',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"commitSecurity"`
+ */
+export const useSimulateEntryPointCommitSecurity =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'commitSecurity',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"haltAll"`
+ */
+export const useSimulateEntryPointHaltAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'haltAll',
+  })
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"newVotingPoll"`
@@ -1966,6 +2791,69 @@ export const useSimulateEntryPointNewVotingPoll =
   /*#__PURE__*/ createUseSimulateContract({
     abi: entryPointAbi,
     functionName: 'newVotingPoll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"resetConsensus"`
+ */
+export const useSimulateEntryPointResetConsensus =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'resetConsensus',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"resumeAll"`
+ */
+export const useSimulateEntryPointResumeAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'resumeAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"setBaseIncentives"`
+ */
+export const useSimulateEntryPointSetBaseIncentives =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'setBaseIncentives',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"setCommitTreshold"`
+ */
+export const useSimulateEntryPointSetCommitTreshold =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'setCommitTreshold',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"setMinHold"`
+ */
+export const useSimulateEntryPointSetMinHold =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'setMinHold',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"setPlatformFee"`
+ */
+export const useSimulateEntryPointSetPlatformFee =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'setPlatformFee',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"updateTier"`
+ */
+export const useSimulateEntryPointUpdateTier =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'updateTier',
   })
 
 /**
@@ -1987,6 +2875,24 @@ export const useSimulateEntryPointWithdraw =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"withdrawFee"`
+ */
+export const useSimulateEntryPointWithdrawFee =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'withdrawFee',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link entryPointAbi}__ and `functionName` set to `"withdrawSecurity"`
+ */
+export const useSimulateEntryPointWithdrawSecurity =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: entryPointAbi,
+    functionName: 'withdrawSecurity',
+  })
+
+/**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__
  */
 export const useWatchEntryPointEvent =
@@ -1999,6 +2905,33 @@ export const useWatchEntryPointPollBindedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: entryPointAbi,
     eventName: 'PollBinded',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"SystemHalted"`
+ */
+export const useWatchEntryPointSystemHaltedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: entryPointAbi,
+    eventName: 'SystemHalted',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"SystemResumed"`
+ */
+export const useWatchEntryPointSystemResumedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: entryPointAbi,
+    eventName: 'SystemResumed',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link entryPointAbi}__ and `eventName` set to `"TokenCommitted"`
+ */
+export const useWatchEntryPointTokenCommittedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: entryPointAbi,
+    eventName: 'TokenCommitted',
   })
 
 /**
@@ -2099,6 +3032,14 @@ export const useWriteIagaroApprove = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"burn"`
+ */
+export const useWriteIagaroBurn = /*#__PURE__*/ createUseWriteContract({
+  abi: iagaroAbi,
+  functionName: 'burn',
+})
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"mint"`
  */
 export const useWriteIagaroMint = /*#__PURE__*/ createUseWriteContract({
@@ -2137,6 +3078,14 @@ export const useSimulateIagaroApprove = /*#__PURE__*/ createUseSimulateContract(
 )
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"burn"`
+ */
+export const useSimulateIagaroBurn = /*#__PURE__*/ createUseSimulateContract({
+  abi: iagaroAbi,
+  functionName: 'burn',
+})
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link iagaroAbi}__ and `functionName` set to `"mint"`
  */
 export const useSimulateIagaroMint = /*#__PURE__*/ createUseSimulateContract({
@@ -2160,6 +3109,40 @@ export const useSimulateIagaroTransferFrom =
   /*#__PURE__*/ createUseSimulateContract({
     abi: iagaroAbi,
     functionName: 'transferFrom',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iAgaroTierSystemAbi}__
+ */
+export const useReadIAgaroTierSystem = /*#__PURE__*/ createUseReadContract({
+  abi: iAgaroTierSystemAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iAgaroTierSystemAbi}__ and `functionName` set to `"_normalizeTier"`
+ */
+export const useReadIAgaroTierSystemNormalizeTier =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iAgaroTierSystemAbi,
+    functionName: '_normalizeTier',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iAgaroTierSystemAbi}__ and `functionName` set to `"minHold"`
+ */
+export const useReadIAgaroTierSystemMinHold =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iAgaroTierSystemAbi,
+    functionName: 'minHold',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iAgaroTierSystemAbi}__ and `functionName` set to `"platformFee"`
+ */
+export const useReadIAgaroTierSystemPlatformFee =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iAgaroTierSystemAbi,
+    functionName: 'platformFee',
   })
 
 /**
@@ -2328,6 +3311,55 @@ export const useWatchIMerkleTreeAllowListMerkleRootUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: iMerkleTreeAllowListAbi,
     eventName: 'MerkleRootUpdated',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSecurityAbi}__
+ */
+export const useReadISecurity = /*#__PURE__*/ createUseReadContract({
+  abi: iSecurityAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iSecurityAbi}__ and `functionName` set to `"isHalted"`
+ */
+export const useReadISecurityIsHalted = /*#__PURE__*/ createUseReadContract({
+  abi: iSecurityAbi,
+  functionName: 'isHalted',
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iSecurityAbi}__
+ */
+export const useWatchISecurityEvent = /*#__PURE__*/ createUseWatchContractEvent(
+  { abi: iSecurityAbi },
+)
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iSecurityAbi}__ and `eventName` set to `"SystemHalted"`
+ */
+export const useWatchISecuritySystemHaltedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iSecurityAbi,
+    eventName: 'SystemHalted',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iSecurityAbi}__ and `eventName` set to `"SystemResumed"`
+ */
+export const useWatchISecuritySystemResumedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iSecurityAbi,
+    eventName: 'SystemResumed',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link iSecurityAbi}__ and `eventName` set to `"TokenCommitted"`
+ */
+export const useWatchISecurityTokenCommittedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: iSecurityAbi,
+    eventName: 'TokenCommitted',
   })
 
 /**
@@ -2700,6 +3732,197 @@ export const useWatchMerkleTreeAllowlistOwnershipTransferredEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: merkleTreeAllowlistAbi,
     eventName: 'OwnershipTransferred',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link securityAbi}__
+ */
+export const useReadSecurity = /*#__PURE__*/ createUseReadContract({
+  abi: securityAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"admin"`
+ */
+export const useReadSecurityAdmin = /*#__PURE__*/ createUseReadContract({
+  abi: securityAbi,
+  functionName: 'admin',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"commitThreshold"`
+ */
+export const useReadSecurityCommitThreshold =
+  /*#__PURE__*/ createUseReadContract({
+    abi: securityAbi,
+    functionName: 'commitThreshold',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"committedAmount"`
+ */
+export const useReadSecurityCommittedAmount =
+  /*#__PURE__*/ createUseReadContract({
+    abi: securityAbi,
+    functionName: 'committedAmount',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"isHalted"`
+ */
+export const useReadSecurityIsHalted = /*#__PURE__*/ createUseReadContract({
+  abi: securityAbi,
+  functionName: 'isHalted',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link securityAbi}__
+ */
+export const useWriteSecurity = /*#__PURE__*/ createUseWriteContract({
+  abi: securityAbi,
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"adminOps"`
+ */
+export const useWriteSecurityAdminOps = /*#__PURE__*/ createUseWriteContract({
+  abi: securityAbi,
+  functionName: 'adminOps',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"agree"`
+ */
+export const useWriteSecurityAgree = /*#__PURE__*/ createUseWriteContract({
+  abi: securityAbi,
+  functionName: 'agree',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"haltAll"`
+ */
+export const useWriteSecurityHaltAll = /*#__PURE__*/ createUseWriteContract({
+  abi: securityAbi,
+  functionName: 'haltAll',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"resetConsensus"`
+ */
+export const useWriteSecurityResetConsensus =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: securityAbi,
+    functionName: 'resetConsensus',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"resumeAll"`
+ */
+export const useWriteSecurityResumeAll = /*#__PURE__*/ createUseWriteContract({
+  abi: securityAbi,
+  functionName: 'resumeAll',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"setCommitTreshold"`
+ */
+export const useWriteSecuritySetCommitTreshold =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: securityAbi,
+    functionName: 'setCommitTreshold',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link securityAbi}__
+ */
+export const useSimulateSecurity = /*#__PURE__*/ createUseSimulateContract({
+  abi: securityAbi,
+})
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"adminOps"`
+ */
+export const useSimulateSecurityAdminOps =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: securityAbi,
+    functionName: 'adminOps',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"agree"`
+ */
+export const useSimulateSecurityAgree = /*#__PURE__*/ createUseSimulateContract(
+  { abi: securityAbi, functionName: 'agree' },
+)
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"haltAll"`
+ */
+export const useSimulateSecurityHaltAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: securityAbi,
+    functionName: 'haltAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"resetConsensus"`
+ */
+export const useSimulateSecurityResetConsensus =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: securityAbi,
+    functionName: 'resetConsensus',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"resumeAll"`
+ */
+export const useSimulateSecurityResumeAll =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: securityAbi,
+    functionName: 'resumeAll',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link securityAbi}__ and `functionName` set to `"setCommitTreshold"`
+ */
+export const useSimulateSecuritySetCommitTreshold =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: securityAbi,
+    functionName: 'setCommitTreshold',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link securityAbi}__
+ */
+export const useWatchSecurityEvent = /*#__PURE__*/ createUseWatchContractEvent({
+  abi: securityAbi,
+})
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link securityAbi}__ and `eventName` set to `"SystemHalted"`
+ */
+export const useWatchSecuritySystemHaltedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: securityAbi,
+    eventName: 'SystemHalted',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link securityAbi}__ and `eventName` set to `"SystemResumed"`
+ */
+export const useWatchSecuritySystemResumedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: securityAbi,
+    eventName: 'SystemResumed',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link securityAbi}__ and `eventName` set to `"TokenCommitted"`
+ */
+export const useWatchSecurityTokenCommittedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: securityAbi,
+    eventName: 'TokenCommitted',
   })
 
 /**
