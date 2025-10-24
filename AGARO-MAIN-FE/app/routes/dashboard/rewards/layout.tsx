@@ -6,16 +6,6 @@
  */
 import { Check, Gem } from 'lucide-react';
 import { NavLink, Outlet } from 'react-router';
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from '~/components/ui/breadcrumb';
-import { Separator } from '~/components/ui/separator';
-import { SidebarTrigger } from '~/components/ui/sidebar';
 import { Skeleton } from '~/components/ui/skeleton';
 import { siweAuthMiddleware } from '~/lib/middleware/auth';
 import { rewardListQueryOptions } from '~/lib/query-client/reward/queries';
@@ -152,7 +142,7 @@ export default function RewardsLayout() {
         <div className="space-y-4">
           <Suspense
             fallback={
-              <div className="flex gap-2 border-b mb-2">
+              <div className="flex gap-2 mb-2">
                 {Array.from({ length: 3 }).map((_, index) => (
                   <Skeleton key={index} className="w-32 h-8 rounded-md" />
                 ))}
