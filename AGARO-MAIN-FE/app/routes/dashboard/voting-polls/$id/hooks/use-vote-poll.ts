@@ -100,31 +100,9 @@ export function useVotePoll(poll: Poll) {
   const castVoteMutation = useMutation({
     ...castVoteMutationOptions,
     onSuccess: async () => {
-      toast.success('Vote successfully recorded!');
-
-      // Invalidate all relevant queries to refresh the UI
-      await Promise.all([
-        queryClient.invalidateQueries({
-          queryKey: voteQueryKeys.baseUserVote,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: pollQueryKeys.baseVotingEligibility(),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: pollQueryKeys.all,
-        }),
-        queryClient.invalidateQueries({
-          queryKey: voteQueryKeys.baseCheckHasVoted(),
-        }),
-        queryClient.invalidateQueries({
-          queryKey: voteQueryKeys.baseUserVotes,
-        }),
-      ]).catch((error) => {
-        console.error('Failed to invalidate queries:', error);
-      });
-
-      // Reset all state after successful completion
-      dispatch({ type: 'RESET_VOTE_STATE' });
+      dispatch({ type: 'SET_BACKEND_SUBMITTED', payload: true });
+      // Proceed to vote on blockchain
+      await voteToBlockChain();
     },
     onError: (error: Error) => {
       toast.error('Failed to register vote in backend', {
@@ -144,32 +122,12 @@ export function useVotePoll(poll: Poll) {
     reset: resetWrite,
   } = useWriteEntryPointVote({
     mutation: {
-      onSuccess: () => {
-        if (!state.pollId || !state.choiceId || !walletAddress || !state.commitToken) {
-          toast.error('Missing required data for backend submission');
-          return;
-        }
-
-        // Submit to backend after blockchain success
-        toast.info('Recording vote in database...');
-
-        castVoteMutation.mutate({
-          pollId: state.pollId,
-          choiceId: state.choiceId,
-          voterWalletAddress: walletAddress as `0x${string}`,
-          commitToken: isNaN(Number(state.commitToken ?? 0))
-            ? undefined
-            : Number(state.commitToken),
-        });
-      },
       onError: (error) => {
         // Parse the error and show user-friendly message
         const { title, description } = parseWagmiErrorForToast(error);
         toast.error(title, {
           description: description || 'Transaction failed. Please try again.',
         });
-        // Reset local states on transaction error
-        dispatch({ type: 'RESET_VOTE_STATE' });
       },
     },
   });
@@ -189,7 +147,6 @@ export function useVotePoll(poll: Poll) {
     chainId,
     onError: (error) => {
       toast.error(`Event watch error: ${error.message}`);
-      dispatch({ type: 'RESET_VOTE_STATE' });
     },
     onLogs: (logs) => {
       if (logs.length === 0) return;
@@ -201,6 +158,47 @@ export function useVotePoll(poll: Poll) {
       }
     },
   });
+
+  const voteToBlockChain = async () => {
+    if (!walletAddress) {
+      toast.error('Wallet not connected');
+      return;
+    }
+
+    const address = getEntryPointAddress(chainId);
+    if (!address) {
+      toast.error('EntryPoint contract not deployed on this network');
+      return;
+    }
+
+    // Create Hex Proofs here
+    let proofs: `0x${string}`[] = [];
+
+    if (poll.addresses.length > 0) {
+      proofs = createHexProofByLeaves(
+        poll.addresses.map((address) => address.leaveHash),
+        walletAddress
+      );
+    }
+
+    if (!state.pollHash || state.choiceIndex === null) {
+      toast.error('Incomplete vote data');
+      return;
+    }
+
+    // Trigger blockchain transaction
+    const args = {
+      pollHash: state.pollHash,
+      candidateSelected: state.choiceIndex,
+      commitToken: state.commitToken ? parseEther(state.commitToken) : parseEther('0'),
+      proofs, // Empty for now
+    } as const;
+
+    writeContract({
+      address,
+      args: [args],
+    });
+  };
 
   const vote = ({ pollHash, candidateSelected, choiceId, pollId }: VoteParams) => {
     const address = getEntryPointAddress(chainId);
@@ -231,58 +229,30 @@ export function useVotePoll(poll: Poll) {
     dispatch({ type: 'SET_POLL_HASH', payload: pollHash });
     dispatch({ type: 'SET_CHOICE_INDEX', payload: candidateSelected });
 
-    // Create Hex Proofs here
-    let proofs: `0x${string}`[] = [];
-
-    if (poll.addresses.length > 0) {
-      proofs = createHexProofByLeaves(
-        poll.addresses.map((address) => address.leaveHash),
-        walletAddress
-      );
-    }
-
-    // Trigger blockchain transaction
-    const args = {
-      pollHash: pollHash,
-      candidateSelected: candidateSelected,
-      commitToken: state.commitToken ? parseEther(state.commitToken) : parseEther('0'),
-      proofs, // Empty for now
-    } as const;
-
-    writeContract({
-      address,
-      args: [args],
+    castVoteMutation.mutate({
+      pollId,
+      choiceId,
+      voterWalletAddress: walletAddress as `0x${string}`,
+      commitToken: isNaN(Number(state.commitToken ?? 0)) ? undefined : Number(state.commitToken),
     });
   };
 
-  // Step 2: After blockchain transaction success, submit to backend
+  // Step 2: After blockchain transaction success, invalidate relevant queries
   useEffect(() => {
-    // Wait for transaction to be confirmed
-    if (!isTransactionReceiptSuccess || !voteTxHash) {
-      return;
-    }
+    if (!isTransactionReceiptSuccess || !voteTxHash) return;
+    toast.success('Vote successfully recorded!');
 
-    // Verify we have all required data
-    if (!state.pollId || !state.choiceId || !walletAddress) {
-      console.error('Missing required data for backend submission');
-      return;
-    }
-
-    // Check if already submitted or currently submitting to backend
-    if (state.backendSubmitted || castVoteMutation.isPending || castVoteMutation.isSuccess) {
-      return;
-    }
-  }, [
-    isTransactionReceiptSuccess,
-    voteTxHash,
-    state.pollId,
-    state.choiceId,
-    state.backendSubmitted,
-    walletAddress,
-    state.commitToken,
-    castVoteMutation.isPending,
-    castVoteMutation.isSuccess,
-  ]);
+    // Invalidate all relevant queries to refresh the UI
+    [
+      voteQueryKeys.baseUserVote,
+      pollQueryKeys.baseVotingEligibility(),
+      pollQueryKeys.all,
+      voteQueryKeys.baseCheckHasVoted(),
+      voteQueryKeys.baseUserVotes,
+    ].forEach((queryKey) => {
+      queryClient.invalidateQueries({ queryKey });
+    });
+  }, [isTransactionReceiptSuccess, voteTxHash]);
 
   // Handle transaction receipt error
   useEffect(() => {
@@ -291,7 +261,6 @@ export function useVotePoll(poll: Poll) {
       toast.error(title, {
         description: description || 'Transaction confirmation failed. Please try again.',
       });
-      dispatch({ type: 'RESET_VOTE_STATE' });
     }
   }, [receiptError]);
 

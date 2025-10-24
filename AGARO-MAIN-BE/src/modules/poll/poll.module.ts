@@ -29,6 +29,10 @@ import { ActivatePollUseCase } from './application/use-cases/activate-poll.use-c
 import { UpdateVoterHashUseCase } from './application/use-cases/update-voter-hash.use-case';
 import { GetInvitedAddressesByPollPaginatedUseCase } from './application/use-cases/get-invited-addresses-by-poll-paginated.use-case';
 import { CheckVotingEligibilityHandler } from './application/queries/check-voting-eligibility/check-voting-eligibility.handler';
+import {
+  ActivatePollFromCacheUseCase,
+  StorePendingPollUseCase,
+} from './application/use-cases/create-poll-with-cache.use-case';
 
 @Module({
   imports: [
@@ -49,6 +53,8 @@ import { CheckVotingEligibilityHandler } from './application/queries/check-votin
       provide: POLL_ADDRESS_REPOSITORY,
       useClass: TypeORMPollAddressRepository,
     },
+    ActivatePollFromCacheUseCase,
+    StorePendingPollUseCase,
     CreatePollUseCase,
     GetPollByIdUseCase,
     GetAllPollsUseCase,
@@ -63,6 +69,7 @@ import { CheckVotingEligibilityHandler } from './application/queries/check-votin
     GetOngoingPollsPaginatedUseCase,
     GetPollsByCreatorPaginatedUseCase,
     UpdatePollTransactionStatusUseCase,
+    ActivatePollFromCacheUseCase,
     ActivatePollUseCase,
     UpdateVoterHashUseCase,
     GetInvitedAddressesByPollPaginatedUseCase,

@@ -7,14 +7,13 @@
  * Handles Merkle root generation for private polls.
  */
 import { toast } from 'sonner';
-import { type Address, keccak256, parseEther } from 'viem';
+import { type Address, parseEther } from 'viem';
 import { useWaitForTransactionReceipt } from 'wagmi';
 import { useWeb3Chain, useWeb3Wallet } from '~/hooks/use-web3';
 import { createPollMutationOptions } from '~/lib/query-client/poll/mutations';
 import { getEntryPointAddress } from '~/lib/web3/contracts/entry-point-config';
 import {
   useReadEntryPointVersion,
-  useWatchEntryPointVotingPollCreatedEvent,
   useWriteEntryPointNewVotingPoll,
 } from '~/lib/web3/contracts/generated';
 import { parseWagmiErrorForToast } from '~/lib/web3/error-parser';
@@ -61,7 +60,6 @@ export function useCreatePoll() {
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const [pollData, setPollData] = useState<PollData | null>(null);
   const offChainHashRef = useRef<`0x${string}` | null>(null);
-  const verificationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const {
     mutate: storePoll,
@@ -70,111 +68,22 @@ export function useCreatePoll() {
   } = useMutation({
     ...createPollMutationOptions,
     onSuccess: () => {
-      refetchVersion();
-      setIsVerifying(false);
-      setShouldRedirect(true);
-    },
-    onError: (error) => {
-      console.error('Failed to store poll to backend:', error);
-      toast.error('Failed to store poll data', {
-        description: 'Blockchain transaction succeeded, but backend storage failed.',
-      });
-    },
-  });
+      const contractAddress = getEntryPointAddress(chainId);
+      if (!contractAddress) {
+        toast.error('Contract not deployed on this network');
+        return;
+      }
 
-  const hasConnected = !!chainId && !!walletAddress;
+      if (!pollData) {
+        toast.error('Poll data is missing');
+        return;
+      }
 
-  // Prepare the contract write
-  const {
-    writeContractAsync,
-    data: txHash,
-    isPending,
-    isError,
-    error,
-  } = useWriteEntryPointNewVotingPoll({
-    mutation: {
-      onSuccess: () => {
-        if (!pollData || !offChainHashRef.current) return;
-        storePollToBackend(pollData, offChainHashRef.current);
-      },
-      onError: (error) => {
-        console.error('Failed to write contract transaction:', error);
-        toast.error('Failed to create voting poll', {
-          description: 'Blockchain transaction failed. Please try again.',
-        });
-      },
-    },
-  });
+      if (!version) {
+        toast.error('Could not fetch contract version');
+        return;
+      }
 
-  const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
-    address: getEntryPointAddress(chainId),
-    chainId,
-    query: {
-      enabled: hasConnected,
-    },
-  });
-
-  // Wait for transaction confirmation
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
-    hash: txHash,
-    chainId,
-    query: {
-      enabled: !!txHash,
-    },
-  });
-
-  // Function to store poll data to backend after blockchain confirmation
-  const storePollToBackend = (pollData: PollData, pollHash: `0x${string}`) => {
-    if (!walletAddress) return;
-
-    // Store to backend
-    storePoll({
-      title: pollData.title,
-      description: pollData.description,
-      choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
-      startDate: pollData.startDate,
-      endDate: pollData.endDate,
-      isPrivate: pollData.isPrivate,
-      addresses: pollData.allowedAddresses.map((address) => ({
-        walletAddress: address,
-        leaveHash: createLeaveHashByAddress(address as Address),
-      })),
-      creatorWalletAddress: walletAddress,
-      pollHash: pollHash,
-      rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
-      isTokenRequired: pollData.isTokenRequired,
-    });
-  };
-
-  /**
-   * Create a new voting poll
-   * @param pollData - The voting poll data containing title, description, candidates, start/end dates, privacy settings, and allowed addresses
-   */
-  const createPoll = async (pollData: PollData) => {
-    if (!chainId) {
-      toast.error('No chain connected');
-      return;
-    }
-
-    const contractAddress = getEntryPointAddress(chainId);
-    if (!contractAddress) {
-      toast.error('Contract not deployed on this network');
-      return;
-    }
-
-    if (!walletAddress) {
-      toast.error('Wallet not connected');
-      return;
-    }
-
-    if (typeof version === 'undefined') {
-      toast.error('Could not fetch contract version');
-      return;
-    }
-
-    setPollData(pollData);
-
-    try {
       // Calculate timestamps for voting period
       const startDate = Math.floor(pollData.startDate.getTime() / 1000); // Convert to Unix timestamp
       const endDate = Math.floor(pollData.endDate.getTime() / 1000); // Convert to Unix timestamp
@@ -214,11 +123,95 @@ export function useCreatePoll() {
         rewardShare: rewardShareBigInt,
       } as const;
 
+      // Submit to blockchain FIRST (for both private and public polls)
+      writeCreateNewVotingPoll({
+        address: contractAddress,
+        args: [args],
+      });
+    },
+    onError: (error) => {
+      console.error('Failed to store poll to backend:', error);
+      setIsVerifying(false);
+
+      const { title, description } = parseWagmiErrorForToast(error);
+
+      toast.error(title, {
+        description,
+      });
+    },
+  });
+
+  const hasConnected = !!chainId && !!walletAddress;
+
+  // Prepare the contract write
+  const {
+    writeContract: writeCreateNewVotingPoll,
+    data: txHash,
+    isPending,
+    isError,
+    error,
+  } = useWriteEntryPointNewVotingPoll({
+    mutation: {
+      onError: (error) => {
+        console.error('Failed to write contract transaction:', error);
+        setIsVerifying(false);
+
+        // Parse the error and show user-friendly message
+        const { title, description } = parseWagmiErrorForToast(error);
+        toast.error(title, {
+          description,
+        });
+      },
+    },
+  });
+
+  const { data: version, refetch: refetchVersion } = useReadEntryPointVersion({
+    address: getEntryPointAddress(chainId),
+    chainId,
+    query: {
+      enabled: hasConnected,
+    },
+  });
+
+  // Wait for transaction confirmation
+  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+    hash: txHash,
+    chainId,
+    query: {
+      enabled: !!txHash,
+    },
+  });
+
+  /**
+   * Create a new voting poll
+   * @param pollData - The voting poll data containing title, description, candidates, start/end dates, privacy settings, and allowed addresses
+   */
+  const createPoll = async (pollData: PollData) => {
+    if (!chainId) {
+      toast.error('No chain connected');
+      return;
+    }
+
+    if (!walletAddress) {
+      toast.error('Wallet not connected');
+      return;
+    }
+
+    if (typeof version === 'undefined') {
+      toast.error('Could not fetch contract version');
+      return;
+    }
+
+    setPollData(pollData);
+
+    try {
+      // Convert candidatesTotal to uint8 format
+
       const targetHashedPayload = {
         title: pollData.title,
         description: pollData.description,
         candidates: pollData.candidates,
-        candidatesTotal: candidatesTotalUint8,
+        candidatesTotal: pollData.candidatesTotal,
         version,
         owner: walletAddress,
       };
@@ -230,10 +223,22 @@ export function useCreatePoll() {
       setOffChainHash(pollHash);
       offChainHashRef.current = pollHash;
 
-      // Submit to blockchain FIRST (for both private and public polls)
-      await writeContractAsync({
-        address: contractAddress,
-        args: [args],
+      // Store to backend
+      storePoll({
+        title: pollData.title,
+        description: pollData.description,
+        choices: pollData.candidates.map((choice) => ({ choiceText: choice })),
+        startDate: pollData.startDate,
+        endDate: pollData.endDate,
+        isPrivate: pollData.isPrivate,
+        addresses: pollData.allowedAddresses.map((address) => ({
+          walletAddress: address,
+          leaveHash: createLeaveHashByAddress(address as Address),
+        })),
+        creatorWalletAddress: walletAddress,
+        pollHash,
+        rewardShare: pollData.rewardShare ? Number(pollData.rewardShare) : 0,
+        isTokenRequired: pollData.isTokenRequired,
       });
     } catch (error) {
       // Parse the error and show user-friendly message
@@ -244,50 +249,13 @@ export function useCreatePoll() {
     }
   };
 
-  // Start verification when transaction is confirmed
   useEffect(() => {
-    if (isSuccess && offChainHashRef.current) {
-      setIsVerifying(true);
-      setVerificationError(null);
-
-      // Set a 30-second timeout for verification
-      verificationTimeoutRef.current = setTimeout(() => {
-        if (offChainHashRef.current) {
-          setVerificationError(
-            'Verification timeout: Event not received from blockchain within 30 seconds. Please check the blockchain explorer.'
-          );
-          setIsVerifying(false);
-          // offChainHashRef.current = null;
-          // setOffChainHash(null);
-        }
-      }, 30000);
+    if (isSuccess) {
+      refetchVersion();
+      setIsVerifying(false);
+      setShouldRedirect(true);
     }
   }, [isSuccess]);
-
-  // Refetch version after successful poll creation
-  // This is critical for replay attack prevention - version increments with each poll
-  // useEffect(() => {
-  //   if (!pollData) {
-  //     return;
-  //   }
-  //   if (!offChainHashRef.current) {
-  //     return;
-  //   }
-  //   if (!isSuccess) {
-  //     return;
-  //   }
-
-  //   // Store to backend after blockchain transaction is confirmed
-  // }, [isSuccess, pollData, offChainHashRef.current]);
-
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (verificationTimeoutRef.current) {
-        clearTimeout(verificationTimeoutRef.current);
-      }
-    };
-  }, []);
 
   return {
     createPoll,

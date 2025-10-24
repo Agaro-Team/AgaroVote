@@ -17,7 +17,7 @@ export const AccordionItem: React.FC<AccordionItemProps> = ({
     <div
       className={`relative bg-[var(--card)] backdrop-blur-3xl overflow-hidden
       before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl before:pointer-events-none
-      border border-transparent dark:border-neutral-700 rounded-lg ${className}`}>
+      rounded-lg ${className}`}>
       <button
         type="button"
         aria-expanded={open}

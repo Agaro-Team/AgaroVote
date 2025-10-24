@@ -24,11 +24,17 @@ const MobileHeader = ({
           : 'border-transparent '
       )}>
       <div className="w-full flex justify-between items-center">
-        <img
-          src="/Logo.png"
-          alt="AgaroVote Logo"
-          className="h-10 md:h-16 w-32 object-cover object-center "
-        />
+        <div className="flex items-center gap-2 px-2 ">
+          <img
+            src="/Logo-small.png"
+            alt="AgaroVote Logo"
+            className="h-8 w-full object-contain"
+          />
+
+          <h1 className="text-xl text-muted-foreground dark:text-foreground font-bold">
+            Agaro<span className="text-primary ">Vote</span>
+          </h1>
+        </div>
         <div className="flex gap-x-4 items-center">
           {/* Hamburger Button */}
           <button

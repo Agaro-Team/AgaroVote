@@ -141,36 +141,6 @@ const HowItWorks = () => {
           );
         })}
       </div>
-
-      {/* <div className="flex gap-x-10 justify-center h-auto mt-10 mb-10 ">
-        {DataContent.map((item, index) => (
-          <div
-            key={index}
-            className="relative z-10 px-8 py-5 rounded-xl border shadow-[0_4px_30px_rgba(0,0,0,0.1)] w-1/4 overflow-hidden bg-[var(--background)] text-[var(--foreground)] transition-colors duration-300"
-            style={{ borderColor: 'var(--border)' }}>
-            <div className="relative z-10">
-              <p
-                className="text-lg font-semibold mb-5"
-                style={{ color: 'var(--primary)' }}>
-                {item.title}
-              </p>
-              <p className="text-md font-semibold text-[var(--foreground)]">
-                {item.description}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div> */}
-
-      {/* <div className="flex flex-col items-center justify-center ">
-        <BlurText
-          text="Choose the voting mode that fits your community’s needs."
-          delay={10}
-          animateBy="letters"
-          direction="bottom"
-          className="text-2xl font-medium mx-6 text-center"
-        />
-      </div> */}
     </div>
   );
 };
