@@ -35,6 +35,8 @@ const NETWORK_CONFIG = {
   chainId: '13377',
   chainName: 'AgaroChain',
   symbol: 'AGO',
+  erc20TokenAddress: '0x239745750870104a7EC6126c89156D773088286c',
+  contractAddress: '0xA28E65B0444392c7F591A321F9802d900A3229Bc',
 };
 
 /**
@@ -126,6 +128,38 @@ export function AlphaPhaseNotice({ children }: { children?: React.ReactNode }) {
                 <span className="text-foreground">
                   {NETWORK_CONFIG.symbol} <span className="text-muted-foreground">(optional)</span>
                 </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-muted-foreground">ERC20 Token Address:</span>{' '}
+                  <code className="font-mono text-foreground text-xs break-all">
+                    {NETWORK_CONFIG.erc20TokenAddress}
+                  </code>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() =>
+                    handleCopy(NETWORK_CONFIG.erc20TokenAddress, 'ERC20 Token Address')
+                  }
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              </div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="text-muted-foreground">Contract Address:</span>{' '}
+                  <code className="font-mono text-foreground text-xs break-all">
+                    {NETWORK_CONFIG.contractAddress}
+                  </code>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => handleCopy(NETWORK_CONFIG.contractAddress, 'Contract Address')}
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
               </div>
             </div>
           </div>
