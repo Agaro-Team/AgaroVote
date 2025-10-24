@@ -6,6 +6,8 @@ use crate::events::*;
 use crate::logger::*;
 use dotenvy::dotenv;
 use ethers::prelude::*;
+use ethers::types::Address;
+use ethers::utils::to_checksum;
 use futures::StreamExt;
 use serde_json::json;
 use std::{env, sync::Arc};
@@ -44,8 +46,10 @@ async fn main() -> anyhow::Result<()> {
 
             while let Some(Ok(event)) = stream.next().await {
                 log_info(&format!(
-                    "[VotingPollCreated] poll_hash={:?}, version={}",
-                    event.poll_hash, event.version
+                    "[VotingPollCreated] poll_hash={:?}, version={}, syntheticContract={}",
+                    event.poll_hash,
+                    event.version,
+                    to_checksum(&event.synthetic_reward_contract, None)
                 ));
 
                 let poll_hash_hex = format!("{:?}", event.poll_hash);
