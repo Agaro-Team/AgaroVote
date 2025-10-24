@@ -31,7 +31,7 @@ html.lenis {
     --gradient-via: oklch(0 0 0 / 0.05);
     --light-glow: oklch(0.2223 0.006 271.1393 / 0.8);
 
-    --card: oklch(0.97 0.015 265);
+    --card: color-mix(in oklch, oklch(0.97 0.015 265), transparent 30%);
     --card-foreground: oklch(0.22 0.015 270);
 
     --muted: oklch(0.93 0.02 270);
@@ -69,8 +69,7 @@ html.lenis {
     --gradient-from: oklch(0.2223 0.006 271.1393);
     --gradient-via: oklch(0.9551 0 0 / 0.05);
     --light-glow: oklch(0.6505 0.1175 220.4685);
-
-    --card: oklch(0.2568 0.0076 274.6528);
+    --card: color-mix(in oklch, oklch(0.2568 0.0076 274.6528), transparent 30%);
     --card-foreground: oklch(0.9551 0 0);
 
     --muted: oklch(0.294 0.013 272.9312);

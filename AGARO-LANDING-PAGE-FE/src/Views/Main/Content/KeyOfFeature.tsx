@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import BlurText from '../../../Components/BlurText';
-import { example1 } from '../../../Assets';
+import { lockSvg, identitySvg, integritySvg, medalSvg } from '../../../Assets';
 import { motion, AnimatePresence } from 'motion/react';
 
 const dataFeature = [
@@ -9,31 +9,32 @@ const dataFeature = [
     feature: 'Secure',
     Title: 'Blockchain-Powered Voting Security',
     Desc: 'Every vote is Hashed and recorded on the blockchain, ensuring results can not be altered or tampered with by any third party.',
-    image: example1,
+    image: lockSvg,
     iconTitle: '🔐',
-  }, {
+  },
+  {
     id: 2,
-    feature: "Hybrid (Open Source)",
-    Title: "Hybrid Voting You Can Clone and Own",
-    Desc: "AgaroVote uses a hybrid model (blockchain + private servers) rather than full public transparency. You can verify results where needed, but keep sensitive data private. The project is open-source, so platforms can clone the system and build their own customized voting solution.",
-    image: "example1",
-    iconTitle: "📂"
+    feature: 'Hybrid (Open Source)',
+    Title: 'Hybrid Voting You Can Clone and Own',
+    Desc: 'AgaroVote uses a hybrid model (blockchain + private servers) rather than full public transparency. You can verify results where needed, but keep sensitive data private. The project is open-source, so platforms can clone the system and build their own customized voting solution.',
+    image: identitySvg,
+    iconTitle: '📂',
   },
   {
     id: 3,
-    feature: "Un-altered",
-    Title: "Data Integrity",
-    Desc: "AgaroVote ensures data integrity through our hashing mechanism, where every record is cryptographically verified on the blockchain. This unaltered design guarantees trust and transparency while keeping user data secure within our hybrid architecture.",
-    image: "example1",
-    iconTitle: "🪪"
+    feature: 'Un-altered',
+    Title: 'Data Integrity',
+    Desc: 'AgaroVote ensures data integrity through our hashing mechanism, where every record is cryptographically verified on the blockchain. This unaltered design guarantees trust and transparency while keeping user data secure within our hybrid architecture.',
+    image: integritySvg,
+    iconTitle: '🛡️',
   },
   {
     id: 4,
     feature: 'Rewarding',
     Title: 'Reward-Based Participation System',
     Desc: 'Encourage active engagement by rewarding users for their participation. Earn tokens or reputation points for voting and contributing to the ecosystem.',
-    image: example1,
-    iconTitle: '🎁',
+    image: medalSvg,
+    iconTitle: '🏅',
   },
 ];
 
@@ -83,7 +84,22 @@ const KeyOfFeature = () => {
         direction="bottom"
         className="sm:text-3xl text-2xl font-semibold mb-6 flex items-center justify-center text-center "
       />
+
       <div className="md:max-w-5xl xl:max-w-6xl mx-5 ">
+        <motion.div
+          className="absolute rounded-3xl"
+          style={{
+            width: '60%',
+            height: '30%',
+            background:
+              'radial-gradient(circle at center, var(--light-glow) 0%, transparent 70%)',
+            filter: 'blur(70px)',
+            zIndex: 0,
+            willChange: 'transform, opacity',
+            bottom: '30%',
+          }}
+        />
+
         <div className="bg-muted/50 flex flex-col md:flex-row gap-2  md:gap-1 mb-2">
           {dataFeature.map((item, index) => {
             const isActive = index === activeIndex;
@@ -109,10 +125,23 @@ const KeyOfFeature = () => {
 
                 {/* CONTENT MOBILE VER */}
                 {isActive && (
-                  <div className="md:hidden bg-[var(--card)] rounded-b-2xl  -mt-4 relative">
+                  <div className="md:hidden bg-[var(--card)] rounded-b-2xl rounded-t-2xl -mt-2 relative overflow-hidden">
+                    {/* Background image (behind text) */}
+                    <motion.img
+                      key={`bg-${activeIndex}`}
+                      src={activeItem.image}
+                      alt={activeItem.Title}
+                      className="absolute bottom-0 right-0 w-1/3 max-w-sm object-contain opacity-30 pointer-events-none select-none"
+                      initial={{ opacity: 0, scale: 0.9, x: 30 }}
+                      animate={{ opacity: 0.3, scale: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 30 }}
+                      transition={{ duration: 0.7, ease: 'linear' }}
+                    />
+
+                    {/* Text content (in front) */}
                     <motion.div
                       key={`text-${activeIndex}`}
-                      className="flex-1 p-10 "
+                      className="relative z-10 flex-1 p-10"
                       initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
                       exit={{ opacity: 0, x: -30 }}
@@ -134,23 +163,6 @@ const KeyOfFeature = () => {
                         className="text-muted-foreground text-base leading-relaxed font-light"
                       />
                     </motion.div>
-
-                    <motion.div
-                      key={`image-${activeIndex}`}
-                      className="flex-1 relative"
-                      initial={{ opacity: 0, x: 30 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: 30 }}
-                      transition={{ duration: 0.7, ease: 'linear' }}>
-                      <motion.img
-                        src={activeItem.image}
-                        alt={activeItem.Title}
-                        className=""
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.4 }}
-                      />
-                    </motion.div>
                   </div>
                 )}
               </React.Fragment>
@@ -159,7 +171,8 @@ const KeyOfFeature = () => {
         </div>
 
         {/* CONTENT DEKSTOP VER */}
-        <div className="hidden md:flex bg-[var(--card)] backdrop-blur-3xl rounded-xl h-[540px] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl">
+        {/* <div className="hidden md:flex bg-[var(--card)] backdrop-blur-3xl rounded-xl h-[540px] relative overflow-hidden before:absolute before:inset-0 before:bg-gradient-to-br before:from-white/10 before:to-transparent before:rounded-xl"> */}
+        <div className="hidden md:flex bg-[var(--card)] backdrop-blur- rounded-xl h-[540px] relative overflow-hidden ">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeIndex}
@@ -197,7 +210,7 @@ const KeyOfFeature = () => {
               <motion.img
                 src={activeItem.image}
                 alt={activeItem.Title}
-                className="absolute bottom-0 right-0 w-full max-w-md object-contain"
+                className="absolute bottom-5 right-10 w-full max-w-md object-contain"
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.4 }}

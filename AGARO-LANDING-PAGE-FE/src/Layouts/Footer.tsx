@@ -18,12 +18,16 @@ const Footer: React.FC = () => {
           <div className="max-w-sm">
             <div className="flex flex-col items-start">
               {/* placeholder logo circle */}
-              <div className="">
+              <div className="flex items-center gap-2 px-2 my-4">
                 <img
-                  src="/Logo.png"
+                  src="/Logo-small.png"
                   alt="AgaroVote Logo"
-                  className="h-22 w-full object-cover object-center"
+                  className="h-8 w-full object-contain"
                 />
+
+                <h1 className="text-2xl text-muted-foreground dark:text-foreground font-bold">
+                  Agaro<span className="text-primary ">Vote</span>
+                </h1>
               </div>
               <p className=" text-sm opacity-90">
                 Your Voice, Verified with

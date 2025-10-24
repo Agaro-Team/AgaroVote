@@ -22,12 +22,16 @@ const DesktopHeader = ({
           : 'bg-transparent border-transparent'
       )}>
       <div className="w-full flex gap-x-5 items-center justify-between">
-        <div>
+        <div className="flex items-center gap-2 px-2 ">
           <img
-            src="/Logo.png"
+            src="/Logo-small.png"
             alt="AgaroVote Logo"
-            className="h-32 w-full object-cover object-center"
+            className="h-8 w-full object-contain"
           />
+
+          <h1 className="text-2xl text-muted-foreground dark:text-foreground font-bold">
+            Agaro<span className="text-primary ">Vote</span>
+          </h1>
         </div>
 
         <nav className="flex gap-x-14 text-[16px] font-semibold mr-14 xl:mr-32">

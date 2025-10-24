@@ -29,9 +29,6 @@ const FAQ: React.FC = () => {
   return (
     <div className="py-16 pt-28 md:pt-44 ">
       <section className="max-w-3xl mx-auto px-4 ">
-        {/* <h2 className="text-2xl sm:text-3xl font-semibold mb-4 text-center">
-          Frequently asked questions
-        </h2> */}
         <BlurText
           text="Frequently asked questions"
           delay={10}
