@@ -18,11 +18,13 @@ export default function DashboardLayout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset>
-        <div className="py-4 px-4">
-          <div className="flex justify-end">
-            <AlphaVersionAlert />
+        {import.meta.env.VITE_ENABLED_ALPHA_NOTICE === 'true' && (
+          <div className="py-4 px-4">
+            <div className="flex justify-end">
+              <AlphaVersionAlert />
+            </div>
           </div>
-        </div>
+        )}
         <Outlet />
       </SidebarInset>
     </SidebarProvider>

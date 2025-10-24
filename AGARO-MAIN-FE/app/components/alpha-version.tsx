@@ -73,6 +73,10 @@ export function AlphaPhaseNotice({ children }: { children?: React.ReactNode }) {
     toast.success(`${label} copied to clipboard`);
   };
 
+  if (import.meta.env.VITE_ENABLED_ALPHA_NOTICE !== 'true') {
+    return null;
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -170,6 +174,10 @@ export function AlphaPhaseNotice({ children }: { children?: React.ReactNode }) {
 }
 
 export const AlphaVersionAlert = () => {
+  if (import.meta.env.VITE_ENABLED_ALPHA_NOTICE !== 'true') {
+    return null;
+  }
+
   return (
     <Alert>
       <AlertTitle className="flex items-center gap-2">
