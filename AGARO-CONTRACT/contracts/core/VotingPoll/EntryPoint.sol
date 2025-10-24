@@ -23,7 +23,7 @@ import "../../interfaces/VotingPoll/IEntryPoint.sol";
  * Integrates with MerkleTree for whitelisting, SyntheticReward for token distribution, and AGR token for platform fees.
  * Uses Clones pattern for gas-efficient deployment of auxiliary contracts.
  * @custom:version 1.0.0
- * @custom:security-contact security@agaro.io
+ * @custom:security-contact security@agaro
  * @custom:standard ERC-20 (AGR Token), Clones Pattern, Merkle Tree Verification
  */
 contract EntryPoint is
@@ -58,61 +58,61 @@ contract EntryPoint is
     ) {
         tiers[1] = Tier({
             discount: 5,
-            minHoldAGR: 100000000000000000000,
+            minHoldAGR: 100 ether,
             maxPollingPerDay: 1
         });
         tiers[2] = Tier({
             discount: 10,
-            minHoldAGR: 500000000000000000000,
+            minHoldAGR: 500 ether,
             maxPollingPerDay: 2
         });
         tiers[3] = Tier({
             discount: 15,
-            minHoldAGR: 1000000000000000000000,
+            minHoldAGR: 1000 ether,
             maxPollingPerDay: 3
         });
         tiers[4] = Tier({
             discount: 20,
-            minHoldAGR: 2500000000000000000000,
+            minHoldAGR: 2500 ether,
             maxPollingPerDay: 4
         });
         tiers[5] = Tier({
             discount: 25,
-            minHoldAGR: 5000000000000000000000,
+            minHoldAGR: 5000 ether,
             maxPollingPerDay: 5
         });
         tiers[6] = Tier({
             discount: 30,
-            minHoldAGR: 10000000000000000000000,
+            minHoldAGR: 10000 ether,
             maxPollingPerDay: 6
         });
         tiers[7] = Tier({
             discount: 40,
-            minHoldAGR: 20000000000000000000000,
+            minHoldAGR: 20000 ether,
             maxPollingPerDay: 7
         });
         tiers[8] = Tier({
             discount: 60,
-            minHoldAGR: 50000000000000000000000,
+            minHoldAGR: 50000 ether,
             maxPollingPerDay: 8
         });
         tiers[9] = Tier({
             discount: 80,
-            minHoldAGR: 75000000000000000000000,
+            minHoldAGR: 75000 ether,
             maxPollingPerDay: 9
         });
         tiers[10] = Tier({
             discount: 100,
-            minHoldAGR: 100000000000000000000000,
+            minHoldAGR: 100000 ether,
             maxPollingPerDay: type(uint256).max
         });
 
-        platformFee = 5000000000000000000;
-        minHold = 100000000000000000000;
+        platformFee = 5 ether;
+        minHold = 100 ether;
         baseIncentives = BaseIncentives({
-            tier1: 50000000000000000000,
-            tier5: 88000000000000000000,
-            tier10: 200000000000000000000
+            tier1: 50 ether,
+            tier5: 88 ether,
+            tier10: 200 ether
         });
 
         merkleTreeAllowListImplementation = _merkleTreeAllowListImplementation;

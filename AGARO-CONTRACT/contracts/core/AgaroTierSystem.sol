@@ -139,20 +139,16 @@ contract AgaroTierSystem is IAgaroTierSystem {
         uint256 months = _timestampToMonths(durationTimestamps);
 
         if (tier == 1) {
-            if (months >= 9)
-                return baseIncentives.tier1 + 100000000000000000000;
-            if (months >= 6) return baseIncentives.tier1 + 50000000000000000000;
+            if (months >= 9) return baseIncentives.tier1 + 100 ether;
+            if (months >= 6) return baseIncentives.tier1 + 50 ether;
             if (months >= 3) return baseIncentives.tier1;
         } else if (tier == 5) {
-            if (months >= 9)
-                return baseIncentives.tier5 + 175000000000000000000;
-            if (months >= 6) return baseIncentives.tier5 + 87000000000000000000;
+            if (months >= 9) return baseIncentives.tier5 + 175 ether;
+            if (months >= 6) return baseIncentives.tier5 + 87 ether;
             if (months >= 3) return baseIncentives.tier5;
         } else if (tier == 10) {
-            if (months >= 9)
-                return baseIncentives.tier10 + 400000000000000000000;
-            if (months >= 6)
-                return baseIncentives.tier10 + 200000000000000000000;
+            if (months >= 9) return baseIncentives.tier10 + 400 ether;
+            if (months >= 6) return baseIncentives.tier10 + 200 ether;
             if (months >= 3) return baseIncentives.tier10;
         }
 
