@@ -22,7 +22,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import { Switch } from '~/components/ui/switch';
 import { SortOrder } from '~/lib/api/api.interface';
 import { PollSortBy } from '~/lib/api/poll/poll.interface';
 
@@ -163,7 +162,7 @@ export function VotingPollsFilters() {
         </div>
 
         {/* Active Filter - Separate Row for Better Visibility */}
-        <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
+        {/* <div className="flex items-center justify-between rounded-lg border bg-muted/50 p-4">
           <div className="space-y-0.5">
             <Label htmlFor="isActive" className="text-base font-medium cursor-pointer">
               Active Polls Only
@@ -177,7 +176,7 @@ export function VotingPollsFilters() {
             checked={filters.isActive}
             onCheckedChange={(checked) => setFilters({ isActive: checked })}
           />
-        </div>
+        </div> */}
       </div>
     </Card>
   );

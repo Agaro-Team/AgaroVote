@@ -44,7 +44,7 @@ export function usePollStatus(): { statusConfig: StatusConfig } {
       label: 'Active',
       variant: 'default',
       icon: Vote,
-      description: 'Vote now!',
+      description: 'Information',
     },
   };
 }
