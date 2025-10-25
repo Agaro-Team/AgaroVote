@@ -35,8 +35,8 @@ export function CreateVotingPollForm() {
     isVerifying,
     verificationError,
     error,
+    errorDetails,
     shouldRedirect,
-    offChainHash,
     storePollData,
   } = useCreatePoll();
 
@@ -361,9 +361,9 @@ export function CreateVotingPollForm() {
           onOpenChange={setOpenConfirmationDialog}
           progressStep={progressStep}
           isSubmitting={isSubmitting}
-          offChainHash={offChainHash}
           verificationError={verificationError}
           error={error}
+          errorDetails={errorDetails}
           onClose={() => setProgressStep('idle')}
           onConfirm={() => startSubmission()}
         />

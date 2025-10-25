@@ -7,16 +7,38 @@ import { ProgressStep } from './progress-step';
 
 type ProgressStepType = 'idle' | 'saving' | 'wallet' | 'confirming' | 'success' | 'error';
 
-interface ProgressStepListProps {
-  currentStep: ProgressStepType;
+interface StepError {
+  step: 'saving' | 'wallet' | 'confirming';
+  message: string;
 }
 
-export function ProgressStepList({ currentStep }: ProgressStepListProps) {
+interface ProgressStepListProps {
+  currentStep: ProgressStepType;
+  errorDetails?: StepError | null;
+}
+
+export function ProgressStepList({ currentStep, errorDetails }: ProgressStepListProps) {
   // Helper to determine step status
   const getStepStatus = (step: ProgressStepType): 'pending' | 'loading' | 'success' | 'error' => {
+    // If there's an error at this specific step
+    if (errorDetails && errorDetails.step === step) {
+      return 'error';
+    }
+
     const stepOrder = ['idle', 'saving', 'wallet', 'confirming', 'success', 'error'];
     const currentIndex = stepOrder.indexOf(currentStep);
     const stepIndex = stepOrder.indexOf(step);
+
+    // If we're in error state, mark steps after the error as error
+    if (currentStep === 'error' && errorDetails) {
+      const errorStepIndex = stepOrder.indexOf(errorDetails.step);
+      if (stepIndex > errorStepIndex) {
+        return 'error';
+      }
+      if (stepIndex < errorStepIndex) {
+        return 'success';
+      }
+    }
 
     if (currentIndex === stepIndex) return 'loading';
     if (currentIndex > stepIndex) return 'success';
@@ -28,12 +50,26 @@ export function ProgressStepList({ currentStep }: ProgressStepListProps) {
     return completedSteps.includes(currentStep) && getStepStatus(step) === 'success';
   };
 
+  // Helper to get error message for a specific step
+  const getErrorMessage = (step: 'saving' | 'wallet' | 'confirming') => {
+    if (errorDetails && errorDetails.step === step) {
+      return (
+        <span className="text-destructive font-medium text-xs">Error: {errorDetails.message}</span>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-3">
       {/* Step 1: Saving data */}
       <ProgressStep
         title="Saving poll data"
-        description="Storing your voting pool information..."
+        description={
+          errorDetails?.step === 'saving'
+            ? getErrorMessage('saving')
+            : 'Storing your voting pool information...'
+        }
         status={getStepStatus('saving')}
       />
 
@@ -41,7 +77,9 @@ export function ProgressStepList({ currentStep }: ProgressStepListProps) {
       <ProgressStep
         title="Wallet confirmation"
         description={
-          currentStep === 'wallet' ? (
+          errorDetails?.step === 'wallet' ? (
+            getErrorMessage('wallet')
+          ) : currentStep === 'wallet' ? (
             <span className="text-primary font-medium">
               Please confirm the transaction in your wallet extension
             </span>
@@ -56,9 +94,11 @@ export function ProgressStepList({ currentStep }: ProgressStepListProps) {
       <ProgressStep
         title="Blockchain confirmation"
         description={
-          currentStep === 'confirming'
-            ? 'Waiting for transaction to be confirmed...'
-            : 'Transaction will be confirmed on blockchain'
+          errorDetails?.step === 'confirming'
+            ? getErrorMessage('confirming')
+            : currentStep === 'confirming'
+              ? 'Waiting for transaction to be confirmed...'
+              : 'Transaction will be confirmed on blockchain'
         }
         status={getStepStatus('confirming')}
       />
