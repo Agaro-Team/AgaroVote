@@ -142,17 +142,12 @@ export function VoteProvider({ children }: VoteProviderProps) {
     if (!poll) return;
     if (!votePoll.choiceId) return;
 
-    try {
-      votePoll.vote({
-        pollHash: poll.pollHash,
-        pollId: poll.id,
-        candidateSelected: votePoll.choiceIndex,
-        choiceId: votePoll.choiceId,
-      });
-    } catch (error) {
-      // Errors are already handled in the useVotePoll hook
-      console.error('Vote submission error:', error);
-    }
+    votePoll.vote({
+      pollHash: poll.pollHash,
+      pollId: poll.id,
+      candidateSelected: votePoll.choiceIndex,
+      choiceId: votePoll.choiceId,
+    });
   };
 
   const value: VoteContextValue = {
