@@ -32,7 +32,6 @@ authenticatedApi.interceptors.request.use(
   (config) => {
     // Read token from cookie (client-side with proper URL decoding)
     const token = getAuthToken();
-    console.log({ token });
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
