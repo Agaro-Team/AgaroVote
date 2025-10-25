@@ -50,9 +50,6 @@ export class CastVoteHandler implements ICommandHandler<CastVoteCommand> {
 
   async execute(props: CastVoteCommand): Promise<Vote> {
     const command = props.props;
-    console.log({
-      command,
-    });
     // 1. Validate vote eligibility via QueryBus (no tight coupling with Poll module!)
     const eligibility = await this.queryBus.execute<
       CheckVotingEligibilityQuery,
