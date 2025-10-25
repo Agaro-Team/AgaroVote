@@ -2,7 +2,7 @@ name: Backend Docker Build & Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "dev-agaro"]
     paths:
       - "AGARO-MAIN-BE/**"
   workflow_dispatch:
@@ -12,7 +12,7 @@ env:
   CONTAINER_NAME: agaro-be
   PORT: 3005
   ENV_FILE: .env
-  REMOTE_DIR: /home/ardial/agaro-be
+  REMOTE_DIR: /home/ardial/agaro-be-dev
 
 jobs:
   build-and-deploy:
@@ -31,13 +31,25 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set tag, port, and env secret based on branch
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "TAG=latest" >> $GITHUB_ENV
+            echo "PORT=3005" >> $GITHUB_ENV
+            echo "ENV_SECRET=${{ secrets.ENV_PROD }}" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "dev-agaro" ]]; then
+            echo "TAG=dev" >> $GITHUB_ENV
+            echo "PORT=3505" >> $GITHUB_ENV
+            echo "ENV_SECRET=${{ secrets.ENV_PROD_DEV }}" >> $GITHUB_ENV
+          fi
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
           context: ./AGARO-MAIN-BE
           file: ./AGARO-MAIN-BE/Dockerfile.prod
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:latest
+          tags: ${{ env.DOCKER_IMAGE }}:${{ env.TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -50,7 +62,7 @@ jobs:
 
       - name: Create env file from secret
         run: |
-          echo "${{ secrets.ENV_PROD }}" > ./AGARO-MAIN-BE/${{ env.ENV_FILE }}
+          echo "${{ env.ENV_SECRET }}" > ./AGARO-MAIN-BE/${{ env.ENV_FILE }}
           echo "Environment file created"
           cat ./AGARO-MAIN-BE/${{ env.ENV_FILE }}
 
@@ -59,14 +71,15 @@ jobs:
           echo "Creating directory on remote server if not exists..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "mkdir -p ${{ env.REMOTE_DIR }}"
           echo "Uploading environment file..."
-          scp -o StrictHostKeyChecking=no ./AGARO-MAIN-BE/${{ env.ENV_FILE }} ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}
+          scp -o StrictHostKeyChecking=no ./AGARO-MAIN-BE/${{ env.ENV_FILE }} \
+            ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }}:${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}
 
       - name: Deploy to Server
         run: |
           ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
             sudo bash -c '
               echo \"Pulling latest Docker image\"
-              docker pull ${{ env.DOCKER_IMAGE }}:latest
+              docker pull ${{ env.DOCKER_IMAGE }}:${{ env.TAG }}
 
               echo \"Stopping old container\"
               docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
@@ -76,7 +89,7 @@ jobs:
               docker container prune -f
               docker image prune -f
 
-              echo \"Running new container\"
+              echo \"Running new container on port ${{ env.PORT }}\"
               docker run -d \
                 --name ${{ env.CONTAINER_NAME }} \
                 --restart unless-stopped \
@@ -84,6 +97,6 @@ jobs:
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
                 --env-file ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }} \
                 -v /etc/letsencrypt/live/ardial.tech/:/etc/letsencrypt/live/ardial.tech/ \
-                ${{ env.DOCKER_IMAGE }}:latest
+                ${{ env.DOCKER_IMAGE }}:${{ env.TAG }}
             '
           "
