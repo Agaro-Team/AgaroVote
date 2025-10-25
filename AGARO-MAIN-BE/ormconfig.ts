@@ -1,7 +1,26 @@
 import { DataSource } from 'typeorm';
 import { config } from 'dotenv';
+import * as fs from 'fs';
+import * as path from 'path';
 
-config();
+// Load environment variables with fallback logic
+// Priority: .env.{NODE_ENV} > .env.local > .env
+const nodeEnv = process.env.NODE_ENV || 'development';
+const envFiles = [
+  `.env.${nodeEnv}`, // .env.development, .env.production, etc.
+  '.env.local', // Local overrides
+  '.env', // Default fallback
+];
+
+// Load the first existing env file
+for (const envFile of envFiles) {
+  const envPath = path.resolve(__dirname, envFile);
+  if (fs.existsSync(envPath)) {
+    console.log(`[ORM Config] Loading environment from: ${envFile}`);
+    config({ path: envPath });
+    break;
+  }
+}
 
 const isProduction = process.env.NODE_ENV === 'production';
 
