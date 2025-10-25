@@ -23,7 +23,9 @@ import { getVotingPollHash } from '~/lib/web3/voting-poll-utils';
 import { useEffect, useRef, useState } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
-import { StepError } from '~/lib/types/step-error';
+
+import type { StepError } from '../components/transaction-progress';
+
 export interface PollData {
   title: string;
   description: string;
