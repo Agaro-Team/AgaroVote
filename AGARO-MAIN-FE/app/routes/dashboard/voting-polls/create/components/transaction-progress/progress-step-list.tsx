@@ -68,7 +68,7 @@ export function ProgressStepList({ currentStep, errorDetails }: ProgressStepList
         description={
           errorDetails?.step === 'saving'
             ? getErrorMessage('saving')
-            : 'Storing your voting pool information...'
+            : 'Storing your voting poll information...'
         }
         status={getStepStatus('saving')}
       />
