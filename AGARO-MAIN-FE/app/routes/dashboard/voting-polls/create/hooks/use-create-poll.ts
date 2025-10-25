@@ -24,6 +24,11 @@ import { useEffect, useRef, useState } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
 
+export interface StepError {
+  step: 'saving' | 'wallet' | 'confirming';
+  message: string;
+}
+
 export interface PollData {
   title: string;
   description: string;
@@ -59,6 +64,7 @@ export function useCreatePoll() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationError, setVerificationError] = useState<string | null>(null);
   const [pollData, setPollData] = useState<PollData | null>(null);
+  const [errorDetails, setErrorDetails] = useState<StepError | null>(null);
   const offChainHashRef = useRef<`0x${string}` | null>(null);
 
   const {
@@ -135,6 +141,12 @@ export function useCreatePoll() {
 
       const { title, description } = parseWagmiErrorForToast(error);
 
+      // Set error details for the saving step
+      setErrorDetails({
+        step: 'saving',
+        message: description || title || 'Failed to save poll data to backend',
+      });
+
       toast.error(title, {
         description,
       });
@@ -158,6 +170,13 @@ export function useCreatePoll() {
 
         // Parse the error and show user-friendly message
         const { title, description } = parseWagmiErrorForToast(error);
+
+        // Set error details for the wallet step
+        setErrorDetails({
+          step: 'wallet',
+          message: description || title || 'Transaction rejected or failed',
+        });
+
         toast.error(title, {
           description,
         });
@@ -173,12 +192,13 @@ export function useCreatePoll() {
     },
   });
 
-  console.log({
-    version,
-  });
-
   // Wait for transaction confirmation
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({
+  const {
+    isLoading: isConfirming,
+    isSuccess,
+    isError: isConfirmError,
+    error: confirmError,
+  } = useWaitForTransactionReceipt({
     hash: txHash,
     chainId,
     query: {
@@ -186,11 +206,33 @@ export function useCreatePoll() {
     },
   });
 
+  // Handle confirmation errors
+  useEffect(() => {
+    if (isConfirmError && confirmError) {
+      console.error('Transaction confirmation failed:', confirmError);
+      setIsVerifying(false);
+
+      const { title, description } = parseWagmiErrorForToast(confirmError);
+
+      setErrorDetails({
+        step: 'confirming',
+        message: description || title || 'Transaction confirmation failed',
+      });
+
+      toast.error(title, {
+        description,
+      });
+    }
+  }, [isConfirmError, confirmError]);
+
   /**
    * Create a new voting poll
    * @param pollData - The voting poll data containing title, description, candidates, start/end dates, privacy settings, and allowed addresses
    */
   const createPoll = async (pollData: PollData) => {
+    // Reset error details when starting new transaction
+    setErrorDetails(null);
+
     if (!chainId) {
       toast.error('No chain connected');
       return;
@@ -247,6 +289,13 @@ export function useCreatePoll() {
     } catch (error) {
       // Parse the error and show user-friendly message
       const { title, description } = parseWagmiErrorForToast(error);
+
+      // Set generic error (this is typically for hash computation errors)
+      setErrorDetails({
+        step: 'saving',
+        message: description || title || 'Failed to prepare poll data',
+      });
+
       toast.error(title, {
         description,
       });
@@ -258,6 +307,8 @@ export function useCreatePoll() {
       refetchVersion();
       setIsVerifying(false);
       setShouldRedirect(true);
+      // Clear error details on success
+      setErrorDetails(null);
     }
   }, [isSuccess]);
 
@@ -270,6 +321,7 @@ export function useCreatePoll() {
     verificationError,
     isError,
     error,
+    errorDetails,
     txHash,
     offChainHash,
     shouldRedirect,
