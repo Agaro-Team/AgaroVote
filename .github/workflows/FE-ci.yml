@@ -12,7 +12,7 @@ env:
   CONTAINER_NAME: agaro-fe
   PORT: 3000
   ENV_FILE: .env
-  REMOTE_DIR: /home/${{ secrets.REMOTE_USER }}/agaro-fe-dev
+  REMOTE_DIR: /home/${{ secrets.REMOTE_USER }}/agaro-fe
 
 jobs:
   build-and-deploy:
@@ -31,16 +31,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set tag, port, and env secret based on branch
+      - name: Set tag, port, env secret, and container name based on branch
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "TAG=latest" >> $GITHUB_ENV
             echo "PORT=3000" >> $GITHUB_ENV
             echo "ENV_SECRET=${{ secrets.ENV_FE }}" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}" >> $GITHUB_ENV
+            echo "REMOTE_DIR=/home/${{ secrets.REMOTE_USER }}/agaro-fe" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "dev-agaro" ]]; then
             echo "TAG=dev" >> $GITHUB_ENV
             echo "PORT=3500" >> $GITHUB_ENV
             echo "ENV_SECRET=${{ secrets.ENV_FE_DEV }}" >> $GITHUB_ENV
+            echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}-dev" >> $GITHUB_ENV
+            echo "REMOTE_DIR=/home/${{ secrets.REMOTE_USER }}/agaro-fe-dev" >> $GITHUB_ENV
           fi
 
       - name: Create env file from secret
