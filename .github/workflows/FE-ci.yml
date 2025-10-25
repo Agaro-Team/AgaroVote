@@ -10,9 +10,7 @@ on:
 env:
   DOCKER_IMAGE: ardialqlause/agaro-main-fe
   CONTAINER_NAME: agaro-fe
-  PORT: 3000
   ENV_FILE: .env
-  REMOTE_DIR: /home/${{ secrets.REMOTE_USER }}/agaro-fe
 
 jobs:
   build-and-deploy:
@@ -31,27 +29,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Set tag, port, env secret, and container name based on branch
+      - name: Configure branch-specific environment
         run: |
           if [[ "${{ github.ref_name }}" == "main" ]]; then
             echo "TAG=latest" >> $GITHUB_ENV
             echo "PORT=3000" >> $GITHUB_ENV
-            echo "ENV_SECRET=${{ secrets.ENV_FE }}" >> $GITHUB_ENV
+            echo "${{ secrets.ENV_FE }}" > ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
             echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}" >> $GITHUB_ENV
             echo "REMOTE_DIR=/home/${{ secrets.REMOTE_USER }}/agaro-fe" >> $GITHUB_ENV
           elif [[ "${{ github.ref_name }}" == "dev-agaro" ]]; then
             echo "TAG=dev" >> $GITHUB_ENV
             echo "PORT=3500" >> $GITHUB_ENV
-            echo "ENV_SECRET=${{ secrets.ENV_FE_DEV }}" >> $GITHUB_ENV
+            echo "${{ secrets.ENV_FE_DEV }}" > ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
             echo "CONTAINER_NAME=${{ env.CONTAINER_NAME }}-dev" >> $GITHUB_ENV
             echo "REMOTE_DIR=/home/${{ secrets.REMOTE_USER }}/agaro-fe-dev" >> $GITHUB_ENV
           fi
-
-      - name: Create env file from secret
-        run: |
-          echo "${{ env.ENV_SECRET }}" > ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
-          echo "Environment file created:"
-          cat ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -70,7 +62,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.REMOTE_HOST }} >> ~/.ssh/known_hosts
 
-      - name: Upload env file to server
+      - name: Upload environment file to server
         run: |
           echo "Creating directory on remote server if not exists..."
           ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "mkdir -p ${{ env.REMOTE_DIR }}"
@@ -80,7 +72,7 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
+          ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
             sudo bash -c '
               echo \"Pulling latest Docker image\"
               docker pull ${{ env.DOCKER_IMAGE }}:${{ env.TAG }}
@@ -98,8 +90,10 @@ jobs:
                 --name ${{ env.CONTAINER_NAME }} \
                 --restart unless-stopped \
                 --network agaro-network \
-                -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
+                -p 127.0.0.1:${{ env.PORT }}:3000 \
                 -v ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}:/app/.env \
                 ${{ env.DOCKER_IMAGE }}:${{ env.TAG }}
+
+              echo \"Frontend deployed successfully!\"
             '
           "
