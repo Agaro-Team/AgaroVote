@@ -1,5 +1,5 @@
-import dashboardDark from './image/image-dark.png';
-import dashboardLight from './image/image-light.png';
+import dashboardDark from './image/ss-dashboard-dark.webp';
+import dashboardLight from './image/ss-dashboard-light.webp';
 import lockSvg from './icons/lock.svg';
 import identitySvg from './icons/identity.svg';
 import integritySvg from './icons/Integrity.svg';

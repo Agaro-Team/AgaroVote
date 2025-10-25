@@ -37,7 +37,7 @@ function Index() {
 
   const NavMenu = [
     { id: 1, label: 'Overview', to: 'overview' },
-    { id: 2, label: 'Hot It Work', to: 'how-it-work' },
+    { id: 2, label: 'How It Work', to: 'how-it-work' },
     { id: 3, label: 'Features', to: 'features' },
     { id: 4, label: 'Road Map', to: 'time-line' },
     { id: 5, label: 'FAQ', to: 'FAQ' },

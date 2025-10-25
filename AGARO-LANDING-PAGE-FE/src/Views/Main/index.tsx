@@ -13,7 +13,7 @@ const MainPage = () => {
 
   useEffect(() => {
     if (!lenisRef.current) {
-      const lenis = new Lenis({ duration: 1.2, smoothWheel: true });
+      const lenis = new Lenis({ duration: 0.8, smoothWheel: true });
       lenisRef.current = lenis;
     }
 

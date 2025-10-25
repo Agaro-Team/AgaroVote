@@ -95,10 +95,7 @@ const HowItWorks = () => {
 
               {/* Lingkaran step */}
               <motion.div
-                className="bg-[var(--primary)] rounded-full w-14 md:w-16 h-14 md:h-16 flex items-center justify-center text-white text-xl font-bold mb-3 relative z-10"
-                style={{
-                  filter: 'drop-shadow(0 0 10px var(--light-glow))',
-                }}
+                className="bg-[var(--primary)] rounded-full w-14 md:w-16 h-14 md:h-16 flex items-center justify-center text-white text-xl font-bold mb-3 relative z-20"
                 variants={{
                   hidden: { scale: 0, rotate: 90 },
                   visible: {
@@ -107,6 +104,15 @@ const HowItWorks = () => {
                     transition: { type: 'spring', stiffness: 120 },
                   },
                 }}>
+                <motion.div
+                  className="absolute inset-0.5 bg-[var(--primary)] rounded-full -z-10"
+                  animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
+                  transition={{
+                    duration: 3,
+                    repeat: Infinity,
+                    delay: index * 0.2,
+                  }}
+                />
                 {item.id}
               </motion.div>
 
