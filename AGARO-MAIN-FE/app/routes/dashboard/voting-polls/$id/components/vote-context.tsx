@@ -15,8 +15,11 @@ import { type ReactNode, createContext, useContext, useEffect, useMemo } from 'r
 
 import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 
-import { useVotePoll } from '../hooks/use-vote-poll';
+import { VoteError, useVotePoll } from '../hooks/use-vote-poll';
 import type { VoteStep } from './vote-progress-tracker';
+
+// Re-export VoteError for convenience
+export { VoteError };
 
 interface VoteContextValue {
   poll: Poll;
@@ -33,6 +36,7 @@ interface VoteContextValue {
   commitToken: string | null;
   errorPoll: Error | null;
   isLoadingPoll: boolean;
+  voteError: VoteError | null;
   selectChoice: (choiceIndex: number, choiceId: string) => void;
   setCommitToken: (token: string) => void;
   submitVote: () => Promise<void>;
@@ -163,6 +167,7 @@ export function VoteProvider({ children }: VoteProviderProps) {
     voteTxHash: votePoll.voteTxHash,
     errorPoll,
     isLoadingPoll,
+    voteError: votePoll.voteError, // Get voteError from hook
     selectChoice: (choiceIndex, choiceId) => {
       // Prevent selection if user has already voted
       if (hasVoted) {
