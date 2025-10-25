@@ -2,7 +2,7 @@ name: Frontend Docker Build & Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "dev-agaro"]
     paths:
       - "AGARO-MAIN-FE/**"
   workflow_dispatch:
@@ -12,7 +12,7 @@ env:
   CONTAINER_NAME: agaro-fe
   PORT: 3000
   ENV_FILE: .env
-  REMOTE_DIR: /home/${{ secrets.REMOTE_USER }}/agaro-fe
+  REMOTE_DIR: /home/${{ secrets.REMOTE_USER }}/agaro-fe-dev
 
 jobs:
   build-and-deploy:
@@ -31,9 +31,21 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Set tag, port, and env secret based on branch
+        run: |
+          if [[ "${{ github.ref_name }}" == "main" ]]; then
+            echo "TAG=latest" >> $GITHUB_ENV
+            echo "PORT=3000" >> $GITHUB_ENV
+            echo "ENV_SECRET=${{ secrets.ENV_FE }}" >> $GITHUB_ENV
+          elif [[ "${{ github.ref_name }}" == "dev-agaro" ]]; then
+            echo "TAG=dev" >> $GITHUB_ENV
+            echo "PORT=3500" >> $GITHUB_ENV
+            echo "ENV_SECRET=${{ secrets.ENV_FE_DEV }}" >> $GITHUB_ENV
+          fi
+
       - name: Create env file from secret
         run: |
-          echo "${{ secrets.ENV_FE }}" > ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
+          echo "${{ env.ENV_SECRET }}" > ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
           echo "Environment file created:"
           cat ./AGARO-MAIN-FE/${{ env.ENV_FILE }}
 
@@ -43,7 +55,7 @@ jobs:
           context: ./AGARO-MAIN-FE
           file: ./AGARO-MAIN-FE/Dockerfile.prod
           push: true
-          tags: ${{ env.DOCKER_IMAGE }}:latest
+          tags: ${{ env.DOCKER_IMAGE }}:${{ env.TAG }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -67,7 +79,7 @@ jobs:
           ssh ${{ secrets.REMOTE_USER }}@${{ secrets.REMOTE_HOST }} "
             sudo bash -c '
               echo \"Pulling latest Docker image\"
-              docker pull ${{ env.DOCKER_IMAGE }}:latest
+              docker pull ${{ env.DOCKER_IMAGE }}:${{ env.TAG }}
 
               echo \"Stopping old container\"
               docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
@@ -77,13 +89,13 @@ jobs:
               docker container prune -f
               docker image prune -f
 
-              echo \"Running new container\"
+              echo \"Running new container on port ${{ env.PORT }}\"
               docker run -d \
                 --name ${{ env.CONTAINER_NAME }} \
                 --restart unless-stopped \
                 --network agaro-network \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
                 -v ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }}:/app/.env \
-                ${{ env.DOCKER_IMAGE }}:latest
+                ${{ env.DOCKER_IMAGE }}:${{ env.TAG }}
             '
           "
