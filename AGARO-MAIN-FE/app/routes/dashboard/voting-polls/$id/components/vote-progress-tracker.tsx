@@ -11,6 +11,8 @@ import {
   Loader2,
   Shield,
   Wallet,
+  X,
+  XCircle,
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { cn } from '~/lib/utils';
@@ -25,8 +27,15 @@ export type VoteStep =
   | 'database-storage'
   | 'complete';
 
+export type VoteError =
+  | 'wallet-rejected'
+  | 'blockchain-failed'
+  | 'database-failed'
+  | 'unknown-error';
+
 interface ProgressStep {
   id: VoteStep;
+  errorId: VoteError | null;
   label: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
@@ -35,30 +44,35 @@ interface ProgressStep {
 const PROGRESS_STEPS: ProgressStep[] = [
   {
     id: 'database-storage',
+    errorId: 'database-failed',
     label: 'Storing Vote Data',
     description: 'Recording your vote in our database',
     icon: Database,
   },
   {
     id: 'wallet-confirmation',
+    errorId: 'wallet-rejected',
     label: 'Wallet Confirmation',
     description: 'Waiting for you to confirm in your wallet',
     icon: Wallet,
   },
   {
     id: 'blockchain-submission',
+    errorId: 'blockchain-failed',
     label: 'Submitting to Blockchain',
     description: 'Transaction is being sent to the network',
     icon: LinkIcon,
   },
   {
     id: 'blockchain-confirmation',
+    errorId: 'unknown-error',
     label: 'Blockchain Confirmation',
     description: 'Waiting for network confirmation',
     icon: Shield,
   },
   {
     id: 'complete',
+    errorId: null,
     label: 'Complete',
     description: 'Your vote has been successfully recorded!',
     icon: CheckCircle2,
@@ -66,7 +80,7 @@ const PROGRESS_STEPS: ProgressStep[] = [
 ];
 
 export function VoteProgressTracker() {
-  const { currentVoteStep, voteTxHash } = useVoteContext();
+  const { currentVoteStep, voteTxHash, voteError } = useVoteContext();
 
   // Don't show the tracker if voting hasn't started
   if (currentVoteStep === 'idle') {
@@ -75,33 +89,60 @@ export function VoteProgressTracker() {
 
   const currentStepIndex = PROGRESS_STEPS.findIndex((step) => step.id === currentVoteStep);
 
+  // Find which step has the error (if any)
+  const errorStepIndex = voteError
+    ? PROGRESS_STEPS.findIndex((step) => step.errorId === voteError.errorType)
+    : -1;
+
+  const hasError = errorStepIndex !== -1;
+
   return (
-    <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+    <Card
+      className={cn(
+        'border-primary/20 bg-gradient-to-br from-primary/5 to-transparent',
+        hasError && 'border-destructive/20 from-destructive/5'
+      )}
+    >
       <CardHeader className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
-          <Loader2
-            className={cn(
-              'h-4 w-4',
-              currentVoteStep === 'complete' ? 'hidden' : 'animate-spin text-primary'
-            )}
-          />
-          {currentVoteStep === 'complete' ? (
+          {hasError ? (
             <>
-              <CheckCircle2 className="h-4 w-4 text-green-600" />
-              Vote Submitted Successfully!
+              <XCircle className="h-4 w-4 text-destructive" />
+              Vote Failed
             </>
           ) : (
-            'Processing Your Vote...'
+            <>
+              <Loader2
+                className={cn(
+                  'h-4 w-4',
+                  currentVoteStep === 'complete' ? 'hidden' : 'animate-spin text-primary'
+                )}
+              />
+              {currentVoteStep === 'complete' ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  Vote Submitted Successfully!
+                </>
+              ) : (
+                'Processing Your Vote...'
+              )}
+            </>
           )}
         </CardTitle>
+        {hasError && voteError && (
+          <p className="text-xs text-destructive mt-2">{voteError.message}</p>
+        )}
       </CardHeader>
       <CardContent className="space-y-3">
         {PROGRESS_STEPS.map((step, index) => {
-          const isCurrent = step.id === currentVoteStep && currentVoteStep !== 'complete';
+          const isCurrent =
+            step.id === currentVoteStep && currentVoteStep !== 'complete' && !hasError;
           const isCompleted =
             index < currentStepIndex ||
             (currentVoteStep === 'complete' && index <= currentStepIndex);
-          const isUpcoming = index > currentStepIndex;
+          const isUpcoming = index > currentStepIndex && !hasError;
+          const isError = hasError && index === errorStepIndex;
+          const isCancelled = hasError && index > errorStepIndex;
 
           return (
             <StepItem
@@ -110,6 +151,8 @@ export function VoteProgressTracker() {
               isCurrent={isCurrent}
               isCompleted={isCompleted}
               isUpcoming={isUpcoming}
+              isError={isError}
+              isCancelled={isCancelled}
               isLast={index === PROGRESS_STEPS.length - 1}
             />
           );
@@ -139,10 +182,20 @@ interface StepItemProps {
   isCurrent: boolean;
   isCompleted: boolean;
   isUpcoming: boolean;
+  isError: boolean;
+  isCancelled: boolean;
   isLast: boolean;
 }
 
-function StepItem({ step, isCurrent, isCompleted, isUpcoming, isLast }: StepItemProps) {
+function StepItem({
+  step,
+  isCurrent,
+  isCompleted,
+  isUpcoming,
+  isError,
+  isCancelled,
+  isLast,
+}: StepItemProps) {
   const Icon = step.icon;
 
   return (
@@ -152,7 +205,9 @@ function StepItem({ step, isCurrent, isCompleted, isUpcoming, isLast }: StepItem
         <div
           className={cn(
             'absolute left-[15px] top-8 w-0.5 h-[calc(100%+0.75rem)] -translate-x-1/2',
-            isCompleted ? 'bg-green-500' : 'bg-border'
+            isCompleted && 'bg-green-500',
+            (isError || isCancelled) && 'bg-destructive',
+            !isCompleted && !isError && !isCancelled && 'bg-border'
           )}
         />
       )}
@@ -163,11 +218,17 @@ function StepItem({ step, isCurrent, isCompleted, isUpcoming, isLast }: StepItem
           'relative z-10 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 transition-all',
           isCurrent && 'border-primary bg-primary text-primary-foreground animate-pulse',
           isCompleted && 'border-green-500 bg-green-500 text-white',
+          isError && 'border-destructive bg-destructive text-destructive-foreground',
+          isCancelled && 'border-destructive bg-background text-destructive',
           isUpcoming && 'border-muted bg-background text-muted-foreground'
         )}
       >
         {isCompleted ? (
           <Check className="h-4 w-4" />
+        ) : isError ? (
+          <XCircle className="h-4 w-4" />
+        ) : isCancelled ? (
+          <X className="h-4 w-4" />
         ) : isCurrent ? (
           <Loader2 className="h-4 w-4 animate-spin" />
         ) : (
@@ -182,6 +243,7 @@ function StepItem({ step, isCurrent, isCompleted, isUpcoming, isLast }: StepItem
             'font-medium text-sm leading-none mb-1 transition-colors',
             isCurrent && 'text-primary',
             isCompleted && 'text-green-600 dark:text-green-500',
+            (isError || isCancelled) && 'text-destructive',
             isUpcoming && 'text-muted-foreground'
           )}
         >
@@ -192,10 +254,12 @@ function StepItem({ step, isCurrent, isCompleted, isUpcoming, isLast }: StepItem
             'text-xs transition-colors',
             isCurrent && 'text-muted-foreground',
             isCompleted && 'text-muted-foreground',
+            isError && 'text-destructive/80',
+            isCancelled && 'text-muted-foreground/60',
             isUpcoming && 'text-muted-foreground/60'
           )}
         >
-          {step.description}
+          {isError ? 'Failed - ' + step.description : isCancelled ? 'Cancelled' : step.description}
         </p>
       </div>
     </div>
