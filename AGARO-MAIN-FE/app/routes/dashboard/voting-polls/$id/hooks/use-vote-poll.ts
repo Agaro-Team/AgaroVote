@@ -15,9 +15,56 @@ import {
 import { parseWagmiErrorForToast } from '~/lib/web3/error-parser';
 import { createHexProofByLeaves } from '~/lib/web3/utils';
 
-import { useEffect, useReducer } from 'react';
+import { useEffect, useReducer, useState } from 'react';
 
 import { useMutation } from '@tanstack/react-query';
+
+import type { VoteError as VoteErrorType, VoteStep } from '../components/vote-progress-tracker';
+
+/**
+ * Custom Vote Error Class
+ * Allows classification of errors by voting step
+ */
+export class VoteError extends Error {
+  public readonly errorType: VoteErrorType;
+  public readonly step: VoteStep;
+
+  constructor(message: string, errorType: VoteErrorType, step: VoteStep) {
+    super(message);
+    this.name = 'VoteError';
+    this.errorType = errorType;
+    this.step = step;
+
+    // Maintains proper stack trace for where our error was thrown (only available on V8)
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, VoteError);
+    }
+  }
+
+  /**
+   * Factory methods for creating specific vote errors
+   */
+  static databaseFailed(message: string = 'Failed to store vote data in database'): VoteError {
+    return new VoteError(message, 'database-failed', 'database-storage');
+  }
+
+  static walletRejected(message: string = 'Wallet transaction was rejected'): VoteError {
+    return new VoteError(message, 'wallet-rejected', 'wallet-confirmation');
+  }
+
+  static blockchainFailed(
+    message: string = 'Failed to submit transaction to blockchain'
+  ): VoteError {
+    return new VoteError(message, 'blockchain-failed', 'blockchain-submission');
+  }
+
+  static unknownError(
+    message: string = 'An unknown error occurred',
+    step: VoteStep = 'blockchain-confirmation'
+  ): VoteError {
+    return new VoteError(message, 'unknown-error', step);
+  }
+}
 
 interface VoteParams {
   pollId: string;
@@ -96,6 +143,9 @@ export function useVotePoll(poll: Poll) {
 
   const [state, dispatch] = useReducer(votePollReducer, initialState);
 
+  // Track vote errors
+  const [voteError, setVoteError] = useState<VoteError | null>(null);
+
   // Backend mutation - Step 2: Register vote after blockchain success
   const castVoteMutation = useMutation({
     ...castVoteMutationOptions,
@@ -105,11 +155,13 @@ export function useVotePoll(poll: Poll) {
       await voteToBlockChain();
     },
     onError: (error: Error) => {
-      toast.error('Failed to register vote in backend', {
+      const voteErr = VoteError.databaseFailed(
+        error.message || 'Failed to register vote in backend'
+      );
+      setVoteError(voteErr);
+      toast.error(voteErr.message, {
         description: error.message,
       });
-      // Don't reset state here - blockchain transaction succeeded
-      // Just show the error, user can see the vote on blockchain
     },
   });
 
@@ -125,6 +177,8 @@ export function useVotePoll(poll: Poll) {
       onError: (error) => {
         // Parse the error and show user-friendly message
         const { title, description } = parseWagmiErrorForToast(error);
+        const voteErr = VoteError.walletRejected(description || 'Transaction was rejected');
+        setVoteError(voteErr);
         toast.error(title, {
           description: description || 'Transaction failed. Please try again.',
         });
@@ -258,11 +312,20 @@ export function useVotePoll(poll: Poll) {
   useEffect(() => {
     if (receiptError) {
       const { title, description } = parseWagmiErrorForToast(receiptError);
+      const voteErr = VoteError.blockchainFailed(description || 'Transaction confirmation failed');
+      setVoteError(voteErr);
       toast.error(title, {
         description: description || 'Transaction confirmation failed. Please try again.',
       });
     }
   }, [receiptError]);
+
+  // Reset error when starting a new vote
+  useEffect(() => {
+    if (isWritingEntryPointVote) {
+      setVoteError(null);
+    }
+  }, [isWritingEntryPointVote]);
 
   return {
     vote,
@@ -276,6 +339,7 @@ export function useVotePoll(poll: Poll) {
     writeError,
     receiptError,
     resetWrite,
+    voteError, // Export the VoteError instance
     choiceId: state.choiceId,
     choiceIndex: state.choiceIndex,
     pollId: state.pollId,
