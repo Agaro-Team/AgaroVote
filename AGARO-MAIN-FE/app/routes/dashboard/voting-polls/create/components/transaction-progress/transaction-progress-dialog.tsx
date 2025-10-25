@@ -19,14 +19,19 @@ import { StatusMessage } from './status-message';
 
 type ProgressStep = 'idle' | 'saving' | 'wallet' | 'confirming' | 'success' | 'error';
 
+export interface StepError {
+  step: 'saving' | 'wallet' | 'confirming';
+  message: string;
+}
+
 interface TransactionProgressDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   progressStep: ProgressStep;
   isSubmitting: boolean;
-  offChainHash?: string | null;
   verificationError?: string | null;
   error?: Error | null;
+  errorDetails?: StepError | null;
   onClose: () => void;
   onConfirm: () => void;
 }
@@ -36,9 +41,9 @@ export function TransactionProgressDialog({
   onOpenChange,
   progressStep,
   isSubmitting,
-  offChainHash,
   verificationError,
   error,
+  errorDetails,
   onClose,
   onConfirm,
 }: TransactionProgressDialogProps) {
@@ -93,7 +98,7 @@ export function TransactionProgressDialog({
           {/* Progress steps */}
           {progressStep !== 'idle' && (
             <>
-              <ProgressStepList currentStep={progressStep} />
+              <ProgressStepList currentStep={progressStep} errorDetails={errorDetails} />
 
               {/* Success message */}
               {progressStep === 'success' && (
@@ -108,9 +113,12 @@ export function TransactionProgressDialog({
               {progressStep === 'error' && (
                 <StatusMessage
                   type="error"
-                  title="Error"
+                  title="Transaction Failed"
                   description={
-                    verificationError || error?.message || 'Transaction failed. Please try again.'
+                    errorDetails?.message ||
+                    verificationError ||
+                    error?.message ||
+                    'Something went wrong. Please try again.'
                   }
                 />
               )}
