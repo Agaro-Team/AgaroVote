@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'motion/react';
 import { Link, Outlet, useLocation, useMatches } from 'react-router';
 import { AlphaVersionAlert } from '~/components/alpha-version';
 import { AppSidebar } from '~/components/app-sidebar';
@@ -10,6 +11,8 @@ import {
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar';
+import usePrefersReducedMotion from '~/hooks/usePrefersReducedMotion';
+import useRouteTransition from '~/hooks/useRouteTransition';
 import { siweAuthMiddleware } from '~/lib/middleware/siwe-auth-middleware';
 
 import { Fragment } from 'react';
@@ -29,7 +32,30 @@ export const handle = {
   breadcrumb: 'Dashboard',
 };
 
+// slide variants for left (enter from right) and right (enter from left)
+const slideVariants = (prefersReducedMotion: boolean) => ({
+  left: prefersReducedMotion
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : {
+        initial: { opacity: 0, x: 40 },
+        animate: { opacity: 1, x: 0 },
+        exit: { opacity: 0, x: -40 },
+      },
+  right: prefersReducedMotion
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : {
+        initial: { opacity: 0, x: -40 },
+        animate: { opacity: 1, x: 0 },
+        exit: { opacity: 0, x: 40 },
+      },
+});
+
 export default function DashboardLayout() {
+  const loc = useLocation();
+  const prefersReducedMotion = usePrefersReducedMotion();
+  const { direction } = useRouteTransition(loc?.pathname ?? '/');
+  const variants = slideVariants(prefersReducedMotion)[direction];
+
   return (
     <SidebarProvider>
       <AppSidebar />
@@ -49,7 +75,18 @@ export default function DashboardLayout() {
             </div>
           </div>
         )}
-        <Outlet />
+
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={loc?.pathname ?? '/'}
+            initial={variants.initial}
+            animate={variants.animate}
+            exit={variants.exit}
+            transition={{ duration: 0.11, ease: [0.2, 0.8, 0.2, 1] }}
+          >
+            <Outlet />
+          </motion.div>
+        </AnimatePresence>
       </SidebarInset>
     </SidebarProvider>
   );
@@ -57,7 +94,6 @@ export default function DashboardLayout() {
 
 const DashboardBreadcrumbs = () => {
   const matches = useMatches();
-  const location = useLocation();
 
   // Build breadcrumbs from matched routes with handle.breadcrumb
   // We'll accumulate the path as we go through the hierarchy

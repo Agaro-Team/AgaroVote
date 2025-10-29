@@ -8,6 +8,8 @@ import {
   isRouteErrorResponse,
 } from 'react-router';
 
+import React from 'react';
+
 import type { Route } from './+types/root';
 import './app.css';
 import { Toaster } from './components/ui/sonner';
