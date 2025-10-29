@@ -13,6 +13,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatEther } from 'viem';
 import { Alert, AlertTitle } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
 import {
@@ -146,7 +147,8 @@ export function ClaimableRewardsList() {
                           className="text-xl font-bold text-green-700 dark:text-green-300"
                         />
                         <p className="text-sm text-muted-foreground">
-                          Principal Amount: {reward.principal_amount}
+                          Principal Amount:{' '}
+                          {parseInt(formatEther(BigInt(reward.principal_amount))).toFixed(2)}
                         </p>
                       </Reward.AmountValue>
                     </Reward.AmountRow>

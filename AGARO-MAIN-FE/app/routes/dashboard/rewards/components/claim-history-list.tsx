@@ -152,7 +152,8 @@ export function ClaimHistoryList() {
                           className="text-xl font-bold text-green-700 dark:text-green-300"
                         />
                         <p className="text-sm text-muted-foreground">
-                          Principal Amount: {formatEther(BigInt(reward.principal_amount))}
+                          Principal Amount:{' '}
+                          {parseInt(formatEther(BigInt(reward.principal_amount))).toFixed(2)}
                         </p>
                       </Reward.AmountValue>
                     </Reward.AmountRow>

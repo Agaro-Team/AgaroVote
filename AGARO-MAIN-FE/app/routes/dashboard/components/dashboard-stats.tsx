@@ -4,6 +4,7 @@
  * Displays the main statistics cards at the top of the dashboard
  */
 import { Coins, TrendingUp, Vote } from 'lucide-react';
+import { formatEther } from 'viem';
 import { Card } from '~/components/ui/card';
 import { Spinner } from '~/components/ui/spinner';
 import { useWalletBalance } from '~/hooks/use-web3';
@@ -65,7 +66,8 @@ export function DashboardStats() {
         </div>
         <div>
           <div className="text-2xl font-bold">
-            {summary.total_rewards_earned.toLocaleString()} {walletBalance.symbol}
+            {parseInt(formatEther(BigInt(summary.total_rewards_earned))).toFixed(4)}{' '}
+            {walletBalance.symbol}
           </div>
           <p className="text-xs text-muted-foreground">This month</p>
         </div>
