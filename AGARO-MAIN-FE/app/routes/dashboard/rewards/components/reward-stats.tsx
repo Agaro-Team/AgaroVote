@@ -148,6 +148,8 @@ function ClaimedRewardsStatsCardContent() {
   const isLoading = isLoadingSymbol || !symbol || isLoadingRewardDashboardSummary;
   const amount = rewardDashboardSummary?.totalClaimedAmount || 0;
 
+  const formattedAmount = amount ? parseInt(formatEther(BigInt(amount)).toString()) : 0;
+
   return (
     <div className="space-y-1">
       <div className="space-y-2">
@@ -169,7 +171,7 @@ function ClaimedRewardsStatsCardContent() {
         ) : (
           <p className="text-4xl font-bold">
             <CountUp
-              to={Number(Number(formatEther(BigInt(amount.toString()))).toFixed(2))}
+              to={formattedAmount}
               from={0}
               duration={1.5}
               delay={0.4}

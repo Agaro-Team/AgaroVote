@@ -86,6 +86,8 @@ function RewardsBalanceNow({ label = 'Your Balance Now', className }: RewardsSum
 
   const isLoading = isBalanceLoading;
 
+  const formattedRawBalance = rawBalance ? parseInt(formatEther(rawBalance)).toFixed(4) : 0;
+
   return (
     <div className={cn('space-y-2', className)}>
       <p className="text-sm text-muted-foreground">{label}</p>
@@ -95,7 +97,7 @@ function RewardsBalanceNow({ label = 'Your Balance Now', className }: RewardsSum
         ) : (
           <p className="text-4xl font-bold">
             <CountUp
-              to={Number(Number(formatEther(rawBalance)).toFixed(2))}
+              to={Number(formattedRawBalance)}
               from={0}
               duration={0.5}
               separator=","

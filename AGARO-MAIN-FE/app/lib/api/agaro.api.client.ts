@@ -1,7 +1,7 @@
 import type { AxiosError, AxiosRequestConfig } from 'axios';
 
 import { getAuthToken } from '../utils/cookie.client';
-import { createApiClient } from './api';
+import { createApiClient } from './api.client';
 
 const agaroApiClient = createApiClient({
   baseURL: import.meta.env.VITE_AGARO_VOTE_API_ENTRYPOINT,
