@@ -1,8 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import DesktopHeader from './Desktop';
-import MobileHeader from './Mobile';
-import { useTheme } from '../../lib/theme-provider';
+import DesktopHeader from "./Desktop";
+import MobileHeader from "./Mobile";
+import { useTheme } from "../../lib/theme-provider";
 
 function Index() {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1005);
@@ -18,29 +18,29 @@ function Index() {
   useEffect(() => {
     // handler resize component header
     const handleResize = () => setIsMobile(window.innerWidth < 1005);
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     // handler scroll header
     const handleScroll = () => setIsScrolled(window.scrollY > 10);
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleScroll);
     };
   }, []);
 
   const handleToggleTheme = () => {
-    const newTheme = resolvedTheme === 'dark' ? 'light' : 'dark';
+    const newTheme = resolvedTheme === "dark" ? "light" : "dark";
     setTheme(newTheme);
   };
 
   const NavMenu = [
-    { id: 1, label: 'Overview', to: 'overview' },
-    { id: 2, label: 'Hot It Work', to: 'how-it-work' },
-    { id: 3, label: 'Features', to: 'features' },
-    { id: 4, label: 'Road Map', to: 'time-line' },
-    { id: 5, label: 'FAQ', to: 'FAQ' },
+    { id: 1, label: "Overview", to: "overview" },
+    { id: 2, label: "How it works", to: "how-it-work" },
+    { id: 3, label: "Features", to: "features" },
+    { id: 4, label: "Road Map", to: "time-line" },
+    { id: 5, label: "FAQ", to: "FAQ" },
     // { id: 6, label: 'About', route: '/about' },
   ];
 

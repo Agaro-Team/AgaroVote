@@ -1,14 +1,14 @@
-import React from 'react';
-import { useScrollTo } from './Hooks';
+import React from "react";
+import { useScrollTo } from "./Hooks";
 
 const Footer: React.FC = () => {
   const scrollTo = useScrollTo();
   const NavMenu = [
-    { id: 1, label: 'Overview', to: 'overview' },
-    { id: 2, label: 'Hot It Work', to: 'how-it-work' },
-    { id: 3, label: 'Features', to: 'features' },
-    { id: 4, label: 'Road Map', to: 'time-line' },
-    { id: 5, label: 'FAQ', to: 'FAQ' },
+    { id: 1, label: "Overview", to: "overview" },
+    { id: 2, label: "How it works", to: "how-it-work" },
+    { id: 3, label: "Features", to: "features" },
+    { id: 4, label: "Road Map", to: "time-line" },
+    { id: 5, label: "FAQ", to: "FAQ" },
     // { id: 6, label: 'About', route: '/about' },
   ];
   return (
@@ -49,7 +49,8 @@ const Footer: React.FC = () => {
                       if (menu.to) {
                         scrollTo(menu.to);
                       }
-                    }}>
+                    }}
+                  >
                     {menu.label}
                   </li>
                 </ul>
@@ -62,8 +63,9 @@ const Footer: React.FC = () => {
                 <li
                   className="hover:underline cursor-pointer"
                   onClick={() =>
-                    window.open('https://agaro-app.ardial.tech', '_blank')
-                  }>
+                    window.open("https://agaro-app.ardial.tech", "_blank")
+                  }
+                >
                   AgaroVote Dashboard
                 </li>
               </ul>
