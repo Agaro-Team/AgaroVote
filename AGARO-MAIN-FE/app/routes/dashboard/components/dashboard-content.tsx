@@ -1,8 +1,8 @@
 import { Plus } from 'lucide-react';
-import { Link } from 'react-router';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
 import { dashboardSummaryQueryOptions } from '~/lib/query-client/dashboard/queries';
+import { Link } from '~/lib/utils/navigation';
 
 import { useQuery } from '@tanstack/react-query';
 

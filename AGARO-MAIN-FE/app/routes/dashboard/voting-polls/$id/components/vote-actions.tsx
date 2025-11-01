@@ -2,8 +2,8 @@
  * Vote Actions - Submit and cancel buttons
  */
 import { Vote } from 'lucide-react';
-import { Link } from 'react-router';
 import { Button } from '~/components/ui/button';
+import { Link } from '~/lib/utils/navigation';
 
 import { useVoteContext } from './vote-context';
 

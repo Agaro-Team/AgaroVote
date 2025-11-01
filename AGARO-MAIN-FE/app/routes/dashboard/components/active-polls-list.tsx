@@ -4,10 +4,10 @@
  * Displays list of currently active voting polls
  */
 import { ArrowUpRight } from 'lucide-react';
-import { Link } from 'react-router';
 import { Card } from '~/components/ui/card';
 import { Spinner } from '~/components/ui/spinner';
 import { dashboardSummaryQueryOptions } from '~/lib/query-client/dashboard/queries';
+import { Link } from '~/lib/utils/navigation';
 
 import { useQuery } from '@tanstack/react-query';
 
