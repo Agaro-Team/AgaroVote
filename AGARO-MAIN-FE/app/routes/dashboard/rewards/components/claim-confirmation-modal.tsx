@@ -85,6 +85,14 @@ export const ClaimRewardConfirmationModal = ({
       });
 
       queryClient.invalidateQueries({
+        queryKey: rewardQueryKeys.list(),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: rewardQueryKeys.infiniteList(),
+      });
+
+      queryClient.invalidateQueries({
         queryKey: rewardQueryKeys.dashboardSummary(),
       });
     }

@@ -5,7 +5,6 @@
  * Fully responsive with text truncation and tooltips.
  */
 import { Calendar, CheckCircle2, TrendingUp, Users, Vote } from 'lucide-react';
-import { Link } from 'react-router';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
@@ -14,6 +13,7 @@ import { useWeb3Wallet } from '~/hooks/use-web3';
 import { queryClient } from '~/lib/query-client/config';
 import { pollDetailQueryOptions } from '~/lib/query-client/poll/queries';
 import { checkHasVotedQueryOptions } from '~/lib/query-client/vote/queries';
+import { Link } from '~/lib/utils/navigation';
 
 export interface VotingPollCardProps {
   id: string;

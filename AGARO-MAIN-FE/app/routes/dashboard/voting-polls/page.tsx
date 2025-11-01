@@ -4,9 +4,9 @@
  * Displays all created voting polls with filtering and search capabilities.
  */
 import { Plus } from 'lucide-react';
-import { Link } from 'react-router';
 import { Page } from '~/components/page-header';
 import { Button } from '~/components/ui/button';
+import { Link } from '~/lib/utils/navigation';
 import { VotingPollsFilters } from '~/routes/dashboard/voting-polls/components/voting-polls-filters';
 import { VotingPollsList } from '~/routes/dashboard/voting-polls/components/voting-polls-list';
 

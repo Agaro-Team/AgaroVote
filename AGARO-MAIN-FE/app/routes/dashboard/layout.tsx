@@ -1,4 +1,4 @@
-import { Link, Outlet, useLocation, useMatches } from 'react-router';
+import { Outlet, useLocation, useMatches } from 'react-router';
 import { AlphaVersionAlert } from '~/components/alpha-version';
 import { AppSidebar } from '~/components/app-sidebar';
 import {
@@ -11,6 +11,7 @@ import {
 } from '~/components/ui/breadcrumb';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '~/components/ui/sidebar';
 import { siweAuthMiddleware } from '~/lib/middleware/siwe-auth-middleware';
+import { Link } from '~/lib/utils/navigation';
 
 import { Fragment } from 'react';
 

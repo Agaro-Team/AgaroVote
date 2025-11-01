@@ -4,11 +4,11 @@
  * Displays user's voting activity and claimable rewards
  */
 import { CheckCircle2, Coins, Vote } from 'lucide-react';
-import { Link } from 'react-router';
 import { Card } from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
 import { Spinner } from '~/components/ui/spinner';
 import { dashboardSummaryQueryOptions } from '~/lib/query-client/dashboard/queries';
+import { Link } from '~/lib/utils/navigation';
 
 import { useQuery } from '@tanstack/react-query';
 

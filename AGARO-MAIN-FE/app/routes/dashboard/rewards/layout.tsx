@@ -5,10 +5,12 @@
  * Protected by SIWE authentication middleware.
  */
 import { Check, Gem } from 'lucide-react';
-import { NavLink, Outlet } from 'react-router';
+import { Outlet } from 'react-router';
 import { Skeleton } from '~/components/ui/skeleton';
 import { siweAuthMiddleware } from '~/lib/middleware/auth';
 import { rewardListQueryOptions } from '~/lib/query-client/reward/queries';
+import { cn } from '~/lib/utils';
+import { NavLink } from '~/lib/utils/navigation';
 
 import { Suspense } from 'react';
 
@@ -79,11 +81,12 @@ const TabNavigation = () => {
           key={tab.to}
           to={tab.to}
           className={({ isActive }) =>
-            `flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
+            cn(
+              'flex items-center gap-2 px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px',
               isActive
                 ? 'border-primary text-primary'
                 : 'border-transparent text-muted-foreground hover:text-foreground'
-            }`
+            )
           }
         >
           {({ isActive }) => (
@@ -91,11 +94,12 @@ const TabNavigation = () => {
               {tab.label}
               {!tab.badge || tab.badge === '0' ? null : (
                 <span
-                  className={`rounded-full px-2 py-0.5 text-xs ${
+                  className={cn(
+                    'rounded-full px-2 py-0.5 text-xs',
                     isActive
                       ? 'bg-primary text-primary-foreground'
                       : 'bg-muted text-muted-foreground'
-                  }`}
+                  )}
                 >
                   {tab.badge}
                 </span>
