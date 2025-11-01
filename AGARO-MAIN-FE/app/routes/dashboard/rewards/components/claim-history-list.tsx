@@ -18,6 +18,7 @@ import {
   EmptyTitle,
 } from '~/components/ui/empty';
 import { infiniteRewardListQueryOptions } from '~/lib/query-client/reward/queries';
+import { useNavigate } from '~/lib/utils/navigation';
 
 import { useSuspenseInfiniteQuery } from '@tanstack/react-query';
 
@@ -25,14 +26,13 @@ import { ClaimAmount, ClaimedAmount } from './claim-amount';
 import { Reward } from './reward';
 
 export function ClaimHistoryList() {
+  const navigate = useNavigate();
   const rewardsQuery = useSuspenseInfiniteQuery(
     infiniteRewardListQueryOptions({ claimedOnly: true })
   );
 
   const handleViewPoll = (pollId: string) => {
-    toast.info('Redirecting to poll...', {
-      description: `Viewing poll #${pollId}`,
-    });
+    navigate(`/dashboard/voting-polls/${pollId}`);
   };
 
   const handleRetry = () => {
