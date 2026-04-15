@@ -10,7 +10,7 @@ import { cookieStorage, createConfig, createStorage, http } from 'wagmi';
 // import { hardhat, mainnet, sepolia } from 'wagmi/chains';
 
 const agaroNet = defineChain({
-  id: 13377,
+  id: 1337,
   name: 'Agaro',
   nativeCurrency: { name: 'Agaro', symbol: 'AGR', decimals: 18 },
   rpcUrls: {

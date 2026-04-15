@@ -31,8 +31,8 @@ const TEST_WALLETS = [
 ];
 
 const NETWORK_CONFIG = {
-  rpc: 'https://agaro-rpc.ardial.my.id/',
-  chainId: '13377',
+  rpc: 'https://blockchain.ardial.my.id/',
+  chainId: '1337',
   chainName: 'AgaroChain',
   symbol: 'AGO',
   erc20TokenAddress: '0x239745750870104a7EC6126c89156D773088286c',
