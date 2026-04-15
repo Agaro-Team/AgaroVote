@@ -12,7 +12,7 @@ env:
   CONTAINER_NAME: agaro-be
   PORT: 3113
   ENV_FILE: .env
-  REMOTE_DIR: /home/ardial/agaro-be
+  REMOTE_DIR: /home/awaliya/agaro-be
 
 jobs:
   build-and-deploy:
