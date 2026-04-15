@@ -2,7 +2,7 @@ name: Event Listener
 
 on:
   push:
-    branches: ["main"]
+    branches: ["ardial"]
     paths:
       - "AGARO-EVENT-LISTENER/**"
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
 env:
   APP_NAME: agaro-event-listener
   DEPLOY_DIR: /opt/agaro-event-listener
-  PORT: 3002
+  PORT: 3114
 
 jobs:
   build-and-deploy:
