@@ -18,6 +18,7 @@ COPY --from=builder /app/build ./build
 
 RUN yarn install --frozen-lockfile --production=true && yarn cache clean
 
+ENV PORT=3112
 EXPOSE 3112
 
 CMD ["yarn", "start"]
