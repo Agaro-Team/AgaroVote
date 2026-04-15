@@ -2,7 +2,7 @@ name: Frontend Docker Build & Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["ardial"]
     paths:
       - "AGARO-LANDING-PAGE-FE/**"
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
 env:
   DOCKER_IMAGE: ardialqlause/agaro-landing-page-fe
   CONTAINER_NAME: agaro-landing-page-fe
-  PORT: 3001
+  PORT: 3111
 
 jobs:
   build-and-deploy:
