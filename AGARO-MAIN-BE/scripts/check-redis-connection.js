@@ -189,14 +189,14 @@ async function checkRedisConnection() {
       if (attempt === MAX_RETRIES) {
         console.error('\n❌ All connection attempts failed.');
         console.error('\nTroubleshooting tips:');
-        console.error('1. Verify Redis server is running on ardial.tech:8881');
+        console.error('1. Verify Redis server is running on ardial.my.id:8881');
         console.error('2. Check if firewall allows connections to port 8881');
         console.error('3. Verify password is correct');
         console.error(
           '4. If using TLS, ensure Redis server has valid certificate',
         );
         console.error(
-          '5. Try connecting with redis-cli: redis-cli -h ardial.tech -p 8881 -a rootdoang --tls ping\n',
+          '5. Try connecting with redis-cli: redis-cli -h ardial.my.id -p 8881 -a rootdoang --tls ping\n',
         );
         process.exit(1);
       }

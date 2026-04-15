@@ -2,7 +2,7 @@ name: Frontend Docker Build & Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["ardial"]
     paths:
       - "AGARO-MAIN-FE/**"
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
 env:
   DOCKER_IMAGE: ardialqlause/agaro-main-fe
   CONTAINER_NAME: agaro-fe
-  PORT: 3000
+  PORT: 3112
   ENV_FILE: .env
   REMOTE_DIR: /home/${{ secrets.REMOTE_USER }}/agaro-fe
 

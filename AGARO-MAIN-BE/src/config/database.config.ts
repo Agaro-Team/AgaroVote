@@ -18,15 +18,15 @@ export default registerAs('database', (): TypeOrmModuleOptions => {
       process.env.DB_SSL === 'true'
         ? {
             ca: fs.readFileSync(
-              '/etc/letsencrypt/live/ardial.tech/fullchain.pem',
+              '/etc/letsencrypt/live/ardial.my.id/fullchain.pem',
               'utf8',
             ),
             key: fs.readFileSync(
-              '/etc/letsencrypt/live/ardial.tech/privkey.pem',
+              '/etc/letsencrypt/live/ardial.my.id/privkey.pem',
               'utf8',
             ),
             cert: fs.readFileSync(
-              '/etc/letsencrypt/live/ardial.tech/cert.pem',
+              '/etc/letsencrypt/live/ardial.my.id/cert.pem',
               'utf8',
             ),
             rejectUnauthorized: true,

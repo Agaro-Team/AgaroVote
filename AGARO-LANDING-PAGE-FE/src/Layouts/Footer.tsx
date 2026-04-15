@@ -63,7 +63,7 @@ const Footer: React.FC = () => {
                 <li
                   className="hover:underline cursor-pointer"
                   onClick={() =>
-                    window.open("https://agaro-app.ardial.tech", "_blank")
+                    window.open("https://agaro-app.ardial.my.id", "_blank")
                   }
                 >
                   AgaroVote Dashboard

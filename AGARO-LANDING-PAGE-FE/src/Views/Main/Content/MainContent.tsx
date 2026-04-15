@@ -72,7 +72,7 @@ const MainContent = () => {
             label="Get Started"
             className="mb-5"
             onClick={() =>
-              window.open('https://agaro-app.ardial.tech', '_blank')
+              window.open('https://agaro-app.ardial.my.id', '_blank')
             }
           />
         </motion.div>

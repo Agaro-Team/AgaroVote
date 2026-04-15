@@ -2,7 +2,7 @@ name: Backend Docker Build & Deploy
 
 on:
   push:
-    branches: ["main"]
+    branches: ["ardial"]
     paths:
       - "AGARO-MAIN-BE/**"
   workflow_dispatch:
@@ -10,7 +10,7 @@ on:
 env:
   DOCKER_IMAGE: ardialqlause/agaro-main-be
   CONTAINER_NAME: agaro-be
-  PORT: 3005
+  PORT: 3113
   ENV_FILE: .env
   REMOTE_DIR: /home/ardial/agaro-be
 
@@ -83,7 +83,7 @@ jobs:
                 --network agaro-network \
                 -p 127.0.0.1:${{ env.PORT }}:${{ env.PORT }} \
                 --env-file ${{ env.REMOTE_DIR }}/${{ env.ENV_FILE }} \
-                -v /etc/letsencrypt/live/ardial.tech/:/etc/letsencrypt/live/ardial.tech/ \
+                -v /etc/letsencrypt/live/ardial.my.id/:/etc/letsencrypt/live/ardial.my.id/ \
                 ${{ env.DOCKER_IMAGE }}:latest
             '
           "

@@ -15,7 +15,7 @@ services:
     volumes:
       - agaro_postgres_data:/var/lib/postgresql/data
       - ./postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
-      - ./certs/:/etc/letsencrypt/live/ardial.tech/
+      - ./certs/:/etc/letsencrypt/live/ardial.my.id/
       - ./postgres/postgresql.conf:/etc/postgresql/postgresql.conf
 
     command: >
@@ -43,21 +43,6 @@ services:
       - "8080:8080"
     depends_on:
       - agaro-postgres
-    networks:
-      - agaro-network
-
-  agaro-anvil:
-    image: ghcr.io/foundry-rs/foundry:latest
-    container_name: agaro-anvil
-    entrypoint: ["anvil"]
-    command: >
-      --host 0.0.0.0
-      --chain-id 13377
-      --block-time 5
-      --gas-limit 30000000
-      --base-fee 1000000000
-    ports:
-      - "8545:8545"
     networks:
       - agaro-network
 
@@ -91,7 +76,7 @@ services:
       - agaro_redis_data:/data
       - ./certs/:/etc/redis/ssl/
     extra_hosts:
-      - "ardial.tech:127.0.0.1"
+      - "ardial.my.id:127.0.0.1"
     networks:
       - agaro-network
     healthcheck:

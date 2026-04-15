@@ -64,7 +64,7 @@ const config: HardhatUserConfig = {
       chainType: "l1",
       url: configVariable("AGARO_RPC_URL"),
       gasPrice: 0,
-      chainId: 13377,
+      chainId: 1337,
       accounts: [configVariable("AGARO_PRIVATE_KEY")],
     },
   },
